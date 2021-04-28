@@ -1,10 +1,10 @@
 <template>
-  <el-tabs v-model="activeName" style="padding-left: 8px;" @tab-click="tabClick">
+  <el-tabs v-model="activeName" style="margin-left:15px;" @tab-click="tabClick">
     <el-tab-pane label="本地存储" name="first">
       <Local ref="local" />
     </el-tab-pane>
-    <el-tab-pane label="七牛云存储" name="second">
-      <QiNiu ref="qiNiu" />
+    <el-tab-pane label="云存储" name="second">
+      <QiNiu ref="cloud" />
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -25,7 +25,7 @@ export default {
       if (this.activeName === 'first') {
         this.$refs.local.crud.toQuery()
       } else {
-        this.$refs.qiNiu.crud.toQuery()
+        this.$refs.cloud.crud.toQuery()
       }
     }
   }

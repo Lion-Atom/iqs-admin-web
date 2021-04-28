@@ -28,6 +28,13 @@
         <el-form-item label="文件名">
           <el-input v-model="form.name" style="width: 370px;" />
         </el-form-item>
+        <!-- 编辑文件 -->
+        <el-form-item v-if="!crud.status.add" label="名称">
+          <el-input v-model="form.realName" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item v-if="!crud.status.add" label="版本号">
+          <el-input v-model="form.version" style="width: 370px;" disabled />
+        </el-form-item>
         <!--   上传文件   -->
         <el-form-item v-if="crud.status.add" label="上传">
           <el-upload
@@ -43,6 +50,23 @@
             <div class="eladmin-upload"><i class="el-icon-upload" /> 添加文件</div>
             <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
           </el-upload>
+        </el-form-item>
+        <el-form-item label="文件等级" prop="fileLevels">
+          <el-select
+            v-model="fileLevelDatas"
+            style="width: 178px"
+            multiple
+            placeholder="请选择"
+            @remove-tag="deleteTag"
+            @change="changeJob"
+          >
+            <el-option
+              v-for="item in fileLevels"
+              :key="item.name"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -93,7 +117,8 @@
       <el-table-column prop="suffix" label="文件类型" />
       <el-table-column prop="type" label="类别" />
       <el-table-column prop="size" label="大小" />
-      <el-table-column prop="operate" label="操作人" />
+      <el-table-column prop="createBy" label="操作人" />
+      <el-table-column prop="version" label="版本号" />
       <el-table-column prop="createTime" label="创建日期" />
     </el-table>
     <!--分页组件-->
