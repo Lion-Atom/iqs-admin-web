@@ -1,14 +1,17 @@
 .head-container {
   padding-bottom: 10px;
+
   .filter-item {
     display: inline-block;
     vertical-align: middle;
     margin: 0 3px 10px 0;
+
     input {
       height: 30.5px;
       line-height: 30.5px;
     }
   }
+
   .el-form-item-label {
     margin: 0 3px 9px 0;
     display: inline-block;
@@ -19,20 +22,34 @@
     line-height: 30.5px;
     padding: 0 7px 0 7px;
   }
-  .el-button+.el-button {
+
+  .el-button + .el-button {
     margin-left: 0 !important;
   }
-  .el-select__caret.el-input__icon.el-icon-arrow-up{
+
+  .el-select__caret.el-input__icon.el-icon-arrow-up {
     line-height: 30.5px;
   }
+
   .date-item {
     display: inline-block;
     vertical-align: middle;
-    margin-bottom: 10px;
+    margin:0 3px 10px 0;
     height: 30.5px !important;
     width: 230px !important;
   }
 }
+
+.newTree-item {
+  vertical-align: middle;
+  margin: 0 3px 10px 0;
+  display: inline-block;
+  width: 160px;
+  font-size: small;
+  height: 30.5px;
+  border-radius: 4px;
+}
+
 .el-avatar {
   display: inline-block;
   text-align: center;
@@ -48,10 +65,11 @@
   border-radius: 16px;
 }
 
-.logo-con{
+.logo-con {
   height: 60px;
   padding: 13px 0 0;
-  img{
+
+  img {
     height: 32px;
     width: 135px;
     display: block;
@@ -87,14 +105,16 @@
   z-index: 99;
   width: 100%;
 }
+
 .eladmin-upload {
   border: 1px dashed #c0ccda;
   border-radius: 5px;
   height: 45px;
   line-height: 45px;
-  width: 368px;
+  width: 400px;
 }
-.my-blockquote{
+
+.my-blockquote {
   margin: 0 0 10px;
   padding: 15px;
   line-height: 22px;
@@ -102,7 +122,8 @@
   border-radius: 0 2px 2px 0;
   background-color: #f2f2f2;
 }
-.my-code{
+
+.my-code {
   position: relative;
   padding: 15px;
   line-height: 20px;
@@ -112,6 +133,6 @@
   font-size: 12px
 }
 
-.el-tabs{
+.el-tabs {
   margin-bottom: 25px;
 }
