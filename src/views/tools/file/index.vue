@@ -34,27 +34,11 @@
               clearable
               size="small"
               placeholder="输入名称、类型、创建者等搜索"
-              style="width: 200px;"
+              style="width: 140px;"
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
             />
             <!-- 文件分类筛选，需要更改为树表筛选 -->
-            <!--            <el-select
-                          v-model="query.fileCategoryId"
-                          clearable
-                          size="small"
-                          placeholder="文件分类"
-                          class="filter-item"
-                          style="width: 90px"
-                          @change="crud.toQuery"
-                        >
-                          <el-option
-                            v-for="item in fileCategoryDatas"
-                            :key="item.id"
-                            :label="item.name"
-                            :value="item.id"
-                          />
-                        </el-select>-->
             <treeselect
               v-model="query.fileCategoryId"
               :options="fileCategories"
@@ -63,6 +47,32 @@
               placeholder="选择文件分类"
               @input="crud.toQuery"
             />
+            <!-- 文件所属部门筛选，需要更改为树表筛选 -->
+            <treeselect
+              v-model="query.deptId"
+              :options="fileDepts"
+              :load-options="loadFileDepts"
+              class="newTree-item"
+              placeholder="选择所属部门"
+              @input="crud.toQuery"
+            />
+            <!-- 文件类型筛选 -->
+            <el-select
+              v-model="query.fileType"
+              clearable
+              size="small"
+              placeholder="文件类型"
+              class="filter-item"
+              style="width: 120px"
+              @change="crud.toQuery"
+            >
+              <el-option
+                v-for="item in dict.file_type"
+                :key="item.id"
+                :label="item.value"
+                :value="item.value"
+              />
+            </el-select>
             <date-range-picker v-model="query.createTime" class="date-item" />
             <el-select
               v-model="query.fileStatus"
@@ -84,7 +94,7 @@
           </div>
           <crudOperation show="" :permission="permission" />
         </div>
-        <!--todo 表单渲染-->
+        <!--表单渲染-->
         <el-dialog
           append-to-body
           :close-on-click-modal="false"
@@ -94,58 +104,95 @@
           width="678px"
         >
           <el-form ref="form" :model="form" size="small" label-width="120px">
-            <el-form-item label="文件名">
+            <el-form-item label="文件名称">
               <el-input v-model="form.name" style="width: 400px;" />
             </el-form-item>
             <!-- 编辑文件 -->
-            <el-form-item v-if="!crud.status.add" label="名称">
+            <el-form-item v-if="!crud.status.add" label="真实名称">
               <el-input v-model="form.realName" style="width: 400px;" />
             </el-form-item>
-            <el-form-item v-if="!crud.status.add" label="版本号">
+            <el-form-item v-if="!crud.status.add" label="文件版本">
               <el-input v-model="form.version" style="width: 400px;" disabled />
             </el-form-item>
-            <el-form-item v-if="!crud.status.add" label="是否改版">
-              <el-radio-group v-model="form.isRevision" :disabled="form.id === user.id">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="文件等级" prop="fileLevel.id" required>
+                  <treeselect
+                    v-model="form.fileLevel.id"
+                    :options="fileLevels"
+                    :load-options="loadLevels"
+                    style="width: 178px"
+                    placeholder="选择文件对应等级"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="文件分类" prop="fileCategory.id" required>
+                  <treeselect
+                    v-model="form.fileCategory.id"
+                    :options="fileCategories"
+                    :load-options="loadCategories"
+                    style="width: 178px"
+                    placeholder="选择文件所属分类"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="所属部门" prop="fileDept.id" required>
+                  <treeselect
+                    v-model="form.fileDept.id"
+                    :options="fileDepts"
+                    :load-options="loadFileDepts"
+                    style="width: 178px"
+                    placeholder="选择文件所属部门"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="文件类型" prop="fileType">
+                  <el-select v-model="form.fileType" clearable placeholder="--none--" style="width: 178px">
+                    <el-option
+                      v-for="item in dict.file_type"
+                      :key="item.id"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="保密等级" required>
+                  <el-radio-group v-model="form.securityLevel" :disabled="form.id === user.id">
+                    <el-radio
+                      v-for="item in dict.file_security"
+                      :key="item.id"
+                      :label="item.value"
+                    >{{ item.label }}
+                    </el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item v-if="!crud.status.add" label="是否改版">
+                  <el-radio-group v-model="form.isRevision" :disabled="form.id === user.id">
+                    <el-radio
+                      v-for="item in dict.common_status"
+                      :key="item.id"
+                      :label="item.value"
+                    >{{ item.label }}
+                    </el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-form-item label="文件状态" required>
+              <el-radio-group v-model="form.fileStatus" :disabled="form.id === user.id">
                 <el-radio
-                  v-for="item in dict.common_status"
-                  :key="item.id"
-                  :label="item.value"
-                >{{ item.label }}
-                </el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="文件等级" prop="fileLevel.id" required>
-              <treeselect
-                v-model="form.fileLevel.id"
-                :options="fileLevels"
-                :load-options="loadLevels"
-                style="width: 178px"
-                placeholder="选择文件对应等级"
-              />
-            </el-form-item>
-            <el-form-item label="文件分类" prop="fileCategory.id" required>
-              <treeselect
-                v-model="form.fileCategory.id"
-                :options="fileCategories"
-                :load-options="loadCategories"
-                style="width: 178px"
-                placeholder="选择文件对应等级"
-              />
-            </el-form-item>
-            <el-form-item label="文件类型" prop="fileType">
-              <el-select v-model="form.fileType" clearable placeholder="--none--" style="width: 178px">
-                <el-option
-                  v-for="item in dict.file_type"
-                  :key="item.id"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="保密等级" required>
-              <el-radio-group v-model="form.securityLevel" :disabled="form.id === user.id">
-                <el-radio
-                  v-for="item in dict.file_security"
+                  v-for="item in dict.file_status"
                   :key="item.id"
                   :label="item.value"
                 >{{ item.label }}
@@ -164,16 +211,6 @@
                 <el-link href="/sys-tools/filedetail" icon="el-icon-edit">编辑</el-link>
               </router-link>
             </el-form-item>
-            <el-form-item label="状态" required>
-              <el-radio-group v-model="form.fileStatus" :disabled="form.id === user.id">
-                <el-radio
-                  v-for="item in dict.file_status"
-                  :key="item.id"
-                  :label="item.value"
-                >{{ item.label }}
-                </el-radio>
-              </el-radio-group>
-            </el-form-item>
             <!--   上传文件   -->
             <el-form-item v-if="crud.status.add" label="上传">
               <el-upload
@@ -185,7 +222,7 @@
                 :on-success="handleSuccess"
                 :on-error="handleError"
                 :action="fileUploadApi + '?name=' + form.name + '&fileLevelId=' + form.fileLevel.id+ '&fileCategoryId=' + form.fileCategory.id
-                  + '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType + '&securityLevel=' + form.securityLevel"
+                  + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType + '&securityLevel=' + form.securityLevel"
               >
                 <div class="eladmin-upload"><i class="el-icon-upload" /> 添加文件</div>
                 <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
@@ -258,6 +295,11 @@
               <div>{{ scope.row.fileCategory.name }}</div>
             </template>
           </el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="fileDept" label="所属部门">
+            <template slot-scope="scope">
+              <div>{{ scope.row.fileDept.name }}</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="fileStatus" label="文件状态" width="100" />
           <el-table-column prop="fileType" label="文件类型" width="100" />
           <!--          <el-table-column prop="createTime" label="创建日期" width="180" />-->
@@ -289,6 +331,7 @@
 import crudFile from '@/api/tools/localStorage'
 import { getFileLevels, getFileLevelSuperior } from '@/api/system/filelevel'
 import { getFileCategories, getFileCategorySuperior } from '@/api/system/filecategory'
+import { getDepts, getDeptSuperior } from '@/api/system/dept'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -310,7 +353,8 @@ const defaultForm = {
   securityLevel: 'internal',
   isRevision: 'false',
   fileLevel: { id: null },
-  fileCategory: { id: null }
+  fileCategory: { id: null },
+  fileDept: { id: null }
 }
 export default {
   name: 'File',
@@ -330,6 +374,7 @@ export default {
       fileCategoryName: '',
       fileCategory: { id: null },
       fileLevels: [],
+      fileDepts: [],
       fileCategories: [],
       fileLevelDatas: [],
       fileCategoryDatas: [],
@@ -366,6 +411,7 @@ export default {
     }
     this.getFileCategoryDatas()
     this.getFileCategories()
+    this.getFileDepts()
   },
   methods: {
     // 获取左侧文件级别数据
@@ -415,9 +461,11 @@ export default {
       if (form.id == null) {
         this.getFileLevels()
         this.getFileCategories()
+        this.getFileDepts()
       } else {
         this.getSupFileLevels(form.fileLevel.id)
         this.getSupFileCategories(form.fileCategory.id)
+        this.getSupFileDepts(form.fileDept.id)
       }
       // this.getRoleLevel()
       // this.getJobs()
@@ -487,6 +535,17 @@ export default {
         })
       })
     },
+    // 填充文件所属部门数据
+    getFileDepts() {
+      getDepts({ enabled: true }).then(res => {
+        this.fileDepts = res.content.map(function(obj) {
+          if (obj.hasChildren) {
+            obj.children = null
+          }
+          return obj
+        })
+      })
+    },
     getSupFileLevels(levelId) {
       getFileLevelSuperior(levelId).then(res => {
         const data = res.content
@@ -521,6 +580,23 @@ export default {
         }
       })
     },
+    getSupFileDepts(deptId) {
+      getDeptSuperior(deptId).then(res => {
+        const data = res.content
+        this.buildDepts(data)
+        this.fileDepts = data
+      })
+    },
+    buildDepts(data) {
+      data.forEach(data => {
+        if (data.children) {
+          this.buildDepts(data.children)
+        }
+        if (data.hasChildren && !data.children) {
+          data.children = null
+        }
+      })
+    },
     // 获取弹窗内文件等级数据
     loadLevels({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
@@ -541,6 +617,22 @@ export default {
     loadCategories({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getFileCategories({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content.map(function(obj) {
+            if (obj.hasChildren) {
+              obj.children = null
+            }
+            return obj
+          })
+          setTimeout(() => {
+            callback()
+          }, 200)
+        })
+      }
+    },
+    // 获取弹窗内文件所属部门数据
+    loadFileDepts({ action, parentNode, callback }) {
+      if (action === LOAD_CHILDREN_OPTIONS) {
+        getDepts({ enabled: true, pid: parentNode.id }).then(res => {
           parentNode.children = res.content.map(function(obj) {
             if (obj.hasChildren) {
               obj.children = null
@@ -589,6 +681,7 @@ export default {
     },
     // 某些列禁止改动
     checkboxT(row, rowIndex) {
+      // todo 当前的user(除管理员外)与文件创建部门（大含小）不符合，只能看不能修改
       return row.fileLevel.levelSort !== 1
     }
   }
@@ -601,7 +694,8 @@ export default {
   line-height: 29px;
   font-size: small;
 }
-.vue-treeselect__input{
+
+.vue-treeselect__input {
 
 }
 </style>

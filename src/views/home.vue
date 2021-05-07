@@ -11,7 +11,8 @@
       <el-row :gutter="32">
         <el-col :xs="24" :sm="24" :lg="8">
           <div class="chart-wrapper">
-            <radar-chart />
+            <!--            <radar-chart />-->
+            <doughnut-chart />
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="8">
@@ -33,9 +34,10 @@
 import GithubCorner from '@/components/GithubCorner'
 import PanelGroup from './dashboard/PanelGroup'
 import LineChart from './dashboard/LineChart'
-import RadarChart from '@/components/Echarts/RadarChart'
+// import RadarChart from '@/components/Echarts/RadarChart'
 import PieChart from '@/components/Echarts/PieChart'
 import BarChart from '@/components/Echarts/BarChart'
+import DoughnutChart from '@/components/Echarts/DoughnutChart'
 
 const lineChartData = {
   newVisitis: {
@@ -62,7 +64,8 @@ export default {
     GithubCorner,
     PanelGroup,
     LineChart,
-    RadarChart,
+    // RadarChart,
+    DoughnutChart,
     PieChart,
     BarChart
   },
