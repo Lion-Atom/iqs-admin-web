@@ -15,7 +15,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="Title 名称">
-            <el-input v-model="form.name" style="width: 370px;" />
+            <el-input v-model="form.name" style="width: 370px;"/>
           </el-form-item>
           <el-form-item label="Document Category 文件分类" prop="fileCategory.id" required>
             <treeselect
@@ -25,6 +25,23 @@
               style="width: 178px"
               placeholder="选择文件对应分类"
             />
+          </el-form-item>
+          <el-form-item label="关联文件" prop="bindFiles">
+            <el-select
+              v-model="bindFileDatas"
+              style="width: 400px"
+              multiple
+              placeholder="请选择"
+              @remove-tag="deleteTag"
+              @change="changeBindFile"
+            >
+              <el-option
+                v-for="item in bindFiles"
+                :key="item.name"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
           </el-form-item>
         </el-collapse-item>
         <el-collapse-item title="Organization 所属组织" name="2">

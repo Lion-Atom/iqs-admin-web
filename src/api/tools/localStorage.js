@@ -1,5 +1,40 @@
 import request from '@/utils/request'
 
+export function getAllFiles() {
+  const params = {
+    page: 0,
+    size: 9999,
+    enabled: true
+  }
+  return request({
+    url: 'api/localStorage',
+    method: 'get',
+    params
+  })
+}
+
+export function getOtherFiles(id) {
+  const params = {
+    page: 0,
+    size: 9999,
+    id: id,
+    enabled: true
+  }
+  return request({
+    url: 'api/localStorage',
+    method: 'get',
+    params
+  })
+}
+
+export function getFilesByIds(data) {
+  return request({
+    url: 'api/localStorage/byIds',
+    method: 'post',
+    data
+  })
+}
+
 export function add(data) {
   return request({
     url: 'api/localStorage',

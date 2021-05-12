@@ -126,6 +126,18 @@
                   />
                 </el-form-item>
               </el-col>
+              <el-col v-if="form.fileLevel.id===24" :span="12">
+                <el-form-item label="过期时间" prop="form.expirationTime">
+                  <el-date-picker
+                    v-model="form.expirationTime"
+                    type="datetime"
+                    :placeholder="new Date().toLocaleString()"
+                    format="yyyy-MM-dd HH:mm"
+                    style="width: 178px"
+                    :picker-options="pickerOptions"
+                  />
+                </el-form-item>
+              </el-col>
               <el-col :span="12">
                 <el-form-item label="文件分类" prop="fileCategory.id" required>
                   <treeselect
@@ -158,7 +170,10 @@
                       :key="item.id"
                       :label="item.label"
                       :value="item.value"
-                    />
+                    >
+                      <span style="float: left">{{ item.label }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+                    </el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -189,7 +204,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-form-item label="文件状态" required>
+            <el-form-item v-if="!crud.status.add" label="文件状态" required>
               <el-radio-group v-model="form.fileStatus" :disabled="form.id === user.id">
                 <el-radio
                   v-for="item in dict.file_status"
@@ -222,11 +237,56 @@
                 :on-success="handleSuccess"
                 :on-error="handleError"
                 :action="fileUploadApi + '?name=' + form.name + '&fileLevelId=' + form.fileLevel.id+ '&fileCategoryId=' + form.fileCategory.id
-                  + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType + '&securityLevel=' + form.securityLevel"
+                  + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType
+                  + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime"
               >
-                <div class="eladmin-upload"><i class="el-icon-upload" /> 添加文件</div>
+                <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
                 <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
               </el-upload>
+            </el-form-item>
+            <!-- 关联文件 -->
+            <el-form-item v-if="!crud.status.add" label="关联文件" prop="bindFiles">
+              <el-select
+                v-model="bindFileDatas"
+                style="width: 400px"
+                multiple
+                placeholder="请选择"
+                @remove-tag="deleteTag"
+                @change="changeBindFile"
+              >
+                <el-option
+                  v-for="item in bindFiles"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item v-if="!crud.status.add" label="关联文件列表" prop="bindFiles">
+              <!--              <ol style="padding-inline-start: 15px;margin-block-start: 0;">
+                              <li v-for="item in bindFileItems" style="text-decoration: underline;">
+                                <router-link
+                                  :to="{path: '/sys-tools/filedetail',
+                                        query: {
+                                          fileId: item.id ,
+                                          realName:item.realName
+                                        }
+                                  }"
+                                >{{ item.name }}
+                                </router-link>
+                              </li>
+                            </ol>-->
+              <div v-for="item in bindFileItems" style="text-decoration: underline;">
+                <router-link
+                  :to="{path: '/sys-tools/filedetail',
+                        query: {
+                          fileId: item.id ,
+                          realName:item.realName
+                        }
+                  }"
+                >{{ item.name }}
+                </router-link>
+              </div>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -343,7 +403,9 @@ import { mapGetters } from 'vuex'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getToken } from '@/utils/auth'
+import { getAllFiles, getOtherFiles, getFilesByIds } from '@/api/tools/localStorage'
 
+let bindingFiles = []
 const defaultForm = {
   id: null,
   name: '',
@@ -353,8 +415,10 @@ const defaultForm = {
   securityLevel: 'internal',
   isRevision: 'false',
   fileLevel: { id: null },
+  expirationTime: null,
   fileCategory: { id: null },
-  fileDept: { id: null }
+  fileDept: { id: null },
+  bindFiles: []
 }
 export default {
   name: 'File',
@@ -379,6 +443,48 @@ export default {
       fileLevelDatas: [],
       fileCategoryDatas: [],
       fileTypes: [],
+      bindFileDatas: [], // 关联文件列表
+      bindFiles: [],
+      bindFileItems: [],
+      fileId: null,
+      pickerOptions: {
+        shortcuts: [{
+          text: '一天',
+          onClick(picker) {
+            const date = new Date()
+            date.setTime(date.getTime() + 3600 * 1000 * 24)
+            picker.$emit('pick', new Date())
+          }
+        }, {
+          text: '三天',
+          onClick(picker) {
+            const date = new Date()
+            date.setTime(date.getTime() + 3600 * 1000 * 24 * 3)
+            picker.$emit('pick', date)
+          }
+        }, {
+          text: '一周',
+          onClick(picker) {
+            const date = new Date()
+            date.setTime(date.getTime() + 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', date)
+          }
+        }, {
+          text: '两周',
+          onClick(picker) {
+            const date = new Date()
+            date.setTime(date.getTime() + 3600 * 1000 * 24 * 14)
+            picker.$emit('pick', date)
+          }
+        }, {
+          text: '三十天',
+          onClick(picker) {
+            const date = new Date()
+            date.setTime(date.getTime() + 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', date)
+          }
+        }]
+      },
       defaultProps: { children: 'children', label: 'name', isLeaf: 'leaf' },
       headers: { 'Authorization': getToken() },
       permission: {
@@ -456,30 +562,96 @@ export default {
         })
       }, 100)
     },
+    changeBindFile(value) {
+      // alert(JSON.stringify(value))
+      bindingFiles = []
+      const _this = this
+      value.forEach(function(data, index) {
+        const file = { storageId: _this.fileId, bindingStorageId: data }
+        bindingFiles.push(file)
+      })
+      this.getFilesByIds(value)
+      // alert('编辑添加的内容：' + JSON.stringify(bindingFiles))
+    },
+    deleteTag(value) {
+      bindingFiles.forEach(function(data, index) {
+        if (data.id === value) {
+          bindingFiles.splice(index, value)
+        }
+      })
+      if (bindingFiles.length === 0) {
+        this.bindFileItems = []
+      } else {
+        // 重新抓取绑定文件
+        const data = []
+        for (const i in bindingFiles) {
+          data.push(bindingFiles[i].bindingStorageId)
+        }
+        // alert(JSON.stringify(data))
+        this.getFilesByIds(data)
+      }
+      // alert(JSON.stringify(bindingFiles))
+    },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
       if (form.id == null) {
         this.getFileLevels()
         this.getFileCategories()
         this.getFileDepts()
+        this.getAllFiles()
       } else {
         this.getSupFileLevels(form.fileLevel.id)
         this.getSupFileCategories(form.fileCategory.id)
         this.getSupFileDepts(form.fileDept.id)
+        this.getOtherFiles(form.id)
+        this.fileId = form.id
       }
       // this.getRoleLevel()
-      // this.getJobs()
       form.isRevision = form.isRevision.toString()
     },
-    // 初始化编辑时候的待补充内容
+    // 新增前将多选的值设置为空
+    [CRUD.HOOK.beforeToAdd]() {
+      this.bindFileDatas = []
+    },
+    // 初始化编辑时候的关联文件
     [CRUD.HOOK.beforeToEdit](crud, form) {
-
+      this.getOtherFiles(this.form.id)
+      this.bindFileDatas = []
+      bindingFiles = []
+      const _this = this
+      form.bindFiles.forEach(function(file, index) {
+        _this.bindFileDatas.push(file.bindingStorageId)
+        const fl = { storageId: _this.fileId, bindingStorageId: file.id }
+        bindingFiles.push(fl)
+      })
+      if (_this.bindFileDatas.length > 0) {
+        this.getFilesByIds(_this.bindFileDatas)
+      }
+      // alert('初始化编辑的内容：' + JSON.stringify(form.bindFiles))
+    },
+    // 提交前做的操作
+    [CRUD.HOOK.afterValidateCU](crud) {
+      /* if (!crud.form.dept.id) {
+        this.$message({
+          message: '部门不能为空',
+          type: 'warning'
+        })
+        return false
+      } else if (this.jobDatas.length === 0) {
+        this.$message({
+          message: '岗位不能为空',
+          type: 'warning'
+        })
+        return false
+      } */
+      crud.form.bindFiles = bindingFiles
+      return true
     },
     // 上传文件
     upload() {
       this.$refs.upload.submit()
     },
-    beforeUpload(file) {
+    beforeUpload: function(file) {
       if (!this.form.fileLevel.id) {
         this.$message({
           message: '文件等级必须设置',
@@ -512,6 +684,13 @@ export default {
         duration: 2500
       })
       this.loading = false
+    },
+    // 获取弹窗内可绑定的文件数据
+    getAllFiles() {
+      getAllFiles().then(res => {
+        this.bindFiles = res.content
+      }).catch(() => {
+      })
     },
     // 填充文件等级数据
     getFileLevels() {
@@ -596,6 +775,21 @@ export default {
           data.children = null
         }
       })
+    },
+
+    getOtherFiles(fileId) {
+      getOtherFiles(fileId).then(res => {
+        const data = res.content
+        this.bindFiles = data
+      })
+    },
+    getFilesByIds(ids) {
+      getFilesByIds(ids).then(res => {
+        this.bindFileItems = res
+      })
+    },
+    clickBindFile(id) {
+      alert(id)
     },
     // 获取弹窗内文件等级数据
     loadLevels({ action, parentNode, callback }) {
