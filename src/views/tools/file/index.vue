@@ -263,30 +263,19 @@
               </el-select>
             </el-form-item>
             <el-form-item v-if="!crud.status.add" label="关联文件列表" prop="bindFiles">
-              <!--              <ol style="padding-inline-start: 15px;margin-block-start: 0;">
-                              <li v-for="item in bindFileItems" style="text-decoration: underline;">
-                                <router-link
-                                  :to="{path: '/sys-tools/filedetail',
-                                        query: {
-                                          fileId: item.id ,
-                                          realName:item.realName
-                                        }
-                                  }"
-                                >{{ item.name }}
-                                </router-link>
-                              </li>
-                            </ol>-->
-              <div v-for="item in bindFileItems" style="text-decoration: underline;">
-                <router-link
-                  :to="{path: '/sys-tools/filedetail',
-                        query: {
-                          fileId: item.id ,
-                          realName:item.realName
-                        }
-                  }"
-                >{{ item.name }}
-                </router-link>
-              </div>
+              <ol style="padding-inline-start: 15px;margin-block-start: 0;">
+                <li v-for="item in bindFileItems" style="text-decoration: underline;">
+                  <router-link
+                    :to="{path: '/sys-tools/filedetail',
+                          query: {
+                            fileId: item.id ,
+                            realName:item.realName
+                          }
+                    }"
+                  >{{ item.name }}
+                  </router-link>
+                </li>
+              </ol>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
