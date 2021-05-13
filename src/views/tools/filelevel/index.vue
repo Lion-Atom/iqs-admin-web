@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import crudFileLevel from '@/api/system/filelevel'
+import crudFileLevel from '@/api/tools/filelevel'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'

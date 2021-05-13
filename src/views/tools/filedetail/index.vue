@@ -190,23 +190,25 @@ export default {
       'fileUploadApi'
     ])
   },
-  created() {
-    this.getAllFiles()
-  },
-  mounted: function() {
+  created: function() {
     if (this.$route.query.fileId !== undefined) {
+      // alert(JSON.stringify(this.$route.query.fileId))
       this.id = this.$route.query.fileId
       this.realName = this.$route.query.realName
       this.file = this.$route.query.fileId
       this.getFileById(this.file)
     }
+    this.getAllFiles()
   },
+  /*  mounted() {
+      this.getAllFiles()
+    },*/
   methods: {
     getAllFiles() {
       getAllFiles({ enabled: true }).then(res => {
-        // console.log(JSON.stringify(res.content[0].id))
+        // alert(JSON.stringify(this.file))
         const data = res.content
-        if (data.length > 0) {
+        if (data.length > 0 && this.file === null) {
           this.file = data[0].id
           this.getFileById(this.file)
           this.realName = data[0].realName
@@ -224,6 +226,7 @@ export default {
         // console.log('单个文件明细：' + JSON.stringify(res))
         this.form = res
         // 设置部分显示内容
+        this.realName = this.form.realName
         this.form.fileLevel.name += '-' + this.form.fileLevel.description
         this.form.createBy = ' created by ' + this.form.createBy + ' on ' + this.form.createTime
         this.form.updateBy = ' last updated by' + this.form.updateBy + ' on ' + this.form.updateTime

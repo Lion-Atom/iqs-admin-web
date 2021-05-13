@@ -392,8 +392,8 @@
 
 <script>
 import crudFile from '@/api/tools/localStorage'
-import { getFileLevels, getFileLevelSuperior } from '@/api/system/filelevel'
-import { getFileCategories, getFileCategorySuperior } from '@/api/system/filecategory'
+import { getFileLevels, getFileLevelSuperior } from '@/api/tools/filelevel'
+import { getFileCategories, getFileCategorySuperior } from '@/api/tools/filecategory'
 import { getDepts, getDeptSuperior } from '@/api/system/dept'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -418,7 +418,7 @@ const defaultForm = {
   securityLevel: 'internal',
   isRevision: 'false',
   fileLevel: { id: null },
-  expirationTime: null,
+  expirationTime: '9999-12-31 00:00:00.152',
   fileCategory: { id: null },
   fileDept: { id: null },
   bindFiles: []
