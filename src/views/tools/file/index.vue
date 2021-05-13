@@ -73,7 +73,7 @@
                 :value="item.value"
               />
             </el-select>
-            <date-range-picker v-model="query.createTime" class="date-item" />
+            <date-range-picker v-model="query.createTime" class="date-item"/>
             <el-select
               v-model="query.fileStatus"
               clearable
@@ -90,9 +90,9 @@
                 :value="item.value"
               />
             </el-select>
-            <rrOperation />
+            <rrOperation/>
           </div>
-          <crudOperation show="" :permission="permission" />
+          <crudOperation show="" :permission="permission"/>
         </div>
         <!--表单渲染-->
         <el-dialog
@@ -105,14 +105,14 @@
         >
           <el-form ref="form" :model="form" size="small" label-width="120px">
             <el-form-item label="文件名称">
-              <el-input v-model="form.name" style="width: 400px;" />
+              <el-input v-model="form.name" style="width: 400px;"/>
             </el-form-item>
             <!-- 编辑文件 -->
-            <el-form-item v-if="!crud.status.add" label="真实名称">
-              <el-input v-model="form.realName" style="width: 400px;" />
-            </el-form-item>
+            <!--            <el-form-item v-if="!crud.status.add" label="真实名称">
+                          <el-input v-model="form.realName" style="width: 400px;" />
+                        </el-form-item>-->
             <el-form-item v-if="!crud.status.add" label="文件版本">
-              <el-input v-model="form.version" style="width: 400px;" disabled />
+              <el-input v-model="form.version" style="width: 400px;" disabled/>
             </el-form-item>
             <el-row>
               <el-col :span="12">
@@ -276,7 +276,7 @@
                                 </router-link>
                               </li>
                             </ol>-->
-              <div v-for="(item,index) in bindFileItems" style="margin-left: 10px;">
+              <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 10px;">
                 <el-button type="text">
                   <router-link
                     :to="{path: '/sys-tools/filedetail',
@@ -306,7 +306,7 @@
           style="width: 100%;"
           @selection-change="crud.selectionChangeHandler"
         >
-          <el-table-column :selectable="checkboxT" type="selection" width="55" />
+          <el-table-column :selectable="checkboxT" type="selection" width="55"/>
           <el-table-column prop="name" label="文件名">
             <template slot-scope="scope">
               <el-popover
@@ -338,16 +338,16 @@
                 class="el-avatar"
               >
                 <div slot="error">
-                  <i class="el-icon-document" />
+                  <i class="el-icon-document"/>
                 </div>
               </el-image>
             </template>
           </el-table-column>
-          <el-table-column prop="suffix" label="文件类型" />
-          <el-table-column prop="type" label="类别" />
-          <el-table-column prop="size" label="大小" />
-          <el-table-column prop="createBy" label="创建者" />
-          <el-table-column prop="version" label="版本号" />
+          <el-table-column prop="suffix" label="文件类型"/>
+          <el-table-column prop="type" label="类别"/>
+          <el-table-column prop="size" label="大小"/>
+          <el-table-column prop="createBy" label="创建者"/>
+          <el-table-column prop="version" label="版本号"/>
           <el-table-column :show-overflow-tooltip="true" prop="fileLevel" label="文件等级">
             <template slot-scope="scope">
               <div>{{ scope.row.fileLevel.name }}</div>
@@ -363,10 +363,10 @@
               <div>{{ scope.row.fileDept.name }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="fileStatus" label="文件状态" width="100" />
-          <el-table-column prop="fileType" label="文件类型" width="100" />
+          <el-table-column prop="fileStatus" label="文件状态" width="100"/>
+          <el-table-column prop="fileType" label="文件类型" width="100"/>
           <!--          <el-table-column prop="createTime" label="创建日期" width="180" />-->
-          <el-table-column prop="updateTime" label="最近修改" width="180" />
+          <el-table-column prop="updateTime" label="最近修改" width="180"/>
           <el-table-column
             v-if="checkPer(['admin','storage:edit','storage:del'])"
             label="操作"
@@ -384,7 +384,7 @@
           </el-table-column>
         </el-table>
         <!--分页组件-->
-        <pagination />
+        <pagination/>
       </el-col>
     </el-row>
   </div>
@@ -427,7 +427,7 @@ export default {
   name: 'File',
   components: { Treeselect, crudOperation, rrOperation, udOperation, pagination, DateRangePicker },
   cruds() {
-    return CRUD({ title: '文件', url: 'api/localStorage', crudMethod: { ...crudFile }})
+    return CRUD({ title: '文件', url: 'api/localStorage', crudMethod: { ...crudFile } })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   // 数据字典
@@ -630,7 +630,7 @@ export default {
       if (_this.bindFileDatas.length > 0) {
         this.getFilesByIds(_this.bindFileDatas)
       }
-      // alert('初始化编辑的内容：' + JSON.stringify(form.bindFiles))
+      // alert('初始化编辑的内容：' + JSON.stringify(_this.bindFileDatas))
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
@@ -788,6 +788,7 @@ export default {
     },
     getFilesByIds(ids) {
       getFilesByIds(ids).then(res => {
+        console.log('绑定的数据集合:' + res)
         this.bindFileItems = res
       })
     },

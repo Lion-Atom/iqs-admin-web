@@ -103,10 +103,73 @@
           </el-row>
         </el-collapse-item>
         <!--文件历史记录-->
-        <el-collapse-item title="Process 所属过程" name="4" class="collapse-item">
-          <div>简化流程：设计简洁直观的操作流程；</div>
-          <div>清晰明确：语言表达清晰且表意明确，让用户快速理解进而作出决策；</div>
-          <div>帮助用户识别：界面简单直白，让用户快速识别而非回忆，减少用户记忆负担。</div>
+        <el-collapse-item title="OperationLog 操作日志" name="4" class="collapse-item">
+          <el-row>
+            <el-col>
+              <div class="app-container">
+                <div class="head-container">
+                  <div v-if="crud.props.searchToggle">
+                    <el-input
+                      v-model="query.blurry"
+                      id="addRealName"
+                      clearable
+                      size="small"
+                      placeholder="请输入你要搜索的内容"
+                      style="display: none;"
+                      class="filter-item"
+                    />
+                    <date-range-picker v-model="query.createTime" class="date-item"/>
+                    <rrOperation/>
+                  </div>
+                  <crudOperation>
+                    <el-button
+                      slot="left"
+                      class="filter-item"
+                      type="danger"
+                      icon="el-icon-delete"
+                      size="mini"
+                      :loading="crud.delAllLoading"
+                      @click="confirmDelAll()"
+                    >
+                      清空
+                    </el-button>
+                  </crudOperation>
+                </div>
+                <!--表格渲染-->
+                <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
+                          @selection-change="crud.selectionChangeHandler"
+                >
+                  <el-table-column type="expand">
+                    <template slot-scope="props">
+                      <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="请求方法">
+                          <span>{{ props.row.method }}</span>
+                        </el-form-item>
+                        <el-form-item label="请求参数">
+                          <span>{{ props.row.params }}</span>
+                        </el-form-item>
+                      </el-form>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="username" label="用户名"/>
+                  <el-table-column prop="requestIp" label="IP"/>
+                  <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源"/>
+                  <el-table-column prop="description" label="描述" width="200px"/>
+                  <el-table-column prop="browser" label="浏览器"/>
+                  <el-table-column prop="time" label="请求耗时" align="center">
+                    <template slot-scope="scope">
+                      <el-tag v-if="scope.row.time <= 300">{{ scope.row.time }}ms</el-tag>
+                      <el-tag v-else-if="scope.row.time <= 1000" type="warning">{{ scope.row.time }}ms</el-tag>
+                      <el-tag v-else type="danger">{{ scope.row.time }}ms</el-tag>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="createTime" label="创建日期" width="180px"/>
+                </el-table>
+                <!--分页组件-->
+                <pagination/>
+              </div>
+            </el-col>
+          </el-row>
         </el-collapse-item>
       </el-form>
     </el-collapse>
@@ -115,11 +178,16 @@
 
 <script>
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
-import crudFile from '@/api/tools/localStorage'
 import { getAllFiles, getFilesByIds, getFileById } from '@/api/tools/localStorage'
+import { delInfoByCond } from '@/api/monitor/log'
+import CRUD, { presenter } from '@crud/crud'
+import { header } from '@crud/crud'
+import rrOperation from '@crud/RR.operation'
+import DateRangePicker from '@/components/DateRangePicker'
+import crudOperation from '@crud/CRUD.operation'
+import pagination from '@crud/Pagination'
 
 const defaultForm = {
   id: null,
@@ -134,9 +202,11 @@ const defaultForm = {
 }
 export default {
   name: 'FileDetail',
+  components: { crudOperation, pagination, rrOperation, DateRangePicker },
   cruds() {
-    return CRUD({ title: '文件', url: 'api/localStorage', crudMethod: { ...crudFile } })
+    return CRUD({ title: '日志', url: 'api/logs' })
   },
+  mixins: [presenter(), header()],
   // 设置数据字典
   dicts: ['file_status', 'common_status'],
   data() {
@@ -180,7 +250,10 @@ export default {
           name: ''
         }
       },
-      bindFileItems: []
+      bindFileItems: [],
+      cond: {
+        blurry: null
+      }
     }
   },
   computed: {
@@ -199,6 +272,12 @@ export default {
       this.getFileById(this.file)
     }
     this.getAllFiles()
+    this.crud.optShow = {
+      add: false,
+      edit: false,
+      del: false,
+      download: true
+    }
   },
   /*  mounted() {
       this.getAllFiles()
@@ -212,6 +291,8 @@ export default {
           this.file = data[0].id
           this.getFileById(this.file)
           this.realName = data[0].realName
+          this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
+          this.crud.toQuery(this.query.blurry)
         }
         this.files = data.map(function(obj) {
           if (obj.hasChildren) {
@@ -227,6 +308,9 @@ export default {
         this.form = res
         // 设置部分显示内容
         this.realName = this.form.realName
+        this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
+        this.crud.toQuery(this.query.blurry)
+        // alert(JSON.stringify(this.query.blurry))
         this.form.fileLevel.name += '-' + this.form.fileLevel.description
         this.form.createBy = ' created by ' + this.form.createBy + ' on ' + this.form.createTime
         this.form.updateBy = ' last updated by' + this.form.updateBy + ' on ' + this.form.updateTime
@@ -261,8 +345,28 @@ export default {
     },
     handleChange(val) {
       console.log(val)
+    },
+    // 删除当前文件相关的日志
+    confirmDelAll() {
+      this.$confirm(`确认清空当前文件的操作日志吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.crud.delAllLoading = true
+        this.cond.blurry = this.query.blurry
+        delInfoByCond(this.cond).then(res => {
+          this.crud.delAllLoading = false
+          this.crud.dleChangePage(1)
+          this.crud.delSuccessNotify()
+          this.crud.toQuery()
+        }).catch(err => {
+          this.crud.delAllLoading = false
+          console.log(err.response.data.message)
+        })
+      }).catch(() => {
+      })
     }
-    // 获取弹窗内文件分类数据
   }
 }
 </script>

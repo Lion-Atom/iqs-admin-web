@@ -20,3 +20,11 @@ export function delAllInfo() {
     method: 'delete'
   })
 }
+
+export function delInfoByCond(data) {
+  return request({
+    url: 'api/logs/del/info/byCond',
+    method: 'post',
+    data
+  })
+}
