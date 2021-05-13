@@ -223,7 +223,7 @@
                       }
                 }"
               >
-                <el-link href="/sys-tools/filedetail" icon="el-icon-edit">编辑</el-link>
+                <el-link href="/sys-tools/filedetail" icon="el-icon-view">查看</el-link>
               </router-link>
             </el-form-item>
             <!--   上传文件   -->
@@ -263,8 +263,21 @@
               </el-select>
             </el-form-item>
             <el-form-item v-if="!crud.status.add" label="关联文件列表" prop="bindFiles">
-              <ol style="padding-inline-start: 15px;margin-block-start: 0;">
-                <li v-for="item in bindFileItems" style="text-decoration: underline;">
+              <!--              <ol style="padding-inline-start: 15px;margin-block-start: 0;">
+                              <li v-for="item in bindFileItems" style="text-decoration: underline;">
+                                <router-link
+                                  :to="{path: '/sys-tools/filedetail',
+                                        query: {
+                                          fileId: item.id ,
+                                          realName:item.realName
+                                        }
+                                  }"
+                                >{{ item.name }}
+                                </router-link>
+                              </li>
+                            </ol>-->
+              <div v-for="(item,index) in bindFileItems" style="margin-left: 10px;">
+                <el-button type="text">
                   <router-link
                     :to="{path: '/sys-tools/filedetail',
                           query: {
@@ -272,10 +285,11 @@
                             realName:item.realName
                           }
                     }"
-                  >{{ item.name }}
+                  >
+                    {{ '[' + (index + 1) + '] ' + item.name + ',' + item.version }}
                   </router-link>
-                </li>
-              </ol>
+                </el-button>
+              </div>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

@@ -13,6 +13,17 @@ export function getAllFiles() {
   })
 }
 
+export function getFileById(id) {
+  const params = {
+    fileId: id
+  }
+  return request({
+    url: 'api/localStorage/byId',
+    method: 'get',
+    params
+  })
+}
+
 export function getOtherFiles(id) {
   const params = {
     page: 0,
