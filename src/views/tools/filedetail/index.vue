@@ -137,8 +137,12 @@
                   </crudOperation>
                 </div>
                 <!--表格渲染-->
-                <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
-                          @selection-change="crud.selectionChangeHandler"
+                <el-table
+                  ref="table"
+                  v-loading="crud.loading"
+                  :data="crud.data"
+                  style="width: 100%;"
+                  @selection-change="crud.selectionChangeHandler"
                 >
                   <el-table-column type="expand">
                     <template slot-scope="props">
@@ -190,17 +194,6 @@ import DateRangePicker from '@/components/DateRangePicker'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 
-const defaultForm = {
-  id: null,
-  name: null,
-  isRevision: 'false',
-  pid: null,
-  description: '无',
-  cateSort: 999,
-  fileLevel: { id: null },
-  fileCategory: { id: null },
-  enabled: 'true'
-}
 export default {
   name: 'FileDetail',
   components: { crudOperation, pagination, rrOperation, DateRangePicker },
@@ -334,7 +327,7 @@ export default {
         this.bindFileItems = res
       })
     },
-    //改查询为编辑
+    // 改查询为编辑
     changeToEdit() {
       this.$refs.edit.style.color = 'rgb(24, 144, 255)'
       this.$refs.view.style.color = 'rgb(0,0,0)'
