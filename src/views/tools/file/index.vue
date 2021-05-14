@@ -262,21 +262,8 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item v-if="!crud.status.add" label="关联文件列表" prop="bindFiles">
-              <!--              <ol style="padding-inline-start: 15px;margin-block-start: 0;">
-                              <li v-for="item in bindFileItems" style="text-decoration: underline;">
-                                <router-link
-                                  :to="{path: '/sys-tools/filedetail',
-                                        query: {
-                                          fileId: item.id ,
-                                          realName:item.realName
-                                        }
-                                  }"
-                                >{{ item.name }}
-                                </router-link>
-                              </li>
-                            </ol>-->
-              <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 10px;">
+            <el-form-item v-if="bindFileDatas.length>0" label="关联文件列表" prop="bindFiles">
+              <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 5px;">
                 <el-button type="text">
                   <router-link
                     :to="{path: '/sys-tools/filedetail',
@@ -305,6 +292,8 @@
           :data="crud.data"
           style="width: 100%;"
           @selection-change="crud.selectionChangeHandler"
+          @row-dblclick="dbSelected"
+          @row-click="stepsListRowClick"
         >
           <el-table-column :selectable="checkboxT" type="selection" width="55"/>
           <el-table-column prop="name" label="文件名">
@@ -624,13 +613,15 @@ export default {
       const _this = this
       form.bindFiles.forEach(function(file, index) {
         _this.bindFileDatas.push(file.bindingStorageId)
-        const fl = { storageId: _this.fileId, bindingStorageId: file.id }
+        const fl = { storageId: _this.fileId, bindingStorageId: file.bindingStorageId }
         bindingFiles.push(fl)
       })
+      // alert("提交的绑定数据："+JSON.stringify(_this.bindFileDatas))
       if (_this.bindFileDatas.length > 0) {
         this.getFilesByIds(_this.bindFileDatas)
       }
-      // alert('初始化编辑的内容：' + JSON.stringify(_this.bindFileDatas))
+      // console.log('绑定项的值来源：' + JSON.stringify(form.bindFiles))
+      //console.log('初始化编辑的内容：' + JSON.stringify(_this.bindFileDatas))
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
@@ -647,6 +638,7 @@ export default {
         })
         return false
       } */
+      // console.log("提交的绑定数据："+JSON.stringify(bindingFiles))
       crud.form.bindFiles = bindingFiles
       return true
     },
@@ -784,16 +776,15 @@ export default {
       getOtherFiles(fileId).then(res => {
         const data = res.content
         this.bindFiles = data
+        // alert(JSON.stringify(this.bindFiles.length))
       })
     },
     getFilesByIds(ids) {
+      this.bindFileItems = []
       getFilesByIds(ids).then(res => {
-        console.log('绑定的数据集合:' + res)
+        // console.log('绑定的数据集合:' + JSON.stringify(res))
         this.bindFileItems = res
       })
-    },
-    clickBindFile(id) {
-      alert(id)
     },
     // 获取弹窗内文件等级数据
     loadLevels({ action, parentNode, callback }) {
@@ -881,6 +872,24 @@ export default {
     checkboxT(row, rowIndex) {
       // todo 当前的user(除管理员外)与文件创建部门（大含小）不符合，只能看不能修改
       return row.fileLevel.levelSort !== 1
+    },
+    //单击时候选中某列
+    stepsListRowClick(row) {
+      // console.log(JSON.stringify(row))
+      this.$refs.table.toggleRowSelection(row)
+    },
+    //双击选中的行列
+    dbSelected(row) {
+      // console.log(JSON.stringify(row))
+      this.checkboxT(row)
+      this.$router.push(
+        {
+          path: '/sys-tools/filedetail',
+          query: {
+            fileId: row.id,
+            realName: row.realName
+          }
+        })
     }
   }
 }

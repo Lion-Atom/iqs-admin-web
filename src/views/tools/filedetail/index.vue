@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
-    <h2><i class="el-icon-document"/>{{ realName }}</h2>
+    <h2><i ref="view" class="el-icon-view" style="color:rgb(24, 144, 255);"/>{{ realName }}&nbsp;
+      <i ref="edit" class="el-icon-s-release" @click="changeToEdit"/></h2>
     <el-select
       v-model="file"
       style="width: 400px;padding-bottom: 10px;"
@@ -332,6 +333,16 @@ export default {
       getFilesByIds(ids).then(res => {
         this.bindFileItems = res
       })
+    },
+    //改查询为编辑
+    changeToEdit() {
+      this.$refs.edit.style.color = 'rgb(24, 144, 255)'
+      this.$refs.view.style.color = 'rgb(0,0,0)'
+      this.$router.push(
+        {
+          path: '/sys-tools/file',
+          query: {}
+        })
     },
     // todo切换文件，需要重新渲染form
     changeFile(value) {

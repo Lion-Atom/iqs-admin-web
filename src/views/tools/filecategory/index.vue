@@ -242,6 +242,7 @@ export default {
         data.enabled = !data.enabled
       })
     },
+    //设置特殊列符合某种规则不允许选中
     checkboxT(row, rowIndex) {
       return row.id !== 0
     }
