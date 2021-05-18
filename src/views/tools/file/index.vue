@@ -250,6 +250,7 @@
                 v-model="bindFileDatas"
                 style="width: 400px"
                 multiple
+                filterable
                 placeholder="请选择"
                 @remove-tag="deleteTag"
                 @change="changeBindFile"
@@ -554,6 +555,7 @@ export default {
         })
       }, 100)
     },
+    // 变更绑定项
     changeBindFile(value) {
       // alert(JSON.stringify(value))
       bindingFiles = []
@@ -565,6 +567,7 @@ export default {
       this.getFilesByIds(value)
       // alert('编辑添加的内容：' + JSON.stringify(bindingFiles))
     },
+    // 删除绑定项
     deleteTag(value) {
       bindingFiles.forEach(function(data, index) {
         if (data.id === value) {
