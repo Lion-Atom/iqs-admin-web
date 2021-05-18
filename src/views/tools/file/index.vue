@@ -584,7 +584,7 @@ export default {
       }
       // alert(JSON.stringify(bindingFiles))
     },
-    // 新增与编辑前做的操作
+    // 新增与编辑之后做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
       if (form.id == null) {
         this.getFileLevels()
@@ -621,7 +621,7 @@ export default {
         this.getFilesByIds(_this.bindFileDatas)
       }
       // console.log('绑定项的值来源：' + JSON.stringify(form.bindFiles))
-      //console.log('初始化编辑的内容：' + JSON.stringify(_this.bindFileDatas))
+      // console.log('初始化编辑的内容：' + JSON.stringify(_this.bindFileDatas))
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
@@ -776,7 +776,7 @@ export default {
       getOtherFiles(fileId).then(res => {
         const data = res.content
         this.bindFiles = data
-        // alert(JSON.stringify(this.bindFiles.length))
+        // alert('编辑前看到的绑定数据标识集合：' + JSON.stringify(this.bindFiles))
       })
     },
     getFilesByIds(ids) {
@@ -784,7 +784,7 @@ export default {
       getFilesByIds(ids).then(res => {
         // console.log('绑定的数据集合:' + JSON.stringify(res))
         this.bindFileItems = res
-      })
+      }).then()
     },
     // 获取弹窗内文件等级数据
     loadLevels({ action, parentNode, callback }) {
@@ -873,12 +873,12 @@ export default {
       // todo 当前的user(除管理员外)与文件创建部门（大含小）不符合，只能看不能修改
       return row.fileLevel.levelSort !== 1
     },
-    //单击时候选中某列
+    // 单击时候选中某列
     stepsListRowClick(row) {
       // console.log(JSON.stringify(row))
       this.$refs.table.toggleRowSelection(row)
     },
-    //双击选中的行列
+    // 双击选中的行列
     dbSelected(row) {
       // console.log(JSON.stringify(row))
       this.checkboxT(row)
