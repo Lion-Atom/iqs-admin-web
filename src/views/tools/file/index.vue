@@ -73,7 +73,7 @@
                 :value="item.value"
               />
             </el-select>
-            <date-range-picker v-model="query.createTime" class="date-item"/>
+            <date-range-picker v-model="query.createTime" class="date-item" />
             <el-select
               v-model="query.fileStatus"
               clearable
@@ -90,9 +90,9 @@
                 :value="item.value"
               />
             </el-select>
-            <rrOperation/>
+            <rrOperation />
           </div>
-          <crudOperation show="" :permission="permission"/>
+          <crudOperation show="" :permission="permission" />
         </div>
         <!--表单渲染-->
         <el-dialog
@@ -105,14 +105,14 @@
         >
           <el-form ref="form" :model="form" size="small" label-width="120px">
             <el-form-item label="文件名称">
-              <el-input v-model="form.name" style="width: 400px;"/>
+              <el-input v-model="form.name" style="width: 400px;" />
             </el-form-item>
             <!-- 编辑文件 -->
             <!--            <el-form-item v-if="!crud.status.add" label="真实名称">
                           <el-input v-model="form.realName" style="width: 400px;" />
                         </el-form-item>-->
             <el-form-item v-if="!crud.status.add" label="文件版本">
-              <el-input v-model="form.version" style="width: 400px;" disabled/>
+              <el-input v-model="form.version" style="width: 400px;" disabled />
             </el-form-item>
             <el-row>
               <el-col :span="12">
@@ -203,8 +203,7 @@
                       :key="item.id"
                       :label="item.value"
                       :value="item.label"
-                    >
-                    </el-option>
+                    />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -231,7 +230,7 @@
                 :on-error="handleError"
                 :action="fileCoverUploadApi + '?id=' + form.id + '&name=' + form.name"
               >
-                <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
+                <div class="eladmin-upload"><i class="el-icon-upload" /> 添加文件</div>
                 <div slot="tip" class="el-upload__tip">文件覆盖操作不可逆，请做好备份并确认新文件正确性</div>
               </el-upload>
               <el-button :loading="loading" type="text" @click="cancelCover">取消上传</el-button>
@@ -263,7 +262,7 @@
                   + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType
                   + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime"
               >
-                <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
+                <div class="eladmin-upload"><i class="el-icon-upload" /> 添加文件</div>
                 <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
               </el-upload>
             </el-form-item>
@@ -319,7 +318,7 @@
           @row-dblclick="dbSelected"
           @row-click="stepsListRowClick"
         >
-          <el-table-column :selectable="checkboxT" type="selection" width="55"/>
+          <el-table-column :selectable="checkboxT" type="selection" width="55" />
           <el-table-column prop="name" label="文件名">
             <template slot-scope="scope">
               <el-popover
@@ -369,16 +368,16 @@
                 class="el-avatar"
               >
                 <div slot="error">
-                  <i class="el-icon-document"/>
+                  <i class="el-icon-document" />
                 </div>
               </el-image>
             </template>
           </el-table-column>
-          <el-table-column prop="suffix" label="文件类型"/>
-          <el-table-column prop="type" label="类别"/>
-          <el-table-column prop="size" label="大小"/>
-          <el-table-column prop="createBy" label="创建者"/>
-          <el-table-column prop="version" label="版本号"/>
+          <el-table-column prop="suffix" label="文件类型" />
+          <el-table-column prop="type" label="类别" />
+          <el-table-column prop="size" label="大小" />
+          <el-table-column prop="createBy" label="创建者" />
+          <el-table-column prop="version" label="版本号" />
           <el-table-column :show-overflow-tooltip="true" prop="fileLevel" label="文件等级">
             <template slot-scope="scope">
               <div>{{ scope.row.fileLevel.name }}</div>
@@ -394,10 +393,10 @@
               <div>{{ scope.row.fileDept.name }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="fileStatus" label="文件状态" width="100"/>
-          <el-table-column prop="fileType" label="文件类型" width="100"/>
+          <el-table-column prop="fileStatus" label="文件状态" width="100" />
+          <el-table-column prop="fileType" label="文件类型" width="100" />
           <!--          <el-table-column prop="createTime" label="创建日期" width="180" />-->
-          <el-table-column prop="updateTime" label="最近修改" width="180"/>
+          <el-table-column prop="updateTime" label="最近修改" width="180" />
           <el-table-column
             v-if="checkPer(['admin','storage:edit','storage:del'])"
             label="操作"
@@ -415,7 +414,7 @@
           </el-table-column>
         </el-table>
         <!--分页组件-->
-        <pagination/>
+        <pagination />
       </el-col>
     </el-row>
   </div>
@@ -458,7 +457,7 @@ export default {
   name: 'File',
   components: { Treeselect, crudOperation, rrOperation, udOperation, pagination, DateRangePicker },
   cruds() {
-    return CRUD({ title: '文件', url: 'api/localStorage', crudMethod: { ...crudFile } })
+    return CRUD({ title: '文件', url: 'api/localStorage', crudMethod: { ...crudFile }})
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   // 数据字典
@@ -725,7 +724,7 @@ export default {
       this.crud.resetForm()
       this.crud.toQuery()
     },
-    //覆盖成功
+    // 覆盖成功
     coverSuccess(response, file, fileList) {
       this.crud.notify('Cover Success! 覆盖成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       this.form.isRevision = 'false'
