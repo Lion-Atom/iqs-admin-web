@@ -352,9 +352,10 @@
                 <!--自定义指令下载文件（包含txt、jpg等，但chrome浏览器不支持）-->
                 <!--                <span
                                   slot="reference"
-                                  v-download="{url:baseApi + '/file/' + scope.row.type + '/' + scope.row.realName,label:scope.row.name}">
-                                  {{ scope.row.name}}
-                                </span>-->
+                                  v-download="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                                >
+                                                  {{ scope.row.name }}
+                                                </span>-->
               </el-popover>
             </template>
           </el-table-column>
