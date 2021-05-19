@@ -20,6 +20,8 @@ const api = {
     swaggerApi: baseUrl + '/swagger-ui.html',
     // 文件上传
     fileUploadApi: baseUrl + '/api/localStorage',
+    // 文件覆盖上传
+    fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
     // baseUrl，
     baseApi: baseUrl
   }

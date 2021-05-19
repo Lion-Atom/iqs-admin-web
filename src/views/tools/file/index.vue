@@ -192,27 +192,50 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item v-if="!crud.status.add" label="是否改版">
-                  <el-radio-group v-model="form.isRevision" :disabled="form.id === user.id">
-                    <el-radio
-                      v-for="item in dict.common_status"
+                <el-form-item v-if="!crud.status.add" label="文件状态" required>
+                  <el-select
+                    v-model="form.fileStatus"
+                    disabled
+                    style="background: none;"
+                  >
+                    <el-option
+                      v-for="item in dict.file_status"
                       :key="item.id"
                       :label="item.value"
-                    >{{ item.label }}
-                    </el-radio>
-                  </el-radio-group>
+                      :value="item.label"
+                    >
+                    </el-option>
+                  </el-select>
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-form-item v-if="!crud.status.add" label="文件状态" required>
-              <el-radio-group v-model="form.fileStatus" :disabled="form.id === user.id">
+            <el-form-item v-if="!crud.status.add" label="是否改版">
+              <el-radio-group v-model="form.isRevision" :disabled="form.id === user.id">
                 <el-radio
-                  v-for="item in dict.file_status"
+                  v-for="item in dict.common_status"
                   :key="item.id"
                   :label="item.value"
                 >{{ item.label }}
                 </el-radio>
               </el-radio-group>
+            </el-form-item>
+            <!--   二次上传文件   -->
+            <el-form-item v-if="form.isRevision==='true'" label="上传覆盖文件">
+              <el-upload
+                ref="coverUpload"
+                :limit="1"
+                :before-upload="beforeUpload"
+                :auto-upload="false"
+                :headers="headers"
+                :on-success="coverSuccess"
+                :on-error="handleError"
+                :action="fileCoverUploadApi + '?id=' + form.id + '&name=' + form.name"
+              >
+                <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
+                <div slot="tip" class="el-upload__tip">文件覆盖操作不可逆，请做好备份并确认新文件正确性</div>
+              </el-upload>
+              <el-button :loading="loading" type="text" @click="cancelCover">取消上传</el-button>
+              <el-button :loading="loading" type="primary" @click="cover">确认覆盖</el-button>
             </el-form-item>
             <el-form-item label="文件明细" prop="fileDetails">
               <router-link
@@ -306,15 +329,33 @@
                 width="200"
                 trigger="hover"
               >
+                <!--可下载文件-->
+                <!--                <a
+                                  slot="reference"
+                                  :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                                  class="el-link&#45;&#45;primary"
+                                  style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                                  target="_blank"
+                                  :download="scope.row.realName"
+                                >
+                                  {{ scope.row.name }}
+                                </a>-->
+                <!--不下载文件-->
                 <a
                   slot="reference"
-                  :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
                   class="el-link--primary"
                   style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
                   target="_blank"
+                  :download="scope.row.realName"
                 >
                   {{ scope.row.name }}
                 </a>
+                <!--自定义指令下载文件（包含txt、jpg等，但chrome浏览器不支持）-->
+                <!--                <span
+                                  slot="reference"
+                                  v-download="{url:baseApi + '/file/' + scope.row.type + '/' + scope.row.realName,label:scope.row.name}">
+                                  {{ scope.row.name}}
+                                </span>-->
               </el-popover>
             </template>
           </el-table-column>
@@ -497,7 +538,8 @@ export default {
     ...mapGetters([
       'user',
       'baseApi',
-      'fileUploadApi'
+      'fileUploadApi',
+      'fileCoverUploadApi'
     ])
   },
   created() {
@@ -513,6 +555,9 @@ export default {
     this.getFileDepts()
   },
   methods: {
+    downFile(file) {
+
+    },
     // 获取左侧文件级别数据
     getFileLevelDatas(node, resolve) {
       const sort = 'id,desc'
@@ -649,6 +694,13 @@ export default {
     upload() {
       this.$refs.upload.submit()
     },
+    cancelCover() {
+      this.form.isRevision = 'false'
+    },
+    // 上传覆盖文件
+    async cover() {
+      this.$refs.coverUpload.submit()
+    },
     beforeUpload: function(file) {
       if (!this.form.fileLevel.id) {
         this.$message({
@@ -667,10 +719,16 @@ export default {
       return isLt2M
     },
     handleSuccess(response, file, fileList) {
-      this.crud.notify('上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+      this.crud.notify('Upload Success! 上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       this.$refs.upload.clearFiles()
       this.crud.status.add = CRUD.STATUS.NORMAL
       this.crud.resetForm()
+      this.crud.toQuery()
+    },
+    //覆盖成功
+    coverSuccess(response, file, fileList) {
+      this.crud.notify('Cover Success! 覆盖成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+      this.form.isRevision = 'false'
       this.crud.toQuery()
     },
     // 监听上传失败
