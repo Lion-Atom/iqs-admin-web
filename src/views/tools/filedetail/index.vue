@@ -112,7 +112,6 @@
                   <div v-if="crud.props.searchToggle">
                     <el-input
                       v-model="query.blurry"
-                      id="addRealName"
                       clearable
                       size="small"
                       placeholder="请输入你要搜索的内容"
@@ -258,13 +257,6 @@ export default {
     ])
   },
   created: function() {
-    if (this.$route.query.fileId !== undefined) {
-      // alert(JSON.stringify(this.$route.query.fileId))
-      this.id = this.$route.query.fileId
-      this.realName = this.$route.query.realName
-      this.file = this.$route.query.fileId
-      this.getFileById(this.file)
-    }
     this.getAllFiles()
     this.crud.optShow = {
       add: false,
@@ -281,19 +273,22 @@ export default {
       getAllFiles({ enabled: true }).then(res => {
         // alert(JSON.stringify(this.file))
         const data = res.content
-        if (data.length > 0 && this.file === null) {
-          this.file = data[0].id
-          this.getFileById(this.file)
-          this.realName = data[0].realName
-          this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
-          this.crud.toQuery(this.query.blurry)
-        }
         this.files = data.map(function(obj) {
           if (obj.hasChildren) {
             obj.children = null
           }
           return obj
         })
+        if (data.length > 0 && this.$route.query.fileId === null) {
+          this.file = data[0].id
+          this.realName = data[0].realName
+          this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
+          this.crud.toQuery(this.query.blurry)
+        } else if (this.$route.query.fileId !== undefined) {
+          this.file = this.$route.query.fileId
+          this.realName = this.$route.query.realName
+        }
+        this.getFileById(this.file)
       })
     },
     getFileById(id) {
