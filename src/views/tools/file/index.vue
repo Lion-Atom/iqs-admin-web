@@ -231,7 +231,7 @@
                 :action="fileCoverUploadApi + '?id=' + form.id + '&name=' + form.name"
               >
                 <div class="eladmin-upload"><i class="el-icon-upload" /> 添加文件</div>
-                <div slot="tip" class="el-upload__tip">文件覆盖操作不可逆，请做好备份并确认新文件正确性</div>
+                <div slot="tip" class="el-upload__tip"><i style="color: #ff0000">*</i>文件覆盖操作不可逆，请做好备份并确认新文件正确性</div>
               </el-upload>
               <el-button :loading="loading" type="text" @click="cancelCover">取消上传</el-button>
               <el-button :loading="loading" type="primary" @click="cover">确认覆盖</el-button>
