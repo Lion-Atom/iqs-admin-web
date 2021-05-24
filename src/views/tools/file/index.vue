@@ -555,8 +555,8 @@ export default {
     this.getFileCategories()
     this.getFileDepts()
     //详情返回列表中某一列处于命中状态
-    if (this.$route.query.fileId !== undefined) {
-      const row = { id: this.$route.query.fileId }
+    if (this.$route.query.fileDetails !== undefined) {
+      const row = this.$route.query.fileDetails
       this.$refs.table.toggleRowSelection(row, true)
     }
   },
@@ -679,20 +679,13 @@ export default {
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
-      /* if (!crud.form.dept.id) {
+      if (crud.form.isRevision === 'true' && this.$refs.coverUpload.uploadFiles.length === 0) {
         this.$message({
-          message: '部门不能为空',
+          message: 'Revision needs new file for this !改版须提交新文件或取消改版',
           type: 'warning'
         })
         return false
-      } else if (this.jobDatas.length === 0) {
-        this.$message({
-          message: '岗位不能为空',
-          type: 'warning'
-        })
-        return false
-      } */
-      // console.log("提交的绑定数据："+JSON.stringify(bindingFiles))
+      }
       crud.form.bindFiles = bindingFiles
       return true
     },

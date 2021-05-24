@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <h2><i ref="view" class="el-icon-view" style="color:rgb(24, 144, 255);"/>{{ realName }}&nbsp;
-      <i ref="edit" class="el-icon-s-release" @click="changeToEdit"/></h2>
+      &nbsp;&nbsp;<i ref="edit" class="el-icon-s-promotion" @click="changeToEdit"/></h2>
     <el-select
       v-model="file"
       style="width: 400px;padding-bottom: 10px;"
@@ -156,7 +156,7 @@
                     </template>
                   </el-table-column>
                   <el-table-column prop="username" label="用户名"/>
-<!--                  <el-table-column prop="requestIp" label="IP"/>-->
+                  <el-table-column prop="requestIp" label="IP"/>
                   <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源"/>
                   <el-table-column prop="description" label="描述" width="200px"/>
                   <el-table-column prop="browser" label="浏览器"/>
@@ -330,7 +330,7 @@ export default {
         {
           path: '/sys-tools/file',
           query: {
-            fileId: this.file
+            fileDetails: this.form
           }
         })
     },
