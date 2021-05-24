@@ -317,8 +317,9 @@
           @selection-change="crud.selectionChangeHandler"
           @row-dblclick="dbSelected"
           @row-click="stepsListRowClick"
+          :row-key="getRowKeys"
         >
-          <el-table-column :selectable="checkboxT" type="selection" width="55" />
+          <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55"/>
           <el-table-column prop="name" label="文件名">
             <template slot-scope="scope">
               <el-popover
@@ -553,10 +554,15 @@ export default {
     this.getFileCategoryDatas()
     this.getFileCategories()
     this.getFileDepts()
+    //详情返回列表中某一列处于命中状态
+    if (this.$route.query.fileId !== undefined) {
+      const row = { id: this.$route.query.fileId }
+      this.$refs.table.toggleRowSelection(row, true)
+    }
   },
   methods: {
-    downFile(file) {
-
+    getRowKeys(row) {
+      return row.id
     },
     // 获取左侧文件级别数据
     getFileLevelDatas(node, resolve) {
@@ -936,7 +942,7 @@ export default {
     },
     // 单击时候选中某列
     stepsListRowClick(row) {
-      // console.log(JSON.stringify(row))
+      console.log(JSON.stringify(row))
       this.$refs.table.toggleRowSelection(row)
     },
     // 双击选中的行列

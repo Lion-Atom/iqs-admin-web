@@ -156,7 +156,7 @@
                     </template>
                   </el-table-column>
                   <el-table-column prop="username" label="用户名"/>
-                  <el-table-column prop="requestIp" label="IP"/>
+<!--                  <el-table-column prop="requestIp" label="IP"/>-->
                   <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源"/>
                   <el-table-column prop="description" label="描述" width="200px"/>
                   <el-table-column prop="browser" label="浏览器"/>
@@ -329,7 +329,9 @@ export default {
       this.$router.push(
         {
           path: '/sys-tools/file',
-          query: {}
+          query: {
+            fileId: this.file
+          }
         })
     },
     // todo切换文件，需要重新渲染form
