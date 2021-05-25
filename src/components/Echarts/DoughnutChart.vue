@@ -1,5 +1,5 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div :class="className" :style="{height:height,width:width}"/>
 </template>
 
 <script>
@@ -7,6 +7,7 @@ import echarts from 'echarts'
 
 require('echarts/theme/macarons') // echarts theme
 import { debounce } from '@/utils'
+import { getCountByFileType } from '@/api/overview/overview'
 
 export default {
   name: 'DoughnutChart',
@@ -26,11 +27,14 @@ export default {
   },
   data() {
     return {
+      chartData: [],
       chart: null
     }
   },
+  beforeMount() {
+    this.getChartDateByFileType()
+  },
   mounted() {
-    this.initChart()
     this.__resizeHandler = debounce(() => {
       if (this.chart) {
         this.chart.resize()
@@ -47,20 +51,28 @@ export default {
     this.chart = null
   },
   methods: {
+    getChartDateByFileType() {
+      getCountByFileType().then(res => {
+        this.chartData = res.totalElements
+        if (this.chartData.length > 0) {
+          this.initChart()
+        }
+      }).catch(() => {
+      })
+    },
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
-
       this.chart.setOption({
         title: {
           text: '文件总览 Reviews',
-          subtext: '纯属虚构',
+          subtext: '文件用途 FileType',
           left: 'center'
         },
         tooltip: {
           trigger: 'item'
         },
         legend: {
-          right: '-4.5%',
+          right: '-3%',
           orient: 'vertical'
         },
         series: [
@@ -83,16 +95,20 @@ export default {
             labelLine: {
               show: false
             },
-            data: [
-              { value: 1048, name: 'policy' },
-              { value: 735, name: 'manual' },
-              { value: 580, name: 'standard' },
-              { value: 484, name: 'instructions' },
-              { value: 300, name: 'templates' },
-              { value: 300, name: 'others' }
-            ]
+            data: this.chartData
           }
         ]
+      })
+      this.chart.on('click', (params) => {
+        // alert(JSON.stringify(params.data))
+        this.$router.push(
+          {
+            path: '/sys-tools/file',
+            query: {
+              fileType: params.data.name
+            }
+          }
+        )
       })
     }
   }

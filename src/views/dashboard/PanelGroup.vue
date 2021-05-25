@@ -1,54 +1,54 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+      <div class="card-panel" @click="handleSetLineChartData('departments')" @dblclick="handleDeptDbClick()">
+        <div class="card-panel-icon-wrapper icon-dept">
+          <svg-icon icon-class="dept" class-name="card-panel-icon"/>
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            Departments
+          </div>
+          <count-to :start-val="0" :end-val="departmentCount" :duration="3000" class="card-panel-num"/>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('members')" @dblclick="handleUserDbClick()">
         <div class="card-panel-icon-wrapper icon-people">
-          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+          <svg-icon icon-class="peoples" class-name="card-panel-icon"/>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            New Visits
+            Members
           </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="memberCount" :duration="3000" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
-        <div class="card-panel-icon-wrapper icon-message">
-          <svg-icon icon-class="message" class-name="card-panel-icon" />
+      <div class="card-panel" @click="handleSetLineChartData('fileCategories')" @dblclick="handleFileCategoryDbClick()">
+        <div class="card-panel-icon-wrapper icon-nested">
+          <svg-icon icon-class="nested" class-name="card-panel-icon"/>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Messages
+            FileCategories
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="fileCategoryCount" :duration="3000" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('purchases')">
-        <div class="card-panel-icon-wrapper icon-money">
-          <svg-icon icon-class="money" class-name="card-panel-icon" />
+      <div class="card-panel" @click="handleSetLineChartData('localStorages')" @dblclick="handleFileDbClick()">
+        <div class="card-panel-icon-wrapper icon-doc">
+          <svg-icon icon-class="doc" class-name="card-panel-icon"/>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Purchases
+            Files
           </div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
-        <div class="card-panel-icon-wrapper icon-shopping">
-          <svg-icon icon-class="shopping" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            Shoppings
-          </div>
-          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="fileCount" :duration="3600" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
@@ -57,14 +57,69 @@
 
 <script>
 import CountTo from 'vue-count-to'
+import crudOverview from '@/api/overview/overview'
+import CRUD from '@crud/crud'
+import { getOverViewAll } from '@/api/overview/overview'
 
 export default {
   components: {
     CountTo
   },
+  cruds() {
+    return CRUD({ title: '概览', url: 'api/overview', crudMethod: { ...crudOverview } })
+  },
+  data() {
+    return {
+      departmentCount: 123,
+      memberCount: 0,
+      fileCategoryCount: 0,
+      fileCount: 103
+    }
+  },
+  mounted: function() {
+    this.getOverView()
+  },
   methods: {
+    getOverView() {
+      getOverViewAll().then(res => {
+        // alert(JSON.stringify(res))
+        this.departmentCount = res.dept
+        this.memberCount = res.user
+        this.fileCategoryCount = res.fileCategory
+        this.fileCount = res.file
+      }).catch(() => {
+      })
+    },
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
+    },
+    handleDeptDbClick() {
+      this.$router.push(
+        {
+          path: '/system/dept',
+          query: {}
+        })
+    },
+    handleUserDbClick() {
+      this.$router.push(
+        {
+          path: '/system/user',
+          query: {}
+        })
+    },
+    handleFileCategoryDbClick() {
+      this.$router.push(
+        {
+          path: '/sys-tools/filecategory',
+          query: {}
+        })
+    },
+    handleFileDbClick() {
+      this.$router.push(
+        {
+          path: '/sys-tools/file',
+          query: {}
+        })
     }
   }
 }
@@ -94,36 +149,36 @@ export default {
         color: #fff;
       }
 
-      .icon-people {
+      .icon-dept {
         background: #40c9c6;
       }
 
-      .icon-message {
+      .icon-people {
         background: #36a3f7;
       }
 
-      .icon-money {
+      .icon-nested {
         background: #f4516c;
       }
 
-      .icon-shopping {
+      .icon-doc {
         background: #34bfa3
       }
     }
 
-    .icon-people {
+    .icon-dept {
       color: #40c9c6;
     }
 
-    .icon-message {
+    .icon-people {
       color: #36a3f7;
     }
 
-    .icon-money {
+    .icon-nested {
       color: #f4516c;
     }
 
-    .icon-shopping {
+    .icon-doc {
       color: #34bfa3
     }
 
@@ -160,7 +215,7 @@ export default {
   }
 }
 
-@media (max-width:550px) {
+@media (max-width: 550px) {
   .card-panel-description {
     display: none;
   }

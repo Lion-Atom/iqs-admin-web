@@ -4,6 +4,7 @@
       &nbsp;&nbsp;<i ref="edit" class="el-icon-s-promotion" @click="changeToEdit"/></h2>
     <el-select
       v-model="file"
+      filterable
       style="width: 400px;padding-bottom: 10px;"
       placeholder="请选择"
       @change="changeFile"

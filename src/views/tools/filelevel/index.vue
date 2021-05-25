@@ -76,6 +76,7 @@
       <el-table-column label="名称" prop="name" />
       <el-table-column label="排序" prop="levelSort" />
       <el-table-column label="描述" prop="description" min-width="200" />
+<!--      <el-table-column label="文件数目" prop="fileCount" />-->
       <el-table-column label="状态" align="center" prop="enabled">
         <template slot-scope="scope">
           <el-switch

@@ -1,11 +1,13 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div :class="className" :style="{height:height,width:width}"/>
 </template>
 
 <script>
 import echarts from 'echarts'
+
 require('echarts/theme/macarons') // echarts theme
 import { debounce } from '@/utils'
+import { getCountByFileLevel } from '@/api/overview/overview'
 
 export default {
   props: {
@@ -24,8 +26,12 @@ export default {
   },
   data() {
     return {
+      chartData: [],
       chart: null
     }
+  },
+  beforeMount() {
+    this.getChartDateByFileLevel()
   },
   mounted() {
     this.initChart()
@@ -45,9 +51,17 @@ export default {
     this.chart = null
   },
   methods: {
+    getChartDateByFileLevel() {
+      getCountByFileLevel().then(res => {
+        this.chartData = res.totalElements
+        if (this.chartData.length > 0) {
+          this.initChart()
+        }
+      }).catch(() => {
+      })
+    },
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
-
       this.chart.setOption({
         tooltip: {
           trigger: 'item',
@@ -55,8 +69,8 @@ export default {
         },
         legend: {
           left: 'center',
-          bottom: '10',
-          data: ['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts']
+          bottom: '10'
+          // data: ['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts']
         },
         calculable: true,
         series: [
@@ -66,17 +80,23 @@ export default {
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
-            data: [
-              { value: 320, name: 'Industries' },
-              { value: 240, name: 'Technology' },
-              { value: 149, name: 'Forex' },
-              { value: 100, name: 'Gold' },
-              { value: 59, name: 'Forecasts' }
-            ],
+            data: this.chartData,
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }
         ]
+      })
+      this.chart.on('click', (params) => {
+        // alert(JSON.stringify(params.data))
+        this.$router.push(
+          {
+            path: '/sys-tools/file',
+            query: {
+              fileLevelId: params.data.id,
+              fileLevelName: params.data.name
+            }
+          }
+        )
       })
     }
   }
