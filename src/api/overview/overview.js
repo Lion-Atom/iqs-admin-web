@@ -31,4 +31,21 @@ export function getCountByFileLevel() {
   })
 }
 
-export default { getOverViewAll, getCountByFileType, getCountByFileLevel }
+export function getCountByFileDept() {
+  const params = {}
+  return request({
+    url: '/api/overview/file/byFileDept',
+    method: 'get',
+    params
+  })
+}
+
+export function queryByCond(data) {
+  return request({
+    url: 'api/overview/query/byCond',
+    method: 'post',
+    data
+  })
+}
+
+export default { getOverViewAll, getCountByFileType, getCountByFileLevel, getCountByFileDept, queryByCond }

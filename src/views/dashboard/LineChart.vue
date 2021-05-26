@@ -1,9 +1,10 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div :class="className" :style="{height:height,width:width}"/>
 </template>
 
 <script>
 import echarts from 'echarts'
+
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
 
@@ -61,13 +62,17 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ expectedData, actualData, testData } = {}) {
+    setOptions({ count, xAxisData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: xAxisData,
           boundaryGap: false,
           axisTick: {
             show: false
+          },
+          axisLabel: { //  如果这个字段不设置，echarts会根据屏宽及横坐标数据自动给出间隔
+            interval: 5 // 间隔长度，可自定义（如果是时间格式，echarts会自动处理）
+            //rotate: 40 // 横坐标上label的倾斜度
           }
         },
         grid: {
@@ -90,10 +95,10 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual', 'test']
+          data: ['Count 数目']
         },
         series: [{
-          name: 'expected', itemStyle: {
+          name: 'count', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -104,47 +109,10 @@ export default {
           },
           smooth: true,
           type: 'line',
-          data: expectedData,
+          data: count,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
-        },
-        {
-          name: 'actual',
-          smooth: true,
-          type: 'line',
-          itemStyle: {
-            normal: {
-              color: '#3888fa',
-              lineStyle: {
-                color: '#3888fa',
-                width: 2
-              },
-              areaStyle: {
-                color: '#f3f8ff'
-              }
-            }
-          },
-          data: actualData,
-          animationDuration: 2800,
-          animationEasing: 'quadraticOut'
-        },
-          {
-            name: 'test',
-            smooth: true,
-            type: 'line',
-            itemStyle: {
-              normal: {
-                color: '#fac338',
-                lineStyle: {
-                  color: '#fac338',
-                  width: 2
-                }
-              }
-            },
-            data: testData,
-            animationDuration: 2800,
-            animationEasing: 'quadraticOut'
-          }]
+        }]
       })
     }
   }

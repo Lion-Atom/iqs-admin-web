@@ -1,27 +1,31 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-editor-container">
-      <github-corner class="github-corner" />
+      <github-corner class="github-corner"/>
 
-      <panel-group @handleSetLineChartData="handleSetLineChartData" />
+      <panel-group @handleSetLineChartData="handleSetLineChartData"/>
 
       <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-        <line-chart :chart-data="lineChartData" />
+        <!--工具栏-->
+        <div class="head-container">
+          <date-range-picker v-model="query.createTime" @change="changeDateTimeRange" class="date-item"/>
+        </div>
+        <line-chart :chart-data="lineChartData"/>
       </el-row>
       <el-row :gutter="32">
         <el-col :xs="24" :sm="24" :lg="8">
           <div class="chart-wrapper">
-            <doughnut-chart />
+            <doughnut-chart/>
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="8">
           <div class="chart-wrapper">
-            <pie-chart />
+            <bar-chart/>
           </div>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="8">
           <div class="chart-wrapper">
-            <bar-chart />
+            <pie-chart/>
           </div>
         </el-col>
       </el-row>
@@ -36,24 +40,26 @@ import LineChart from './dashboard/LineChart'
 import PieChart from '@/components/Echarts/PieChart'
 import BarChart from '@/components/Echarts/BarChart'
 import DoughnutChart from '@/components/Echarts/DoughnutChart'
+import DateRangePicker from '@/components/DateRangePicker'
+import { queryByCond } from '@/api/overview/overview'
+import { getFileLevelSuperior } from '@/api/tools/filelevel'
 
 const lineChartData = {
   departments: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145],
-    testData: [122, 112, 89, 145, 132, 112, 105]
+    count: [100, 120, 161, 134, 105, 160, 165],
+    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   },
   localStorages: {
-    expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData: [180, 160, 151, 106, 145, 150, 130]
+    count: [200, 192, 120, 144, 160, 130, 140],
+    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   },
   members: {
-    expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [120, 90, 100, 138, 142, 130, 130]
+    count: [80, 100, 121, 104, 105, 90, 100],
+    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   },
   fileCategories: {
-    expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData: [120, 82, 91, 154, 162, 140, 130]
+    count: [130, 140, 141, 142, 145, 150, 160],
+    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   }
 }
 
@@ -62,6 +68,7 @@ export default {
   components: {
     GithubCorner,
     PanelGroup,
+    DateRangePicker,
     LineChart,
     DoughnutChart,
     PieChart,
@@ -69,11 +76,50 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.departments
+      query: {
+        createTime: []
+      },
+      defaultCategory: 'departments',
+      lineChartData: null,
+      departments: {
+        count: [],
+        xAxisData: []
+      },
+      type: ''
     }
   },
+  mounted() {
+    const date = new Date()
+    date.setTime(date.getTime() - 3600 * 1000 * 24 * 30)
+    this.query.createTime = [date, new Date()]
+    this.queryAllByCond(this.defaultCategory, this.query.createTime)
+  },
   methods: {
+    queryAllByCond(name, time) {
+      const obj = new Object()
+      obj.name = name
+      obj.createTime = time
+      queryByCond(obj).then(res => {
+        // alert(JSON.stringify(res.category))
+        lineChartData.departments = new Object()
+        let count = []
+        let xAxisData = []
+        res.category.forEach(function(data, index) {
+          count.push(data.id)
+          xAxisData.push(data.createTime)
+        })
+        lineChartData.departments = { count: count, xAxisData: xAxisData }
+        this.lineChartData = lineChartData.departments
+      })
+    },
+    changeDateTimeRange(e, index) {
+      this.query.createTime = e
+      let type = this.type === '' ? this.defaultCategory : this.type
+      this.queryAllByCond(type, this.query.createTime)
+    },
     handleSetLineChartData(type) {
+      this.type = type
+      this.queryAllByCond(type, this.query.createTime)
       this.lineChartData = lineChartData[type]
     }
   }
@@ -81,28 +127,28 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .dashboard-editor-container {
-    padding: 32px;
-    background-color: rgb(240, 242, 245);
-    position: relative;
+.dashboard-editor-container {
+  padding: 32px;
+  background-color: rgb(240, 242, 245);
+  position: relative;
 
-    .github-corner {
-      position: absolute;
-      top: 0;
-      border: 0;
-      right: 0;
-    }
-
-    .chart-wrapper {
-      background: #fff;
-      padding: 16px 16px 0;
-      margin-bottom: 32px;
-    }
+  .github-corner {
+    position: absolute;
+    top: 0;
+    border: 0;
+    right: 0;
   }
 
-  @media (max-width:1024px) {
-    .chart-wrapper {
-      padding: 8px;
-    }
+  .chart-wrapper {
+    background: #fff;
+    padding: 16px 16px 0;
+    margin-bottom: 32px;
   }
+}
+
+@media (max-width: 1024px) {
+  .chart-wrapper {
+    padding: 8px;
+  }
+}
 </style>

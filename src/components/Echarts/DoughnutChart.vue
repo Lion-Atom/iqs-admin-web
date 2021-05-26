@@ -64,8 +64,8 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.chart.setOption({
         title: {
-          text: '文件总览 Reviews',
-          subtext: '文件用途 FileType',
+          text: '类型关联文件图',
+          subtext: 'FileType&File',
           left: 'center'
         },
         tooltip: {
@@ -77,7 +77,8 @@ export default {
         },
         series: [
           {
-            name: '文件类型',
+            // name: '文件类型:文件数目',
+            name: 'FileType:FileCount',
             type: 'pie',
             radius: ['40%', '60%'],
             avoidLabelOverlap: false,

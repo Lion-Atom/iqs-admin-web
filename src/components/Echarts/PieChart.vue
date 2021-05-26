@@ -63,26 +63,31 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
       this.chart.setOption({
+        title: {
+          text: '等级关联文件图',
+          subtext: 'Level&File',
+          left: 'center'
+        },
         tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
+          trigger: 'item'
         },
         legend: {
-          left: 'center',
-          bottom: '10'
-          // data: ['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts']
+          orient: 'vertical',
+          left: 'left'
         },
-        calculable: true,
         series: [
           {
-            name: 'WEEKLY WRITE ARTICLES',
+            name: 'Level:FileCount',
             type: 'pie',
-            roseType: 'radius',
-            radius: [15, 95],
-            center: ['50%', '38%'],
+            radius: '60%',
             data: this.chartData,
-            animationEasing: 'cubicInOut',
-            animationDuration: 2600
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
           }
         ]
       })

@@ -1,11 +1,13 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div :class="className" :style="{height:height,width:width}"/>
 </template>
 
 <script>
 import echarts from 'echarts'
+
 require('echarts/theme/macarons') // echarts theme
 import { debounce } from '@/utils'
+import { getCountByFileDept, getCountByFileType } from '@/api/overview/overview'
 
 const animationDuration = 6000
 
@@ -26,8 +28,13 @@ export default {
   },
   data() {
     return {
+      xAxisData: [],
+      yAxisData: [],
       chart: null
     }
+  },
+  beforeMount() {
+    this.getChartDateByFileDept()
   },
   mounted() {
     this.initChart()
@@ -47,18 +54,37 @@ export default {
     this.chart = null
   },
   methods: {
+    getChartDateByFileDept() {
+      getCountByFileDept().then(res => {
+        // alert(JSON.stringify(res))
+        this.xAxisData = res.xAxis
+        this.yAxisData = res.yAxis
+        if (this.xAxisData !== undefined) {
+          this.initChart()
+        }
+      }).catch(() => {
+      })
+    },
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
 
       this.chart.setOption({
+        title: {
+          text: '部门关联文件图',
+          subtext: 'Level&File',
+          left: 'center'
+        },
         tooltip: {
           trigger: 'axis',
-          axisPointer: { // 坐标轴指示器，坐标轴触发有效
-            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          axisPointer: {
+            type: 'shadow'
           }
         },
+        legend: {
+          data: this.xAxisData
+        },
         grid: {
-          top: 10,
+          top: 50,
           left: '2%',
           right: '2%',
           bottom: '3%',
@@ -66,7 +92,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: this.xAxisData,
           axisTick: {
             alignWithLabel: true
           }
@@ -78,27 +104,24 @@ export default {
           }
         }],
         series: [{
-          name: 'pageA',
+          name: 'FileCount(文件数目)',
           type: 'bar',
-          stack: 'vistors',
+          stack: 'files',
           barWidth: '60%',
-          data: [79, 52, 200, 334, 390, 330, 220],
-          animationDuration
-        }, {
-          name: 'pageB',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: [80, 52, 200, 334, 390, 330, 220],
-          animationDuration
-        }, {
-          name: 'pageC',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: [30, 52, 200, 334, 390, 330, 220],
+          data: this.yAxisData,
           animationDuration
         }]
+      })
+      this.chart.on('click', (params) => {
+        // alert(JSON.stringify(params.data))
+        this.$router.push(
+          {
+            path: '/sys-tools/file',
+            query: {
+              deptId: params.data.id
+            }
+          }
+        )
       })
     }
   }

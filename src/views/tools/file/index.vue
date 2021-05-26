@@ -563,6 +563,10 @@ export default {
       this.query.fileType = this.$route.query.fileType
       this.crud.toQuery()
     }
+    if (this.$route.query.deptId !== undefined) {
+      this.query.deptId = this.$route.query.deptId
+      this.crud.toQuery()
+    }
     if (this.$route.query.fileLevelName !== undefined) {
       this.fileLevelName = this.$route.query.fileLevelName
       const data = new Object()
