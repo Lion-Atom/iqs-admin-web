@@ -314,10 +314,10 @@
           v-loading="crud.loading"
           :data="crud.data"
           style="width: 100%;"
+          :row-key="getRowKeys"
           @selection-change="crud.selectionChangeHandler"
           @row-dblclick="dbSelected"
           @row-click="stepsListRowClick"
-          :row-key="getRowKeys"
         >
           <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55"/>
           <el-table-column prop="name" label="文件名">
@@ -397,7 +397,7 @@
           </el-table-column>
           <el-table-column prop="fileStatus" label="文件状态" width="100"/>
           <el-table-column prop="fileType" label="文件类型" width="100"/>
-          <!--          <el-table-column prop="createTime" label="创建日期" width="180" />-->
+          <el-table-column prop="createTime" label="创建日期" width="180"/>
           <el-table-column prop="updateTime" label="最近修改" width="180"/>
           <el-table-column
             v-if="checkPer(['admin','storage:edit','storage:del'])"
@@ -554,7 +554,7 @@ export default {
     this.getFileCategoryDatas()
     this.getFileCategories()
     this.getFileDepts()
-    //详情返回列表中某一列处于命中状态
+    // 详情返回列表中某一列处于命中状态
     if (this.$route.query.fileDetails !== undefined) {
       const row = this.$route.query.fileDetails
       this.$refs.table.toggleRowSelection(row, true)
@@ -567,9 +567,16 @@ export default {
       this.query.deptId = this.$route.query.deptId
       this.crud.toQuery()
     }
+    if (this.$route.query.createTime !== undefined) {
+      // alert(this.$route.query.createTime)
+      const startTime = this.$route.query.createTime + ' 00:00:00'
+      const endTime = this.$route.query.createTime + ' 23:59:59'
+      this.query.createTime = [startTime, endTime]
+      this.crud.toQuery()
+    }
     if (this.$route.query.fileLevelName !== undefined) {
       this.fileLevelName = this.$route.query.fileLevelName
-      const data = new Object()
+      const data = { id: null }
       data.id = this.$route.query.fileLevelId
       // todo 展开对应的文件级别
       this.handleLevelNodeClick(data)

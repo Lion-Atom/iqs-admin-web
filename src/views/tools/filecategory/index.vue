@@ -145,6 +145,15 @@ export default {
       ]
     }
   },
+  created() {
+    if (this.$route.query.createTime !== undefined) {
+      console.log(this.$route.query.createTime)
+      const startTime = this.$route.query.createTime + ' 00:00:00'
+      const endTime = this.$route.query.createTime + ' 23:59:59'
+      this.query.createTime = [startTime, endTime]
+      this.crud.toQuery()
+    }
+  },
   methods: {
     getFileCategoryDatas(tree, treeNode, resolve) {
       const params = { pid: tree.id }
@@ -242,7 +251,7 @@ export default {
         data.enabled = !data.enabled
       })
     },
-    //设置特殊列符合某种规则不允许选中
+    // 设置特殊列符合某种规则不允许选中
     checkboxT(row, rowIndex) {
       return row.id !== 0
     }

@@ -137,6 +137,15 @@ export default {
       ]
     }
   },
+  created() {
+    if (this.$route.query.createTime !== undefined) {
+      console.log(this.$route.query.createTime)
+      const startTime = this.$route.query.createTime + ' 00:00:00'
+      const endTime = this.$route.query.createTime + ' 23:59:59'
+      this.query.createTime = [startTime, endTime]
+      this.crud.toQuery()
+    }
+  },
   methods: {
     getDeptDatas(tree, treeNode, resolve) {
       const params = { pid: tree.id }

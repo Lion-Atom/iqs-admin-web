@@ -8,7 +8,7 @@
       <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
         <!--工具栏-->
         <div class="head-container">
-          <date-range-picker v-model="query.createTime" @change="changeDateTimeRange" class="date-item"/>
+          <date-range-picker v-model="query.createTime" class="date-item" @change="changeDateTimeRange"/>
         </div>
         <line-chart :chart-data="lineChartData"/>
       </el-row>
@@ -46,18 +46,22 @@ import { getFileLevelSuperior } from '@/api/tools/filelevel'
 
 const lineChartData = {
   departments: {
+    title: '',
     count: [100, 120, 161, 134, 105, 160, 165],
     xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   },
   localStorages: {
+    title: '',
     count: [200, 192, 120, 144, 160, 130, 140],
     xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   },
   members: {
+    title: '',
     count: [80, 100, 121, 104, 105, 90, 100],
     xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   },
   fileCategories: {
+    title: '',
     count: [130, 140, 141, 142, 145, 150, 160],
     xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   }
@@ -102,19 +106,24 @@ export default {
       queryByCond(obj).then(res => {
         // alert(JSON.stringify(res.category))
         lineChartData.departments = new Object()
-        let count = []
-        let xAxisData = []
+        const count = []
+        const xAxisData = []
         res.category.forEach(function(data, index) {
-          count.push(data.id)
-          xAxisData.push(data.createTime)
+          count.push(data.value)
+          xAxisData.push(data.name)
         })
-        lineChartData.departments = { count: count, xAxisData: xAxisData }
+        // 标题：首字符大写后并拼接完成名称，此处如此处理是防抖动
+        lineChartData.departments = {
+          title: name.charAt(0).toUpperCase() + name.slice(1) + ' Growth Trend Chart 增长趋势图',
+          count: count,
+          xAxisData: xAxisData
+        }
         this.lineChartData = lineChartData.departments
       })
     },
     changeDateTimeRange(e, index) {
       this.query.createTime = e
-      let type = this.type === '' ? this.defaultCategory : this.type
+      const type = this.type === '' ? this.defaultCategory : this.type
       this.queryAllByCond(type, this.query.createTime)
     },
     handleSetLineChartData(type) {

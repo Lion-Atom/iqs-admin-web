@@ -266,6 +266,13 @@ export default {
   },
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
+    if (this.$route.query.createTime !== undefined) {
+      console.log(this.$route.query.createTime)
+      const startTime = this.$route.query.createTime + ' 00:00:00'
+      const endTime = this.$route.query.createTime + ' 23:59:59'
+      this.query.createTime = [startTime, endTime]
+      this.crud.toQuery()
+    }
   },
   mounted: function() {
     const that = this

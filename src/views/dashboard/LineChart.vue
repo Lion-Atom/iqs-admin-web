@@ -62,8 +62,12 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ count, xAxisData } = {}) {
+    setOptions({ title, count, xAxisData } = {}) {
       this.chart.setOption({
+        title: {
+          text: title,
+          left: 'center'
+        },
         xAxis: {
           data: xAxisData,
           boundaryGap: false,
@@ -71,8 +75,8 @@ export default {
             show: false
           },
           axisLabel: { //  如果这个字段不设置，echarts会根据屏宽及横坐标数据自动给出间隔
-            interval: 5 // 间隔长度，可自定义（如果是时间格式，echarts会自动处理）
-            //rotate: 40 // 横坐标上label的倾斜度
+            // interval: 5 // 间隔长度，可自定义（如果是时间格式，echarts会自动处理）
+            // rotate: 40 // 横坐标上label的倾斜度
           }
         },
         grid: {
@@ -98,7 +102,7 @@ export default {
           data: ['Count 数目']
         },
         series: [{
-          name: 'count', itemStyle: {
+          name: 'Add', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -113,6 +117,47 @@ export default {
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         }]
+      })
+      this.chart.on('click', (params) => {
+        // console.log(params)
+        // alert(JSON.stringify(title.search('Departments')))
+        if (title.search('Departments') !== -1) {
+          this.$router.push(
+            {
+              path: '/system/dept',
+              query: {
+                createTime: params.name
+              }
+            }
+          )
+        } else if (title.search('LocalStorages') !== -1) {
+          this.$router.push(
+            {
+              path: '/sys-tools/file',
+              query: {
+                createTime: params.name
+              }
+            }
+          )
+        } else if (title.search('Members') !== -1) {
+          this.$router.push(
+            {
+              path: '/system/user',
+              query: {
+                createTime: params.name
+              }
+            }
+          )
+        } else if (title.search('FileCategories') !== -1) {
+          this.$router.push(
+            {
+              path: '/sys-tools/filecategory',
+              query: {
+                createTime: params.name
+              }
+            }
+          )
+        }
       })
     }
   }
