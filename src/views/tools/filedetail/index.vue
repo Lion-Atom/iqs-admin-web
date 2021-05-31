@@ -112,11 +112,15 @@
                 <div class="head-container">
                   <div v-if="crud.props.searchToggle">
                     <el-input
+                      v-model="query.bindingId"
+                      style="display: none;"
+                    />
+                    <el-input
                       v-model="query.blurry"
                       clearable
                       size="small"
+                      style="width: 140px;"
                       placeholder="请输入你要搜索的内容"
-                      style="display: none;"
                       class="filter-item"
                     />
                     <date-range-picker v-model="query.createTime" class="date-item"/>
@@ -148,26 +152,18 @@
                     <template slot-scope="props">
                       <el-form label-position="left" inline class="demo-table-expand">
                         <el-form-item label="请求方法">
-                          <span>{{ props.row.method }}</span>
+                          <span>{{ props.row.description }}</span>
                         </el-form-item>
-                        <el-form-item label="请求参数">
-                          <span>{{ props.row.params }}</span>
+                        <el-form-item label="变更明细">
+                          <span>{{ props.row.descriptionDetail }}</span>
                         </el-form-item>
                       </el-form>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="username" label="用户名"/>
-                  <el-table-column prop="requestIp" label="IP"/>
-                  <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源"/>
+                  <el-table-column prop="username" label="用户名" width="150px"/>
+                  <el-table-column prop="logType" label="日志类型" width="150px"/>
                   <el-table-column prop="description" label="描述" width="200px"/>
-                  <el-table-column prop="browser" label="浏览器"/>
-                  <el-table-column prop="time" label="请求耗时" align="center">
-                    <template slot-scope="scope">
-                      <el-tag v-if="scope.row.time <= 300">{{ scope.row.time }}ms</el-tag>
-                      <el-tag v-else-if="scope.row.time <= 1000" type="warning">{{ scope.row.time }}ms</el-tag>
-                      <el-tag v-else type="danger">{{ scope.row.time }}ms</el-tag>
-                    </template>
-                  </el-table-column>
+                  <el-table-column prop="descriptionDetail" label="变更明细" :formatter="stateFormat"/>
                   <el-table-column prop="createTime" label="创建日期" width="180px"/>
                 </el-table>
                 <!--分页组件-->
@@ -187,7 +183,7 @@ import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
 import { getAllFiles, getFilesByIds, getFileById } from '@/api/tools/localStorage'
 import { delInfoByCond } from '@/api/monitor/log'
-import CRUD, { presenter } from '@crud/crud'
+import CRUD, { crud, presenter } from '@crud/crud'
 import { header } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import DateRangePicker from '@/components/DateRangePicker'
@@ -198,9 +194,9 @@ export default {
   name: 'FileDetail',
   components: { crudOperation, pagination, rrOperation, DateRangePicker },
   cruds() {
-    return CRUD({ title: '日志', url: 'api/logs' })
+    return CRUD({ title: '日志', url: 'api/toolsLogs' })
   },
-  mixins: [presenter(), header()],
+  mixins: [presenter(), header(), crud()],
   // 设置数据字典
   dicts: ['file_status', 'common_status'],
   data() {
@@ -212,9 +208,9 @@ export default {
       activeNames: ['1'],
       headers: { 'Authorization': getToken() },
       permission: {
-        add: ['admin', 'storage:add'],
-        edit: ['admin', 'storage:edit'],
-        del: ['admin', 'storage:del']
+        // add: ['admin', 'storage:add'],
+        // edit: ['admin', 'storage:edit'],
+        // del: ['admin', 'storage:del']
       },
       form: {
         id: null,
@@ -258,17 +254,22 @@ export default {
     ])
   },
   created: function() {
-    this.getAllFiles()
+    if (this.$route.query.fileId !== undefined) {
+      this.query.bindingId = this.$route.query.fileId
+      this.realName = this.$route.query.realName
+      this.crud.toQuery(this.query.bindingId)
+    }
     this.crud.optShow = {
       add: false,
       edit: false,
       del: false,
       download: true
+      // reset:true
     }
   },
-  /*  mounted() {
-      this.getAllFiles()
-    },*/
+  mounted() {
+    this.getAllFiles()
+  },
   methods: {
     getAllFiles() {
       getAllFiles({ enabled: true }).then(res => {
@@ -283,8 +284,8 @@ export default {
         if (data.length > 0 && this.$route.query.fileId === null) {
           this.file = data[0].id
           this.realName = data[0].realName
-          this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
-          this.crud.toQuery(this.query.blurry)
+          // this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
+          //this.crud.toQuery(this.query.blurry)
         } else if (this.$route.query.fileId !== undefined) {
           this.file = this.$route.query.fileId
           this.realName = this.$route.query.realName
@@ -298,8 +299,10 @@ export default {
         this.form = res
         // 设置部分显示内容
         this.realName = this.form.realName
-        this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
-        this.crud.toQuery(this.query.blurry)
+        //this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
+        //this.crud.toQuery(this.query.blurry)
+        this.query.bindingId = id
+        this.crud.toQuery(this.query.bindingId)
         // alert(JSON.stringify(this.query.blurry))
         this.form.fileLevel.name += '-' + this.form.fileLevel.description
         this.form.createBy = ' created by ' + this.form.createBy + ' on ' + this.form.createTime
@@ -347,6 +350,16 @@ export default {
     },
     handleChange(val) {
       console.log(val)
+    },
+    // 格式化表格消息内容
+    stateFormat(row, column, cellValue) {
+      // console.log(row , column , cellValue)
+      if (!cellValue) return ''
+      if (cellValue.length > 30) {
+        //最长固定显示4个字符
+        return cellValue.slice(0, 30) + '...'
+      }
+      return cellValue
     },
     // 删除当前文件相关的日志
     confirmDelAll() {
