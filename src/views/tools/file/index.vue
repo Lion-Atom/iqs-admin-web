@@ -37,6 +37,7 @@
               style="width: 140px;"
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
+              @input="inputChange($event)"
             />
             <!-- 文件分类筛选，需要更改为树表筛选 -->
             <treeselect
@@ -73,12 +74,14 @@
                 :value="item.value"
               />
             </el-select>
-            <date-range-picker v-model="query.createTime" class="date-item"/>
+            <date-range-picker v-model="query.createTime" @change="crud.toQuery" @input="dateTimeChange($event)"
+                               class="date-item"
+            />
             <el-select
               v-model="query.fileStatus"
               clearable
               size="small"
-              placeholder="状态"
+              placeholder="审批状态"
               class="filter-item"
               style="width: 100px"
               @change="crud.toQuery"
@@ -101,7 +104,7 @@
           :before-close="crud.cancelCU"
           :visible.sync="crud.status.cu > 0"
           :title="crud.status.add ? '文件上传' : '编辑文件'"
-          width="678px"
+          width="728px"
         >
           <el-form ref="form" :model="form" size="small" label-width="120px">
             <el-form-item label="文件名称">
@@ -112,7 +115,9 @@
                           <el-input v-model="form.realName" style="width: 400px;" />
                         </el-form-item>-->
             <el-form-item v-if="!crud.status.add" label="文件版本">
-              <el-input v-model="form.version" style="width: 400px;" disabled/>
+              <el-input v-model="form.version"
+                        style="width: 400px;color:#fff;!important;background-color: #fff;!important;" disabled
+              />
             </el-form-item>
             <el-row>
               <el-col :span="12">
@@ -121,20 +126,8 @@
                     v-model="form.fileLevel.id"
                     :options="fileLevels"
                     :load-options="loadLevels"
-                    style="width: 178px"
+                    style="width: 190px"
                     placeholder="选择文件对应等级"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col v-if="form.fileLevel.id===24" :span="12">
-                <el-form-item label="过期时间" prop="form.expirationTime">
-                  <el-date-picker
-                    v-model="form.expirationTime"
-                    type="datetime"
-                    :placeholder="new Date().toLocaleString()"
-                    format="yyyy-MM-dd HH:mm"
-                    style="width: 178px"
-                    :picker-options="pickerOptions"
                   />
                 </el-form-item>
               </el-col>
@@ -144,7 +137,7 @@
                     v-model="form.fileCategory.id"
                     :options="fileCategories"
                     :load-options="loadCategories"
-                    style="width: 178px"
+                    style="width: 190px"
                     placeholder="选择文件所属分类"
                   />
                 </el-form-item>
@@ -157,14 +150,14 @@
                     v-model="form.fileDept.id"
                     :options="fileDepts"
                     :load-options="loadFileDepts"
-                    style="width: 178px"
+                    style="width: 190px"
                     placeholder="选择文件所属部门"
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="文件类型" prop="fileType">
-                  <el-select v-model="form.fileType" clearable placeholder="--none--" style="width: 178px">
+                  <el-select v-model="form.fileType" clearable placeholder="--none--" style="width: 190px">
                     <el-option
                       v-for="item in dict.file_type"
                       :key="item.id"
@@ -192,32 +185,54 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item v-if="!crud.status.add" label="文件状态" required>
+                <el-form-item label="文件状态" required>
                   <el-select
                     v-model="form.fileStatus"
-                    disabled
                     style="background: none;"
                   >
                     <el-option
                       v-for="item in dict.file_status"
                       :key="item.id"
-                      :label="item.value"
-                      :value="item.label"
+                      :label="item.label"
+                      :value="item.value"
                     />
                   </el-select>
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-form-item v-if="!crud.status.add" label="是否改版">
-              <el-radio-group v-model="form.isRevision" :disabled="form.id === user.id">
-                <el-radio
-                  v-for="item in dict.common_status"
-                  :key="item.id"
-                  :label="item.value"
-                >{{ item.label }}
-                </el-radio>
-              </el-radio-group>
-            </el-form-item>
+            <el-row>
+              <el-col v-if="form.fileStatus === 'temp'" :span="12">
+                <el-form-item label="过期时间" prop="form.expirationTime" required>
+                  <el-date-picker
+                    v-model="form.expirationTime"
+                    type="datetime"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    format="yyyy-MM-dd HH:mm:ss"
+                    style="width: 190px"
+                    :picker-options="pickerOptions"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item v-if="!crud.status.add" label="审批状态">
+                  <el-input v-model="form.approvalStatus"
+                            style="width: 190px;color:#000;!important;background-color: #fff;!important;" disabled
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item v-if="!crud.status.add" label="是否改版">
+                  <el-radio-group v-model="form.isRevision">
+                    <el-radio
+                      v-for="item in dict.common_status"
+                      :key="item.id"
+                      :label="item.value"
+                    >{{ item.label }}
+                    </el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+            </el-row>
             <!--   二次上传文件   -->
             <el-form-item v-if="form.isRevision==='true'" label="上传覆盖文件">
               <el-upload
@@ -236,7 +251,7 @@
               <el-button :loading="loading" type="text" @click="cancelCover">取消上传</el-button>
               <el-button :loading="loading" type="primary" @click="cover">确认覆盖</el-button>
             </el-form-item>
-            <el-form-item label="文件明细" prop="fileDetails">
+            <el-form-item label="文件概览" prop="fileDetails">
               <router-link
                 :to="{path: '/sys-tools/filedetail',
                       query: {
@@ -300,6 +315,17 @@
                   </router-link>
                 </el-button>
               </div>
+            </el-form-item>
+            <el-form-item v-if="!crud.status.add" label="变更说明" prop="changeDesc" required>
+              <el-input
+                type="textarea"
+                :autosize="{ minRows: 1, maxRows: 100}"
+                placeholder="请输入内容"
+                v-model="form.changeDesc"
+                style="width: 400px;"
+                @input="changeDescInput($event)"
+              >
+              </el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -396,8 +422,9 @@
             </template>
           </el-table-column>
           <el-table-column prop="fileStatus" label="文件状态" width="100"/>
+          <el-table-column prop="approvalStatus" label="审批状态" width="100"/>
           <el-table-column prop="fileType" label="文件类型" width="100"/>
-          <el-table-column prop="createTime" label="创建日期" width="180"/>
+          <el-table-column prop="createTime" label="创建日期" width="180" sortable/>
           <el-table-column prop="updateTime" label="最近修改" width="180"/>
           <el-table-column
             v-if="checkPer(['admin','storage:edit','storage:del'])"
@@ -445,12 +472,14 @@ const defaultForm = {
   id: null,
   name: '',
   realName: '',
-  fileStatus: 'waitingfor',
+  fileStatus: 'release',
+  approvalStatus: '',
   fileType: '--none--',
   securityLevel: 'internal',
   isRevision: 'false',
   fileLevel: { id: null },
   expirationTime: '9999-12-31 00:00:00.152',
+  changeDesc: '',
   fileCategory: { id: null },
   fileDept: { id: null },
   bindFiles: []
@@ -463,7 +492,7 @@ export default {
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   // 数据字典
-  dicts: ['file_status', 'common_status', 'file_type', 'file_security'],
+  dicts: ['file_status', 'approval_status', 'common_status', 'file_type', 'file_security'],
   data() {
     return {
       delAllLoading: false,
@@ -555,9 +584,9 @@ export default {
     this.getFileCategories()
     this.getFileDepts()
     // 详情返回列表中某一列处于命中状态
-    if (this.$route.query.fileDetails !== undefined) {
-      const row = this.$route.query.fileDetails
-      this.$refs.table.toggleRowSelection(row, true)
+    if (this.$route.query.fileName !== undefined) {
+      this.query.blurry = this.$route.query.fileName
+      this.crud.toQuery()
     }
     if (this.$route.query.fileType !== undefined) {
       this.query.fileType = this.$route.query.fileType
@@ -585,6 +614,18 @@ export default {
   methods: {
     getRowKeys(row) {
       return row.id
+    },
+    // 监控模糊查询输入框变化，强制刷新
+    inputChange() {
+      this.$forceUpdate()
+    },
+    // 监控变更记录输入框变化，强制刷新
+    changeDescInput() {
+      this.$forceUpdate()
+    },
+    // 监控时间输入框变化，强制刷新
+    dateTimeChange() {
+      this.$forceUpdate()
     },
     // 获取左侧文件级别数据
     getFileLevelDatas(node, resolve) {
@@ -721,6 +762,7 @@ export default {
     // 上传覆盖文件
     async cover() {
       this.$refs.coverUpload.submit()
+      this.form.changeDesc = '文件改版，新文件替代原文件'
     },
     beforeUpload: function(file) {
       if (!this.form.fileLevel.id) {

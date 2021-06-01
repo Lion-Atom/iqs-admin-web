@@ -47,23 +47,23 @@ import { getFileLevelSuperior } from '@/api/tools/filelevel'
 const lineChartData = {
   departments: {
     title: '',
-    count: [100, 120, 161, 134, 105, 160, 165],
-    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    count: [],
+    xAxisData: []
   },
   localStorages: {
     title: '',
-    count: [200, 192, 120, 144, 160, 130, 140],
-    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    count: [],
+    xAxisData: []
   },
   members: {
     title: '',
-    count: [80, 100, 121, 104, 105, 90, 100],
-    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    count: [],
+    xAxisData: []
   },
   fileCategories: {
     title: '',
-    count: [130, 140, 141, 142, 145, 150, 160],
-    xAxisData: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    count: [],
+    xAxisData: []
   }
 }
 

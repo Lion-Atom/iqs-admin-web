@@ -38,7 +38,9 @@
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
             />
-            <date-range-picker v-model="query.createTime" class="date-item" />
+            <date-range-picker v-model="query.createTime" @change="crud.toQuery" @input="change($event)"
+                               class="date-item"
+            />
             <el-select
               v-model="query.enabled"
               clearable
@@ -266,21 +268,25 @@ export default {
   },
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
-    if (this.$route.query.createTime !== undefined) {
-      console.log(this.$route.query.createTime)
-      const startTime = this.$route.query.createTime + ' 00:00:00'
-      const endTime = this.$route.query.createTime + ' 23:59:59'
-      this.query.createTime = [startTime, endTime]
-      this.crud.toQuery()
-    }
   },
   mounted: function() {
     const that = this
     window.onresize = function temp() {
       that.height = document.documentElement.clientHeight - 180 + 'px;'
     }
+    if (this.$route.query.createTime !== undefined) {
+      // alert(this.$route.query.createTime)
+      const startTime = this.$route.query.createTime + ' 00:00:00'
+      const endTime = this.$route.query.createTime + ' 23:59:59'
+      this.query.createTime = [startTime, endTime]
+      this.crud.toQuery()
+    }
   },
   methods: {
+    // 监控日期选择器输入变化，强制刷新
+    change() {
+      this.$forceUpdate()
+    },
     changeRole(value) {
       userRoles = []
       value.forEach(function(data, index) {

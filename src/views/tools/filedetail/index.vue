@@ -1,7 +1,17 @@
 <template>
   <div class="app-container">
-    <h2><i ref="view" class="el-icon-view" style="color:rgb(24, 144, 255);"/>{{ realName }}&nbsp;
-      &nbsp;&nbsp;<i ref="edit" class="el-icon-s-promotion" @click="changeToEdit"/></h2>
+    <h2><i ref="view" class="el-icon-view" style="color:#00a0e9;"/>{{ realName }}&nbsp;
+      &nbsp;&nbsp;
+      <el-popover
+        placement="top-start"
+        title="Go to Edit!Click it!"
+        width="200"
+        trigger="hover"
+        content="就决定修改它了！"
+      >
+        <i ref="edit" slot="reference" class="el-icon-s-promotion" @click="changeToEdit"/>
+      </el-popover>
+    </h2>
     <el-select
       v-model="file"
       filterable
@@ -182,7 +192,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
 import { getAllFiles, getFilesByIds, getFileById } from '@/api/tools/localStorage'
-import { delInfoByCond } from '@/api/monitor/log'
+import { delToolsLogByCond } from '@/api/monitor/toolslog'
 import CRUD, { crud, presenter } from '@crud/crud'
 import { header } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -242,7 +252,7 @@ export default {
       },
       bindFileItems: [],
       cond: {
-        blurry: null
+        bindingId: null
       }
     }
   },
@@ -285,7 +295,7 @@ export default {
           this.file = data[0].id
           this.realName = data[0].realName
           // this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
-          //this.crud.toQuery(this.query.blurry)
+          // this.crud.toQuery(this.query.blurry)
         } else if (this.$route.query.fileId !== undefined) {
           this.file = this.$route.query.fileId
           this.realName = this.$route.query.realName
@@ -299,8 +309,8 @@ export default {
         this.form = res
         // 设置部分显示内容
         this.realName = this.form.realName
-        //this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
-        //this.crud.toQuery(this.query.blurry)
+        // this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
+        // this.crud.toQuery(this.query.blurry)
         this.query.bindingId = id
         this.crud.toQuery(this.query.bindingId)
         // alert(JSON.stringify(this.query.blurry))
@@ -334,7 +344,7 @@ export default {
         {
           path: '/sys-tools/file',
           query: {
-            fileDetails: this.form
+            fileName: this.form.name
           }
         })
     },
@@ -356,7 +366,7 @@ export default {
       // console.log(row , column , cellValue)
       if (!cellValue) return ''
       if (cellValue.length > 30) {
-        //最长固定显示4个字符
+        // 最长固定显示4个字符
         return cellValue.slice(0, 30) + '...'
       }
       return cellValue
@@ -369,8 +379,8 @@ export default {
         type: 'warning'
       }).then(() => {
         this.crud.delAllLoading = true
-        this.cond.blurry = this.query.blurry
-        delInfoByCond(this.cond).then(res => {
+        this.cond.bindingId = this.file
+        delToolsLogByCond(this.cond).then(res => {
           this.crud.delAllLoading = false
           this.crud.dleChangePage(1)
           this.crud.delSuccessNotify()
@@ -404,5 +414,9 @@ export default {
 .collapse-item > > >
 .el-collapse-item__content {
   padding-bottom: 0;
+}
+
+i:hover {
+  color: #00a0e9;
 }
 </style>
