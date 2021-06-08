@@ -63,7 +63,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="Type 文件类型">
-                <el-input v-model="form.type" style="width: 370px;"/>
+                <el-input v-model="form.fileType" style="width: 370px;"/>
               </el-form-item>
             </el-col>
           </el-row>

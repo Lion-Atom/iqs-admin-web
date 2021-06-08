@@ -46,6 +46,22 @@ export function getFilesByIds(data) {
   })
 }
 
+export function cancelCover(data) {
+  return request({
+    url: 'api/localStorage/undo',
+    method: 'post',
+    data
+  })
+}
+
+export function rollbackCover(data) {
+  return request({
+    url: 'api/localStorage/rollBackCover',
+    method: 'post',
+    data
+  })
+}
+
 export function add(data) {
   return request({
     url: 'api/localStorage',

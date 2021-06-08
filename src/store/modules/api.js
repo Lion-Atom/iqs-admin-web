@@ -21,7 +21,9 @@ const api = {
     // 文件上传
     fileUploadApi: baseUrl + '/api/localStorage',
     // 文件覆盖上传
-    fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
+    // fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
+    // 文件覆盖上传
+    fileCoverUploadApi: baseUrl + '/api/localStorage/upload/preTrail',
     // baseUrl，
     baseApi: baseUrl
   }
