@@ -816,7 +816,7 @@ export default {
       this.rollbackData.storageId = this.form.id
       // alert(JSON.stringify(this.rollbackData))
       rollbackCover(this.rollbackData).then(res => {
-        this.crud.notify('rollback cover Success! 撤销覆盖成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+        this.crud.notify('rollback cover Success! 撤销覆盖操作成功！', CRUD.NOTIFICATION_TYPE.SUCCESS)
         this.centerDialogVisible = false
       })
       this.crud.cancelCU()
