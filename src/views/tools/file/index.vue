@@ -70,9 +70,12 @@
               <el-option
                 v-for="item in dict.file_type"
                 :key="item.id"
-                :label="item.value"
+                :label="item.label"
                 :value="item.value"
-              />
+              >
+                <span style="float: left">{{ item.label }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+              </el-option>
             </el-select>
             <date-range-picker v-model="query.createTime" @change="crud.toQuery" @input="dateTimeChange($event)"
                                class="date-item"
@@ -89,9 +92,12 @@
               <el-option
                 v-for="item in dict.file_status"
                 :key="item.id"
-                :label="item.value"
+                :label="item.label"
                 :value="item.value"
-              />
+              >
+                <span style="float: left">{{ item.label }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+              </el-option>
             </el-select>
             <rrOperation/>
           </div>
@@ -185,7 +191,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="文件状态" required>
+                <el-form-item label="文件状态" prop="fileStatus" required>
                   <el-select
                     v-model="form.fileStatus"
                     style="background: none;"
@@ -195,7 +201,10 @@
                       :key="item.id"
                       :label="item.label"
                       :value="item.value"
-                    />
+                    >
+                      <span style="float: left">{{ item.label }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+                    </el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -349,7 +358,6 @@
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <el-button type="text" @click="cancelOperation">取消</el-button>
             <el-dialog
               title="提示"
               :visible.sync="centerDialogVisible"
@@ -365,6 +373,7 @@
               <el-button type="primary" @click="rollBackCover">放弃修改</el-button>
               </span>
             </el-dialog>
+            <el-button type="text" @click="cancelOperation">取消</el-button>
             <el-button v-if="crud.status.add" :loading="loading" type="primary" @click="upload">确认</el-button>
             <el-button v-else :loading="crud.status.cu === 2" type="primary" @click="submitConfirm">确认</el-button>
           </div>
@@ -874,7 +883,8 @@ export default {
     [CRUD.HOOK.afterValidateCU](crud) {
       if (crud.form.isRevision === 'true' && this.$refs.coverUpload.uploadFiles.length === 0) {
         this.$message({
-          message: 'Revision needs new file for this !改版须提交新文件或取消改版',
+          dangerouslyUseHTMLString: true,
+          message: 'Revision needs new file for this!' + ' <br/> ' + '改版须提交新文件或取消改版',
           type: 'warning'
         })
         return false
