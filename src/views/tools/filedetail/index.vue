@@ -12,18 +12,27 @@
         <i ref="edit" slot="reference" class="el-icon-s-promotion" @click="changeToEdit"/>
       </el-popover>
     </h2>
+    <el-row>
+      <el-col :span="24">
+        <div style="color:#303133;font-size:13px;">
+          Outline 文件概述：{{ (fileDesc === null || fileDesc === undefined) ? '--none--' : fileDesc }}
+        </div>
+      </el-col>
+    </el-row>
+    <el-divider></el-divider>
     <el-select
-      v-model="file"
+      v-model="fileSelected.name"
       filterable
       style="width: 400px;padding-bottom: 10px;"
       placeholder="请选择"
       @change="changeFile"
+      value-key="id"
     >
       <el-option
         v-for="item in files"
-        :key="item.name"
+        :key="item.id"
         :label="item.name"
-        :value="item.id"
+        :value="item"
       />
     </el-select>
 
@@ -229,7 +238,7 @@ export default {
         securityLevel: '',
         version: '',
         fileStatus: '',
-        desc: '',
+        fileDesc: '',
         size: '',
         type: '',
         createBy: '',
@@ -253,6 +262,10 @@ export default {
       bindFileItems: [],
       cond: {
         bindingId: null
+      },
+      fileSelected: {
+        id: null,
+        name: ''
       }
     }
   },
@@ -266,8 +279,12 @@ export default {
   created: function() {
     if (this.$route.query.fileId !== undefined) {
       this.query.bindingId = this.$route.query.fileId
+      this.fileSelected.id = this.$route.query.fileId
+      this.fileSelected.name = this.$route.query.name
       this.realName = this.$route.query.realName
+      this.fileDesc = this.$route.query.fileDesc
       this.crud.toQuery(this.query.bindingId)
+      this.getAllFiles()
     }
     this.crud.optShow = {
       add: false,
@@ -277,38 +294,53 @@ export default {
       // reset:true
     }
   },
-  mounted() {
-    this.getAllFiles()
-  },
+  /*  mounted() {
+      this.getAllFiles()
+    },*/
   methods: {
+    // 监控文件选择变化，强制刷新
+    inputChange() {
+      this.$forceUpdate()
+    },
     getAllFiles() {
       getAllFiles({ enabled: true }).then(res => {
-        // alert(JSON.stringify(this.file))
         const data = res.content
-        this.files = data.map(function(obj) {
+        const _this = this
+        data.forEach(function(v, index) {
+          const file = { id: v.id, name: v.name }
+          _this.files.push(file)
+        })
+        /*this.files = data.map(function(obj) {
           if (obj.hasChildren) {
             obj.children = null
           }
           return obj
-        })
+        })*/
         if (data.length > 0 && this.$route.query.fileId === null) {
-          this.file = data[0].id
+          // this.file = data[0].id
+          this.fileSelected.id = data[0].id
+          this.fileSelected.name = data[0].name
           this.realName = data[0].realName
+          this.fileDesc = data[0].fileDesc
           // this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
           // this.crud.toQuery(this.query.blurry)
         } else if (this.$route.query.fileId !== undefined) {
-          this.file = this.$route.query.fileId
+          // this.file = this.$route.query.fileId
           this.realName = this.$route.query.realName
+          this.fileDesc = this.$route.query.fileDesc
+          this.fileSelected.id = this.$route.query.fileId
+          this.fileSelected.name = this.$route.query.name
         }
-        this.getFileById(this.file)
+        this.getFileById(this.fileSelected.id)
       })
     },
     getFileById(id) {
       getFileById(id).then(res => {
-        // console.log('单个文件明细：' + JSON.stringify(res))
+        // console.log('单个文件明细：' + JSON.stringify(res.fileDesc))
         this.form = res
         // 设置部分显示内容
         this.realName = this.form.realName
+        this.fileDesc = this.form.fileDesc
         // this.query.blurry = this.realName.slice(0, this.realName.indexOf('-'))
         // this.crud.toQuery(this.query.blurry)
         this.query.bindingId = id
@@ -350,7 +382,7 @@ export default {
     },
     // todo切换文件，需要重新渲染form
     changeFile(value) {
-      this.getFileById(value)
+      this.getFileById(value.id)
       this.activeNames = ['1']
     },
     refFile(id) {

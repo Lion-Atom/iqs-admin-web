@@ -38,8 +38,8 @@
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
             />
-            <date-range-picker v-model="query.createTime" @change="crud.toQuery" @input="change($event)"
-                               class="date-item"
+            <date-range-picker v-model="query.createTime" class="date-item" @change="crud.toQuery"
+                               @input="change($event)"
             />
             <el-select
               v-model="query.enabled"

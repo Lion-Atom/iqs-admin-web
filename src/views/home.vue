@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-editor-container">
-      <github-corner class="github-corner"/>
+      <!--      <github-corner class="github-corner"/>-->
 
       <panel-group @handleSetLineChartData="handleSetLineChartData"/>
 
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import GithubCorner from '@/components/GithubCorner'
+// import GithubCorner from '@/components/GithubCorner'
 import PanelGroup from './dashboard/PanelGroup'
 import LineChart from './dashboard/LineChart'
 import PieChart from '@/components/Echarts/PieChart'
@@ -42,7 +42,6 @@ import BarChart from '@/components/Echarts/BarChart'
 import DoughnutChart from '@/components/Echarts/DoughnutChart'
 import DateRangePicker from '@/components/DateRangePicker'
 import { queryByCond } from '@/api/overview/overview'
-import { getFileLevelSuperior } from '@/api/tools/filelevel'
 
 const lineChartData = {
   departments: {
@@ -70,7 +69,7 @@ const lineChartData = {
 export default {
   name: 'Dashboard',
   components: {
-    GithubCorner,
+    // GithubCorner,
     PanelGroup,
     DateRangePicker,
     LineChart,
@@ -100,12 +99,12 @@ export default {
   },
   methods: {
     queryAllByCond(name, time) {
-      const obj = new Object()
+      const obj = {}
       obj.name = name
       obj.createTime = time
       queryByCond(obj).then(res => {
         // alert(JSON.stringify(res.category))
-        lineChartData.departments = new Object()
+        lineChartData.departments = {}
         const count = []
         const xAxisData = []
         res.category.forEach(function(data, index) {

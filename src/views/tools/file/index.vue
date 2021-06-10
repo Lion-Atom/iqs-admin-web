@@ -284,7 +284,9 @@
                 :to="{path: '/sys-tools/filedetail',
                       query: {
                         fileId: form.id ,
-                        realName:form.realName
+                        name: form.name,
+                        realName:form.realName,
+                        fileDesc:form.fileDesc
                       }
                 }"
               >
@@ -303,12 +305,28 @@
                 :on-error="handleError"
                 :action="fileUploadApi + '?name=' + form.name + '&fileLevelId=' + form.fileLevel.id+ '&fileCategoryId=' + form.fileCategory.id
                   + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType
-                  + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime"
+                  + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime + '&fileDesc=' + form.fileDesc"
               >
                 <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
                 <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
               </el-upload>
             </el-form-item>
+            <!-- 关联文件 -->
+            <el-row>
+              <el-col>
+                <el-form-item label="文件描述" prop="fileDesc">
+                  <el-input
+                    type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 10}"
+                    placeholder="请输入文件内容描述"
+                    v-model="form.fileDesc"
+                    style="width: 400px;"
+                    @input="changeDescInput($event)"
+                  >
+                  </el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
             <!-- 关联文件 -->
             <el-form-item v-if="!crud.status.add" label="关联文件" prop="bindFiles">
               <el-select
@@ -348,8 +366,8 @@
             <el-form-item v-if="!crud.status.add" label="变更说明" prop="changeDesc" required>
               <el-input
                 type="textarea"
-                :autosize="{ minRows: 1, maxRows: 100}"
-                placeholder="请输入内容"
+                :autosize="{ minRows: 1, maxRows: 30}"
+                placeholder="请输入变更说明"
                 v-model="form.changeDesc"
                 style="width: 400px;"
                 @input="changeDescInput($event)"
@@ -524,6 +542,7 @@ const defaultForm = {
   fileLevel: { id: null },
   expirationTime: '9999-12-31 00:00:00.152',
   changeDesc: '',
+  fileDesc: null,
   fileCategory: { id: null },
   fileDept: { id: null },
   bindFiles: []
@@ -539,7 +558,7 @@ export default {
   dicts: ['file_status', 'approval_status', 'common_status', 'file_type', 'file_security'],
   data() {
     return {
-      editFormChanged: false, // 是否修改标识
+      editFormChanged: 0, // 是否修改标识
       preForm: this.form,
       centerDialogVisible: false,
       count: 0,
@@ -557,6 +576,7 @@ export default {
       fileDept: { id: null }, //所属部门，监听使用
       fileLevel: { id: null }, //文件等级，监听使用
       bindDatas: [], //关联文件，监听使用
+      fileDesc: null,//文件描述，监听使用
       delAllLoading: false,
       loading: false,
       height: document.documentElement.clientHeight - 180 + 'px;',
@@ -685,7 +705,7 @@ export default {
   },
   methods: {
     submitConfirm() {
-      //发起改版但未上传覆盖文件
+      // 发起改版但未上传覆盖文件
       if (this.form.isRevision === 'true' && this.coverFileCount < 1) {
         this.$message({
           message: 'Revision needs new file for this !改版须提交新文件或取消改版',
@@ -702,8 +722,9 @@ export default {
       this.watchChangeHandler(this.fileDept.id, this.form.fileDept.id) //所属部门，监听使用
       this.watchChangeHandler(this.fileLevel.id, this.form.fileLevel.id) //文件等级，监听使用
       this.watchChangeHandler(this.bindDatas, this.bindFileDatas)  //关联文件，监听使用
+      this.watchChangeHandler(this.fileDesc, this.form.fileDesc)  //关联文件，监听使用
 
-      if (this.editFormChanged === false) {
+      if (this.editFormChanged === 0) {
         this.$message({
           message: 'No changes found, no need to save!未发生改动，无需保存',
           type: 'warning'
@@ -837,25 +858,26 @@ export default {
       }
       // this.getRoleLevel()
       form.isRevision = form.isRevision.toString()
-    }
-    ,
+    },
     // 新增前将多选的值设置为空
     [CRUD.HOOK.beforeToAdd]() {
       this.bindFileDatas = []
-    }
-    ,
+    },
     // 初始化编辑时候的关联文件并初始化版本升级操作计数
     [CRUD.HOOK.beforeToEdit](crud, form) {
+      // 编辑前置空变更描述
+      this.form.changeDesc = ''
       // 编辑前存储编辑前的可变的属性的数据信息
-      this.fileCategory.id = form.fileCategory.id //文件分类，监听使用
-      this.fileType = form.fileType //文件类型，监听使用
-      this.fileStatus = form.fileStatus //文件状态，监听使用
-      this.approvalStatus = form.approvalStatus //文件审批状态，监听使用
-      this.name = form.name //文件名称，监听使用
-      this.fileDept.id = form.fileDept.id //所属部门，监听使用
-      this.fileLevel.id = form.fileLevel.id  //文件等级，监听使用
+      this.fileCategory.id = form.fileCategory.id // 文件分类，监听使用
+      this.fileType = form.fileType // 文件类型，监听使用
+      this.fileStatus = form.fileStatus // 文件状态，监听使用
+      this.approvalStatus = form.approvalStatus // 文件审批状态，监听使用
+      this.name = form.name // 文件名称，监听使用
+      this.fileDept.id = form.fileDept.id // 所属部门，监听使用
+      this.fileLevel.id = form.fileLevel.id  // 文件等级，监听使用
+      this.fileDesc = form.fileDesc
 
-      //抓取当前时间+是否改版，以作回滚用
+      // 抓取当前时间+是否改版，以作回滚用
       this.rollbackData.lastModifiedDate = new Date()
       this.rollbackData.approvalStatus = form.approvalStatus
 
@@ -874,7 +896,7 @@ export default {
       }
       // console.log('绑定项的值来源：' + JSON.stringify(form.bindFiles))
       // console.log('初始化编辑的内容：' + JSON.stringify(_this.bindFileDatas))
-      _this.bindDatas = _this.bindFileDatas  //关联文件，监听使用
+      _this.bindDatas = _this.bindFileDatas  // 关联文件，监听使用
       if (this.form.approvalStatus === 'waitingfor') {
         this.count = 1
       }
@@ -895,17 +917,14 @@ export default {
     // 上传文件
     upload() {
       this.$refs.upload.submit()
-    }
-    ,
+    },
     cancelCover() {
       this.form.isRevision = 'false'
-    }
-    ,
+    },
     // 上传覆盖文件
     async cover() {
       this.$refs.coverUpload.submit()
-    }
-    ,
+    },
     beforeUpload: function(file) {
       if (!this.form.fileLevel.id) {
         this.$message({
@@ -936,21 +955,20 @@ export default {
       }
       this.form.name = file.name
       return isLt2M
-    }
-    ,
-    //改版切换时候判断是否已有审批
+    },
+    // 改版切换时候判断是否已有审批
     agreeChange(val) {
       if (this.form.approvalStatus === 'waitingfor' && val === 'true') {
-        this.$confirm('检测已有覆盖文件待审批，是否确认撤销上一次的提交？', '确认信息', {
+        this.$confirm('Replaced file existed! Really cancel the last submission?检测已有覆盖文件待审批，是否确认撤销上一次的提交？', '确认信息', {
           distinguishCancelAndClose: true,
-          confirmButtonText: '确定撤销',
-          cancelButtonText: '放弃撤销'
+          confirmButtonText: 'Yes 确定撤销',
+          cancelButtonText: 'NO 放弃撤销'
         })
           .then(() => {
             cancelCover(this.form.id).then(res => {
               this.$message({
                 type: 'info',
-                message: '确定撤销'
+                message: 'Reverse 确定撤销'
               })
               this.coverFileCount++
               this.form.isRevision = 'false'
@@ -962,14 +980,13 @@ export default {
             this.$message({
               type: 'info',
               message: action === 'cancel'
-                ? '放弃撤销'
-                : '暂停留本页面，考虑一下'
+                ? 'Save Cover 放弃撤销'
+                : 'Reconsider 暂停留本页面，考虑一下'
             })
           })
         this.form.isRevision = 'false'
       }
-    }
-    ,
+    },
     beforeCover: function(file) {
       if (!file) {
         this.$message({
@@ -986,16 +1003,14 @@ export default {
       }
       // this.form.name = file.name
       return isLt2M
-    }
-    ,
+    },
     handleSuccess(response, file, fileList) {
       this.crud.notify('Upload Success! 上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       this.$refs.upload.clearFiles()
       this.crud.status.add = CRUD.STATUS.NORMAL
       this.crud.resetForm()
       this.crud.toQuery()
-    }
-    ,
+    },
     // 覆盖成功
     coverSuccess(response, file, fileList) {
       this.coverFileCount++
@@ -1008,8 +1023,7 @@ export default {
       this.form.approvalStatus = 'waitingfor'
       this.form.isRevision = 'false'
       this.crud.toQuery()
-    }
-    ,
+    },
     // 监听上传失败
     handleError(e, file, fileList) {
       const msg = JSON.parse(e.message)
@@ -1019,16 +1033,14 @@ export default {
         duration: 2500
       })
       this.loading = false
-    }
-    ,
+    },
     // 获取弹窗内可绑定的文件数据
     getAllFiles() {
       getAllFiles().then(res => {
         this.bindFiles = res.content
       }).catch(() => {
       })
-    }
-    ,
+    },
     // 填充文件等级数据
     getFileLevels() {
       getFileLevels({ enabled: true }).then(res => {
@@ -1223,22 +1235,23 @@ export default {
     },
     // 双击选中的行列
     dbSelected(row) {
-      // console.log(JSON.stringify(row))
+      // alert(JSON.stringify(row))
       this.checkboxT(row)
       this.$router.push(
         {
           path: '/sys-tools/filedetail',
           query: {
             fileId: row.id,
-            realName: row.realName
+            name: row.name,
+            realName: row.realName,
+            fileDesc: row.fileDesc
           }
         })
     },
     watchChangeHandler(val, newVal) {
-      /*alert('旧数据：' + JSON.stringify(val))
-      alert('新数据：' + JSON.stringify(newVal))*/
       if (val !== newVal) {
-        this.editFormChanged = true
+        this.editFormChanged++
+        // this.form.changeDesc += '改动' + this.editFormChanged + ':"' + val + '"->' + '"' + newVal + '"'
       }
     }
   }
