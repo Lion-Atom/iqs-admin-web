@@ -77,8 +77,11 @@
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
               </el-option>
             </el-select>
-            <date-range-picker v-model="query.createTime" @change="crud.toQuery" @input="dateTimeChange($event)"
-                               class="date-item"
+            <date-range-picker
+              v-model="query.createTime"
+              @change="crud.toQuery"
+              @input="dateTimeChange($event)"
+              class="date-item"
             />
             <el-select
               v-model="query.fileStatus"
@@ -121,8 +124,10 @@
                           <el-input v-model="form.realName" style="width: 400px;" />
                         </el-form-item>-->
             <el-form-item v-if="!crud.status.add" label="文件版本">
-              <el-input v-model="form.version"
-                        style="width: 400px;color:#fff;!important;background-color: #fff;!important;" disabled
+              <el-input
+                v-model="form.version"
+                style="width: 400px;color:#fff;!important;background-color: #fff;!important;"
+                disabled
               />
             </el-form-item>
             <el-row>
@@ -307,8 +312,8 @@
                   + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType
                   + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime + '&fileDesc=' + form.fileDesc"
               >
-                <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
-                <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                <div class="eladmin-upload"><i class="el-icon-upload"/> Add file 添加文件</div>
+                <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件，且不超过100M</div>
               </el-upload>
             </el-form-item>
             <!-- 关联文件 -->
@@ -354,7 +359,9 @@
                   :to="{path: '/sys-tools/filedetail',
                           query: {
                             fileId: item.id ,
-                            realName:item.realName
+                            name: item.name,
+                            realName:item.realName,
+                            fileDesc:item.fileDesc
                           }
                     }"
                 >
@@ -565,24 +572,24 @@ export default {
       sum: 0,
       coverFileCount: 0,
       rollbackData: {
-        lastModifiedDate: null,//抓取开始编辑的事件以便版本回滚
+        lastModifiedDate: null, // 抓取开始编辑的事件以便版本回滚
         approvalStatus: null,
         storageId: null
       },
       fileType: null, // 文件类型，监听使用
-      fileStatus: null, //文件状态，监听使用
-      approvalStatus: null, //审批状态，监听使用
-      name: null,//文件名称，监听使用
-      fileDept: { id: null }, //所属部门，监听使用
-      fileLevel: { id: null }, //文件等级，监听使用
-      bindDatas: [], //关联文件，监听使用
-      fileDesc: null,//文件描述，监听使用
+      fileStatus: null, // 文件状态，监听使用
+      approvalStatus: null, // 审批状态，监听使用
+      name: null, // 文件名称，监听使用
+      fileDept: { id: null }, // 所属部门，监听使用
+      fileLevel: { id: null }, // 文件等级，监听使用
+      bindDatas: [], // 关联文件，监听使用
+      fileDesc: null, // 文件描述，监听使用
       delAllLoading: false,
       loading: false,
       height: document.documentElement.clientHeight - 180 + 'px;',
       fileLevelName: '',
       fileCategoryName: '',
-      fileCategory: { id: null }, //文件分类，监听使用
+      fileCategory: { id: null }, // 文件分类，监听使用
       fileLevels: [],
       fileDepts: [],
       fileCategories: [],
@@ -654,6 +661,16 @@ export default {
       'fileCoverUploadApi'
     ])
   },
+  watch: {
+    count: {
+      handler(val, oldVal) {
+        if (val !== oldVal && val !== 1) {
+          this.sum++
+        }
+      },
+      deep: true
+    }
+  },
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
   },
@@ -689,18 +706,8 @@ export default {
       this.fileLevelName = this.$route.query.fileLevelName
       const data = { id: null }
       data.id = this.$route.query.fileLevelId
-      // todo 展开对应的文件级别
+      // 展开对应的文件级别
       this.handleLevelNodeClick(data)
-    }
-  },
-  watch: {
-    count: {
-      handler(val, oldVal) {
-        if (val !== oldVal && val !== 1) {
-          this.sum++
-        }
-      },
-      deep: true
     }
   },
   methods: {
@@ -714,15 +721,15 @@ export default {
         return false
       }
       // 如果啥都没改动，则无需保存
-      this.watchChangeHandler(this.fileCategory.id, this.form.fileCategory.id) //文件分类，监听使用
-      this.watchChangeHandler(this.fileType, this.form.fileType) //文件类型，监听使用
-      this.watchChangeHandler(this.fileStatus, this.form.fileStatus) //文件状态，监听使用
-      this.watchChangeHandler(this.approvalStatus, this.form.approvalStatus) //文件审批状态，监听使用
-      this.watchChangeHandler(this.name, this.form.name) //文件名称，监听使用
-      this.watchChangeHandler(this.fileDept.id, this.form.fileDept.id) //所属部门，监听使用
-      this.watchChangeHandler(this.fileLevel.id, this.form.fileLevel.id) //文件等级，监听使用
-      this.watchChangeHandler(this.bindDatas, this.bindFileDatas)  //关联文件，监听使用
-      this.watchChangeHandler(this.fileDesc, this.form.fileDesc)  //关联文件，监听使用
+      this.watchChangeHandler(this.fileCategory.id, this.form.fileCategory.id) // 文件分类，监听使用
+      this.watchChangeHandler(this.fileType, this.form.fileType) // 文件类型，监听使用
+      this.watchChangeHandler(this.fileStatus, this.form.fileStatus) // 文件状态，监听使用
+      this.watchChangeHandler(this.approvalStatus, this.form.approvalStatus) // 文件审批状态，监听使用
+      this.watchChangeHandler(this.name, this.form.name) // 文件名称，监听使用
+      this.watchChangeHandler(this.fileDept.id, this.form.fileDept.id) // 所属部门，监听使用
+      this.watchChangeHandler(this.fileLevel.id, this.form.fileLevel.id) // 文件等级，监听使用
+      this.watchChangeHandler(this.bindDatas, this.bindFileDatas) // 关联文件，监听使用
+      this.watchChangeHandler(this.fileDesc, this.form.fileDesc) // 关联文件，监听使用
 
       if (this.editFormChanged === 0) {
         this.$message({
@@ -732,6 +739,9 @@ export default {
         return false
       }
       this.crud.submitCU()
+      if (this.$route.query.fileName !== undefined) {
+        this.query.blurry = this.form.name
+      }
     },
     getRowKeys(row) {
       return row.id
@@ -822,7 +832,7 @@ export default {
       }
       // alert(JSON.stringify(bindingFiles))
     },
-    //取消前检测是否存在覆盖文件的编辑操作
+    // 取消前检测是否存在覆盖文件的编辑操作
     cancelOperation() {
       // coverFileCount监控是否发生了覆盖事件
       if (this.coverFileCount > 0) {
@@ -874,7 +884,7 @@ export default {
       this.approvalStatus = form.approvalStatus // 文件审批状态，监听使用
       this.name = form.name // 文件名称，监听使用
       this.fileDept.id = form.fileDept.id // 所属部门，监听使用
-      this.fileLevel.id = form.fileLevel.id  // 文件等级，监听使用
+      this.fileLevel.id = form.fileLevel.id // 文件等级，监听使用
       this.fileDesc = form.fileDesc
 
       // 抓取当前时间+是否改版，以作回滚用
@@ -896,7 +906,7 @@ export default {
       }
       // console.log('绑定项的值来源：' + JSON.stringify(form.bindFiles))
       // console.log('初始化编辑的内容：' + JSON.stringify(_this.bindFileDatas))
-      _this.bindDatas = _this.bindFileDatas  // 关联文件，监听使用
+      _this.bindDatas = _this.bindFileDatas // 关联文件，监听使用
       if (this.form.approvalStatus === 'waitingfor') {
         this.count = 1
       }
