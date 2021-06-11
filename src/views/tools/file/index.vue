@@ -333,7 +333,7 @@
               </el-col>
             </el-row>
             <!-- 关联文件 -->
-            <el-form-item v-if="!crud.status.add" label="关联文件" prop="bindFiles">
+            <el-form-item v-if="!crud.status.add" label="参考文件" prop="bindFiles">
               <el-select
                 v-model="bindFileDatas"
                 style="width: 400px"
@@ -351,7 +351,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item v-if="bindFileDatas.length>0" label="关联文件列表" prop="bindFiles">
+            <el-form-item v-if="bindFileDatas.length>0" label="参考文件列表" prop="bindFiles">
               <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 5px;">
                 <!--                <el-button type="text">-->
                 <router-link
@@ -584,6 +584,7 @@ export default {
       fileLevel: { id: null }, // 文件等级，监听使用
       bindDatas: [], // 关联文件，监听使用
       fileDesc: null, // 文件描述，监听使用
+      securityLevel: null, // 安全等级
       delAllLoading: false,
       loading: false,
       height: document.documentElement.clientHeight - 180 + 'px;',
@@ -729,7 +730,8 @@ export default {
       this.watchChangeHandler(this.fileDept.id, this.form.fileDept.id) // 所属部门，监听使用
       this.watchChangeHandler(this.fileLevel.id, this.form.fileLevel.id) // 文件等级，监听使用
       this.watchChangeHandler(this.bindDatas, this.bindFileDatas) // 关联文件，监听使用
-      this.watchChangeHandler(this.fileDesc, this.form.fileDesc) // 关联文件，监听使用
+      this.watchChangeHandler(this.fileDesc, this.form.fileDesc) // 文件描述，监听使用
+      this.watchChangeHandler(this.securityLevel, this.form.securityLevel) // 安全等级，监听使用
 
       if (this.editFormChanged === 0) {
         this.$message({
@@ -740,7 +742,8 @@ export default {
       }
       this.crud.submitCU()
       if (this.$route.query.fileName !== undefined) {
-        this.query.blurry = this.form.name
+        this.query.blurry = ''
+        // this.crud.toQuery()
       }
     },
     getRowKeys(row) {
@@ -886,6 +889,7 @@ export default {
       this.fileDept.id = form.fileDept.id // 所属部门，监听使用
       this.fileLevel.id = form.fileLevel.id // 文件等级，监听使用
       this.fileDesc = form.fileDesc
+      this.securityLevel = form.securityLevel
 
       // 抓取当前时间+是否改版，以作回滚用
       this.rollbackData.lastModifiedDate = new Date()
