@@ -179,7 +179,7 @@
                       </el-form>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="username" label="用户名" width="150px"/>
+                  <el-table-column prop="username" label="操作人" width="150px"/>
                   <el-table-column prop="logType" label="日志类型" width="150px"/>
                   <el-table-column prop="description" label="描述" width="200px"/>
                   <el-table-column prop="descriptionDetail" label="变更明细" :formatter="stateFormat"/>
@@ -284,8 +284,8 @@ export default {
       this.realName = this.$route.query.realName
       this.fileDesc = this.$route.query.fileDesc
       this.crud.toQuery(this.query.bindingId)
-      this.getAllFiles()
     }
+    this.getAllFiles()
     this.crud.optShow = {
       add: false,
       edit: false,
@@ -316,7 +316,7 @@ export default {
           }
           return obj
         })*/
-        if (data.length > 0 && this.$route.query.fileId === null) {
+        if (data.length > 0 && (this.$route.query.fileId === null || this.$route.query.fileId === undefined)) {
           // this.file = data[0].id
           this.fileSelected.id = data[0].id
           this.fileSelected.name = data[0].name

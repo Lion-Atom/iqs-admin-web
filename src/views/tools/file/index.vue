@@ -38,6 +38,7 @@
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
               @input="inputChange($event)"
+              v-on:change="blurryChange"
             />
             <!-- 文件分类筛选，需要更改为树表筛选 -->
             <treeselect
@@ -686,7 +687,7 @@ export default {
     // 详情返回列表中某一列处于命中状态
     if (this.$route.query.fileName !== undefined) {
       this.query.blurry = this.$route.query.fileName
-      this.crud.toQuery()
+      this.blurryChange(this.query.blurry)
     }
     if (this.$route.query.fileType !== undefined) {
       this.query.fileType = this.$route.query.fileType
@@ -712,6 +713,9 @@ export default {
     }
   },
   methods: {
+    blurryChange(blurry) {
+      this.crud.toQuery()
+    },
     submitConfirm() {
       // 发起改版但未上传覆盖文件
       if (this.form.isRevision === 'true' && this.coverFileCount < 1) {
