@@ -353,7 +353,7 @@
               </el-select>
             </el-form-item>
             <el-form-item v-if="bindFileDatas.length>0" label="参考文件列表" prop="bindFiles">
-              <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 5px;">
+              <div v-for="(item,index) in bindFileItems" v-bind:key="item" style="margin-left: 5px;">
                 <!--                <el-button type="text">-->
                 <router-link
                   style="text-decoration:underline;"

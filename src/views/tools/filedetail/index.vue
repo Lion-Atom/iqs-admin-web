@@ -110,7 +110,7 @@
           <el-row>
             <el-col>
               <div v-if="bindFileItems.length>0">
-                <div v-for="(item,index) in bindFileItems" style="margin-left: 10px;">
+                <div v-for="(item,index) in bindFileItems" v-bind:key="item" style="margin-left: 10px;">
                   <el-button type="text" @click.native="refFile(item.id)">
                     {{ '[' + (index + 1) + '] ' + item.name + ',' + item.version }}
                   </el-button>
@@ -138,7 +138,7 @@
                       v-model="query.blurry"
                       clearable
                       size="small"
-                      style="width: 140px;"
+                      style="width: 180px;"
                       placeholder="请输入你要搜索的内容"
                       class="filter-item"
                     />
@@ -310,12 +310,6 @@ export default {
           const file = { id: v.id, name: v.name }
           _this.files.push(file)
         })
-        /*this.files = data.map(function(obj) {
-          if (obj.hasChildren) {
-            obj.children = null
-          }
-          return obj
-        })*/
         if (data.length > 0 && (this.$route.query.fileId === null || this.$route.query.fileId === undefined)) {
           // this.file = data[0].id
           this.fileSelected.id = data[0].id

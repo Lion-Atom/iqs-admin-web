@@ -7,9 +7,26 @@ export function getAllJob() {
     enabled: true
   }
   return request({
+    url: 'api/job/queryAll',
+    method: 'get',
+    params
+  })
+}
+
+export function getJobs(params) {
+  return request({
     url: 'api/job',
     method: 'get',
     params
+  })
+}
+
+export function getJobSuperior(ids) {
+  const data = ids.length || ids.length === 0 ? ids : Array.of(ids)
+  return request({
+    url: 'api/job/superior',
+    method: 'post',
+    data
   })
 }
 
@@ -37,4 +54,4 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del }
+export default { add, edit, del, getAllJob, getJobs, getJobSuperior }

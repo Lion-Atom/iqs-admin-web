@@ -97,7 +97,7 @@
                 <el-option
                   v-for="item in jobs"
                   :key="item.name"
-                  :label="item.name"
+                  :label='item.name + "\xa0\xa0\xa0[第"+ item.jobSort +"等级]"'
                   :value="item.id"
                 />
               </el-select>
