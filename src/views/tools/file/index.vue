@@ -114,7 +114,7 @@
           :before-close="crud.cancelCU"
           :visible.sync="crud.status.cu > 0"
           :title="crud.status.add ? '文件上传' : '编辑文件'"
-          width="728px"
+          width="760px"
         >
           <el-form ref="form" :model="form" size="small" label-width="120px">
             <el-form-item label="文件名称">
@@ -242,17 +242,20 @@
                       :value="item.value"
                     />
                   </el-select>
+                  <el-button type="text" @click="sendEmail" v-if="form.approvalStatus === 'waitingfor'">发起申请</el-button>
                 </el-form-item>
+                <!-- 发起审批 -->
+
               </el-col>
               <el-col :span="12">
                 <el-form-item v-if="!crud.status.add">
                   <span slot="label">
                 <span class="span-box">
-                  <span>是否改版</span>
                    <el-tooltip placement="top" effect="light">
-                     <div slot="content">Choose 'true' ,you can Upgrade version via uploading new coverFile.<br/>切换到”是”可以上传覆盖文件进而发起升版请求.</div>
-                  <i class="el-icon-question"></i>
+                     <div slot="content">Choose 'true' ,you can Upgrade version via uploading new coverFile.<br/>切换到“是“可以上传覆盖文件进而发起升版请求.</div>
+                     <i class="el-icon-question"></i>
                    </el-tooltip>
+                  <span>是否改版</span>
                 </span>
               </span>
                   <el-radio-group v-model="form.isRevision" @change="agreeChange">
@@ -520,7 +523,14 @@
 </template>
 
 <script>
-import crudFile from '@/api/tools/localStorage'
+import crudFile, {
+  getAllFiles,
+  getOtherFiles,
+  getFilesByIds,
+  cancelCover,
+  rollbackCover,
+  getPreTrailByFileId
+} from '@/api/tools/localStorage'
 import { getFileLevels, getFileLevelSuperior } from '@/api/tools/filelevel'
 import { getFileCategories, getFileCategorySuperior } from '@/api/tools/filecategory'
 import { getDepts, getDeptSuperior } from '@/api/system/dept'
@@ -535,7 +545,6 @@ import { mapGetters } from 'vuex'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getToken } from '@/utils/auth'
-import { getAllFiles, getOtherFiles, getFilesByIds, cancelCover, rollbackCover } from '@/api/tools/localStorage'
 
 let bindingFiles = []
 const defaultForm = {
@@ -550,7 +559,7 @@ const defaultForm = {
   fileLevel: { id: null },
   expirationTime: '9999-12-31 00:00:00.152',
   changeDesc: '',
-  fileDesc: null,
+  fileDesc: '',
   fileCategory: { id: null },
   fileDept: { id: null },
   bindFiles: []
@@ -584,7 +593,7 @@ export default {
       fileDept: { id: null }, // 所属部门，监听使用
       fileLevel: { id: null }, // 文件等级，监听使用
       bindDatas: [], // 关联文件，监听使用
-      fileDesc: null, // 文件描述，监听使用
+      fileDesc: '', // 文件描述，监听使用
       securityLevel: null, // 安全等级
       delAllLoading: false,
       loading: false,
@@ -602,6 +611,7 @@ export default {
       bindFiles: [],
       bindFileItems: [],
       fileId: null,
+      preTrail: {},
       pickerOptions: {
         shortcuts: [{
           text: '一天',
@@ -716,6 +726,12 @@ export default {
     blurryChange(blurry) {
       this.crud.toQuery()
     },
+    // 发起申请，投递邮件
+    sendEmail() {
+      alert(JSON.stringify(this.preTrail))
+      // todo 发送主题内容：this.preTrail
+    },
+    // 编辑后保存确认校验
     submitConfirm() {
       // 发起改版但未上传覆盖文件
       if (this.form.isRevision === 'true' && this.coverFileCount < 1) {
@@ -745,10 +761,11 @@ export default {
         return false
       }
       this.crud.submitCU()
-      if (this.$route.query.fileName !== undefined) {
+      /* if (this.$route.query.fileName !== undefined) {
         this.query.blurry = ''
-        // this.crud.toQuery()
-      }
+        this.crud.toQuery()
+      } */
+      this.crud.resetQuery()
     },
     getRowKeys(row) {
       return row.id
@@ -900,6 +917,7 @@ export default {
       this.rollbackData.approvalStatus = form.approvalStatus
 
       this.getOtherFiles(this.form.id)
+      this.getPreTrails(this.form.id)
       this.bindFileDatas = []
       bindingFiles = []
       const _this = this
@@ -971,7 +989,9 @@ export default {
         this.loading = false
         this.$message.error('上传文件大小不能超过 100MB!')
       }
-      this.form.name = file.name
+      if (this.form.name === '' || this.form.name === undefined) {
+        this.form.name = file.name
+      }
       return isLt2M
     },
     // 改版切换时候判断是否已有审批
@@ -1031,6 +1051,7 @@ export default {
     },
     // 覆盖成功
     coverSuccess(response, file, fileList) {
+      // alert(JSON.stringify(response))
       this.coverFileCount++
       this.crud.notify('CoverFile Upload Success! 待审批覆盖文件上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       if (this.coverFileCount > 1) {
@@ -1040,10 +1061,12 @@ export default {
       }
       this.form.approvalStatus = 'waitingfor'
       this.form.isRevision = 'false'
+      this.preTrail = response[0]
       this.crud.toQuery()
     },
     // 监听上传失败
     handleError(e, file, fileList) {
+      this.form.name = ''
       const msg = JSON.parse(e.message)
       this.$notify({
         title: msg.message,
@@ -1057,6 +1080,14 @@ export default {
       getAllFiles().then(res => {
         this.bindFiles = res.content
       }).catch(() => {
+      })
+    },
+    // 获取文件待审批项
+    getPreTrails(id) {
+      // alert(JSON.stringify(id))
+      getPreTrailByFileId(id).then(res => {
+        // alert(JSON.stringify(res))
+        this.preTrail = res[0]
       })
     },
     // 填充文件等级数据

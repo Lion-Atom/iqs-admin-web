@@ -2,19 +2,20 @@
   <div>
     <el-form ref="form" :model="form" :rules="rules" style="margin-top: 6px;" size="small" label-width="100px">
       <el-form-item label="邮件标题" prop="subject">
-        <el-input v-model="form.subject" style="width: 646px" />
+        <el-input v-model="form.subject" style="width: 636px"/>
       </el-form-item>
       <el-form-item
         v-for="(domain, index) in tos"
         :key="domain.key"
         :label="'收件邮箱' + (index === 0 ? '': index)"
       >
-        <el-input v-model="domain.value" style="width: 550px" />
-        <el-button icon="el-icon-plus" @click="addDomain" />
-        <el-button style="margin-left:0;" icon="el-icon-minus" @click.prevent="removeDomain(domain)" />
+        <el-input v-model="domain.value" style="width: 550px"/>
+        <el-button icon="el-icon-plus" @click="addDomain"/>
+        <el-button style="margin-left:0;" icon="el-icon-minus" @click.prevent="removeDomain(domain)"/>
       </el-form-item>
-      <div ref="editor" class="editor" />
-      <el-button :loading="loading" style="margin-left:1.6%;" size="medium" type="primary" @click="doSubmit">发送邮件</el-button>
+      <div class="editor" ref="editor" v-model="form.content"/>
+      <el-button :loading="loading" style="margin-left:1.6%;" size="medium" type="primary" @click="doSubmit">发送邮件
+      </el-button>
     </el-form>
   </div>
 </template>
@@ -25,11 +26,17 @@ import { upload } from '@/utils/upload'
 import { validEmail } from '@/utils/validate'
 import { mapGetters } from 'vuex'
 import E from 'wangeditor'
+
 export default {
   name: 'Index',
   data() {
     return {
-      loading: false, form: { subject: '', tos: [], content: '' },
+      loading: false,
+      form: {
+        subject: '',
+        tos: [],
+        content: ''
+      },
       tos: [{
         value: ''
       }],
@@ -42,7 +49,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'imagesUploadApi'
+      'imagesUploadApi',
+      'baseApi'
     ])
   },
   mounted() {
@@ -52,13 +60,11 @@ export default {
     editor.customConfig.zIndex = 10
     // 文件上传
     editor.customConfig.customUploadImg = function(files, insert) {
-      // files 是 input 中选中的文件列表
-      // insert 是获取图片 url 后，插入到编辑器的方法
       files.forEach(image => {
-        files.forEach(image => {
-          upload(_this.imagesUploadApi, image).then(data => {
-            insert(data.data.url)
-          })
+        upload(_this.imagesUploadApi, image).then(res => {
+          const data = res.data
+          const url = _this.baseApi + '/file/' + data.type + '/' + data.realName
+          insert(url)
         })
       })
     }
@@ -108,7 +114,9 @@ export default {
               sub = true
             }
           })
-          if (sub) { return false }
+          if (sub) {
+            return false
+          }
           this.loading = true
           send(this.form).then(res => {
             this.$notify({
@@ -131,12 +139,13 @@ export default {
 </script>
 
 <style scoped>
-  .editor{
-    text-align:left;
-    margin: 20px;
-    width: 730px;
-  }
- ::v-deep .w-e-text-container {
-    height: 360px !important;
-  }
+.editor {
+  text-align: left;
+  margin: 20px 20px 10px 20px;
+  width: 730px;
+}
+
+::v-deep .w-e-text-container {
+  height: 360px !important;
+}
 </style>

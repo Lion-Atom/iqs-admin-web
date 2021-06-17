@@ -48,8 +48,11 @@
               @input="crud.toQuery"
               style="width:220px"
             />
-            <date-range-picker v-model="query.createTime" class="date-item" @change="crud.toQuery"
-                               @input="change($event)"
+            <date-range-picker
+              v-model="query.createTime"
+              class="date-item"
+              @change="crud.toQuery"
+              @input="change($event)"
             />
             <el-select
               v-model="query.enabled"
@@ -67,13 +70,18 @@
                 :value="item.key"
               />
             </el-select>
-            <rrOperation />
+            <rrOperation/>
           </div>
-          <crudOperation show="" :permission="permission" />
+          <crudOperation show="" :permission="permission"/>
         </div>
         <!--表单渲染-->
-        <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU"
-                   :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="650px"
+        <el-dialog
+          append-to-body
+          :close-on-click-modal="false"
+          :before-close="crud.cancelCU"
+          :visible.sync="crud.status.cu > 0"
+          :title="crud.status.title"
+          width="650px"
         >
           <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
             <el-row>
@@ -169,6 +177,7 @@
                           </el-select>
                         </el-form-item>-->
             <el-row>
+              <!-- 非管理员，其角色至多添加级别比自己（原始角色）低的等级角色 -->
               <el-form-item style="margin-bottom: 0;" label="角色" prop="roles">
                 <el-select
                   v-model="roleDatas"
@@ -252,7 +261,7 @@ import crudUser from '@/api/system/user'
 import { isvalidPhone } from '@/utils/validate'
 import { getDepts, getDeptSuperior } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
-import { getAllJob, getJobs, getJobSuperior } from '@/api/system/job'
+import { getJobs, getJobSuperior } from '@/api/system/job'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -580,11 +589,11 @@ export default {
       }).catch(() => { })
     },
     // 获取弹窗内岗位数据
-    /*getJobs() {
+    /* getJobs() {
       getAllJob().then(res => {
         this.jobs = res.content
       }).catch(() => { })
-    },*/
+    }, */
     // 获取权限级别
     getRoleLevel() {
       getLevel().then(res => {

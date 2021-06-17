@@ -42,6 +42,7 @@ import BarChart from '@/components/Echarts/BarChart'
 import DoughnutChart from '@/components/Echarts/DoughnutChart'
 import DateRangePicker from '@/components/DateRangePicker'
 import { queryByCond } from '@/api/overview/overview'
+import Date from '@/utils/datetime'
 
 const lineChartData = {
   departments: {
@@ -92,9 +93,9 @@ export default {
     }
   },
   mounted() {
-    const date = new Date()
-    date.setTime(date.getTime() - 3600 * 1000 * 24 * 30)
-    this.query.createTime = [date, new Date()]
+    const startTime = new Date(new Date().quarterBegin().setHours(0, 0, 0))
+    const endTime = new Date(new Date().setHours(23, 59, 59))
+    this.query.createTime = [startTime, endTime]
     this.queryAllByCond(this.defaultCategory, this.query.createTime)
   },
   methods: {

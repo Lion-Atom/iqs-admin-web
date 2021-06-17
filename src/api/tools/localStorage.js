@@ -24,6 +24,17 @@ export function getFileById(id) {
   })
 }
 
+export function getPreTrailByFileId(id) {
+  const params = {
+    fileId: id
+  }
+  return request({
+    url: 'api/localStorage/getPreTrailByFileId',
+    method: 'get',
+    params
+  })
+}
+
 export function getOtherFiles(id) {
   const params = {
     page: 0,
