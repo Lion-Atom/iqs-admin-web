@@ -28,6 +28,7 @@ export default {
   data() {
     return {
       chartData: [],
+      subText: 'All',
       chart: null
     }
   },
@@ -54,6 +55,7 @@ export default {
     getChartDateByFileType() {
       getCountByFileType().then(res => {
         this.chartData = res.totalElements
+        this.subText = res.scope
         if (this.chartData.length > 0) {
           this.initChart()
         }
@@ -65,7 +67,8 @@ export default {
       this.chart.setOption({
         title: {
           text: '类型关联文件图',
-          subtext: 'FileType&File',
+          // subtext: 'FileType&File',
+          subtext: 'Scope:' + this.subText,
           left: 'center'
         },
         tooltip: {

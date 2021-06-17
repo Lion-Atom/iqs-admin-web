@@ -16,12 +16,14 @@
       <div class="editor" ref="editor" v-model="form.content"/>
       <el-button :loading="loading" style="margin-left:1.6%;" size="medium" type="primary" @click="doSubmit">发送邮件
       </el-button>
+      <el-button :loading="loading" style="margin-left:1.6%;" size="medium" type="primary" @click="agentSubmit">管理员代发
+      </el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-import { send } from '@/api/tools/email'
+import { send, adminSend } from '@/api/tools/email'
 import { upload } from '@/utils/upload'
 import { validEmail } from '@/utils/validate'
 import { mapGetters } from 'vuex'
@@ -35,7 +37,8 @@ export default {
       form: {
         subject: '',
         tos: [],
-        content: ''
+        content: '',
+        isAdminSend: false
       },
       tos: [{
         value: ''
@@ -118,6 +121,50 @@ export default {
             return false
           }
           this.loading = true
+          send(this.form).then(res => {
+            this.$notify({
+              title: '发送成功',
+              type: 'success',
+              duration: 2500
+            })
+            this.loading = false
+          }).catch(err => {
+            this.loading = false
+            console.log(err.response.data.message)
+          })
+        } else {
+          return false
+        }
+      })
+    },
+    agentSubmit() {
+      const _this = this
+      this.$refs['form'].validate((valid) => {
+        this.form.tos = []
+        if (valid) {
+          let sub = false
+          this.tos.forEach(function(data, index) {
+            if (data.value === '') {
+              _this.$message({
+                message: '收件邮箱不能为空',
+                type: 'warning'
+              })
+              sub = true
+            } else if (validEmail(data.value)) {
+              _this.form.tos.push(data.value)
+            } else {
+              _this.$message({
+                message: '收件邮箱格式错误',
+                type: 'warning'
+              })
+              sub = true
+            }
+          })
+          if (sub) {
+            return false
+          }
+          this.loading = true
+          this.form.isAdminSend = true
           send(this.form).then(res => {
             this.$notify({
               title: '发送成功',

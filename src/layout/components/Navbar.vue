@@ -34,9 +34,11 @@
             </el-dropdown-item>
           </span>
           <router-link to="/user/center">
-            <el-dropdown-item>
-              个人中心
-            </el-dropdown-item>
+            <el-badge :value="12" :max="99">
+              <el-dropdown-item>
+                个人中心
+              </el-dropdown-item>
+            </el-badge>
           </router-link>
           <span style="display:block;" @click="open">
             <el-dropdown-item divided>

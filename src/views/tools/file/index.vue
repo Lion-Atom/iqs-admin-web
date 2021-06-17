@@ -169,7 +169,14 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="文件类型" prop="fileType">
-                  <el-select v-model="form.fileType" clearable placeholder="--none--" style="width: 190px">
+                  <el-select
+                    v-model="form.fileType"
+                    clearable
+                    placeholder="--none--"
+                    ref="fileTypeSearch"
+                    @focus="focusFileTypeValue"
+                    style="width: 190px"
+                  >
                     <el-option
                       v-for="item in dict.file_type"
                       :key="item.id"
@@ -200,7 +207,10 @@
                 <el-form-item label="文件状态" prop="fileStatus" required>
                   <el-select
                     v-model="form.fileStatus"
+                    filterable
                     style="background: none;"
+                    ref="fileStatusSearch"
+                    @focus="focusFileStatusValue"
                   >
                     <el-option
                       v-for="item in dict.file_status"
@@ -217,7 +227,7 @@
             </el-row>
             <el-row>
               <el-col v-if="form.fileStatus === 'temp'" :span="12">
-                <el-form-item label="过期时间" prop="form.expirationTime" required>
+                <el-form-item label="过期时间" prop="expirationTime" required>
                   <el-date-picker
                     v-model="form.expirationTime"
                     type="datetime"
@@ -346,6 +356,8 @@
                 placeholder="请选择"
                 @remove-tag="deleteTag"
                 @change="changeBindFile"
+                ref="bindFileSearch"
+                @focus="focusBindFileValues"
               >
                 <el-option
                   v-for="item in bindFiles"
@@ -429,19 +441,9 @@
                 trigger="hover"
               >
                 <!--可下载文件-->
-                <!--                <a
-                                  slot="reference"
-                                  :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
-                                  class="el-link&#45;&#45;primary"
-                                  style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
-                                  target="_blank"
-                                  :download="scope.row.realName"
-                                >
-                                  {{ scope.row.name }}
-                                </a>-->
-                <!--不下载文件-->
                 <a
                   slot="reference"
+                  :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
                   class="el-link--primary"
                   style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
                   target="_blank"
@@ -449,6 +451,16 @@
                 >
                   {{ scope.row.name }}
                 </a>
+                <!--不下载文件-->
+                <!--                <a
+                                  slot="reference"
+                                  class="el-link&#45;&#45;primary"
+                                  style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                                  target="_blank"
+                                  :download="scope.row.realName"
+
+                {{ scope.row.name }}
+                </a>>-->
                 <!--自定义指令下载文件（包含txt、jpg等，但chrome浏览器不支持）-->
                 <!--                <span
                                   slot="reference"
@@ -703,6 +715,7 @@ export default {
       this.query.fileType = this.$route.query.fileType
       this.crud.toQuery()
     }
+    // 部门跳转--管理员时候则直接传值，如果不是则需要转为权限内的部门
     if (this.$route.query.deptId !== undefined) {
       this.query.deptId = this.$route.query.deptId
       this.crud.toQuery()
@@ -769,6 +782,20 @@ export default {
     },
     getRowKeys(row) {
       return row.id
+    },
+    // 文件类型中设置焦点失效
+    focusFileTypeValue() {
+      this.$refs.fileTypeSearch.$refs.input.blur()
+    },
+    // 文件状态中设置焦点失效
+    focusFileStatusValue() {
+      this.$refs.fileStatusSearch.$refs.input.blur()
+    },
+    // 参考文件中设置焦点失效
+    focusBindFileValues() {
+      this.$refs.bindFileSearch.$refs.input.blur = () => {
+        console.log(0)
+      }
     },
     // 监控模糊查询输入框变化，强制刷新
     inputChange() {
@@ -952,16 +979,6 @@ export default {
     },
     // 上传文件
     upload() {
-      this.$refs.upload.submit()
-    },
-    cancelCover() {
-      this.form.isRevision = 'false'
-    },
-    // 上传覆盖文件
-    async cover() {
-      this.$refs.coverUpload.submit()
-    },
-    beforeUpload: function(file) {
       if (!this.form.fileLevel.id) {
         this.$message({
           message: '文件等级必须设置',
@@ -983,6 +1000,16 @@ export default {
         })
         return false
       }
+      this.$refs.upload.submit()
+    },
+    cancelCover() {
+      this.form.isRevision = 'false'
+    },
+    // 上传覆盖文件
+    async cover() {
+      this.$refs.coverUpload.submit()
+    },
+    beforeUpload: function(file) {
       let isLt2M = true
       isLt2M = file.size / 1024 / 1024 < 100
       if (!isLt2M) {

@@ -30,6 +30,7 @@ export default {
     return {
       xAxisData: [],
       yAxisData: [],
+      subtext: 'All',
       chart: null
     }
   },
@@ -59,6 +60,7 @@ export default {
         // alert(JSON.stringify(res))
         this.xAxisData = res.xAxis
         this.yAxisData = res.yAxis
+        this.subText = res.scope
         if (this.xAxisData !== undefined) {
           this.initChart()
         }
@@ -71,7 +73,8 @@ export default {
       this.chart.setOption({
         title: {
           text: '部门关联文件图',
-          subtext: 'Level&File',
+          // subtext: 'Department&File',
+          subText: 'Scope:' + this.subText,
           left: 'center'
         },
         tooltip: {

@@ -27,6 +27,7 @@ export default {
   data() {
     return {
       chartData: [],
+      subtext: 'All',
       chart: null
     }
   },
@@ -54,6 +55,7 @@ export default {
     getChartDateByFileLevel() {
       getCountByFileLevel().then(res => {
         this.chartData = res.totalElements
+        this.subtext = res.scope
         if (this.chartData.length > 0) {
           this.initChart()
         }
@@ -65,7 +67,8 @@ export default {
       this.chart.setOption({
         title: {
           text: '等级关联文件图',
-          subtext: 'Level&File',
+          //subtext: 'Level&File',
+          subtext: 'Scope:' + this.subtext,
           left: 'center'
         },
         tooltip: {
