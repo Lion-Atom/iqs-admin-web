@@ -95,6 +95,12 @@
                 @current-change="pageChange"
               />
             </el-tab-pane>
+            <!--    个人任务    -->
+            <el-tab-pane label="个人任务" name="third">
+              <div>
+                哎~~
+              </div>
+            </el-tab-pane>
           </el-tabs>
         </el-card>
       </el-col>

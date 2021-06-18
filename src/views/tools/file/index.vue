@@ -38,7 +38,6 @@
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
               @input="inputChange($event)"
-              v-on:change="blurryChange"
             />
             <!-- 文件分类筛选，需要更改为树表筛选 -->
             <treeselect
@@ -173,8 +172,7 @@
                     v-model="form.fileType"
                     clearable
                     placeholder="--none--"
-                    ref="fileTypeSearch"
-                    @focus="focusFileTypeValue"
+                    @blur.native="blur()"
                     style="width: 190px"
                   >
                     <el-option
@@ -209,8 +207,6 @@
                     v-model="form.fileStatus"
                     filterable
                     style="background: none;"
-                    ref="fileStatusSearch"
-                    @focus="focusFileStatusValue"
                   >
                     <el-option
                       v-for="item in dict.file_status"
@@ -313,7 +309,7 @@
               </router-link>
             </el-form-item>
             <!--   上传文件   -->
-            <el-form-item v-if="crud.status.add" label="上传">
+            <el-form-item v-if="crud.status.add" label="上传" style="width:520px;">
               <el-upload
                 ref="upload"
                 :limit="1"
@@ -322,6 +318,8 @@
                 :headers="headers"
                 :on-success="handleSuccess"
                 :on-error="handleError"
+                :on-remove="handleRemove"
+                :on-change="fileChange"
                 :action="fileUploadApi + '?name=' + form.name + '&fileLevelId=' + form.fileLevel.id+ '&fileCategoryId=' + form.fileCategory.id
                   + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType
                   + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime + '&fileDesc=' + form.fileDesc"
@@ -356,8 +354,6 @@
                 placeholder="请选择"
                 @remove-tag="deleteTag"
                 @change="changeBindFile"
-                ref="bindFileSearch"
-                @focus="focusBindFileValues"
               >
                 <el-option
                   v-for="item in bindFiles"
@@ -368,7 +364,7 @@
               </el-select>
             </el-form-item>
             <el-form-item v-if="bindFileDatas.length>0" label="参考文件列表" prop="bindFiles">
-              <div v-for="(item,index) in bindFileItems" v-bind:key="item" style="margin-left: 5px;">
+              <div v-for="(item,index) in bindFileItems" v-bind:key="item.id" style="margin-left: 5px;">
                 <!--                <el-button type="text">-->
                 <router-link
                   style="text-decoration:underline;"
@@ -598,6 +594,7 @@ export default {
         approvalStatus: null,
         storageId: null
       },
+      haveFileCount: 0, // 检测有无上传文件
       fileType: null, // 文件类型，监听使用
       fileStatus: null, // 文件状态，监听使用
       approvalStatus: null, // 审批状态，监听使用
@@ -709,7 +706,7 @@ export default {
     // 详情返回列表中某一列处于命中状态
     if (this.$route.query.fileName !== undefined) {
       this.query.blurry = this.$route.query.fileName
-      this.blurryChange(this.query.blurry)
+      this.crud.toQuery()
     }
     if (this.$route.query.fileType !== undefined) {
       this.query.fileType = this.$route.query.fileType
@@ -736,9 +733,13 @@ export default {
     }
   },
   methods: {
-    blurryChange(blurry) {
-      this.crud.toQuery()
-    },
+    // 文件类型下拉
+    /*focusFileTypeValue(){
+      console.log(this.$refs.fileTypeSearch);
+      this.$refs.fileTypeSearch.blur= () => {
+        console.log(12121);
+      };
+    },*/
     // 发起申请，投递邮件
     sendEmail() {
       alert(JSON.stringify(this.preTrail))
@@ -783,23 +784,10 @@ export default {
     getRowKeys(row) {
       return row.id
     },
-    // 文件类型中设置焦点失效
-    focusFileTypeValue() {
-      this.$refs.fileTypeSearch.$refs.input.blur()
-    },
-    // 文件状态中设置焦点失效
-    focusFileStatusValue() {
-      this.$refs.fileStatusSearch.$refs.input.blur()
-    },
-    // 参考文件中设置焦点失效
-    focusBindFileValues() {
-      this.$refs.bindFileSearch.$refs.input.blur = () => {
-        console.log(0)
-      }
-    },
     // 监控模糊查询输入框变化，强制刷新
     inputChange() {
       this.$forceUpdate()
+      this.crud.toQuery()
     },
     // 监控变更记录输入框变化，强制刷新
     changeDescInput() {
@@ -979,6 +967,14 @@ export default {
     },
     // 上传文件
     upload() {
+      // alert(this.haveFileCount)
+      if (this.haveFileCount <= 0) {
+        this.$message({
+          message: '须上传文件',
+          type: 'warning'
+        })
+        return false
+      }
       if (!this.form.fileLevel.id) {
         this.$message({
           message: '文件等级必须设置',
@@ -1020,6 +1016,13 @@ export default {
         this.form.name = file.name
       }
       return isLt2M
+    },
+    // 删除上传的文件
+    handleRemove(file) {
+      this.haveFileCount--
+    },
+    fileChange(a) {
+      this.haveFileCount++
     },
     // 改版切换时候判断是否已有审批
     agreeChange(val) {

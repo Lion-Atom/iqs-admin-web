@@ -110,7 +110,7 @@
           <el-row>
             <el-col>
               <div v-if="bindFileItems.length>0">
-                <div v-for="(item,index) in bindFileItems" v-bind:key="item" style="margin-left: 10px;">
+                <div v-for="(item,index) in bindFileItems" v-bind:key="item.id" style="margin-left: 10px;">
                   <el-button type="text" @click.native="refFile(item.id)">
                     {{ '[' + (index + 1) + '] ' + item.name + ',' + item.version }}
                   </el-button>
