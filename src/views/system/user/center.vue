@@ -60,47 +60,80 @@
                 </el-form-item>
               </el-form>
             </el-tab-pane>
-            <!--    操作日志    -->
-            <el-tab-pane label="操作日志" name="second">
-              <el-table v-loading="loading" :data="data" style="width: 100%;">
-                <el-table-column prop="description" label="行为" />
-                <el-table-column prop="requestIp" label="IP" />
-                <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源" />
-                <el-table-column prop="browser" label="浏览器" />
-                <el-table-column prop="time" label="请求耗时" align="center">
-                  <template slot-scope="scope">
-                    <el-tag v-if="scope.row.time <= 300">{{ scope.row.time }}ms</el-tag>
-                    <el-tag v-else-if="scope.row.time <= 1000" type="warning">{{ scope.row.time }}ms</el-tag>
-                    <el-tag v-else type="danger">{{ scope.row.time }}ms</el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  align="right"
-                >
-                  <template slot="header">
-                    <div style="display:inline-block;float: right;cursor: pointer" @click="init">创建日期<i class="el-icon-refresh" style="margin-left: 40px" /></div>
-                  </template>
-                  <template slot-scope="scope">
-                    <span>{{ scope.row.createTime }}</span>
-                  </template>
-                </el-table-column>
-              </el-table>
-              <!--分页组件-->
-              <el-pagination
-                :total="total"
-                :current-page="page + 1"
-                style="margin-top: 8px;"
-                layout="total, prev, pager, next, sizes"
-                @size-change="sizeChange"
-                @current-change="pageChange"
-              />
-            </el-tab-pane>
             <!--    个人任务    -->
-            <el-tab-pane label="个人任务" name="third">
+            <el-tab-pane label="个人任务" name="second">
               <div>
-                哎~~
+                <el-table
+                  v-loading="crud.loading"
+                  :data="crud.data"
+                  style="width: 100%;"
+                >
+                  <el-table-column prop="name" label="行为"/>
+                  <el-table-column prop="requestIp" label="IP"/>
+                  <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源"/>
+                  <el-table-column prop="browser" label="浏览器"/>
+                  <el-table-column prop="time" label="请求耗时" align="center">
+                    <template slot-scope="scope">
+                      <el-tag v-if="scope.row.time <= 300">{{ scope.row.time }}ms</el-tag>
+                      <el-tag v-else-if="scope.row.time <= 1000" type="warning">{{ scope.row.time }}ms</el-tag>
+                      <el-tag v-else type="danger">{{ scope.row.time }}ms</el-tag>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="createTime" label="创建时间"/>
+                  <el-table-column
+                    label="操作"
+                    width="115"
+                    align="center"
+                    fixed="right"
+                  >
+                    <template slot-scope="scope">
+                      <udApprove
+                        :data="scope.row"
+                        :permission="permission"
+                        :disabled-dle="scope.row.id === user.id"
+                      />
+                    </template>
+                  </el-table-column>
+                </el-table>
+                <!--分页组件-->
+                <pagination/>
               </div>
             </el-tab-pane>
+            <!--    操作日志    -->
+            <!--            <el-tab-pane label="操作日志" name="third">
+                          <el-table v-loading="loading" :data="data" style="width: 100%;">
+                            <el-table-column prop="description" label="行为" />
+                            <el-table-column prop="requestIp" label="IP" />
+                            <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源" />
+                            <el-table-column prop="browser" label="浏览器" />
+                            <el-table-column prop="time" label="请求耗时" align="center">
+                              <template slot-scope="scope">
+                                <el-tag v-if="scope.row.time <= 300">{{ scope.row.time }}ms</el-tag>
+                                <el-tag v-else-if="scope.row.time <= 1000" type="warning">{{ scope.row.time }}ms</el-tag>
+                                <el-tag v-else type="danger">{{ scope.row.time }}ms</el-tag>
+                              </template>
+                            </el-table-column>
+                            <el-table-column
+                              align="right"
+                            >
+                              <template slot="header">
+                                <div style="display:inline-block;float: right;cursor: pointer" @click="init">创建日期<i class="el-icon-refresh" style="margin-left: 40px" /></div>
+                              </template>
+                              <template slot-scope="scope">
+                                <span>{{ scope.row.createTime }}</span>
+                              </template>
+                            </el-table-column>
+                          </el-table>
+                          &lt;!&ndash;分页组件&ndash;&gt;
+                          <el-pagination
+                            :total="total"
+                            :current-page="page + 1"
+                            style="margin-top: 8px;"
+                            layout="total, prev, pager, next, sizes"
+                            @size-change="sizeChange"
+                            @current-change="pageChange"
+                          />
+                        </el-tab-pane>-->
           </el-tabs>
         </el-card>
       </el-col>
@@ -118,13 +151,20 @@ import updateEmail from './center/updateEmail'
 import { getToken } from '@/utils/auth'
 import store from '@/store'
 import { isvalidPhone } from '@/utils/validate'
-import crud from '@/mixins/crud'
+import CRUD, { presenter, header, crud } from '@crud/crud'
+import udApprove from '@crud/UD.approve'
+import pagination from '@crud/Pagination'
 import { editUser } from '@/api/system/user'
 import Avatar from '@/assets/images/avatar.png'
+import crudFile from '@/api/tools/localStorage'
+
 export default {
   name: 'Center',
-  components: { updatePass, updateEmail, myUpload },
-  mixins: [crud],
+  components: { updatePass, updateEmail, myUpload, udApprove, pagination },
+  cruds() {
+    return CRUD({ title: '文件', url: 'api/localStorage', crudMethod: { ...crudFile } })
+  },
+  mixins: [presenter(), header(), crud()],
   data() {
     // 自定义验证
     const validPhone = (rule, value, callback) => {
@@ -153,7 +193,12 @@ export default {
         phone: [
           { required: true, trigger: 'blur', validator: validPhone }
         ]
-      }
+      },
+      permission: {
+        approve: ['admin', 'storage:approve']
+      },
+      oldNickName: null,
+      oldPhone: null
     }
   },
   computed: {
@@ -165,7 +210,10 @@ export default {
   },
   created() {
     this.form = { id: this.user.id, nickName: this.user.nickName, gender: this.user.gender, phone: this.user.phone }
-    store.dispatch('GetInfo').then(() => {})
+    store.dispatch('GetInfo').then(() => {
+    })
+    this.oldNickName = this.user.nickName
+    this.oldPhone = this.user.phone
   },
   methods: {
     toggleShow() {
@@ -177,7 +225,7 @@ export default {
       }
     },
     beforeInit() {
-      this.url = 'api/logs/user'
+      this.url = '/api/localStorage'
       return true
     },
     cropUploadSuccess(jsonData, field) {
@@ -185,12 +233,20 @@ export default {
     },
     doSubmit() {
       if (this.$refs['form']) {
+        if (this.form.nickName === this.oldNickName && this.form.phone === this.oldPhone) {
+          this.$message({
+            message: 'No changes found, no need to save!未发生改动，无需再保存',
+            type: 'warning'
+          })
+          return false
+        }
         this.$refs['form'].validate((valid) => {
           if (valid) {
             this.saveLoading = true
             editUser(this.form).then(() => {
-              this.editSuccessNotify()
-              store.dispatch('GetInfo').then(() => {})
+              this.crud.notify('Edit Success! 编辑成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+              store.dispatch('GetInfo').then(() => {
+              })
               this.saveLoading = false
             }).catch(() => {
               this.saveLoading = false

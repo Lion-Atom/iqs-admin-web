@@ -86,7 +86,7 @@
               v-model="query.fileStatus"
               clearable
               size="small"
-              placeholder="审批状态"
+              placeholder="文件状态"
               class="filter-item"
               style="width: 100px"
               @change="crud.toQuery"
@@ -201,11 +201,34 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="文件状态" prop="fileStatus" required>
+                <el-form-item v-if="!crud.status.add && form.fileStatus !== 'draft' " label="文件状态" prop="fileStatus"
+                              required
+                >
                   <el-select
                     v-model="form.fileStatus"
                     filterable
                     style="background: none;"
+                  >
+                    <el-option
+                      v-for="item in dict.file_status"
+                      :key="item.id"
+                      :label="item.label"
+                      :value="item.value"
+                      :disabled="item.value === 'draft'"
+                    >
+                      <span style="float: left">{{ item.label }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item v-else-if="!crud.status.add && form.fileStatus === 'draft'" label="文件状态" prop="fileStatus"
+                              required
+                >
+                  <el-select
+                    v-model="form.fileStatus"
+                    filterable
+                    style="background: none;"
+                    disabled
                   >
                     <el-option
                       v-for="item in dict.file_status"
@@ -253,7 +276,7 @@
 
               </el-col>
               <el-col :span="12">
-                <el-form-item v-if="!crud.status.add">
+                <el-form-item v-if="!crud.status.add && this.form.fileStatus!=='draft'">
                   <span slot="label">
                 <span class="span-box">
                    <el-tooltip placement="top" effect="light">
@@ -293,7 +316,7 @@
               <el-button :loading="loading" type="text" @click="cancelCover">取消上传</el-button>
               <el-button :loading="loading" type="primary" @click="cover">确认覆盖</el-button>
             </el-form-item>
-            <el-form-item label="文件概览" prop="fileDetails">
+            <el-form-item v-if="!crud.status.add" label="文件概览" prop="fileDetails">
               <router-link
                 :to="{path: '/sys-tools/filedetail',
                       query: {
@@ -320,7 +343,7 @@
                 :on-remove="handleRemove"
                 :on-change="fileChange"
                 :action="fileUploadApi + '?name=' + form.name + '&fileLevelId=' + form.fileLevel.id+ '&fileCategoryId=' + form.fileCategory.id
-                  + '&deptId=' + form.fileDept.id+ '&fileStatus=' + form.fileStatus + '&fileType=' + form.fileType
+                  + '&deptId=' + form.fileDept.id+ '&fileStatus=' + 'draft' + '&fileType=' + form.fileType
                   + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime + '&fileDesc=' + form.fileDesc"
               >
                 <div class="eladmin-upload"><i class="el-icon-upload"/> Add file 添加文件</div>
@@ -517,7 +540,7 @@
               <udOperation
                 :data="scope.row"
                 :permission="permission"
-                :disabled-dle="scope.row.id === user.id"
+                :disabledEdit="scope.row.id === user.id"
               />
             </template>
           </el-table-column>
@@ -706,6 +729,8 @@ export default {
     if (this.$route.query.blurry !== undefined) {
       this.query.blurry = this.$route.query.blurry
       this.crud.toQuery()
+      // 刷新表格
+      this.crud.attchTable()
     }
     if (this.$route.query.fileType !== undefined) {
       this.query.fileType = this.$route.query.fileType
