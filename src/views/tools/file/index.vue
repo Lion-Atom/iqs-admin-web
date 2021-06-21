@@ -36,7 +36,6 @@
               placeholder="输入名称、类型、创建者等搜索"
               style="width: 140px;"
               class="filter-item"
-              @keyup.enter.native="crud.toQuery"
               @input="inputChange($event)"
             />
             <!-- 文件分类筛选，需要更改为树表筛选 -->
@@ -704,8 +703,8 @@ export default {
     this.getFileCategories()
     this.getFileDepts()
     // 详情返回列表中某一列处于命中状态
-    if (this.$route.query.fileName !== undefined) {
-      this.query.blurry = this.$route.query.fileName
+    if (this.$route.query.blurry !== undefined) {
+      this.query.blurry = this.$route.query.blurry
       this.crud.toQuery()
     }
     if (this.$route.query.fileType !== undefined) {
@@ -734,12 +733,12 @@ export default {
   },
   methods: {
     // 文件类型下拉
-    /*focusFileTypeValue(){
+    /* focusFileTypeValue(){
       console.log(this.$refs.fileTypeSearch);
       this.$refs.fileTypeSearch.blur= () => {
         console.log(12121);
       };
-    },*/
+    }, */
     // 发起申请，投递邮件
     sendEmail() {
       alert(JSON.stringify(this.preTrail))
@@ -787,7 +786,6 @@ export default {
     // 监控模糊查询输入框变化，强制刷新
     inputChange() {
       this.$forceUpdate()
-      this.crud.toQuery()
     },
     // 监控变更记录输入框变化，强制刷新
     changeDescInput() {

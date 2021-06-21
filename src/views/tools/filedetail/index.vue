@@ -370,7 +370,7 @@ export default {
         {
           path: '/sys-tools/file',
           query: {
-            fileName: this.form.name
+            blurry: this.form.name
           }
         })
     },

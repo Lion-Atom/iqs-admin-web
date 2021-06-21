@@ -65,9 +65,21 @@
       @select-all="crud.selectAllChange"
       @selection-change="crud.selectionChangeHandler"
     >
-      <el-table-column :selectable="checkboxT" type="selection" width="55" />
-      <el-table-column label="名称" prop="name" />
-      <el-table-column label="排序" prop="deptSort" />
+      <el-table-column :selectable="checkboxT" type="selection" width="55"/>
+      <el-table-column label="名称" prop="name"/>
+      <!--      <el-table-column label="排序" prop="deptSort" />-->
+      <el-table-column label="文件数目">
+        <template slot-scope="scope">
+          <div class="name-wrapper"
+               v-if="(!isAdmin && scope.row.id === belongDeptId) || (isAdmin && scope.row.pid===undefined) "
+          >
+            <el-button type="text" @click="routeToFile(scope.row)">{{ scope.row.fileCount }}</el-button>
+          </div>
+          <div class="name-wrapper" v-else>
+            <el-button type="text" style="color: #000;">{{ scope.row.fileCount }}</el-button>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="enabled">
         <template slot-scope="scope">
           <el-switch
@@ -95,7 +107,7 @@
 </template>
 
 <script>
-import crudDept from '@/api/system/dept'
+import crudDept, { getDeptByUserId } from '@/api/system/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
@@ -118,6 +130,8 @@ export default {
   data() {
     return {
       depts: [],
+      belongDeptId: null,
+      isAdmin: true,
       rules: {
         name: [
           { required: true, message: '请输入名称', trigger: 'blur' }
@@ -145,11 +159,34 @@ export default {
       this.query.createTime = [startTime, endTime]
       this.crud.toQuery()
     }
+    this.getDept()
   },
   methods: {
     // 监控日期选择器输入变化，强制刷新
     change() {
       this.$forceUpdate()
+    },
+    getDept() {
+      getDeptByUserId().then(res => {
+        // alert(JSON.stringify(res))
+        if (res.isAdmin === 0) {
+          this.belongDeptId = res.currentDeptId
+          this.isAdmin = false
+        } else {
+          this.isAdmin = true
+        }
+      })
+    },
+    // 跳转到文件界面--非“叶子（子级）”
+    routeToFile(row) {
+      // alert(JSON.stringify(row))
+      this.$router.push(
+        {
+          path: '/sys-tools/file',
+          query: {
+            deptId: row.id
+          }
+        })
     },
     getDeptDatas(tree, treeNode, resolve) {
       const params = { pid: tree.id }
