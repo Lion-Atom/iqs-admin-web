@@ -25,6 +25,14 @@ export function edit(data) {
   })
 }
 
+export function getUserSuperior(params) {
+  return request({
+    url: 'api/users/superior',
+    method: 'get',
+    params
+  })
+}
+
 export function editUser(data) {
   return request({
     url: 'api/users/center',
@@ -57,5 +65,5 @@ export function updateEmail(form) {
   })
 }
 
-export default { add, edit, del }
+export default { add, edit, del, getUserSuperior }
 

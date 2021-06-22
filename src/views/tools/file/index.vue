@@ -78,9 +78,9 @@
             </el-select>
             <date-range-picker
               v-model="query.createTime"
+              class="date-item"
               @change="crud.toQuery"
               @input="dateTimeChange($event)"
-              class="date-item"
             />
             <el-select
               v-model="query.fileStatus"
@@ -171,8 +171,8 @@
                     v-model="form.fileType"
                     clearable
                     placeholder="--none--"
-                    @blur.native="blur()"
                     style="width: 190px"
+                    @blur.native="blur()"
                   >
                     <el-option
                       v-for="item in dict.file_type"
@@ -201,8 +201,11 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item v-if="!crud.status.add && form.fileStatus !== 'draft' " label="文件状态" prop="fileStatus"
-                              required
+                <el-form-item
+                  v-if="!crud.status.add && form.fileStatus !== 'draft' "
+                  label="文件状态"
+                  prop="fileStatus"
+                  required
                 >
                   <el-select
                     v-model="form.fileStatus"
@@ -221,8 +224,11 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item v-else-if="!crud.status.add && form.fileStatus === 'draft'" label="文件状态" prop="fileStatus"
-                              required
+                <el-form-item
+                  v-else-if="!crud.status.add && form.fileStatus === 'draft'"
+                  label="文件状态"
+                  prop="fileStatus"
+                  required
                 >
                   <el-select
                     v-model="form.fileStatus"
@@ -270,7 +276,7 @@
                       :value="item.value"
                     />
                   </el-select>
-                  <el-button type="text" @click="sendEmail" v-if="form.approvalStatus === 'waitingfor'">发起申请</el-button>
+                  <el-button v-if="form.approvalStatus === 'waitingfor'" type="text" @click="sendEmail">发起申请</el-button>
                 </el-form-item>
                 <!-- 发起审批 -->
 
@@ -278,14 +284,14 @@
               <el-col :span="12">
                 <el-form-item v-if="!crud.status.add && this.form.fileStatus!=='draft'">
                   <span slot="label">
-                <span class="span-box">
-                   <el-tooltip placement="top" effect="light">
-                     <div slot="content">Choose 'true' ,you can Upgrade version via uploading new coverFile.<br/>切换到“是“可以上传覆盖文件进而发起升版请求.</div>
-                     <i class="el-icon-question"></i>
-                   </el-tooltip>
-                  <span>是否改版</span>
-                </span>
-              </span>
+                    <span class="span-box">
+                      <el-tooltip placement="top" effect="light">
+                        <div slot="content">Choose 'true' ,you can Upgrade version via uploading new coverFile.<br>切换到“是“可以上传覆盖文件进而发起升版请求.</div>
+                        <i class="el-icon-question"/>
+                      </el-tooltip>
+                      <span>是否改版</span>
+                    </span>
+                  </span>
                   <el-radio-group v-model="form.isRevision" @change="agreeChange">
                     <el-radio
                       v-for="item in dict.common_status"
@@ -355,14 +361,13 @@
               <el-col>
                 <el-form-item label="文件描述" prop="fileDesc">
                   <el-input
+                    v-model="form.fileDesc"
                     type="textarea"
                     :autosize="{ minRows: 2, maxRows: 10}"
                     placeholder="请输入文件内容描述"
-                    v-model="form.fileDesc"
                     style="width: 400px;"
                     @input="changeDescInput($event)"
-                  >
-                  </el-input>
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -386,18 +391,18 @@
               </el-select>
             </el-form-item>
             <el-form-item v-if="bindFileDatas.length>0" label="参考文件列表" prop="bindFiles">
-              <div v-for="(item,index) in bindFileItems" v-bind:key="item.id" style="margin-left: 5px;">
+              <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 5px;">
                 <!--                <el-button type="text">-->
                 <router-link
                   style="text-decoration:underline;"
                   :to="{path: '/sys-tools/filedetail',
-                          query: {
-                            fileId: item.id ,
-                            name: item.name,
-                            realName:item.realName,
-                            fileDesc:item.fileDesc
-                          }
-                    }"
+                        query: {
+                          fileId: item.id ,
+                          name: item.name,
+                          realName:item.realName,
+                          fileDesc:item.fileDesc
+                        }
+                  }"
                 >
                   {{ '[' + (index + 1) + '] ' + item.name + ',' + item.version }}
                 </router-link>
@@ -406,14 +411,13 @@
             </el-form-item>
             <el-form-item v-if="!crud.status.add" label="变更说明" prop="changeDesc" required>
               <el-input
+                v-model="form.changeDesc"
                 type="textarea"
                 :autosize="{ minRows: 1, maxRows: 30}"
                 placeholder="请输入变更说明"
-                v-model="form.changeDesc"
                 style="width: 400px;"
                 @input="changeDescInput($event)"
-              >
-              </el-input>
+              />
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -422,14 +426,14 @@
               :visible.sync="centerDialogVisible"
               width="30%"
               center
-              :modal=false
-              :modal-append-to-body=false
+              :modal="false"
+              :modal-append-to-body="false"
               top="20%"
             >
               <span>检测到有新的改版操作，不保存相关修改吗？</span>
               <span slot="footer" class="dialog-footer">
-              <el-button @click="centerDialogVisible = false">再想想</el-button>
-              <el-button type="primary" @click="rollBackCover">放弃修改</el-button>
+                <el-button @click="centerDialogVisible = false">再想想</el-button>
+                <el-button type="primary" @click="rollBackCover">放弃修改</el-button>
               </span>
             </el-dialog>
             <el-button type="text" @click="cancelOperation">取消</el-button>
@@ -540,7 +544,6 @@
               <udOperation
                 :data="scope.row"
                 :permission="permission"
-                :disabledEdit="scope.row.id === user.id"
               />
             </template>
           </el-table-column>

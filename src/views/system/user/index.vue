@@ -45,8 +45,8 @@
               :load-options="loadJobs"
               class="newTree-item"
               placeholder="选择职位"
-              @input="crud.toQuery"
               style="width:220px"
+              @input="crud.toQuery"
             />
             <date-range-picker
               v-model="query.createTime"
@@ -134,6 +134,25 @@
             </el-row>
             <el-row>
               <el-col :span="12">
+                <el-form-item v-if="form.dept.id!==undefined && form.dept.id!==null" label="上级" prop="superiorId">
+                  <el-select
+                    v-model="form.superiorId"
+                    style="width: 220px"
+                    placeholder="请选择上级"
+                    clearable
+                  >
+                    <el-option
+                      v-for="item in superiors"
+                      :key="item.id"
+                      :label="item.dept.name + '\xa0-\xa0' + item.jobs[0].name + '\xa0-\xa0'+ item.username "
+                      :value="item.id"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
                 <el-form-item label="性别">
                   <el-radio-group v-model="form.gender" style="width: 220px">
                     <el-radio label="男">男</el-radio>
@@ -158,7 +177,6 @@
                 </el-form-item>
               </el-col>
             </el-row>
-
             <!--            <el-form-item label="岗位" prop="jobs">
                           <el-select
                             v-model="jobDatas"
@@ -171,7 +189,7 @@
                             <el-option
                               v-for="item in jobs"
                               :key="item.name"
-                              :label='item.name + "\xa0\xa0\xa0[第"+ item.jobSort +"等级]"'
+                              :label="item.name + "\xa0\xa0\xa0[第"+ item.jobSort +"等级]"'
                               :value="item.id"
                             />
                           </el-select>
@@ -204,8 +222,14 @@
           </div>
         </el-dialog>
         <!--表格渲染-->
-        <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-          <el-table-column :selectable="checkboxT" type="selection" width="55" />
+        <el-table
+          ref="table"
+          v-loading="crud.loading"
+          :data="crud.data"
+          style="width: 100%;"
+          @selection-change="crud.selectionChangeHandler"
+        >
+          <el-table-column :selectable="checkboxT" type="selection" width="55"/>
           <el-table-column :show-overflow-tooltip="true" prop="username" label="用户名"/>
           <el-table-column :show-overflow-tooltip="true" prop="nickName" label="昵称"/>
           <el-table-column prop="gender" label="性别"/>
@@ -259,7 +283,7 @@
 <script>
 import crudUser from '@/api/system/user'
 import { isvalidPhone } from '@/utils/validate'
-import { getDepts, getDeptSuperior } from '@/api/system/dept'
+import dept, { getDepts, getDeptSuperior } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
 import { getJobs, getJobSuperior } from '@/api/system/job'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
@@ -272,6 +296,7 @@ import Treeselect from '@riophae/vue-treeselect'
 import { mapGetters } from 'vuex'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+
 let userRoles = []
 let userJobs = []
 const defaultForm = {
@@ -284,6 +309,7 @@ const defaultForm = {
   roles: [],
   jobs: [{ id: null }],
   dept: { id: null },
+  superiorId: null,
   phone: null
 }
 export default {
@@ -336,13 +362,19 @@ export default {
         phone: [
           { required: true, trigger: 'blur', validator: validPhone }
         ]
-      }
+      },
+      superiors: [],
+      oldDeptId: null,
+      watchCount: 0
     }
   },
   computed: {
     ...mapGetters([
       'user'
     ])
+  },
+  watch: {
+    'form.dept.id': 'currDeptChange'
   },
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
@@ -404,11 +436,15 @@ export default {
     // 新增前将多选的值设置为空
     [CRUD.HOOK.beforeToAdd]() {
       // this.jobDatas = []
+      // alert(JSON.stringify(this.form.dept.id))
       this.roleDatas = []
     },
     // 初始化编辑时候的角色与岗位
     [CRUD.HOOK.beforeToEdit](crud, form) {
       this.getJobs(this.form.dept.id)
+      this.getUserSuperior(this.form.dept.id, false)
+      this.oldDeptId = this.form.dept.id
+      this.oldSuperiorId = this.form.superiorId
       // this.jobDatas = []
       this.roleDatas = []
       userRoles = []
@@ -586,7 +622,8 @@ export default {
     getRoles() {
       getAll().then(res => {
         this.roles = res
-      }).catch(() => { })
+      }).catch(() => {
+      })
     },
     // 获取弹窗内岗位数据
     /* getJobs() {
@@ -594,11 +631,39 @@ export default {
         this.jobs = res.content
       }).catch(() => { })
     }, */
+    // 切换部门数据
+    currDeptChange(val) {
+      if (val !== null && val !== this.oldDeptId) {
+        this.getUserSuperior(val, true)
+      }
+      // alert(JSON.stringify(this.form.superiorId))
+      // this.form.superiorId = null
+      // 初始化主界面，自动监控一次；打开编辑界面会监控一次，因此设置判断拐点是:watchCount<=2
+      // if(this.oldDeptId)
+    },
+    // 获取可选上级
+    getUserSuperior(deptId, b) {
+      if (deptId !== null && deptId !== undefined) {
+        crudUser.getUserSuperior({ deptId: deptId, editId: this.form.id }).then(res => {
+          this.superiors = res
+          if (this.oldSuperiorId === null || this.oldSuperiorId === undefined) {
+            this.form.superiorId = null
+          } else {
+            this.form.superiorId = this.oldSuperiorId
+          }
+          if (b && res !== null) {
+            this.form.superiorId = res[0]
+          }
+          // alert(JSON.stringify(this.superiors))
+        })
+      }
+    },
     // 获取权限级别
     getRoleLevel() {
       getLevel().then(res => {
         this.level = res.level
-      }).catch(() => { })
+      }).catch(() => {
+      })
     },
     checkboxT(row, rowIndex) {
       return row.id !== this.user.id
@@ -608,8 +673,8 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  ::v-deep .vue-treeselect__control,::v-deep .vue-treeselect__placeholder,::v-deep .vue-treeselect__single-value {
-    height: 30px;
-    line-height: 30px;
-  }
+::v-deep .vue-treeselect__control, ::v-deep .vue-treeselect__placeholder, ::v-deep .vue-treeselect__single-value {
+  height: 30px;
+  line-height: 30px;
+}
 </style>

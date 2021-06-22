@@ -195,7 +195,7 @@ export default {
         ]
       },
       permission: {
-        approve: ['admin', 'storage:approve']
+        approve: ['admin', 'storage:edit']
       },
       oldNickName: null,
       oldPhone: null
