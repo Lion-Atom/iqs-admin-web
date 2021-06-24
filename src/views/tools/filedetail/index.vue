@@ -200,7 +200,7 @@
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
-import { getAllFiles, getFilesByIds, getFileById } from '@/api/tools/localStorage'
+import { getAllFiles, getAllFilesAnonymousAccess, getFilesByIds, getFileById } from '@/api/tools/localStorage'
 import { delToolsLogByCond } from '@/api/monitor/toolslog'
 import CRUD, { crud, presenter } from '@crud/crud'
 import { header } from '@crud/crud'
@@ -285,7 +285,7 @@ export default {
       this.fileDesc = this.$route.query.fileDesc
       this.crud.toQuery(this.query.bindingId)
     }
-    this.getAllFiles()
+    this.getAllFilesAnonymousAccess()
     this.crud.optShow = {
       add: false,
       edit: false,
@@ -302,8 +302,9 @@ export default {
     inputChange() {
       this.$forceUpdate()
     },
-    getAllFiles() {
-      getAllFiles({ enabled: true }).then(res => {
+    getAllFilesAnonymousAccess() {
+      // getAllFiles({ enabled: true, }).then(res => {
+      getAllFilesAnonymousAccess({ enabled: true, anonymousAccess: true }).then(res => {
         const data = res.content
         const _this = this
         data.forEach(function(v, index) {

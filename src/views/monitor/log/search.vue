@@ -8,17 +8,28 @@
       style="width: 200px;"
       class="filter-item"
     />
-    <date-range-picker v-model="query.createTime" class="date-item" />
-    <rrOperation />
+    <date-range-picker
+      v-model="query.createTime"
+      class="date-item"
+      @change="crud.toQuery"
+      @input="change($event)"
+    />
+    <rrOperation/>
   </div>
 </template>
 
 <script>
-import { header } from '@crud/crud'
+import { header, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 export default {
   components: { rrOperation, DateRangePicker },
-  mixins: [header()]
+  mixins: [header()],
+  methods: {
+    // 监控日期选择器输入变化，强制刷新
+    change() {
+      this.$forceUpdate()
+    }
+  }
 }
 </script>

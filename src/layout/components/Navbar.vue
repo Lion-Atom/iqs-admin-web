@@ -8,9 +8,9 @@
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
 
-        <el-tooltip content="项目文档" effect="dark" placement="bottom">
+<!--        <el-tooltip content="项目文档" effect="dark" placement="bottom">
           <Doc class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip>-->
 
         <el-tooltip content="全屏缩放" effect="dark" placement="bottom">
           <screenfull id="screenfull" class="right-menu-item hover-effect" />
@@ -22,10 +22,10 @@
 
       </template>
 
-      <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+      <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @visible-change="getToolsTask">
         <div class="avatar-wrapper">
           <img :src="user.avatarName ? baseApi + '/avatar/' + user.avatarName : Avatar" class="user-avatar">
-          <i class="el-icon-caret-bottom" />
+          <i class="el-icon-caret-bottom"/>
         </div>
         <el-dropdown-menu slot="dropdown">
           <span style="display:block;" @click="show = true">
@@ -34,7 +34,7 @@
             </el-dropdown-item>
           </span>
           <router-link to="/user/center">
-            <el-badge :value="12" :max="99">
+            <el-badge :value="taskCount" :max="99">
               <el-dropdown-item>
                 个人中心
               </el-dropdown-item>
@@ -60,6 +60,7 @@ import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
 import Avatar from '@/assets/images/avatar.png'
+import { getCountByUserId } from '@/api/system/toolsTask'
 
 export default {
   components: {
@@ -73,7 +74,8 @@ export default {
   data() {
     return {
       Avatar: Avatar,
-      dialogVisible: false
+      dialogVisible: false,
+      taskCount: 0
     }
   },
   computed: {
@@ -95,7 +97,16 @@ export default {
       }
     }
   },
+  created() {
+    this.getToolsTask()
+  },
   methods: {
+    // 查询个人任务
+    getToolsTask() {
+      getCountByUserId().then(res => {
+        this.taskCount = res
+      })
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },

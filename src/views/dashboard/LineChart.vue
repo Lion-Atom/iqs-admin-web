@@ -34,7 +34,8 @@ export default {
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      lengendData: []
     }
   },
   watch: {
@@ -62,11 +63,18 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ title, count, xAxisData } = {}) {
+    setOptions({ title, personalCount, count, xAxisData } = {}) {
+      if (title.search('Tasks') !== -1) {
+        this.lengendData = ['Total Add', 'Personal Add']
+      } else if (title.search('LocalStorages') !== -1) {
+        this.lengendData = ['Total Add', 'Depart Add']
+      } else {
+        this.lengendData = ['Total Add']
+      }
       this.chart.setOption({
         title: {
           text: title,
-          left: 'center'
+          left: 'right'
         },
         xAxis: {
           data: xAxisData,
@@ -99,10 +107,10 @@ export default {
           }
         },
         legend: {
-          data: ['Count 数目']
+          data: this.lengendData
         },
         series: [{
-          name: 'Add', itemStyle: {
+          name: this.lengendData[0], itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -114,6 +122,21 @@ export default {
           smooth: true,
           type: 'line',
           data: count,
+          animationDuration: 2800,
+          animationEasing: 'cubicInOut'
+        }, {
+          name: this.lengendData[1], itemStyle: {
+            normal: {
+              color: '#3888fa',
+              lineStyle: {
+                color: '#3888fa',
+                width: 2
+              }
+            }
+          },
+          smooth: true,
+          type: 'line',
+          data: personalCount,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         }]
@@ -143,6 +166,16 @@ export default {
           this.$router.push(
             {
               path: '/system/user',
+              query: {
+                createTime: params.name
+              }
+            }
+          )
+        } else if (title.search('Tasks') !== -1) {
+          // alert("点击第几条线："+JSON.stringify(params.componentIndex))
+          this.$router.push(
+            {
+              path: '/user/center',
               query: {
                 createTime: params.name
               }

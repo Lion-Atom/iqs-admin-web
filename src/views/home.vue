@@ -48,21 +48,31 @@ const lineChartData = {
   departments: {
     title: '',
     count: [],
+    personalCount: [],
     xAxisData: []
   },
   localStorages: {
     title: '',
     count: [],
+    personalCount: [],
     xAxisData: []
   },
   members: {
     title: '',
     count: [],
+    personalCount: [],
+    xAxisData: []
+  },
+  tasks: {
+    title: '',
+    count: [],
+    personalCount: [],
     xAxisData: []
   },
   fileCategories: {
     title: '',
     count: [],
+    personalCount: [],
     xAxisData: []
   }
 }
@@ -87,6 +97,7 @@ export default {
       lineChartData: null,
       departments: {
         count: [],
+        personalCount: [],
         xAxisData: []
       },
       type: ''
@@ -107,15 +118,21 @@ export default {
         // alert(JSON.stringify(res.category))
         lineChartData.departments = {}
         const count = []
+        const personalCount = []
         const xAxisData = []
         res.category.forEach(function(data, index) {
+          // alert(JSON.stringify(data.otherValue))
           count.push(data.value)
+          if (data.otherValue !== undefined) {
+            personalCount.push(data.otherValue)
+          }
           xAxisData.push(data.name)
         })
         // 标题：首字符大写后并拼接完成名称，此处如此处理是防抖动
         lineChartData.departments = {
           title: name.charAt(0).toUpperCase() + name.slice(1) + ' Growth Trend Chart 增长趋势图',
           count: count,
+          personalCount: personalCount,
           xAxisData: xAxisData
         }
         this.lineChartData = lineChartData.departments

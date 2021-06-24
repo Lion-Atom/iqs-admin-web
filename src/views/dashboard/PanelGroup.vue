@@ -13,7 +13,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+<!--    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('members')" @dblclick="handleUserDbClick()">
         <div class="card-panel-icon-wrapper icon-people">
           <svg-icon icon-class="peoples" class-name="card-panel-icon"/>
@@ -23,6 +23,19 @@
             Members
           </div>
           <count-to :start-val="0" :end-val="memberCount" :duration="3000" class="card-panel-num"/>
+        </div>
+      </div>
+    </el-col>-->
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('tasks')" @dblclick="handleTaskDbClick()">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="message" class-name="card-panel-icon"/>
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            Tasks
+          </div>
+          <count-to :start-val="0" :end-val="taskCount" :duration="3000" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
@@ -72,6 +85,7 @@ export default {
     return {
       departmentCount: 123,
       memberCount: 0,
+      taskCount: 0,
       fileCategoryCount: 0,
       fileCount: 103
     }
@@ -85,6 +99,7 @@ export default {
         // alert(JSON.stringify(res))
         this.departmentCount = res.dept
         this.memberCount = res.user
+        this.taskCount = res.task
         this.fileCategoryCount = res.fileCategory
         this.fileCount = res.file
       }).catch(() => {
@@ -104,6 +119,13 @@ export default {
       this.$router.push(
         {
           path: '/system/user',
+          query: {}
+        })
+    },
+    handleTaskDbClick() {
+      this.$router.push(
+        {
+          path: '/user/center',
           query: {}
         })
     },

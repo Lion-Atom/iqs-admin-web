@@ -276,7 +276,7 @@
                       :value="item.value"
                     />
                   </el-select>
-                  <el-button v-if="form.approvalStatus === 'waitingfor'" type="text" @click="sendEmail">发起申请</el-button>
+                  <el-button v-if="form.approvalStatus === 'waitingfor'" type="text" @click="sendEmail">邮件提醒</el-button>
                 </el-form-item>
                 <!-- 发起审批 -->
 
@@ -769,6 +769,7 @@ export default {
     }, */
     // 发起申请，投递邮件
     sendEmail() {
+      // todo 发送给上级
       alert(JSON.stringify(this.preTrail))
       // todo 发送主题内容：this.preTrail
     },
@@ -928,6 +929,7 @@ export default {
         this.getSupFileLevels(form.fileLevel.id)
         this.getSupFileCategories(form.fileCategory.id)
         this.getSupFileDepts(form.fileDept.id)
+        // this.getFileDepts()
         this.getOtherFiles(form.id)
         this.fileId = form.id
       }

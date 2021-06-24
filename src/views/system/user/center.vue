@@ -9,7 +9,9 @@
           <div>
             <div style="text-align: center">
               <div class="el-upload">
-                <img :src="user.avatarName ? baseApi + '/avatar/' + user.avatarName : Avatar" title="点击上传头像" class="avatar" @click="toggleShow">
+                <img :src="user.avatarName ? baseApi + '/avatar/' + user.avatarName : Avatar" title="点击上传头像"
+                     class="avatar" @click="toggleShow"
+                >
                 <myUpload
                   v-model="show"
                   :headers="headers"
@@ -19,13 +21,36 @@
               </div>
             </div>
             <ul class="user-info">
-              <li><div style="height: 100%"><svg-icon icon-class="login" /> 登录账号<div class="user-right">{{ user.username }}</div></div></li>
-              <li><svg-icon icon-class="user1" /> 用户昵称 <div class="user-right">{{ user.nickName }}</div></li>
-              <li><svg-icon icon-class="dept" /> 所属部门 <div class="user-right"> {{ user.dept.name }}</div></li>
-              <li><svg-icon icon-class="phone" /> 手机号码 <div class="user-right">{{ user.phone }}</div></li>
-              <li><svg-icon icon-class="email" /> 用户邮箱 <div class="user-right">{{ user.email }}</div></li>
               <li>
-                <svg-icon icon-class="anq" /> 安全设置
+                <div style="height: 100%">
+                  <svg-icon icon-class="login"/>
+                  登录账号
+                  <div class="user-right">{{ user.username }}</div>
+                </div>
+              </li>
+              <li>
+                <svg-icon icon-class="user1"/>
+                用户昵称
+                <div class="user-right">{{ user.nickName }}</div>
+              </li>
+              <li>
+                <svg-icon icon-class="dept"/>
+                所属部门
+                <div class="user-right"> {{ user.dept.name }}</div>
+              </li>
+              <li>
+                <svg-icon icon-class="phone"/>
+                手机号码
+                <div class="user-right">{{ user.phone }}</div>
+              </li>
+              <li>
+                <svg-icon icon-class="email"/>
+                用户邮箱
+                <div class="user-right">{{ user.email }}</div>
+              </li>
+              <li>
+                <svg-icon icon-class="anq"/>
+                安全设置
                 <div class="user-right">
                   <a @click="$refs.pass.dialog = true">修改密码&nbsp;</a>
                   <a @click="$refs.email.dialog = true">修改邮箱</a>
@@ -40,13 +65,15 @@
         <el-card class="box-card">
           <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane label="用户资料" name="first">
-              <el-form ref="form" :model="form" :rules="rules" style="margin-top: 10px;" size="small" label-width="65px">
+              <el-form ref="form" :model="form" :rules="rules" style="margin-top: 10px;" size="small"
+                       label-width="65px"
+              >
                 <el-form-item label="昵称" prop="nickName">
-                  <el-input v-model="form.nickName" style="width: 35%" />
+                  <el-input v-model="form.nickName" style="width: 35%"/>
                   <span style="color: #C0C0C0;margin-left: 10px;">用户昵称不作为登录使用</span>
                 </el-form-item>
                 <el-form-item label="手机号" prop="phone">
-                  <el-input v-model="form.phone" style="width: 35%;" />
+                  <el-input v-model="form.phone" style="width: 35%;"/>
                   <span style="color: #C0C0C0;margin-left: 10px;">手机号码不能重复</span>
                 </el-form-item>
                 <el-form-item label="性别">
@@ -61,25 +88,65 @@
               </el-form>
             </el-tab-pane>
             <!--    个人任务    -->
-            <el-tab-pane label="个人任务" name="second">
+            <el-tab-pane :label="taskLabel" name="second">
+              <!-- 工具栏 -->
+              <div class="head-container">
+                <Search/>
+                <crudOperation>
+                  <el-button
+                    slot="left"
+                    class="filter-item"
+                    type="danger"
+                    icon="el-icon-thumb"
+                    size="mini"
+                    :loading="crud.loading"
+                    :disabled="crud.selections.length === 0"
+                    @click="toApprove(crud.selections)"
+                  >
+                    审批
+                  </el-button>
+                </crudOperation>
+              </div>
+              <!-- 任务列表 -->
               <div>
                 <el-table
                   v-loading="crud.loading"
+                  ref="table"
                   :data="crud.data"
+                  row-key="id"
                   style="width: 100%;"
+                  @selection-change="crud.selectionChangeHandler"
+                  @row-dblclick="dbSelected"
                 >
-                  <el-table-column prop="name" label="行为"/>
-                  <el-table-column prop="requestIp" label="IP"/>
-                  <el-table-column :show-overflow-tooltip="true" prop="address" label="IP来源"/>
-                  <el-table-column prop="browser" label="浏览器"/>
-                  <el-table-column prop="time" label="请求耗时" align="center">
+                  <el-table-column :reserve-selection="true" type="selection" width="55"/>
+                  <el-table-column prop="realName" label="文件真实名">
                     <template slot-scope="scope">
-                      <el-tag v-if="scope.row.time <= 300">{{ scope.row.time }}ms</el-tag>
-                      <el-tag v-else-if="scope.row.time <= 1000" type="warning">{{ scope.row.time }}ms</el-tag>
-                      <el-tag v-else type="danger">{{ scope.row.time }}ms</el-tag>
+                      <el-popover
+                        :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                        placement="top-start"
+                        title="路径"
+                        width="200"
+                        trigger="hover"
+                      >
+                        <a
+                          slot="reference"
+                          :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                          class="el-link--primary"
+                          style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                          target="_blank"
+                        >
+                          {{ scope.row.realName }}
+                        </a>
+                      </el-popover>
                     </template>
                   </el-table-column>
+                  <el-table-column prop="changeDesc" label="诉求"/>
+                  <!--                  <el-table-column prop="srcPath" label="原路径" />-->
+                  <!--                  <el-table-column prop="tarPath" label="目标路径" />-->
+                  <!--                  <el-table-column prop="type" label="类型" />-->
+                  <!--                  <el-table-column prop="version" label="目标版本号" />-->
                   <el-table-column prop="createTime" label="创建时间"/>
+                  <el-table-column prop="createBy" label="创建人"/>
                   <el-table-column
                     label="操作"
                     width="115"
@@ -138,8 +205,8 @@
         </el-card>
       </el-col>
     </el-row>
-    <updateEmail ref="email" :email="user.email" />
-    <updatePass ref="pass" />
+    <updateEmail ref="email" :email="user.email"/>
+    <updatePass ref="pass"/>
   </div>
 </template>
 
@@ -152,17 +219,19 @@ import { getToken } from '@/utils/auth'
 import store from '@/store'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, crud } from '@crud/crud'
+import Search from '../../monitor/log/search'
+import crudOperation from '@crud/CRUD.operation'
 import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
 import { editUser } from '@/api/system/user'
 import Avatar from '@/assets/images/avatar.png'
-import crudFile from '@/api/tools/localStorage'
+import crudTask from '@/api/system/toolsTask'
 
 export default {
   name: 'Center',
-  components: { updatePass, updateEmail, myUpload, udApprove, pagination },
+  components: { updatePass, updateEmail, myUpload, Search, crudOperation, udApprove, pagination },
   cruds() {
-    return CRUD({ title: '文件', url: 'api/localStorage', crudMethod: { ...crudFile } })
+    return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask } })
   },
   mixins: [presenter(), header(), crud()],
   data() {
@@ -179,7 +248,7 @@ export default {
     return {
       show: false,
       Avatar: Avatar,
-      activeName: 'first',
+      activeName: 'second',
       saveLoading: false,
       headers: {
         'Authorization': getToken()
@@ -198,7 +267,8 @@ export default {
         approve: ['admin', 'storage:edit']
       },
       oldNickName: null,
-      oldPhone: null
+      oldPhone: null,
+      taskLabel: null
     }
   },
   computed: {
@@ -209,11 +279,32 @@ export default {
     ])
   },
   created() {
+    // alert(JSON.stringify(this.$store.getters.user))
+    this.crud.optShow = {
+      add: false,
+      edit: false,
+      del: false,
+      download: false
+    }
     this.form = { id: this.user.id, nickName: this.user.nickName, gender: this.user.gender, phone: this.user.phone }
     store.dispatch('GetInfo').then(() => {
     })
     this.oldNickName = this.user.nickName
     this.oldPhone = this.user.phone
+    if (this.user.isAdmin === true) {
+      this.taskLabel = '全部任务'
+    } else {
+      this.taskLabel = '个人任务'
+    }
+  },
+  mounted() {
+    if (this.$route.query.createTime !== undefined) {
+      // alert(this.$route.query.createTime)
+      const startTime = this.$route.query.createTime + ' 00:00:00'
+      const endTime = this.$route.query.createTime + ' 23:59:59'
+      this.query.createTime = [startTime, endTime]
+      this.crud.toQuery()
+    }
   },
   methods: {
     toggleShow() {
@@ -225,11 +316,12 @@ export default {
       }
     },
     beforeInit() {
-      this.url = '/api/localStorage'
+      this.url = '/api/toolsTask'
       return true
     },
     cropUploadSuccess(jsonData, field) {
-      store.dispatch('GetInfo').then(() => {})
+      store.dispatch('GetInfo').then(() => {
+      })
     },
     doSubmit() {
       if (this.$refs['form']) {
@@ -254,30 +346,53 @@ export default {
           }
         })
       }
+    },
+    // 审批（支持批量）
+    toApprove(datas) {
+      // todo 审批
+      alert(JSON.stringify(datas))
+    },
+    // 双击选中的行列，进入审批主页
+    dbSelected(row) {
+      alert(JSON.stringify(row))
+      /*this.$router.push(
+        {
+          path: '/sys-tools/filedetail',
+          query: {
+            fileId: row.id,
+            name: row.name,
+            realName: row.realName,
+            fileDesc: row.fileDesc
+          }
+        })*/
     }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  .avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+}
+
+.user-info {
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    border-bottom: 1px solid #F0F3F4;
+    padding: 11px 0;
+    font-size: 13px;
   }
-  .user-info {
-    padding-left: 0;
-    list-style: none;
-    li{
-      border-bottom: 1px solid #F0F3F4;
-      padding: 11px 0;
-      font-size: 13px;
-    }
-    .user-right {
-      float: right;
-      a{
-        color: #317EF3;
-      }
+
+  .user-right {
+    float: right;
+
+    a {
+      color: #317EF3;
     }
   }
+}
 </style>

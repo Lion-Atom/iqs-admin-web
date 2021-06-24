@@ -49,6 +49,20 @@ export function getOtherFiles(id) {
   })
 }
 
+export function getAllFilesAnonymousAccess(id) {
+  const params = {
+    page: 0,
+    size: 9999,
+    anonymousAccess: true,
+    enabled: true
+  }
+  return request({
+    url: 'api/localStorage',
+    method: 'get',
+    params
+  })
+}
+
 export function getFilesByIds(data) {
   return request({
     url: 'api/localStorage/byIds',
