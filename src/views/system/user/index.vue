@@ -309,6 +309,7 @@ const defaultForm = {
   roles: [],
   jobs: [{ id: null }],
   dept: { id: null },
+  isDepartMaster: false,
   superiorId: null,
   phone: null
 }
@@ -481,6 +482,9 @@ export default {
           type: 'warning'
         })
         return false
+      } else if (crud.form.superiorId === null || crud.form.superiorId === undefined) {
+        // 验证是否已存在部门master
+        alert(113)
       }
       crud.form.roles = userRoles
       // crud.form.jobs = userJobs

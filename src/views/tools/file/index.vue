@@ -36,6 +36,7 @@
               placeholder="输入名称、类型、创建者等搜索"
               style="width: 140px;"
               class="filter-item"
+              @keyup.enter.native="crud.toQuery"
               @input="inputChange($event)"
             />
             <!-- 文件分类筛选，需要更改为树表筛选 -->

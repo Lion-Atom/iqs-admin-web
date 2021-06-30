@@ -19,14 +19,14 @@
         </div>
       </el-col>
     </el-row>
-    <el-divider></el-divider>
+    <el-divider/>
     <el-select
       v-model="fileSelected.name"
       filterable
       style="width: 400px;padding-bottom: 10px;"
       placeholder="请选择"
-      @change="changeFile"
       value-key="id"
+      @change="changeFile"
     >
       <el-option
         v-for="item in files"
@@ -110,7 +110,7 @@
           <el-row>
             <el-col>
               <div v-if="bindFileItems.length>0">
-                <div v-for="(item,index) in bindFileItems" v-bind:key="item.id" style="margin-left: 10px;">
+                <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 10px;">
                   <el-button type="text" @click.native="refFile(item.id)">
                     {{ '[' + (index + 1) + '] ' + item.name + ',' + item.version }}
                   </el-button>
@@ -124,7 +124,151 @@
           </el-row>
         </el-collapse-item>
         <!--文件历史记录-->
-        <el-collapse-item title="OperationLog 操作日志" name="4" class="collapse-item">
+        <el-collapse-item title="ApprovalProcess 审批进度" name="4" class="collapse-item">
+          <el-row>
+            <el-col>
+              <div class="app-container">
+                <!-- 查询工具 -->
+                <div class="head-container">
+                  <div>
+                    <el-input
+                      v-model="params.bindingId"
+                      style="display: none;"
+                    />
+                    <el-input
+                      v-model="params.blurry"
+                      clearable
+                      size="small"
+                      style="width: 180px;"
+                      placeholder="请输入你要搜索的内容"
+                      class="filter-item"
+                      @keyup.enter.native="getApprovalProcessRecord(params)"
+                    />
+                    <el-select
+                      v-model="params.version"
+                      clearable
+                      size="small"
+                      placeholder="状态"
+                      class="filter-item"
+                      style="width: 90px"
+                      @change="getApprovalProcessRecord(params)"
+                    >
+                      <el-option
+                        v-for="item in versions"
+                        :key="item.id"
+                        :label="item.value"
+                        :value="item.value"
+                      />
+                    </el-select>
+                    <!--                    <date-range-picker
+                                          v-model="params.createTime"
+                                          class="date-item"
+                                        />-->
+                    <span>
+                      <el-button
+                        class="filter-item"
+                        size="mini"
+                        type="success"
+                        icon="el-icon-search"
+                        @click="getApprovalProcessRecord(params)"
+                      >搜索</el-button>
+                      <el-button
+                        class="filter-item"
+                        size="mini"
+                        type="warning"
+                        icon="el-icon-refresh-left"
+                        @click="resetQueryProcess"
+                      >重置</el-button>
+                    </span>
+                  </div>
+                </div>
+                <!--表格渲染-->
+                <el-table
+                  ref="Table"
+                  v-loading="crud.loading"
+                  :data="approvalProcessData"
+                  style="width: 100%;"
+                >
+                  <el-table-column prop="realName" label="文件真实名">
+                    <template slot-scope="scope">
+                      <el-popover
+                        :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                        placement="top-start"
+                        title="路径"
+                        width="200"
+                        trigger="hover"
+                      >
+                        <a
+                          slot="reference"
+                          :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                          class="el-link--primary"
+                          style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                          target="_blank"
+                        >
+                          {{ scope.row.realName }}
+                        </a>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="processNo" width="180" label="审批单号"/>
+                  <el-table-column prop="version" label="版本"/>
+                  <el-table-column prop="changeType" label="变更类型"/>
+                  <el-table-column label="诉求">
+                    <template slot-scope="scope">
+                      <el-popover
+                        placement="top-start"
+                        title="审批请求"
+                        width="200"
+                        trigger="hover"
+                      >
+                        <div>{{ scope.row.changeDesc }}</div>
+                        <a
+                          slot="reference"
+                          style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                        >
+                          {{ scope.row.changeDesc }}
+                        </a>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="createTime" width="150" label="创建时间"/>
+                  <el-table-column prop="createBy" label="创建人"/>
+                  <el-table-column prop="approver" label="审批者"/>
+                  <el-table-column prop="approvedResult" label="审批结果"/>
+                  <el-table-column label="审批意见">
+                    <template slot-scope="scope">
+                      <el-popover
+                        placement="top-start"
+                        title="审批意见"
+                        width="200"
+                        trigger="hover"
+                      >
+                        <div>{{ scope.row.approvedComment }}</div>
+                        <a
+                          slot="reference"
+                          style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                        >
+                          {{ scope.row.approvedComment }}
+                        </a>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                </el-table>
+                <!--分页组件-->
+                <el-pagination
+                  :page-size.sync="params.size"
+                  :total="total"
+                  style="margin-top: 8px;"
+                  :page-sizes="[10,20,30,40,50,100]"
+                  layout="total, prev, pager, next, sizes"
+                  @size-change="sizeChangeHandler"
+                  @current-change="pageChangeHandler"
+                />
+              </div>
+            </el-col>
+          </el-row>
+        </el-collapse-item>
+        <el-collapse-item title="OperationLog 操作日志" name="5" class="collapse-item">
           <el-row>
             <el-col>
               <div class="app-container">
@@ -141,9 +285,32 @@
                       style="width: 180px;"
                       placeholder="请输入你要搜索的内容"
                       class="filter-item"
+                      @input="inputChange($event)"
+                      @keyup.enter.native="crud.toQuery"
                     />
-                    <date-range-picker v-model="query.createTime" class="date-item"/>
-                    <rrOperation/>
+                    <date-range-picker
+                      v-model="query.createTime"
+                      class="date-item"
+                      @change="crud.toQuery"
+                      @input="dateTimeChange($event)"
+                    />
+                    <span>
+                      <el-button
+                        class="filter-item"
+                        size="mini"
+                        type="success"
+                        icon="el-icon-search"
+                        @click="crud.toQuery"
+                      >搜索</el-button>
+                      <el-button
+                        v-if="crud.optShow.reset"
+                        class="filter-item"
+                        size="mini"
+                        type="warning"
+                        icon="el-icon-refresh-left"
+                        @click="resetQueryToolsLog(query.bindingId)"
+                      >重置</el-button>
+                    </span>
                   </div>
                   <crudOperation>
                     <el-button
@@ -202,6 +369,7 @@ import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
 import { getAllFiles, getAllFilesAnonymousAccess, getFilesByIds, getFileById } from '@/api/tools/localStorage'
 import { delToolsLogByCond } from '@/api/monitor/toolslog'
+import { getApprovalProcess } from '@/api/system/approvalProcess'
 import CRUD, { crud, presenter } from '@crud/crud'
 import { header } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -266,7 +434,18 @@ export default {
       fileSelected: {
         id: null,
         name: ''
-      }
+      },
+      params: {
+        bindingId: null,
+        blurry: '',
+        createTime: null,
+        version: '',
+        page: 0,
+        size: 10
+      },
+      versions: [],
+      approvalProcessData: [],
+      total: 0
     }
   },
   computed: {
@@ -284,24 +463,62 @@ export default {
       this.realName = this.$route.query.realName
       this.fileDesc = this.$route.query.fileDesc
       this.crud.toQuery(this.query.bindingId)
+      this.params.bindingId = this.query.bindingId
+      // this.getApprovalProcessRecord(this.params)
     }
     this.getAllFilesAnonymousAccess()
     this.crud.optShow = {
       add: false,
       edit: false,
       del: false,
-      download: true
-      // reset:true
+      download: true,
+      reset: true
     }
   },
   /*  mounted() {
       this.getAllFiles()
     },*/
   methods: {
-    // 监控文件选择变化，强制刷新
+    // 监控日志查询输入变化，强制刷新
     inputChange() {
       this.$forceUpdate()
     },
+    // 监控时间输入框变化，强制刷新
+    dateTimeChange() {
+      this.$forceUpdate()
+    },
+    sizeChangeHandler(currentSize) {
+      this.params.size = currentSize
+      this.getApprovalProcessRecord(this.params)
+    },
+    pageChangeHandler(currentPage) {
+      this.params.page = currentPage
+      this.getApprovalProcessRecord(this.params)
+    },
+    // 查询审批数据变化
+    getApprovalProcessRecord(params) {
+      // alert(JSON.stringify(params))
+      getApprovalProcess(params).then(res => {
+        // alert(JSON.stringify(res))
+        this.approvalProcessData = res.content
+        this.total = res.totalElements
+      })
+    },
+    // 搜索重置
+    resetQueryProcess() {
+      this.params.blurry = ''
+      this.params.createTime = null
+      this.params.page = 0
+      this.params.size = 10
+      this.getApprovalProcessRecord(this.params)
+    },
+    // 搜索重置
+    resetQueryToolsLog(val) {
+      this.query.blurry = ''
+      this.query.createTime = null
+      this.crud.toQuery(this.query.bindingId)
+    },
+    // 无视权限限制，获取所有文件
     getAllFilesAnonymousAccess() {
       // getAllFiles({ enabled: true, }).then(res => {
       getAllFilesAnonymousAccess({ enabled: true, anonymousAccess: true }).then(res => {
@@ -340,10 +557,23 @@ export default {
         // this.crud.toQuery(this.query.blurry)
         this.query.bindingId = id
         this.crud.toQuery(this.query.bindingId)
+        this.params.bindingId = id
+        // 获取它的版本号
+        this.params.version = res.version
+        const val = res.version.replace('A/', '')
+        const ver = { id: val, value: res.version }
+        this.versions.push(ver)
+        // alert(JSON.stringify(this.versions))
+        for (let i = 0; i < parseInt(val); i++) {
+          const v = { id: i, value: 'A/' + i }
+          this.versions.push(v)
+        }
+        this.getApprovalProcessRecord(this.params)
         // alert(JSON.stringify(this.query.blurry))
         this.form.fileLevel.name += '-' + this.form.fileLevel.description
         this.form.createBy = ' created by ' + this.form.createBy + ' on ' + this.form.createTime
         this.form.updateBy = ' last updated by' + this.form.updateBy + ' on ' + this.form.updateTime
+
         // 查询关联文件列表
         const ids = []
         if (res.bindFiles !== null && res.bindFiles.length > 0) {
@@ -382,13 +612,25 @@ export default {
     },
     refFile(id) {
       this.getFileById(id)
+      this.getApprovalProcessRecord(id)
       this.file = id
       this.activeNames = ['1']
     },
     handleChange(val) {
       console.log(val)
     },
+    // 格式化审批清单表格信息内容
     // 格式化表格消息内容
+    changeDescFormat(row, column, cellValue) {
+      // console.log(row , column , cellValue)
+      if (!cellValue) return ''
+      if (cellValue.length > 30) {
+        // 最长固定显示4个字符
+        return cellValue.slice(0, 10) + '...'
+      }
+      return cellValue
+    },
+    // 格式化操作日志表格消息内容
     stateFormat(row, column, cellValue) {
       // console.log(row , column , cellValue)
       if (!cellValue) return ''

@@ -9,8 +9,11 @@
           <div>
             <div style="text-align: center">
               <div class="el-upload">
-                <img :src="user.avatarName ? baseApi + '/avatar/' + user.avatarName : Avatar" title="点击上传头像"
-                     class="avatar" @click="toggleShow"
+                <img
+                  :src="user.avatarName ? baseApi + '/avatar/' + user.avatarName : Avatar"
+                  title="点击上传头像"
+                  class="avatar"
+                  @click="toggleShow"
                 >
                 <myUpload
                   v-model="show"
@@ -65,8 +68,13 @@
         <el-card class="box-card">
           <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane label="用户资料" name="first">
-              <el-form ref="form" :model="form" :rules="rules" style="margin-top: 10px;" size="small"
-                       label-width="65px"
+              <el-form
+                ref="form"
+                :model="form"
+                :rules="rules"
+                style="margin-top: 10px;"
+                size="small"
+                label-width="65px"
               >
                 <el-form-item label="昵称" prop="nickName">
                   <el-input v-model="form.nickName" style="width: 35%"/>
@@ -110,8 +118,8 @@
               <!-- 任务列表 -->
               <div>
                 <el-table
-                  v-loading="crud.loading"
                   ref="table"
+                  v-loading="crud.loading"
                   :data="crud.data"
                   row-key="id"
                   style="width: 100%;"
@@ -141,10 +149,10 @@
                     </template>
                   </el-table-column>
                   <el-table-column prop="changeDesc" label="诉求"/>
-                  <!--                  <el-table-column prop="srcPath" label="原路径" />-->
-                  <!--                  <el-table-column prop="tarPath" label="目标路径" />-->
-                  <!--                  <el-table-column prop="type" label="类型" />-->
-                  <!--                  <el-table-column prop="version" label="目标版本号" />-->
+                  <!--                                    <el-table-column prop="srcPath" label="原路径" />
+                                    <el-table-column prop="tarPath" label="目标路径" />
+                                    <el-table-column prop="type" label="类型" />
+                                    <el-table-column prop="version" label="目标版本号" />-->
                   <el-table-column prop="createTime" label="创建时间"/>
                   <el-table-column prop="createBy" label="创建人"/>
                   <el-table-column
@@ -355,7 +363,7 @@ export default {
     // 双击选中的行列，进入审批主页
     dbSelected(row) {
       alert(JSON.stringify(row))
-      /*this.$router.push(
+      /* this.$router.push(
         {
           path: '/sys-tools/filedetail',
           query: {

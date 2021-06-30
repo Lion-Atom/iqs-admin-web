@@ -7,6 +7,7 @@
       placeholder="请输入你要搜索的内容"
       style="width: 200px;"
       class="filter-item"
+      @keyup.enter.native="crud.toQuery"
     />
     <date-range-picker
       v-model="query.createTime"
