@@ -81,9 +81,9 @@
           :before-close="crud.cancelCU"
           :visible.sync="crud.status.cu > 0"
           :title="crud.status.title"
-          width="650px"
+          width="700px"
         >
-          <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
+          <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="90px">
             <el-row>
               <el-col :span="12">
                 <el-form-item label="用户名" prop="username">
@@ -134,7 +134,29 @@
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item v-if="form.dept.id!==undefined && form.dept.id!==null" label="上级" prop="superiorId">
+                <el-form-item
+                  v-if="form.dept.id!==undefined && form.dept.id !=='' && form.dept.id!==null"
+                  label="部门管理者"
+                >
+                  <el-radio-group
+                    v-model="form.isDepartMaster"
+                    style="width: 220px"
+                  >
+                    <el-radio
+                      v-for="item in dict.common_status"
+                      :key="item.id"
+                      :label="item.value"
+                    >{{ item.label }}
+                    </el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item
+                  v-if="form.dept.id!==undefined && form.dept.id !=='' && form.dept.id!==null && form.isDepartMaster === 'false'"
+                  label="上级"
+                  prop="superiorId"
+                >
                   <el-select
                     v-model="form.superiorId"
                     style="width: 220px"
@@ -240,6 +262,7 @@
               <div>{{ scope.row.dept.name }}</div>
             </template>
           </el-table-column>
+          <el-table-column label="部门管理者" :formatter="isDepartMasterFormat"/>
           <el-table-column prop="jobs" label="职位">
             <template slot-scope="scope">
               <div>{{ scope.row.jobs[0].name }}</div>
@@ -309,7 +332,7 @@ const defaultForm = {
   roles: [],
   jobs: [{ id: null }],
   dept: { id: null },
-  isDepartMaster: false,
+  isDepartMaster: 'false',
   superiorId: null,
   phone: null
 }
@@ -317,11 +340,11 @@ export default {
   name: 'User',
   components: { Treeselect, crudOperation, rrOperation, udOperation, pagination, DateRangePicker },
   cruds() {
-    return CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudUser }})
+    return CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudUser } })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   // 数据字典
-  dicts: ['user_status'],
+  dicts: ['user_status', 'common_status'],
   data() {
     // 自定义验证
     const validPhone = (rule, value, callback) => {
@@ -395,6 +418,13 @@ export default {
     }
   },
   methods: {
+    isDepartMasterFormat(row, col) {
+      if (row.isDepartMaster === true) {
+        return '是'
+      } else {
+        return '否'
+      }
+    },
     // 监控日期选择器输入变化，强制刷新
     change() {
       this.$forceUpdate()
@@ -433,6 +463,7 @@ export default {
       this.getRoleLevel()
       // this.getJobs()
       form.enabled = form.enabled.toString()
+      form.isDepartMaster = form.isDepartMaster.toString()
     },
     // 新增前将多选的值设置为空
     [CRUD.HOOK.beforeToAdd]() {
@@ -464,6 +495,7 @@ export default {
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
+      // alert(JSON.stringify(crud.form))
       if (!crud.form.dept.id) {
         this.$message({
           message: '部门不能为空',
@@ -482,9 +514,13 @@ export default {
           type: 'warning'
         })
         return false
-      } else if (crud.form.superiorId === null || crud.form.superiorId === undefined) {
-        // 验证是否已存在部门master
-        alert(113)
+      } else if (crud.form.isDepartMaster === 'false' && (crud.form.superiorId === '' || crud.form.superiorId === null || crud.form.superiorId === undefined)) {
+        // 验证是否非部门master应当选择上级,后期统一封装判空接口
+        this.$message({
+          message: '非部门管理者必须设置上级',
+          type: 'warning'
+        })
+        return false
       }
       crud.form.roles = userRoles
       // crud.form.jobs = userJobs
@@ -650,7 +686,7 @@ export default {
       if (deptId !== null && deptId !== undefined) {
         crudUser.getUserSuperior({ deptId: deptId, editId: this.form.id }).then(res => {
           this.superiors = res
-          if (this.oldSuperiorId === null || this.oldSuperiorId === undefined) {
+          if (this.oldSuperiorId === '' || this.oldSuperiorId === null || this.oldSuperiorId === undefined) {
             this.form.superiorId = null
           } else {
             this.form.superiorId = this.oldSuperiorId

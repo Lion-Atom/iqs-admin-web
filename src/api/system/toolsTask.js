@@ -17,4 +17,12 @@ export function getCountByUserId() {
   })
 }
 
-export default { getToolsTask, getCountByUserId }
+export function edit(data) {
+  return request({
+    url: 'api/toolsTask',
+    method: 'put',
+    data
+  })
+}
+
+export default { getToolsTask, getCountByUserId, edit }

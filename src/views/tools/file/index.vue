@@ -277,11 +277,35 @@
                       :value="item.value"
                     />
                   </el-select>
-                  <el-button v-if="form.approvalStatus === 'waitingfor'" type="text" @click="sendEmail">邮件提醒</el-button>
                 </el-form-item>
-                <!-- 发起审批 -->
-
               </el-col>
+              <el-col :span="12">
+                <el-form-item v-if="form.approvalStatus === 'waitingfor'">
+                  <span slot="label">
+                    <span class="span-box">
+                      <el-tooltip placement="top" effect="light">
+                        <div slot="content">you can choose the owner's approver for faster approval.<br>
+                          默认创建者的直接领导，允许切换临时审批者以加快审批进度.</div>
+                        <i class="el-icon-question"/>
+                      </el-tooltip>
+                      <span>审批者</span>
+                    </span>
+                  </span>
+                  <el-select
+                    v-model="form.superiorId"
+                    placeholder="请选择上级"
+                    clearable
+                  >
+                    <el-option
+                      v-for="item in superiors"
+                      :key="item.id"
+                      :label="item.dept.name + '\xa0-\xa0' + item.jobs[0].name + '\xa0-\xa0'+ item.username "
+                      :value="item.id"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <!-- 发起审批 -->
               <el-col :span="12">
                 <el-form-item v-if="!crud.status.add && this.form.fileStatus!=='draft'">
                   <span slot="label">
@@ -568,6 +592,7 @@ import crudFile, {
 import { getFileLevels, getFileLevelSuperior } from '@/api/tools/filelevel'
 import { getFileCategories, getFileCategorySuperior } from '@/api/tools/filecategory'
 import { getDepts, getDeptSuperior } from '@/api/system/dept'
+import { getApprovers } from '@/api/system/user'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -579,6 +604,7 @@ import { mapGetters } from 'vuex'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getToken } from '@/utils/auth'
+import { edit } from '@/api/system/toolsTask'
 
 let bindingFiles = []
 const defaultForm = {
@@ -596,7 +622,8 @@ const defaultForm = {
   fileDesc: '',
   fileCategory: { id: null },
   fileDept: { id: null },
-  bindFiles: []
+  bindFiles: [],
+  superiorId: null
 }
 export default {
   name: 'File',
@@ -630,6 +657,7 @@ export default {
       bindDatas: [], // 关联文件，监听使用
       fileDesc: '', // 文件描述，监听使用
       securityLevel: null, // 安全等级
+      approveBy: null, // 审批者，监听使用
       delAllLoading: false,
       loading: false,
       height: document.documentElement.clientHeight - 180 + 'px;',
@@ -697,7 +725,8 @@ export default {
         { key: 'waitingfor', display_name: '待审批' },
         { key: 'approve', display_name: '审批' },
         { key: 'obsoleted', display_name: '已作废' }
-      ]
+      ],
+      superiors: []
     }
   },
   computed: {
@@ -795,7 +824,7 @@ export default {
       this.watchChangeHandler(this.bindDatas, this.bindFileDatas) // 关联文件，监听使用
       this.watchChangeHandler(this.fileDesc, this.form.fileDesc) // 文件描述，监听使用
       this.watchChangeHandler(this.securityLevel, this.form.securityLevel) // 安全等级，监听使用
-
+      this.watchChangeHandler(this.approveBy, this.form.superiorId) // 当前审批人，监听使用
       if (this.editFormChanged === 0) {
         this.$message({
           message: 'No changes found, no need to save!未发生改动，无需保存',
@@ -803,12 +832,40 @@ export default {
         })
         return false
       }
+      // 如果出于审批状态，则审批者不可为空
+      if (this.form.approvalStatus === 'waitingfor' &&
+        (this.form.superiorId === null || this.form.superiorId === undefined || this.form.superiorId === '')) {
+        this.$message({
+          message: 'Approver needed! 审批状态下必须有审批者',
+          type: 'warning'
+        })
+        return false
+      }
       this.crud.submitCU()
+      // alert(JSON.stringify(this.preTrail))
       /* if (this.$route.query.fileName !== undefined) {
         this.query.blurry = ''
         this.crud.toQuery()
       } */
+      // alert('原审批者：' + this.approveBy + '-------现审批者：' + this.form.superiorId)
+      // 原审批者和现审批者不一致则需要更改成审批流程和任务信息
+      // alert(JSON.stringify(this.form.superiorId))
+      if (this.form.superiorId !== this.approveBy &&
+        (this.form.superiorId !== null || true || this.form.superiorId !== '')) {
+        // 更新任务信息
+        // alert(JSON.stringify(this.form.superiorId))
+        this.preTrail.approvedBy = this.form.superiorId
+        this.updateApprover(this.preTrail)
+        // 更新审批进度信息
+        // todo this.updateAppProcess()
+      }
       this.crud.resetQuery()
+    },
+    // 更新任务信息
+    updateApprover(data) {
+      edit(data).then(res => {
+        // alert("更新审批者成功")
+      })
     },
     getRowKeys(row) {
       return row.id
@@ -943,6 +1000,8 @@ export default {
     },
     // 初始化编辑时候的关联文件并初始化版本升级操作计数
     [CRUD.HOOK.beforeToEdit](crud, form) {
+      // alert(JSON.stringify(form.createBy))
+      this.getApprover(form.createBy)
       // 编辑前置空变更描述
       this.form.changeDesc = ''
       // 编辑前存储编辑前的可变的属性的数据信息
@@ -980,6 +1039,19 @@ export default {
       if (this.form.approvalStatus === 'waitingfor') {
         this.count = 1
       }
+    },
+    // 获取可选上级
+    getApprover(createBy) {
+      // 选择审批的领导
+      getApprovers({ createBy: createBy }).then(res => {
+        // alert(JSON.stringify(res))
+        this.superiors = res
+        if (this.oldSuperiorId === '' || this.oldSuperiorId === null || this.oldSuperiorId === undefined) {
+          this.form.superiorId = null
+        } else {
+          this.form.superiorId = this.oldSuperiorId
+        }
+      })
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
@@ -1147,6 +1219,9 @@ export default {
       getPreTrailByFileId(id).then(res => {
         // alert(JSON.stringify(res))
         this.preTrail = res[0]
+        this.form.superiorId = res[0].approvedBy
+        this.oldSuperiorId = this.form.superiorId
+        this.approveBy = this.form.superiorId
       })
     },
     // 填充文件等级数据
@@ -1338,7 +1413,7 @@ export default {
     },
     // 单击时候选中某列
     stepsListRowClick(row) {
-      console.log(JSON.stringify(row))
+      // console.log(JSON.stringify(row))
       this.$refs.table.toggleRowSelection(row)
     },
     // 双击选中的行列
