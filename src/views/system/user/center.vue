@@ -109,7 +109,7 @@
                     size="mini"
                     :loading="crud.loading"
                     :disabled="crud.selections.length === 0"
-                    @click="toApprove(crud.selections)"
+                    @click="batchApprove(crud.selections)"
                   >
                     审批
                   </el-button>
@@ -117,16 +117,108 @@
               </div>
               <!-- 任务列表 -->
               <div>
+                <!--审批任务-->
+                <el-dialog
+                  class="dialog"
+                  :title="taskForm.isDone? '查看任务' : '审核任务'"
+                  :visible.sync="dialogFormVisible"
+                >
+                  <el-form :model="taskForm" size="small" :label-width="formLabelWidth">
+                    <el-row>
+                      <el-col :span="12">
+                        <el-form-item label="任务名称">
+                          <el-input v-model="taskForm.changeDesc" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="任务发起人">
+                          <el-input v-model="taskForm.createBy" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <el-form-item label="审批对象">
+                          <el-input v-model="taskForm.realName" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="对象类型">
+                          <el-input v-model="taskForm.type" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <el-form-item label="对象版本">
+                          <el-input v-model="taskForm.version" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="对象大小">
+                          <el-input v-model="taskForm.size" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <el-form-item label="最近更新人">
+                          <el-input v-model="taskForm.updateBy" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="对象大小">
+                          <el-input v-model="taskForm.size" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="24">
+                        <el-form-item label="对象位置">
+                          <el-input v-model="taskForm.tarPath" disabled></el-input>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <el-form-item label="审批结论" required>
+                          <el-select v-model="taskForm.approveResult" size="small" placeholder="审批结果"
+                                     class="filter-item"
+                                     style="width: 120px"
+                                     :disabled="isHavResult"
+                          >
+                            <el-option v-for="item in approveTypeOptions" :key="item.key" :label="item.display_name"
+                                       :value="item.key"
+                            />
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="24">
+                        <el-form-item label="审批建议">
+                          <el-input v-model="taskForm.comment" :disabled="taskForm.isDone"></el-input>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </el-form>
+                  <div slot="footer" class="dialog-footer">
+                    <el-button @click="cancelApprove">取 消</el-button>
+                    <el-button type="primary" @click="submitApprove(taskForm)">提交</el-button>
+                  </div>
+                </el-dialog>
+                <!--任务审批列表-->
                 <el-table
                   ref="table"
                   v-loading="crud.loading"
                   :data="crud.data"
-                  row-key="id"
+                  :row-key="getRowKeys"
                   style="width: 100%;"
                   @selection-change="crud.selectionChangeHandler"
                   @row-dblclick="dbSelected"
+                  @row-click="stepsListRowClick"
                 >
-                  <el-table-column :reserve-selection="true" type="selection" width="55"/>
+                  <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55"/>
                   <el-table-column prop="realName" label="文件真实名">
                     <template slot-scope="scope">
                       <el-popover
@@ -148,16 +240,18 @@
                       </el-popover>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="changeDesc" label="诉求"/>
+                  <el-table-column width="300" prop="changeDesc" label="诉求"/>
                   <!--                                    <el-table-column prop="srcPath" label="原路径" />
                                     <el-table-column prop="tarPath" label="目标路径" />
                                     <el-table-column prop="type" label="类型" />
                                     <el-table-column prop="version" label="目标版本号" />-->
-                  <el-table-column prop="createTime" label="创建时间"/>
+                  <el-table-column prop="createTime" width="150" label="创建时间"/>
                   <el-table-column prop="createBy" label="创建人"/>
+                  <el-table-column label="进度" :formatter="isDoneFormat"/>
+                  <el-table-column label="审核结果" :formatter="approveResultFormat"/>
                   <el-table-column
                     label="操作"
-                    width="115"
+                    width="80"
                     align="center"
                     fixed="right"
                   >
@@ -165,7 +259,7 @@
                       <udApprove
                         :data="scope.row"
                         :permission="permission"
-                        :disabled-dle="scope.row.id === user.id"
+                        @func="getMsgFormSon"
                       />
                     </template>
                   </el-table-column>
@@ -233,7 +327,7 @@ import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
 import { editUser } from '@/api/system/user'
 import Avatar from '@/assets/images/avatar.png'
-import crudTask from '@/api/system/toolsTask'
+import crudTask, { submit } from '@/api/system/toolsTask'
 
 export default {
   name: 'Center',
@@ -276,7 +370,16 @@ export default {
       },
       oldNickName: null,
       oldPhone: null,
-      taskLabel: null
+      taskLabel: null,
+      dialogFormVisible: false,
+      taskForm: {},
+      formLabelWidth: '120px',
+      approveTypeOptions: [
+        { key: false, display_name: '驳回' },
+        { key: true, display_name: '同意' }
+      ],
+      oldResult: null,
+      isHavResult: false
     }
   },
   computed: {
@@ -293,6 +396,7 @@ export default {
       edit: false,
       del: false,
       download: false
+      // reset: true //reset与默认初始“待处理”冲突，节约时间暂不处理
     }
     this.form = { id: this.user.id, nickName: this.user.nickName, gender: this.user.gender, phone: this.user.phone }
     store.dispatch('GetInfo').then(() => {
@@ -315,6 +419,43 @@ export default {
     }
   },
   methods: {
+    // 获取子组件：udApprove传来的值
+    getMsgFormSon(msg) {
+      // alert(JSON.stringify(msg.data.approveResult))
+      this.dialogFormVisible = msg.show
+      this.taskForm = msg.data
+      this.oldResult = msg.data.approveResult
+      if (this.oldResult === undefined
+        || this.oldResult === ''
+        || this.oldResult === null) {
+        this.isHavResult = false
+      } else {
+        this.isHavResult = true
+      }
+    },
+    // 取消审批
+    cancelApprove() {
+      this.taskForm.approveResult = this.oldResult
+      this.dialogFormVisible = false
+    },
+    // 提交审批
+    submitApprove(taskForm) {
+      if (taskForm.approveResult === 'false') {
+        // alert("建议填写修改建议")
+      }
+      // alert(JSON.stringify(taskForm))
+      submit(taskForm).then(res => {
+        this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
+        this.dialogFormVisible = false
+        this.crud.toQuery()
+        this.$refs.table.clearSelection()
+      })
+    },
+    // 某些列禁止改动
+    checkboxT(row, rowIndex) {
+      // 已审核的不可被选中
+      return row.approveResult === undefined
+    },
     toggleShow() {
       this.show = !this.show
     },
@@ -331,6 +472,24 @@ export default {
       store.dispatch('GetInfo').then(() => {
       })
     },
+    // 进度格式化
+    isDoneFormat(row, col) {
+      // alert(JSON.stringify(row))
+      if (row.isDone === true) {
+        return '已审批'
+      } else {
+        return '未审批'
+      }
+    },
+    // 审批结果格式化
+    approveResultFormat(row, col) {
+      if (row.approveResult === true) {
+        return '同意'
+      } else if (row.approveResult === false) {
+        return '驳回'
+      }
+    },
+    // 人员信息提交
     doSubmit() {
       if (this.$refs['form']) {
         if (this.form.nickName === this.oldNickName && this.form.phone === this.oldPhone) {
@@ -356,29 +515,81 @@ export default {
       }
     },
     // 审批（支持批量）
-    toApprove(datas) {
-      // todo 审批
+    batchApprove(datas) {
+      // todo 批量审批
       alert(JSON.stringify(datas))
+      datas.foreach(function(data, index) {
+        let taskForm = {}
+        taskForm = data
+        taskForm.approveResult = true
+        alert(JSON.stringify(taskForm))
+        // 批量审批
+        /*submit(taskForm).then(res => {
+          this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
+          this.dialogFormVisible = false
+          this.crud.toQuery()
+          this.$refs.table.clearSelection()
+        })*/
+      })
+    },
+    // 命中选中列
+    getRowKeys(row) {
+      return row.id
+    },
+    // 单击时候选中某列
+    stepsListRowClick(row) {
+      // alert(JSON.stringify(row.approveResult))
+      // 已审批项不可选中
+      if (row.approveResult !== true && row.approveResult !== false) {
+        this.$refs.table.toggleRowSelection(row)
+      }
     },
     // 双击选中的行列，进入审批主页
     dbSelected(row) {
-      alert(JSON.stringify(row))
-      /* this.$router.push(
+      // alert(JSON.stringify(row))
+      this.checkboxT(row)
+      this.$router.push(
         {
           path: '/sys-tools/filedetail',
           query: {
-            fileId: row.id,
+            fileId: row.storageId,
             name: row.name,
             realName: row.realName,
             fileDesc: row.fileDesc
           }
-        })*/
+        })
     }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
+
+.dialog > > > .el-input__inner {
+  border: none;
+  position: relative;
+  color: rgba(121, 130, 148, 1);
+  text-align: left;
+  font-size: 1rem;
+}
+
+//修改disabled的样式
+
+.dialog > > > .is-disabled .el-input__inner {
+  　　background-color: white;
+  　　border-color:  white；
+}
+
+// 修改placeholderd的样式
+
+.dialog > > > .el-input__inner::-webkit-input-placeholder {
+  color: #ffffff;
+  text-align: left;
+  font-size: 1rem;
+  position: relative;
+
+}
+
 .avatar {
   width: 120px;
   height: 120px;

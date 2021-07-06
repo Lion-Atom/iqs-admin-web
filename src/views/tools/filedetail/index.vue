@@ -124,7 +124,7 @@
           </el-row>
         </el-collapse-item>
         <!--文件历史记录-->
-        <el-collapse-item title="ApprovalProcess 审批进度" name="4" class="collapse-item">
+        <el-collapse-item title="ApprovalProcess 审批记录" name="4" class="collapse-item">
           <el-row>
             <el-col>
               <div class="app-container">
@@ -146,7 +146,6 @@
                     />
                     <el-select
                       v-model="params.version"
-                      clearable
                       size="small"
                       placeholder="状态"
                       class="filter-item"
@@ -184,7 +183,7 @@
                 </div>
                 <!--表格渲染-->
                 <el-table
-                  ref="Table"
+                  ref="table"
                   v-loading="crud.loading"
                   :data="approvalProcessData"
                   style="width: 100%;"
@@ -210,8 +209,8 @@
                       </el-popover>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="processNo" width="180" label="审批单号"/>
-                  <el-table-column prop="version" label="版本"/>
+                  <el-table-column prop="processNo" width="220" label="审批单号"/>
+                  <el-table-column prop="version" width="50" label="版本"/>
                   <el-table-column prop="changeType" label="变更类型"/>
                   <el-table-column label="诉求">
                     <template slot-scope="scope">
@@ -233,8 +232,9 @@
                   </el-table-column>
                   <el-table-column prop="createTime" width="150" label="创建时间"/>
                   <el-table-column prop="createBy" label="创建人"/>
-                  <el-table-column prop="approver" label="审批者"/>
+                  <el-table-column prop="approver" width="120" label="审批者"/>
                   <el-table-column prop="approvedResult" label="审批结果"/>
+                  <el-table-column prop="duration" label="审批时长"/>
                   <el-table-column label="审批意见">
                     <template slot-scope="scope">
                       <el-popover
@@ -272,6 +272,7 @@
           <el-row>
             <el-col>
               <div class="app-container">
+                <!--工具栏-->
                 <div class="head-container">
                   <div v-if="crud.props.searchToggle">
                     <el-input
@@ -367,7 +368,13 @@
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
-import { getAllFiles, getAllFilesAnonymousAccess, getFilesByIds, getFileById } from '@/api/tools/localStorage'
+import {
+  getAllFiles,
+  getAllFilesAnonymousAccess,
+  getFilesByIds,
+  getFileById,
+  getPreTrailByFileId
+} from '@/api/tools/localStorage'
 import { delToolsLogByCond } from '@/api/monitor/toolslog'
 import { getApprovalProcess } from '@/api/system/approvalProcess'
 import CRUD, { crud, presenter } from '@crud/crud'
@@ -544,6 +551,7 @@ export default {
           this.fileSelected.name = this.$route.query.name
         }
         this.getFileById(this.fileSelected.id)
+        this.getPreTrails(this.fileSelected.id)
       })
     },
     getFileById(id) {
@@ -558,17 +566,6 @@ export default {
         this.query.bindingId = id
         this.crud.toQuery(this.query.bindingId)
         this.params.bindingId = id
-        // 获取它的版本号
-        this.params.version = res.version
-        const val = res.version.replace('A/', '')
-        const ver = { id: val, value: res.version }
-        this.versions.push(ver)
-        // alert(JSON.stringify(this.versions))
-        for (let i = 0; i < parseInt(val); i++) {
-          const v = { id: i, value: 'A/' + i }
-          this.versions.push(v)
-        }
-        this.getApprovalProcessRecord(this.params)
         // alert(JSON.stringify(this.query.blurry))
         this.form.fileLevel.name += '-' + this.form.fileLevel.description
         this.form.createBy = ' created by ' + this.form.createBy + ' on ' + this.form.createTime
@@ -586,6 +583,22 @@ export default {
           // alert("当前绑定文件为空")
           this.bindFileItems = []
         }
+      })
+    },
+    // 获取文件待审批项
+    getPreTrails(id) {
+      // alert(JSON.stringify(id))
+      getPreTrailByFileId(id).then(res => {
+        // 获取它的版本号
+        const i = res[res.length - 1]
+        this.params.version = i.version
+        const val = i.version.replace('A/', '')
+        // alert(JSON.stringify(this.versions))
+        for (let i = parseInt(val); i >= 0; i++) {
+          const v = { id: i, value: 'A/' + i }
+          this.versions.push(v)
+        }
+        this.getApprovalProcessRecord(this.params)
       })
     },
     getFilesByIds(ids) {

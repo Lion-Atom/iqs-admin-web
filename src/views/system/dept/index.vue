@@ -97,7 +97,8 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
-            :disabled-dle="scope.row.id === 1"
+            :disabled-edit="scope.row.id === 28"
+            :disabled-dle="scope.row.id === 28"
             msg="确定删除吗,如果存在下级节点则一并删除，此操作不能撤销！"
           />
         </template>
@@ -285,7 +286,7 @@ export default {
       })
     },
     checkboxT(row, rowIndex) {
-      return row.id !== 1
+      return row.id !== 28
     }
   }
 }

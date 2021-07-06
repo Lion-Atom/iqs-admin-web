@@ -110,10 +110,11 @@
         <el-dialog
           append-to-body
           :close-on-click-modal="false"
-          :before-close="crud.cancelCU"
+          :before-close="cancelOperation"
           :visible.sync="crud.status.cu > 0"
           :title="crud.status.add ? '文件上传' : '编辑文件'"
           width="760px"
+          class="dialog"
         >
           <el-form ref="form" :model="form" size="small" label-width="120px">
             <el-form-item label="文件名称">
@@ -191,7 +192,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="保密等级" required>
-                  <el-radio-group v-model="form.securityLevel" :disabled="form.id === user.id">
+                  <el-radio-group v-model="form.securityLevel">
                     <el-radio
                       v-for="item in dict.file_security"
                       :key="item.id"
@@ -284,8 +285,10 @@
                   <span slot="label">
                     <span class="span-box">
                       <el-tooltip placement="top" effect="light">
-                        <div slot="content">you can choose the owner's approver for faster approval.<br>
-                          默认创建者的直接领导，允许切换临时审批者以加快审批进度.</div>
+                        <div slot="content">you can choose the owner's approver for faster approval (<b
+                          style="color: red"
+                        >*</b>Superior has not approved only).<br>
+                          默认创建者的直接领导，<b style="color: red">直接领导尚未审批情况下</b>，允许切换临时审批者(仅限本部门内审批)以加快审批进度.</div>
                         <i class="el-icon-question"/>
                       </el-tooltip>
                       <span>审批者</span>
@@ -295,11 +298,12 @@
                     v-model="form.superiorId"
                     placeholder="请选择上级"
                     clearable
+                    :disabled="isDone"
                   >
                     <el-option
                       v-for="item in superiors"
                       :key="item.id"
-                      :label="item.dept.name + '\xa0-\xa0' + item.jobs[0].name + '\xa0-\xa0'+ item.username "
+                      :label="item.dept.name + '-' + item.jobs[0].name + '-'+ item.username "
                       :value="item.id"
                     />
                   </el-select>
@@ -329,7 +333,10 @@
               </el-col>
             </el-row>
             <!--   二次上传文件   -->
-            <el-form-item v-if="form.isRevision==='true'" label="上传覆盖文件">
+            <el-form-item
+              v-if="form.isRevision==='true' || (this.form.approvalStatus === 'obsoleted' && this.form.fileStatus === 'draft')"
+              :label="uploadCoverFile"
+            >
               <el-upload
                 ref="coverUpload"
                 :limit="1"
@@ -338,7 +345,7 @@
                 :headers="headers"
                 :on-success="coverSuccess"
                 :on-error="handleError"
-                :action="fileCoverUploadApi + '?id=' + form.id "
+                :action="fileCoverUploadApi + '?id=' + form.id+ '&approvalStatus=' + form.approvalStatus "
               >
                 <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
                 <div slot="tip" class="el-upload__tip"><i style="color: #ff0000">*</i>文件覆盖操作完成审批后改版才能生效，请做好备份并确认新文件正确性
@@ -726,7 +733,9 @@ export default {
         { key: 'approve', display_name: '审批' },
         { key: 'obsoleted', display_name: '已作废' }
       ],
-      superiors: []
+      superiors: [],
+      isDone: false,
+      uploadCoverFile: ''
     }
   },
   computed: {
@@ -749,6 +758,10 @@ export default {
   },
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
+    const Inp = document.getElementsByTagName('input')
+    for (let i = 0; i < Inp.length; i++) {
+      Inp[i].style.backgroundColor = '#FFFFFF'
+    }
   },
   mounted: function() {
     const that = this
@@ -857,7 +870,7 @@ export default {
         this.preTrail.approvedBy = this.form.superiorId
         this.updateApprover(this.preTrail)
         // 更新审批进度信息
-        // todo this.updateAppProcess()
+        //this.updateAppProcess()
       }
       this.crud.resetQuery()
     },
@@ -1000,7 +1013,13 @@ export default {
     },
     // 初始化编辑时候的关联文件并初始化版本升级操作计数
     [CRUD.HOOK.beforeToEdit](crud, form) {
-      // alert(JSON.stringify(form.createBy))
+      // alert(JSON.stringify(form.approvalStatus))
+      if (form.isRevision === 'true') {
+        this.uploadCoverFile = '上传覆盖文件'
+      } else if (form.approvalStatus === 'obsoleted') {
+        this.uploadCoverFile = '重新上传文件'
+      }
+      // && this.form.fileStatus === 'draft'
       this.getApprover(form.createBy)
       // 编辑前置空变更描述
       this.form.changeDesc = ''
@@ -1186,9 +1205,13 @@ export default {
       this.coverFileCount++
       this.crud.notify('CoverFile Upload Success! 待审批覆盖文件上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       if (this.coverFileCount > 1) {
-        this.form.changeDesc = '撤销上一次覆盖文件后' + '文件再次改版，新文件替代原文件,待审批'
+        this.form.changeDesc = '撤销上一次覆盖文件后' + '文件内容再次更新，新文件替代原文件,待审批'
       } else {
-        this.form.changeDesc = '新文件替代原文件,文件生版本，待审批'
+        if (this.form.approvalStatus === 'obsoleted') {
+          this.form.changeDesc = '重新上传新文件，待审批'
+        } else {
+          this.form.changeDesc = '新文件替代原文件,文件升级版本，待审批'
+        }
       }
       this.form.approvalStatus = 'waitingfor'
       this.form.isRevision = 'false'
@@ -1219,6 +1242,7 @@ export default {
       getPreTrailByFileId(id).then(res => {
         // alert(JSON.stringify(res))
         this.preTrail = res[0]
+        this.isDone = res[0].isDone
         this.form.superiorId = res[0].approvedBy
         this.oldSuperiorId = this.form.superiorId
         this.approveBy = this.form.superiorId
@@ -1442,6 +1466,16 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+
+
+//修改disabled的样式
+
+.dialog > > > .is-disabled .el-input__inner {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+
 ::v-deep .vue-treeselect__control, ::v-deep .vue-treeselect__placeholder, ::v-deep .vue-treeselect__single-value {
   height: 29px;
   line-height: 29px;

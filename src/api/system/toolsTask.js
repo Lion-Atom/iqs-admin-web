@@ -25,4 +25,12 @@ export function edit(data) {
   })
 }
 
-export default { getToolsTask, getCountByUserId, edit }
+export function submit(data) {
+  return request({
+    url: 'api/toolsTask/submit',
+    method: 'post',
+    data
+  })
+}
+
+export default { getToolsTask, getCountByUserId, edit, submit }
