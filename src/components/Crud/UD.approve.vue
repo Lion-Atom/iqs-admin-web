@@ -22,7 +22,7 @@
 </template>
 <script>
 import CRUD, { crud } from '@crud/crud'
-import { submit } from '@/api/system/toolsTask'
+import { submitTask } from '@/api/system/toolsTask'
 
 export default {
   mixins: [crud()],
@@ -76,7 +76,7 @@ export default {
       // alert(JSON.stringify(row))
       this.taskForm = row
       this.taskForm.approveResult = true
-      submit(this.taskForm).then(res => {
+      submitTask(this.taskForm).then(res => {
         this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
         this.pop = false
         this.crud.toQuery()

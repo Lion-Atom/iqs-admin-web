@@ -465,7 +465,7 @@
               <span>检测到有新的改版操作，不保存相关修改吗？</span>
               <span slot="footer" class="dialog-footer">
                 <el-button @click="centerDialogVisible = false">再想想</el-button>
-                <el-button type="primary" @click="rollBackCover">放弃修改</el-button>
+                <el-button type="primary" @click="abandonModify">放弃修改</el-button>
               </span>
             </el-dialog>
             <el-button type="text" @click="cancelOperation">取消</el-button>
@@ -652,6 +652,7 @@ export default {
       rollbackData: {
         lastModifiedDate: null, // 抓取开始编辑的事件以便版本回滚
         approvalStatus: null,
+        fileStatus: null,
         storageId: null
       },
       haveFileCount: 0, // 检测有无上传文件
@@ -971,6 +972,7 @@ export default {
     },
     // 取消前检测是否存在覆盖文件的编辑操作
     cancelOperation() {
+      // alert(this.coverFileCount)
       // coverFileCount监控是否发生了覆盖事件
       if (this.coverFileCount > 0) {
         this.centerDialogVisible = true
@@ -979,12 +981,13 @@ export default {
       }
     },
     // 回滚文件覆盖操作，状态返回到编辑前的状态和待审批的数据
-    rollBackCover() {
+    abandonModify() {
       // 删除之后所有的数据，并根据时间抓取编辑前的数据作为恢复依据
       this.rollbackData.storageId = this.form.id
       // alert(JSON.stringify(this.rollbackData))
       rollbackCover(this.rollbackData).then(res => {
-        this.crud.notify('rollback cover Success! 撤销覆盖操作成功！', CRUD.NOTIFICATION_TYPE.SUCCESS)
+        // 不提示撤销信息
+        // this.crud.notify('rollback cover Success! 撤销覆盖操作成功！', CRUD.NOTIFICATION_TYPE.SUCCESS)
         this.centerDialogVisible = false
       })
       this.crud.cancelCU()
@@ -1014,6 +1017,8 @@ export default {
     // 初始化编辑时候的关联文件并初始化版本升级操作计数
     [CRUD.HOOK.beforeToEdit](crud, form) {
       // alert(JSON.stringify(form.approvalStatus))
+      //强制初始化覆盖文件计数为0
+      this.coverFileCount = 0
       if (form.isRevision === 'true') {
         this.uploadCoverFile = '上传覆盖文件'
       } else if (form.approvalStatus === 'obsoleted') {
@@ -1037,6 +1042,7 @@ export default {
       // 抓取当前时间+是否改版，以作回滚用
       this.rollbackData.lastModifiedDate = new Date()
       this.rollbackData.approvalStatus = form.approvalStatus
+      this.rollbackData.fileStatus = form.fileStatus
 
       this.getOtherFiles(this.form.id)
       this.getPreTrails(this.form.id)

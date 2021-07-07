@@ -327,7 +327,7 @@ import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
 import { editUser } from '@/api/system/user'
 import Avatar from '@/assets/images/avatar.png'
-import crudTask, { submit } from '@/api/system/toolsTask'
+import crudTask, { submitTask, batchSubmitTask } from '@/api/system/toolsTask'
 
 export default {
   name: 'Center',
@@ -443,8 +443,8 @@ export default {
       if (taskForm.approveResult === 'false') {
         // alert("建议填写修改建议")
       }
-      // alert(JSON.stringify(taskForm))
-      submit(taskForm).then(res => {
+      alert(JSON.stringify(taskForm))
+      submitTask(taskForm).then(res => {
         this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
         this.dialogFormVisible = false
         this.crud.toQuery()
@@ -515,21 +515,14 @@ export default {
       }
     },
     // 审批（支持批量）
-    batchApprove(datas) {
+    batchApprove(tasks) {
       // todo 批量审批
-      alert(JSON.stringify(datas))
-      datas.foreach(function(data, index) {
-        let taskForm = {}
-        taskForm = data
-        taskForm.approveResult = true
-        alert(JSON.stringify(taskForm))
-        // 批量审批
-        /*submit(taskForm).then(res => {
-          this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
-          this.dialogFormVisible = false
-          this.crud.toQuery()
-          this.$refs.table.clearSelection()
-        })*/
+      // alert(JSON.stringify(datas))
+      batchSubmitTask(tasks).then(res => {
+        this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
+        this.dialogFormVisible = false
+        this.crud.toQuery()
+        this.$refs.table.clearSelection()
       })
     },
     // 命中选中列

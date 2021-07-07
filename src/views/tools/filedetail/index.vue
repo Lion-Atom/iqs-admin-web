@@ -233,7 +233,7 @@
                   <el-table-column prop="createTime" width="150" label="创建时间"/>
                   <el-table-column prop="createBy" label="创建人"/>
                   <el-table-column prop="approver" width="120" label="审批者"/>
-                  <el-table-column prop="approvedResult" label="审批结果"/>
+                  <el-table-column label="审核结果" :formatter="approveResultFormat"/>
                   <el-table-column prop="duration" label="审批时长"/>
                   <el-table-column label="审批意见">
                     <template slot-scope="scope">
@@ -473,7 +473,7 @@ export default {
       this.params.bindingId = this.query.bindingId
       // this.getApprovalProcessRecord(this.params)
     }
-    this.getAllFilesAnonymousAccess()
+    this.getAllFilesByAnyAccess()
     this.crud.optShow = {
       add: false,
       edit: false,
@@ -526,7 +526,7 @@ export default {
       this.crud.toQuery(this.query.bindingId)
     },
     // 无视权限限制，获取所有文件
-    getAllFilesAnonymousAccess() {
+    getAllFilesByAnyAccess() {
       // getAllFiles({ enabled: true, }).then(res => {
       getAllFilesAnonymousAccess({ enabled: true, anonymousAccess: true }).then(res => {
         const data = res.content
@@ -578,7 +578,7 @@ export default {
             ids.push(file.bindingStorageId)
           })
           // console.log(ids)
-          this.getFilesByIds(ids)
+          this.getBindingFilesByIds(ids)
         } else {
           // alert("当前绑定文件为空")
           this.bindFileItems = []
@@ -593,15 +593,14 @@ export default {
         const i = res[res.length - 1]
         this.params.version = i.version
         const val = i.version.replace('A/', '')
-        // alert(JSON.stringify(this.versions))
-        for (let i = parseInt(val); i >= 0; i++) {
+        for (let i = parseInt(val); i >= 0; i--) {
           const v = { id: i, value: 'A/' + i }
           this.versions.push(v)
         }
         this.getApprovalProcessRecord(this.params)
       })
     },
-    getFilesByIds(ids) {
+    getBindingFilesByIds(ids) {
       getFilesByIds(ids).then(res => {
         this.bindFileItems = res
       })
@@ -634,14 +633,14 @@ export default {
     },
     // 格式化审批清单表格信息内容
     // 格式化表格消息内容
-    changeDescFormat(row, column, cellValue) {
-      // console.log(row , column , cellValue)
-      if (!cellValue) return ''
-      if (cellValue.length > 30) {
-        // 最长固定显示4个字符
-        return cellValue.slice(0, 10) + '...'
+    // 审批结果格式化
+    approveResultFormat(row, col) {
+      // alert(JSON.stringify(row))
+      if (row.approvedResult === undefined) {
+        return '待审批'
+      } else {
+        return row.approvedResult
       }
-      return cellValue
     },
     // 格式化操作日志表格消息内容
     stateFormat(row, column, cellValue) {
