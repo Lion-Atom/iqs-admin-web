@@ -138,6 +138,7 @@ export default {
         this.lineChartData = lineChartData.departments
       })
     },
+    //变更时间段范围
     changeDateTimeRange(e, index) {
       this.query.createTime = e
       const type = this.type === '' ? this.defaultCategory : this.type

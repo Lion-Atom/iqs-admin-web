@@ -24,12 +24,24 @@ export function getFileById(id) {
   })
 }
 
-export function getPreTrailByFileId(id) {
+export function getPreTrailByFileId(id, flag) {
+  const params = {
+    fileId: id,
+    latestVersion: flag
+  }
+  return request({
+    url: 'api/localStorage/getPreTrailByFileId',
+    method: 'get',
+    params
+  })
+}
+
+export function getLatestAppProcess(id) {
   const params = {
     fileId: id
   }
   return request({
-    url: 'api/localStorage/getPreTrailByFileId',
+    url: 'api/localStorage/getApprovalProcessByFileId',
     method: 'get',
     params
   })

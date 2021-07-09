@@ -119,11 +119,12 @@
               <div>
                 <!--审批任务-->
                 <el-dialog
-                  class="dialog"
+                  append-to-body
+                  class="taskDialog"
                   :title="taskForm.isDone? '查看任务' : '审核任务'"
                   :visible.sync="dialogFormVisible"
                 >
-                  <el-form :model="taskForm" size="small" :label-width="formLabelWidth">
+                  <el-form ref="taskForm" :model="taskForm" size="small" :label-width="formLabelWidth">
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="任务名称">
@@ -139,7 +140,7 @@
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="审批对象">
-                          <el-input v-model="taskForm.realName" disabled></el-input>
+                          <el-input v-model="taskForm.storageName" disabled></el-input>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
@@ -173,10 +174,21 @@
                       </el-col>
                     </el-row>
                     <el-row>
-                      <el-col :span="24">
+                      <el-col :span="23">
                         <el-form-item label="对象位置">
-                          <el-input v-model="taskForm.tarPath" disabled></el-input>
+                          <el-input v-model="taskForm.tarPath" disabled>
+                          </el-input>
                         </el-form-item>
+                      </el-col>
+                      <el-col :span="1">
+                        <!--文件下载-->
+                        <a
+                          :href="baseApi + '/file/' + taskForm.type + '/' + taskForm.realName"
+                          class="el-link--primary"
+                          style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;"
+                        >
+                          <i style="line-height:1.5;font-size: 24px;" class="el-icon-download"></i>
+                        </a>
                       </el-col>
                     </el-row>
                     <el-row>
@@ -197,12 +209,13 @@
                     <el-row>
                       <el-col :span="24">
                         <el-form-item label="审批建议">
-                          <el-input v-model="taskForm.comment" :disabled="taskForm.isDone"></el-input>
+                          <el-input placeholder="可填写驳回理由或者修改意见等" v-model="taskForm.comment" :disabled="taskForm.isDone"
+                          ></el-input>
                         </el-form-item>
                       </el-col>
                     </el-row>
                   </el-form>
-                  <div slot="footer" class="dialog-footer">
+                  <div v-if="!taskForm.isDone" slot="footer" class="dialog-footer">
                     <el-button @click="cancelApprove">取 消</el-button>
                     <el-button type="primary" @click="submitApprove(taskForm)">提交</el-button>
                   </div>
@@ -219,7 +232,7 @@
                   @row-click="stepsListRowClick"
                 >
                   <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55"/>
-                  <el-table-column prop="realName" label="文件真实名">
+                  <el-table-column prop="storageName" label="对象名称">
                     <template slot-scope="scope">
                       <el-popover
                         :content="'file/' + scope.row.type + '/' + scope.row.realName"
@@ -233,9 +246,8 @@
                           :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
                           class="el-link--primary"
                           style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
-                          target="_blank"
                         >
-                          {{ scope.row.realName }}
+                          {{ scope.row.storageName }}
                         </a>
                       </el-popover>
                     </template>
@@ -249,6 +261,7 @@
                   <el-table-column prop="createBy" label="创建人"/>
                   <el-table-column label="进度" :formatter="isDoneFormat"/>
                   <el-table-column label="审核结果" :formatter="approveResultFormat"/>
+                  <el-table-column v-if="user.isAdmin" prop="approver" label="审核人"/>
                   <el-table-column
                     label="操作"
                     width="80"
@@ -373,7 +386,7 @@ export default {
       taskLabel: null,
       dialogFormVisible: false,
       taskForm: {},
-      formLabelWidth: '120px',
+      formLabelWidth: '100px',
       approveTypeOptions: [
         { key: false, display_name: '驳回' },
         { key: true, display_name: '同意' }
@@ -425,13 +438,9 @@ export default {
       this.dialogFormVisible = msg.show
       this.taskForm = msg.data
       this.oldResult = msg.data.approveResult
-      if (this.oldResult === undefined
+      this.isHavResult = !(this.oldResult === undefined
         || this.oldResult === ''
-        || this.oldResult === null) {
-        this.isHavResult = false
-      } else {
-        this.isHavResult = true
-      }
+        || this.oldResult === null)
     },
     // 取消审批
     cancelApprove() {
@@ -440,10 +449,18 @@ export default {
     },
     // 提交审批
     submitApprove(taskForm) {
+      // 提交前必须判断是否添加审批结论
+      if (taskForm.approveResult === undefined || taskForm.approveResult === null || taskForm.approveResult === '') {
+        this.$message({
+          message: 'ApproveResult must not null ! \n 必须填写审批结论方可提交',
+          type: 'warning'
+        })
+        return false
+      }
       if (taskForm.approveResult === 'false') {
         // alert("建议填写修改建议")
       }
-      alert(JSON.stringify(taskForm))
+      // alert(JSON.stringify(taskForm))
       submitTask(taskForm).then(res => {
         this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
         this.dialogFormVisible = false
@@ -516,8 +533,8 @@ export default {
     },
     // 审批（支持批量）
     batchApprove(tasks) {
-      // todo 批量审批
-      // alert(JSON.stringify(datas))
+      // 批量审批
+      // alert(JSON.stringify(tasks))
       batchSubmitTask(tasks).then(res => {
         this.crud.notify('approve Success! 审批完成！', CRUD.NOTIFICATION_TYPE.SUCCESS)
         this.dialogFormVisible = false
@@ -543,10 +560,10 @@ export default {
       this.checkboxT(row)
       this.$router.push(
         {
-          path: '/sys-tools/filedetail',
+          path: '/fileManagement/filedetail',
           query: {
             fileId: row.storageId,
-            name: row.name,
+            name: row.storageName,
             realName: row.realName,
             fileDesc: row.fileDesc
           }
@@ -556,31 +573,13 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
-
-.dialog > > > .el-input__inner {
-  border: none;
-  position: relative;
-  color: rgba(121, 130, 148, 1);
-  text-align: left;
-  font-size: 1rem;
-}
+<style rel="stylesheet/scss" lang="scss" scoped>
 
 //修改disabled的样式
 
-.dialog > > > .is-disabled .el-input__inner {
-  　　background-color: white;
-  　　border-color:  white；
-}
-
-// 修改placeholderd的样式
-
-.dialog > > > .el-input__inner::-webkit-input-placeholder {
-  color: #ffffff;
-  text-align: left;
-  font-size: 1rem;
-  position: relative;
-
+.taskDialog > > > .is-disabled .el-input__inner {
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .avatar {

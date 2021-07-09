@@ -156,7 +156,7 @@ export default {
         } else if (title.search('LocalStorages') !== -1) {
           this.$router.push(
             {
-              path: '/sys-tools/file',
+              path: '/fileManagement/file',
               query: {
                 createTime: params.name
               }
@@ -183,12 +183,12 @@ export default {
           )
         } else if (title.search('FileCategories') !== -1) {
           this.$router.push(
-            {
-              path: '/sys-tools/filecategory',
-              query: {
-                createTime: params.name
+              {
+                path: '/fileManagement/filecategory',
+                query: {
+                  createTime: params.name
+                }
               }
-            }
           )
         }
       })

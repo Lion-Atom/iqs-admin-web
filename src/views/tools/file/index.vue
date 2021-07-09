@@ -140,6 +140,7 @@
                     :load-options="loadLevels"
                     style="width: 190px"
                     placeholder="选择文件对应等级"
+                    @select="disFileLevel"
                   />
                 </el-form-item>
               </el-col>
@@ -266,18 +267,54 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item v-if="!crud.status.add" label="审批状态">
-                  <el-select
-                    v-model="form.approvalStatus"
-                    style="background: none;"
-                    disabled
-                  >
-                    <el-option
-                      v-for="item in dict.approval_status"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
+                  <!--                  <span slot="label">
+                                      <span class="span-box">
+                                        <el-tooltip v-if="comment !== undefined && comment !== null " placement="top" effect="light">
+                                          <div slot="content"><b style="color: red">*状态</b>:“已废止”说明申请被驳回
+                                            <br/>
+                                            <b style="color: red">*原因:</b>{{comment}}
+                                            </div>
+                                          <i class="el-icon-question"/>
+                                        </el-tooltip>
+                                        <span>审批状态</span>
+                                      </span>
+                                    </span>-->
+                  <el-tooltip placement="top-start" effect="light">
+                    <div slot="content" style="width:300px;">
+                      <el-steps :active="taskCount" finish-status="success">
+                        <el-step
+                          :title="item.approver"
+                          :description="item.approvedResult === undefined ? '待审批':item.approvedResult"
+                          v-for="item in approvalProcessList"
+                        >
+                        </el-step>
+                      </el-steps>
+                      <div v-if="comment !== undefined && comment !== null ">
+                        <b style="color: red">*状态</b>:“已废止”说明申请被驳回
+                        <br/>
+                        <b style="color: red">*原因:</b>{{ comment }}
+                      </div>
+                      <div v-if="form.approvalStatus !== 'approved'">
+                        <b style="color: red">*当前审批人:</b>{{ currApprover }}
+                      </div>
+                      <div v-if="form.approvalStatus === 'approved'">
+                        <b style="color: red">*当前审批已完成，最后审批人:</b>{{ currApprover }}
+                      </div>
+                    </div>
+                    <i class="el-icon-question"/>
+                    <el-select
+                      v-model="form.approvalStatus"
+                      style="background: none;"
+                      disabled
+                    >
+                      <el-option
+                        v-for="item in dict.approval_status"
+                        :key="item.id"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </el-tooltip>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -291,7 +328,7 @@
                           默认创建者的直接领导，<b style="color: red">直接领导尚未审批情况下</b>，允许切换临时审批者(仅限本部门内审批)以加快审批进度.</div>
                         <i class="el-icon-question"/>
                       </el-tooltip>
-                      <span>审批者</span>
+                      <span>首批人</span>
                     </span>
                   </span>
                   <el-select
@@ -356,7 +393,7 @@
             </el-form-item>
             <el-form-item v-if="!crud.status.add" label="文件概览" prop="fileDetails">
               <router-link
-                :to="{path: '/sys-tools/filedetail',
+                :to="{path: '/fileManagement/filedetail',
                       query: {
                         fileId: form.id ,
                         name: form.name,
@@ -365,7 +402,7 @@
                       }
                 }"
               >
-                <el-link href="/sys-tools/filedetail" icon="el-icon-view">查看</el-link>
+                <el-link href="/fileManagement/filedetail" icon="el-icon-view">查看</el-link>
               </router-link>
             </el-form-item>
             <!--   上传文件   -->
@@ -427,7 +464,7 @@
                 <!--                <el-button type="text">-->
                 <router-link
                   style="text-decoration:underline;"
-                  :to="{path: '/sys-tools/filedetail',
+                  :to="{path: '/fileManagement/filedetail',
                         query: {
                           fileId: item.id ,
                           name: item.name,
@@ -516,12 +553,13 @@
                 {{ scope.row.name }}
                 </a>>-->
                 <!--自定义指令下载文件（包含txt、jpg等，但chrome浏览器不支持）-->
-                <!--                <span
-                                  slot="reference"
-                                  v-download="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
-                                >
-                                                  {{ scope.row.name }}
-                                                </span>-->
+                <!--                                <span
+                                                  style="text-decoration: underline"
+                                                  slot="reference"
+                                                  v-download="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                                                >
+                                                                  {{ scope.row.name }}
+                                                                </span>-->
               </el-popover>
             </template>
           </el-table-column>
@@ -594,7 +632,8 @@ import crudFile, {
   getFilesByIds,
   cancelCover,
   rollbackCover,
-  getPreTrailByFileId
+  getPreTrailByFileId,
+  getLatestAppProcess
 } from '@/api/tools/localStorage'
 import { getFileLevels, getFileLevelSuperior } from '@/api/tools/filelevel'
 import { getFileCategories, getFileCategorySuperior } from '@/api/tools/filecategory'
@@ -612,6 +651,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getToken } from '@/utils/auth'
 import { edit } from '@/api/system/toolsTask'
+import Date from '@/utils/datetime'
 
 let bindingFiles = []
 const defaultForm = {
@@ -736,7 +776,13 @@ export default {
       ],
       superiors: [],
       isDone: false,
-      uploadCoverFile: ''
+      uploadCoverFile: '',
+      comment: null,
+      taskCount: 1,
+      currApprover: null,
+      params: {},
+      approvalProcessList: [],
+      topFileLevelId: null
     }
   },
   computed: {
@@ -811,6 +857,16 @@ export default {
         console.log(12121);
       };
     }, */
+    // 选中时候判断是否拥有创建Level 1文件的权限(非管理员无权创建第一级别的文件）
+    disFileLevel(val) {
+      if (!this.$store.getters.user.isAdmin && (val.pid === null || val.pid === undefined)) {
+        this.topFileLevelId = val.id
+        this.$message({
+          message: 'No Access!不具备创建一级文件的权限!',
+          type: 'warning'
+        })
+      }
+    },
     // 发起申请，投递邮件
     sendEmail() {
       // todo 发送给上级
@@ -855,6 +911,15 @@ export default {
         })
         return false
       }
+
+      // 一级文件权限把控
+      if (!this.$store.getters.user.isAdmin && (this.form.fileLevel.id === this.topFileLevelId)) {
+        this.$message({
+          message: 'No Access!不具备创建一级文件的权限!',
+          type: 'warning'
+        })
+      }
+
       this.crud.submitCU()
       // alert(JSON.stringify(this.preTrail))
       /* if (this.$route.query.fileName !== undefined) {
@@ -866,11 +931,11 @@ export default {
       // alert(JSON.stringify(this.form.superiorId))
       if (this.form.superiorId !== this.approveBy &&
         (this.form.superiorId !== null || true || this.form.superiorId !== '')) {
-        // 更新任务信息
+        // todo 更新任务信息
         // alert(JSON.stringify(this.form.superiorId))
         this.preTrail.approvedBy = this.form.superiorId
         this.updateApprover(this.preTrail)
-        // 更新审批进度信息
+        // todo 更新审批进度信息
         //this.updateAppProcess()
       }
       this.crud.resetQuery()
@@ -882,6 +947,7 @@ export default {
       })
     },
     getRowKeys(row) {
+      // 指定id传值选中
       return row.id
     },
     // 监控模糊查询输入框变化，强制刷新
@@ -909,6 +975,7 @@ export default {
       }
       setTimeout(() => {
         getFileLevels(params).then(res => {
+          // this.topFileLevelId = val.id
           if (resolve) {
             resolve(res.content)
           } else {
@@ -972,7 +1039,6 @@ export default {
     },
     // 取消前检测是否存在覆盖文件的编辑操作
     cancelOperation() {
-      // alert(this.coverFileCount)
       // coverFileCount监控是否发生了覆盖事件
       if (this.coverFileCount > 0) {
         this.centerDialogVisible = true
@@ -1016,16 +1082,19 @@ export default {
     },
     // 初始化编辑时候的关联文件并初始化版本升级操作计数
     [CRUD.HOOK.beforeToEdit](crud, form) {
+      // alert(JSON.stringify(this.$store.getters.user))
       // alert(JSON.stringify(form.approvalStatus))
       //强制初始化覆盖文件计数为0
       this.coverFileCount = 0
+      this.comment = null
       if (form.isRevision === 'true') {
         this.uploadCoverFile = '上传覆盖文件'
       } else if (form.approvalStatus === 'obsoleted') {
         this.uploadCoverFile = '重新上传文件'
       }
       // && this.form.fileStatus === 'draft'
-      this.getApprover(form.createBy)
+      // 获取审批领导
+      this.getSeniors(form.createBy)
       // 编辑前置空变更描述
       this.form.changeDesc = ''
       // 编辑前存储编辑前的可变的属性的数据信息
@@ -1043,9 +1112,13 @@ export default {
       this.rollbackData.lastModifiedDate = new Date()
       this.rollbackData.approvalStatus = form.approvalStatus
       this.rollbackData.fileStatus = form.fileStatus
-
+      // 查询可参考文件
       this.getOtherFiles(this.form.id)
+      // 查询审批任务信息
       this.getPreTrails(this.form.id)
+      // 查询审批进度信息
+      this.getApprovalProcessRecord(this.form.id)
+
       this.bindFileDatas = []
       bindingFiles = []
       const _this = this
@@ -1066,8 +1139,7 @@ export default {
       }
     },
     // 获取可选上级
-    getApprover(createBy) {
-      // 选择审批的领导
+    getSeniors(createBy) {
       getApprovers({ createBy: createBy }).then(res => {
         // alert(JSON.stringify(res))
         this.superiors = res
@@ -1242,16 +1314,42 @@ export default {
       }).catch(() => {
       })
     },
-    // 获取文件待审批项
+    // 获取文件待审批任务项
     getPreTrails(id) {
-      // alert(JSON.stringify(id))
-      getPreTrailByFileId(id).then(res => {
+      // 查询文件对应得审批任务
+      getPreTrailByFileId(id, false).then(res => {
         // alert(JSON.stringify(res))
-        this.preTrail = res[0]
-        this.isDone = res[0].isDone
-        this.form.superiorId = res[0].approvedBy
+        this.preTrail = res.content[0]
+        // 获取（第一个关联任务即直系领导任务）是否已审批，已审批不允许更改第一审批者
+        this.isDone = res.content[0].isDone
+        // 获取上级领导标识
+        this.form.superiorId = res.content[0].approvedBy
         this.oldSuperiorId = this.form.superiorId
         this.approveBy = this.form.superiorId
+        this.currApprover = res.currApprover
+        if (res.comment !== undefined) {
+          this.comment = res.comment
+        }
+      })
+      // 获取最新的关联任务数据
+      getPreTrailByFileId(id, true).then(res => {
+        // todo 任务数目取判断进度条-判断条件：已审批/待审批/已废止
+        if (this.form.approvalStatus === 'waitingfor') {
+          this.taskCount = (res.content.length - 1) < 0 ? 0 : res.content.length - 1
+        } else if (this.form.approvalStatus === 'approved') {
+          this.taskCount = res.content.length
+        } else if (this.form.approvalStatus === 'obsoleted') {
+          this.taskCount = res.content.length
+        }
+      })
+
+    },
+    // 查询审批数据变化
+    getApprovalProcessRecord(id) {
+      // alert(JSON.stringify(params))
+      getLatestAppProcess(id).then(res => {
+        // alert(JSON.stringify(res))
+        this.approvalProcessList = res.content
       })
     },
     // 填充文件等级数据
@@ -1311,6 +1409,7 @@ export default {
         this.fileCategories = data
       })
     },
+    // 构建文件分类树表
     buildCategories(data) {
       data.forEach(data => {
         if (data.children) {
@@ -1321,6 +1420,7 @@ export default {
         }
       })
     },
+    // 根据条件获取权限内部门树表信息
     getSupFileDepts(deptId) {
       getDeptSuperior(deptId).then(res => {
         const data = res.content
@@ -1328,6 +1428,7 @@ export default {
         this.fileDepts = data
       })
     },
+    // 构建部门树表
     buildDepts(data) {
       data.forEach(data => {
         if (data.children) {
@@ -1420,29 +1521,14 @@ export default {
       }
       this.crud.toQuery()
     },
-    // 改变状态
-    changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.file_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        crudFile.edit(data).then(res => {
-          this.crud.notify(this.dict.label.file_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
-        }).catch(() => {
-          data.enabled = !data.enabled
-        })
-      }).catch(() => {
-        data.enabled = !data.enabled
-      })
-    },
     // 某些列禁止改动
     checkboxT(row, rowIndex) {
       // todo 当前的user(除管理员外)与文件创建部门（大含小）不符合，只能看不能修改
-      return row.fileLevel.levelSort !== 1
+      // this.$store.getters.user.isAdmin
+      return row.fileLevel.id !== 16
     },
     // 单击时候选中某列
-    stepsListRowClick(row) {
+    stepsListRowClick(row, index) {
       // console.log(JSON.stringify(row))
       this.$refs.table.toggleRowSelection(row)
     },
@@ -1452,7 +1538,7 @@ export default {
       this.checkboxT(row)
       this.$router.push(
         {
-          path: '/sys-tools/filedetail',
+          path: '/fileManagement/filedetail',
           query: {
             fileId: row.id,
             name: row.name,

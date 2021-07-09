@@ -183,7 +183,7 @@ export default {
       // alert(JSON.stringify(row))
       this.$router.push(
         {
-          path: '/sys-tools/file',
+          path: '/fileManagement/file',
           query: {
             deptId: row.id
           }

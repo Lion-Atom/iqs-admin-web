@@ -98,7 +98,7 @@ export default {
         // alert(JSON.stringify(params.data))
         this.$router.push(
           {
-            path: '/sys-tools/file',
+            path: '/fileManagement/file',
             query: {
               fileLevelId: params.data.id,
               fileLevelName: params.data.name

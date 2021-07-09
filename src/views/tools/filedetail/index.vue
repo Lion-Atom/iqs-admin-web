@@ -111,7 +111,7 @@
             <el-col>
               <div v-if="bindFileItems.length>0">
                 <div v-for="(item,index) in bindFileItems" :key="item.id" style="margin-left: 10px;">
-                  <el-button type="text" @click.native="refFile(item.id)">
+                  <el-button type="text" @click.native="refFile(item)">
                     {{ '[' + (index + 1) + '] ' + item.name + ',' + item.version }}
                   </el-button>
                 </div>
@@ -253,6 +253,21 @@
                       </el-popover>
                     </template>
                   </el-table-column>
+                  <!--审批-->
+                  <!--                  <el-table-column
+                                      label="操作"
+                                      width="80"
+                                      align="center"
+                                      fixed="right"
+                                    >
+                                      <template slot-scope="scope">
+                                        <udApprove
+                                          :data="scope.row"
+                                          :permission="permission"
+                                          @func="getMsgFormSon"
+                                        />
+                                      </template>
+                                    </el-table-column>-->
                 </el-table>
                 <!--分页组件-->
                 <el-pagination
@@ -309,7 +324,7 @@
                         size="mini"
                         type="warning"
                         icon="el-icon-refresh-left"
-                        @click="resetQueryToolsLog(query.bindingId)"
+                        @click="resetQueryToolsLog"
                       >重置</el-button>
                     </span>
                   </div>
@@ -382,11 +397,12 @@ import { header } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 import crudOperation from '@crud/CRUD.operation'
+import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
 
 export default {
   name: 'FileDetail',
-  components: { crudOperation, pagination, rrOperation, DateRangePicker },
+  components: { crudOperation, pagination, udApprove, rrOperation, DateRangePicker },
   cruds() {
     return CRUD({ title: '日志', url: 'api/toolsLogs' })
   },
@@ -405,6 +421,7 @@ export default {
         // add: ['admin', 'storage:add'],
         // edit: ['admin', 'storage:edit'],
         // del: ['admin', 'storage:del']
+        approve: ['admin', 'storage:edit']
       },
       form: {
         id: null,
@@ -504,6 +521,8 @@ export default {
     },
     // 查询审批数据变化
     getApprovalProcessRecord(params) {
+      this.approvalProcessData = []
+      this.total = 0
       // alert(JSON.stringify(params))
       getApprovalProcess(params).then(res => {
         // alert(JSON.stringify(res))
@@ -521,6 +540,7 @@ export default {
     },
     // 搜索重置
     resetQueryToolsLog(val) {
+      // alert(JSON.stringify(val))
       this.query.blurry = ''
       this.query.createTime = null
       this.crud.toQuery(this.query.bindingId)
@@ -587,20 +607,28 @@ export default {
     },
     // 获取文件待审批项
     getPreTrails(id) {
+      // 获取版本时候，切换下拉框和绑定项等都应该重新调取此接口
+      // 查询文件对应的审批任务列表
+      this.params.version = ''
+      this.versions = []
+      this.params.bindingId = id
       // alert(JSON.stringify(id))
-      getPreTrailByFileId(id).then(res => {
-        // 获取它的版本号
-        const i = res[res.length - 1]
-        this.params.version = i.version
-        const val = i.version.replace('A/', '')
-        for (let i = parseInt(val); i >= 0; i--) {
-          const v = { id: i, value: 'A/' + i }
-          this.versions.push(v)
+      getPreTrailByFileId(id, false).then(res => {
+        // 获取它的版本号:res.content
+        if (res.content.length > 0) {
+          const i = res.content[res.content.length - 1]
+          this.params.version = i.version
+          const val = i.version.replace('A/', '')
+          for (let i = parseInt(val); i >= 0; i--) {
+            const v = { id: i, value: 'A/' + i }
+            this.versions.push(v)
+          }
         }
         this.getApprovalProcessRecord(this.params)
       })
     },
     getBindingFilesByIds(ids) {
+      // 获取参考文件集合
       getFilesByIds(ids).then(res => {
         this.bindFileItems = res
       })
@@ -611,7 +639,7 @@ export default {
       this.$refs.view.style.color = 'rgb(0,0,0)'
       this.$router.push(
         {
-          path: '/sys-tools/file',
+          path: '/fileManagement/file',
           query: {
             blurry: this.form.name
           }
@@ -619,13 +647,21 @@ export default {
     },
     // todo切换文件，需要重新渲染form
     changeFile(value) {
+      // alert(JSON.stringify(value))
       this.getFileById(value.id)
+      this.params.bindingId = value.id
+      this.getPreTrails(value.id)
+      // this.getApprovalProcessRecord(this.params)
       this.activeNames = ['1']
     },
-    refFile(id) {
-      this.getFileById(id)
-      this.getApprovalProcessRecord(id)
-      this.file = id
+    refFile(item) {
+      // alert(JSON.stringify(item))
+      this.fileSelected.name = item.name
+      this.getFileById(item.id)
+      this.params.bindingId = item.id
+      this.getPreTrails(item.id)
+      // this.getApprovalProcessRecord(this.params)
+      this.file = item.id
       this.activeNames = ['1']
     },
     handleChange(val) {

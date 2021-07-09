@@ -47,19 +47,21 @@ npm run build:prod
 
 https://www.ydyno.com/archives/1219.html
 
-#### 特别鸣谢
+#### GIT发布远程分支
 
-- 感谢 [JetBrains](https://www.jetbrains.com/) 提供的非商业开源软件开发授权
+Git如何把本地代码推送到远程仓库 git init // 初始化版本库
 
-- 感谢 [PanJiaChen](https://github.com/PanJiaChen/vue-element-admin) 大佬提供的前端模板
+git add . // 添加文件到版本库（只是添加到缓存区），.代表添加文件夹下所有文件
 
-- 感谢 [Moxun](https://github.com/moxun1639) 大佬提供的前端 Curd 通用组件
+git commit -m "first commit" // 把添加的文件提交到版本库，并填写提交备注
 
-- 感谢 [zhy6599](https://gitee.com/zhy6599) 大佬提供的后端运维管理相关功能
+到目前为止，我们完成了代码库的初始化，但代码是在本地，还没有提交到远程服务器，所以关键的来了，要提交到就远程代码服务器，进行以下两步：
 
-- 感谢 [j.yao.SUSE](https://github.com/everhopingandwaiting) 大佬提供的匿名接口与Redis限流等功能
+git remote add origin 你的远程库地址 // 把本地库与远程库关联
 
-- 感谢 [d15801543974](https://github.com/d15801543974) 大佬提供的基于注解的通用查询方式
+git push -u origin master // 第一次推送时
+
+git push origin master // 第一次推送后，直接使用该命令即可推送修改
 
 #### 反馈交流
 

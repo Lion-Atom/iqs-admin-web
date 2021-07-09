@@ -68,6 +68,7 @@ export default {
       this.pop = true
     },
     gotoDetail(row) {
+      // 查看任务信息
       this.pop = false
       this.emitMsg.data = row
       this.$emit('func', this.emitMsg)
