@@ -1,22 +1,35 @@
 <template>
   <div v-if="!data.isDone">
 
-    <el-popover v-model="pop" v-permission="permission.approve" placement="top" width="180" trigger="manual"
-                @show="onPopoverShow" @hide="onPopoverHide"
+    <el-popover
+      v-model="pop"
+      v-permission="permission.approve"
+      placement="top"
+      width="180"
+      trigger="manual"
+      @show="onPopoverShow"
+      @hide="onPopoverHide"
     >
       <p>{{ msg }}</p>
       <div style="text-align: right; margin: 0">
         <el-button size="mini" type="text" @click="doCancel(data)">先看看</el-button>
         <el-button type="primary" size="mini" @click="doApprove(data)">确定</el-button>
       </div>
-      <el-button slot="reference" type="primary" icon="el-icon-thumb" size="mini"
-                 @click="toApprove"
+      <el-button
+        slot="reference"
+        type="primary"
+        icon="el-icon-thumb"
+        size="mini"
+        @click="toApprove"
       />
     </el-popover>
   </div>
   <div v-else>
-    <el-button type="primary" icon="el-icon-view" size="mini"
-               @click="gotoDetail(data)"
+    <el-button
+      type="primary"
+      icon="el-icon-view"
+      size="mini"
+      @click="gotoDetail(data)"
     />
   </div>
 </template>

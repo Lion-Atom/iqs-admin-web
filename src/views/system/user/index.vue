@@ -138,17 +138,73 @@
                   v-if="form.dept.id!==undefined && form.dept.id !=='' && form.dept.id!==null"
                   label="部门管理者"
                 >
-                  <el-radio-group
-                    v-model="form.isDepartMaster"
-                    style="width: 220px"
+                  <el-tooltip
+                    v-if="isHavDepartMaster && form.isDepartMaster === 'false'"
+                    placement="top-start"
+                    effect="light"
                   >
-                    <el-radio
-                      v-for="item in dict.common_status"
-                      :key="item.id"
-                      :label="item.value"
-                    >{{ item.label }}
-                    </el-radio>
-                  </el-radio-group>
+                    <div
+                      v-if="(departMasterId !== form.id) && form.isDepartMaster === 'false'"
+                      slot="content"
+                      style="width:300px;"
+                    >
+                      <b style="color: red">*</b>所选部门已有管理者【{{ departMasterName }}】，解除后可再尝试
+                    </div>
+                    <div v-else-if="departMasterId === form.id" slot="content" style="width:300px;">
+                      <b style="color: red">*</b>【{{ departMasterName }}】作为部门审批管理者，不可随意改动
+                    </div>
+                    <i class="el-icon-question"/>
+                    <el-radio-group
+                      v-model="form.isDepartMaster"
+                      style="width: 220px"
+                    >
+                      <el-radio
+                        v-for="item in dict.common_status"
+                        :key="item.id"
+                        :label="item.value"
+                        :disabled="isHavDepartMaster"
+                      >{{ item.label }}
+                      </el-radio>
+                    </el-radio-group>
+                  </el-tooltip>
+                  <el-tooltip
+                    v-else-if="isHavDepartMaster && form.isDepartMaster === 'true'"
+                    placement="top-start"
+                    effect="light"
+                  >
+                    <div slot="content" style="width:300px;">
+                      <b style="color: red">*</b>所选部门已有新的管理者【{{ departMasterName }}】，当前只可选择降级处理或者切换部门
+                    </div>
+                    <i class="el-icon-question"/>
+                    <el-radio-group
+                      v-model="form.isDepartMaster"
+                      style="width: 220px"
+                    >
+                      <el-radio
+                        v-for="item in dict.common_status"
+                        :key="item.id"
+                        :label="item.value"
+                      >{{ item.label }}
+                      </el-radio>
+                    </el-radio-group>
+                  </el-tooltip>
+                  <el-tooltip v-else-if="!isHavDepartMaster" placement="top-start" effect="light">
+                    <div slot="content" style="width:300px;">
+                      <b style="color: red">*</b>请务必优先设置部门管理者！
+                    </div>
+                    <i class="el-icon-question"/>
+                    <el-radio-group
+                      v-model="form.isDepartMaster"
+                      style="width: 220px"
+                    >
+                      <el-radio
+                        v-for="item in dict.common_status"
+                        :key="item.id"
+                        :label="item.value"
+                      >{{ item.label }}
+                      </el-radio>
+                    </el-radio-group>
+                  </el-tooltip>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -193,6 +249,7 @@
                       v-for="item in dict.user_status"
                       :key="item.id"
                       :label="item.value"
+                      :disabled="isHavDepartMaster && form.isDepartMaster === 'true'"
                     >{{ item.label }}
                     </el-radio>
                   </el-radio-group>
@@ -306,7 +363,7 @@
 <script>
 import crudUser from '@/api/system/user'
 import { isvalidPhone } from '@/utils/validate'
-import dept, { getDepts, getDeptSuperior } from '@/api/system/dept'
+import { getDepts, getDeptSuperior } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
 import { getJobs, getJobSuperior } from '@/api/system/job'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
@@ -328,7 +385,7 @@ const defaultForm = {
   nickName: null,
   gender: '男',
   email: null,
-  enabled: 'false',
+  enabled: 'true',
   roles: [],
   jobs: [{ id: null }],
   dept: { id: null },
@@ -389,7 +446,10 @@ export default {
       },
       superiors: [],
       oldDeptId: null,
-      watchCount: 0
+      watchCount: 0,
+      isHavDepartMaster: false,
+      departMasterId: null,
+      departMasterName: ''
     }
   },
   computed: {
@@ -495,7 +555,6 @@ export default {
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
-      // alert(JSON.stringify(crud.form))
       if (!crud.form.dept.id) {
         this.$message({
           message: '部门不能为空',
@@ -511,13 +570,6 @@ export default {
       } else if (this.roleDatas.length === 0) {
         this.$message({
           message: '角色不能为空',
-          type: 'warning'
-        })
-        return false
-      } else if (crud.form.isDepartMaster === 'false' && (crud.form.superiorId === '' || crud.form.superiorId === null || crud.form.superiorId === undefined)) {
-        // 验证是否非部门master应当选择上级,后期统一封装判空接口
-        this.$message({
-          message: '非部门管理者必须设置上级',
           type: 'warning'
         })
         return false
@@ -644,18 +696,33 @@ export default {
     },
     // 改变状态
     changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        crudUser.edit(data).then(res => {
-          this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
-        }).catch(() => {
+      // val为目标状态
+      // alert(JSON.stringify(data.isDepartMaster))
+      crudUser.havDepartMaster({ deptId: data.dept.id }).then(res => {
+        // 如果已有管理者了，现在目标“曾是部门管理者”，则需要提示
+        // alert(JSON.stringify(res))
+        if (res.hav && val && data.isDepartMaster) {
+          this.$message({
+            message: 'Department Master existed! 所在部门已有管理者【' + res.masterName + '】，一个部门不可同时存在两个管理者',
+            type: 'warning'
+          })
           data.enabled = !data.enabled
-        })
-      }).catch(() => {
-        data.enabled = !data.enabled
+          return false
+        } else {
+          this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            crudUser.edit(data).then(res => {
+              this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+            }).catch(() => {
+              data.enabled = !data.enabled
+            })
+          }).catch(() => {
+            data.enabled = !data.enabled
+          })
+        }
       })
     },
     // 获取弹窗内角色数据
@@ -674,6 +741,10 @@ export default {
     // 切换部门数据
     currDeptChange(val) {
       if (val !== null && val !== this.oldDeptId) {
+        this.isHavDepartMaster = false
+        this.departMasterName = null
+        this.oldSuperiorId = null
+        this.form.superiorId = null
         this.getUserSuperior(val, true)
       }
       // alert(JSON.stringify(this.form.superiorId))
@@ -685,6 +756,7 @@ export default {
     getUserSuperior(deptId, b) {
       if (deptId !== null && deptId !== undefined) {
         crudUser.getUserSuperior({ deptId: deptId, editId: this.form.id }).then(res => {
+          // alert(JSON.stringify(res))
           this.superiors = res
           if (this.oldSuperiorId === '' || this.oldSuperiorId === null || this.oldSuperiorId === undefined) {
             this.form.superiorId = null
@@ -692,9 +764,15 @@ export default {
             this.form.superiorId = this.oldSuperiorId
           }
           if (b && res !== null) {
-            this.form.superiorId = res[0]
+            this.form.superiorId = res[0].id
           }
-          // alert(JSON.stringify(this.superiors))
+        })
+        crudUser.havDepartMaster({ deptId: deptId }).then(res => {
+          if (res.hav) {
+            this.isHavDepartMaster = res.hav
+            this.departMasterId = res.masterId
+            this.departMasterName = res.masterName
+          }
         })
       }
     },

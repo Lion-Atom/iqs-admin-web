@@ -33,6 +33,14 @@ export function getUserSuperior(params) {
   })
 }
 
+export function havDepartMaster(params) {
+  return request({
+    url: 'api/users/havDepartMaster',
+    method: 'get',
+    params
+  })
+}
+
 export function getApprovers(params) {
   return request({
     url: 'api/users/approvers',
@@ -73,5 +81,5 @@ export function updateEmail(form) {
   })
 }
 
-export default { add, edit, del, getUserSuperior }
+export default { add, edit, del, getUserSuperior, havDepartMaster }
 

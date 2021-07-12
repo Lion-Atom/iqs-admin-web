@@ -570,8 +570,10 @@ export default {
           this.fileSelected.id = this.$route.query.fileId
           this.fileSelected.name = this.$route.query.name
         }
-        this.getFileById(this.fileSelected.id)
-        this.getPreTrails(this.fileSelected.id)
+        if (this.fileSelected.id !== null && this.fileSelected.id !== '' && this.fileSelected.id !== undefined) {
+          this.getFileById(this.fileSelected.id)
+          this.getPreTrails(this.fileSelected.id)
+        }
       })
     },
     getFileById(id) {
