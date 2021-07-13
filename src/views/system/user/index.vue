@@ -249,7 +249,7 @@
                       v-for="item in dict.user_status"
                       :key="item.id"
                       :label="item.value"
-                      :disabled="isHavDepartMaster && form.isDepartMaster === 'true'"
+                      :disabled="isHavDepartMaster && form.isDepartMaster === 'true' && !form.enabled"
                     >{{ item.label }}
                     </el-radio>
                   </el-radio-group>
@@ -478,6 +478,7 @@ export default {
     }
   },
   methods: {
+    // 是否部门master格式化
     isDepartMasterFormat(row, col) {
       if (row.isDepartMaster === true) {
         return '是'
@@ -496,6 +497,7 @@ export default {
         userRoles.push(role)
       })
     },
+    // 改变岗位
     changeJob(value) {
       userJobs = []
       value.forEach(function(data, index) {

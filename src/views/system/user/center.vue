@@ -423,13 +423,14 @@ export default {
     }
   },
   mounted() {
+    this.query.isDone = false
     if (this.$route.query.createTime !== undefined) {
       // alert(this.$route.query.createTime)
       const startTime = this.$route.query.createTime + ' 00:00:00'
       const endTime = this.$route.query.createTime + ' 23:59:59'
       this.query.createTime = [startTime, endTime]
-      this.crud.toQuery()
     }
+    this.crud.toQuery()
   },
   methods: {
     // 获取子组件：udApprove传来的值

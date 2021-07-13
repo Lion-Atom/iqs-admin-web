@@ -295,10 +295,17 @@
                         <b style="color: red">*原因:</b>{{ comment }}
                       </div>
                       <div v-if="form.approvalStatus !== 'approved'">
-                        <b style="color: red">*当前审批人:</b>{{ currApprover }}
+                        <b style="color: red">*当前审批人:</b>{{ currApproverName }}
+                        <b style="color: red">*已等待时长:</b>{{ waitingTime }}<br/>
+                        <b style="color: red">
+                          <el-button @click="sendEmail"><i class="el-icon-message-solid"></i>发送邮件提醒{{
+                              currApproverName
+                            }}
+                          </el-button>
+                        </b>
                       </div>
                       <div v-if="form.approvalStatus === 'approved'">
-                        <b style="color: red">*当前审批已完成，最后审批人:</b>{{ currApprover }}
+                        <b style="color: red">*当前审批已完成，最后审批人:</b>{{ currApproverName }}
                       </div>
                     </div>
                     <i class="el-icon-question"/>
@@ -652,6 +659,7 @@ import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getToken } from '@/utils/auth'
 import { edit } from '@/api/system/toolsTask'
 import Date from '@/utils/datetime'
+import { send } from '@/api/tools/email'
 
 let bindingFiles = []
 const defaultForm = {
@@ -780,9 +788,17 @@ export default {
       comment: null,
       taskCount: 1,
       currApprover: null,
+      currApproverName: null,
       params: {},
       approvalProcessList: [],
-      topFileLevelId: null
+      waitingTime: '',
+      topFileLevelId: null,
+      emailForm: {
+        subject: '',
+        tos: [],
+        content: '',
+        isAdminSend: false
+      }
     }
   },
   computed: {
@@ -850,13 +866,6 @@ export default {
     }
   },
   methods: {
-    // 文件类型下拉
-    /* focusFileTypeValue(){
-      console.log(this.$refs.fileTypeSearch);
-      this.$refs.fileTypeSearch.blur= () => {
-        console.log(12121);
-      };
-    }, */
     // 选中时候判断是否拥有创建Level 1文件的权限(非管理员无权创建第一级别的文件）
     disFileLevel(val) {
       if (!this.$store.getters.user.isAdmin && (val.pid === null || val.pid === undefined)) {
@@ -869,9 +878,23 @@ export default {
     },
     // 发起申请，投递邮件
     sendEmail() {
-      // todo 发送给上级
-      alert(JSON.stringify(this.preTrail))
-      // todo 发送主题内容：this.preTrail
+      this.emailForm.subject = '文件审批申请，望尽快处理'
+      this.emailForm.content = '<p>任务主题：' + this.preTrail.changeDesc + '</p>' +
+        '<p>任务发起人：' + this.preTrail.createBy + '</p>' +
+        '<p>任务编号：' + this.preTrail.preTrailNo + '</p>'
+      // 获取当前审批人的邮箱
+      this.emailForm.tos.push(this.currApprover.email)
+      // 发送邮件
+      send(this.emailForm).then(res => {
+        this.$notify({
+          title: '提醒邮件已成功送达',
+          type: 'success',
+          duration: 2500
+        })
+        this.loading = false
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
     },
     // 编辑后保存确认校验
     submitConfirm() {
@@ -1318,7 +1341,7 @@ export default {
     getPreTrails(id) {
       // 查询文件对应得审批任务
       getPreTrailByFileId(id, false).then(res => {
-        // alert(JSON.stringify(res))
+        // alert(JSON.stringify(res.currApprover))
         this.preTrail = res.content[0]
         // 获取（第一个关联任务即直系领导任务）是否已审批，已审批不允许更改第一审批者
         this.isDone = res.content[0].isDone
@@ -1327,6 +1350,9 @@ export default {
         this.oldSuperiorId = this.form.superiorId
         this.approveBy = this.form.superiorId
         this.currApprover = res.currApprover
+        if (res.currApprover !== undefined) {
+          this.currApproverName = res.currApprover.username
+        }
         if (res.comment !== undefined) {
           this.comment = res.comment
         }
@@ -1346,10 +1372,11 @@ export default {
     },
     // 查询审批数据变化
     getApprovalProcessRecord(id) {
-      // alert(JSON.stringify(params))
+      // alert(JSON.stringify(id))
       getLatestAppProcess(id).then(res => {
         // alert(JSON.stringify(res))
         this.approvalProcessList = res.content
+        this.waitingTime = res.waitDuration
       })
     },
     // 填充文件等级数据
