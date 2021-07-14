@@ -126,58 +126,64 @@
                 >
                   <el-form ref="taskForm" :model="taskForm" size="small" :label-width="formLabelWidth">
                     <el-row>
-                      <el-col :span="12">
+                      <el-col :span="24">
                         <el-form-item label="任务名称">
-                          <el-input v-model="taskForm.changeDesc" disabled></el-input>
+                          <el-input v-model="taskForm.changeDesc" disabled/>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="12">
+                        <el-form-item label="任务单号">
+                          <el-input v-model="taskForm.preTrailNo" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="任务发起人">
-                          <el-input v-model="taskForm.createBy" disabled></el-input>
+                          <el-input v-model="taskForm.createBy" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="审批对象">
-                          <el-input v-model="taskForm.storageName" disabled></el-input>
+                          <el-input v-model="taskForm.storageName" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象类型">
-                          <el-input v-model="taskForm.type" disabled></el-input>
+                          <el-input v-model="taskForm.type" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="对象版本">
-                          <el-input v-model="taskForm.version" disabled></el-input>
+                          <el-input v-model="taskForm.version" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象大小">
-                          <el-input v-model="taskForm.size" disabled></el-input>
+                          <el-input v-model="taskForm.size" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="最近更新人">
-                          <el-input v-model="taskForm.updateBy" disabled></el-input>
+                          <el-input v-model="taskForm.updateBy" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象大小">
-                          <el-input v-model="taskForm.size" disabled></el-input>
+                          <el-input v-model="taskForm.size" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="23">
                         <el-form-item label="对象位置">
-                          <el-input v-model="taskForm.tarPath" disabled>
-                          </el-input>
+                          <el-input v-model="taskForm.tarPath" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="1">
@@ -187,20 +193,26 @@
                           class="el-link--primary"
                           style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;"
                         >
-                          <i style="line-height:1.5;font-size: 24px;" class="el-icon-download"></i>
+                          <i style="line-height:1.5;font-size: 24px;" class="el-icon-download"/>
                         </a>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="审批结论" required>
-                          <el-select v-model="taskForm.approveResult" size="small" placeholder="审批结果"
-                                     class="filter-item"
-                                     style="width: 120px"
-                                     :disabled="isHavResult"
+                          <el-select
+                            v-model="taskForm.approveResult"
+                            size="small"
+                            placeholder="审批结果"
+                            class="filter-item"
+                            style="width: 120px"
+                            :disabled="isHavResult"
                           >
-                            <el-option v-for="item in approveTypeOptions" :key="item.key" :label="item.display_name"
-                                       :value="item.key"
+                            <el-option
+                              v-for="item in approveTypeOptions"
+                              :key="item.key"
+                              :label="item.display_name"
+                              :value="item.key"
                             />
                           </el-select>
                         </el-form-item>
@@ -209,8 +221,11 @@
                     <el-row>
                       <el-col :span="24">
                         <el-form-item label="审批建议">
-                          <el-input placeholder="可填写驳回理由或者修改意见等" v-model="taskForm.comment" :disabled="taskForm.isDone"
-                          ></el-input>
+                          <el-input
+                            v-model="taskForm.comment"
+                            placeholder="可填写驳回理由或者修改意见等"
+                            :disabled="taskForm.isDone"
+                          />
                         </el-form-item>
                       </el-col>
                     </el-row>
@@ -235,12 +250,12 @@
                   <el-table-column prop="storageName" label="对象名称">
                     <template slot-scope="scope">
                       <el-popover
-                        :content="'file/' + scope.row.type + '/' + scope.row.realName"
                         placement="top-start"
-                        title="路径"
-                        width="200"
+                        title="审批诉求"
+                        width="300"
                         trigger="hover"
                       >
+                        <div>{{ scope.row.changeDesc }}</div>
                         <a
                           slot="reference"
                           :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
@@ -252,7 +267,7 @@
                       </el-popover>
                     </template>
                   </el-table-column>
-                  <el-table-column width="300" prop="changeDesc" label="诉求"/>
+                  <el-table-column prop="preTrailNo" width="180" label="任务单号"/>
                   <!--                                    <el-table-column prop="srcPath" label="原路径" />
                                     <el-table-column prop="tarPath" label="目标路径" />
                                     <el-table-column prop="type" label="类型" />
@@ -261,7 +276,7 @@
                   <el-table-column prop="createBy" label="创建人"/>
                   <el-table-column label="进度" :formatter="isDoneFormat"/>
                   <el-table-column label="审核结果" :formatter="approveResultFormat"/>
-                  <el-table-column v-if="user.isAdmin" prop="approver" label="审核人"/>
+                  <el-table-column v-if="user.isAdmin" width="120" prop="approver" label="审核人"/>
                   <el-table-column
                     label="操作"
                     width="80"
@@ -439,9 +454,9 @@ export default {
       this.dialogFormVisible = msg.show
       this.taskForm = msg.data
       this.oldResult = msg.data.approveResult
-      this.isHavResult = !(this.oldResult === undefined
-        || this.oldResult === ''
-        || this.oldResult === null)
+      this.isHavResult = !(this.oldResult === undefined ||
+        this.oldResult === '' ||
+        this.oldResult === null)
     },
     // 取消审批
     cancelApprove() {

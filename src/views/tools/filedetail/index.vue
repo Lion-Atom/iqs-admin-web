@@ -211,7 +211,7 @@
                   </el-table-column>
                   <el-table-column prop="processNo" width="220" label="审批单号"/>
                   <el-table-column prop="version" width="50" label="版本"/>
-                  <el-table-column prop="changeType" label="变更类型"/>
+                  <el-table-column prop="changeType" width="120" label="变更类型"/>
                   <el-table-column label="诉求">
                     <template slot-scope="scope">
                       <el-popover
@@ -232,7 +232,7 @@
                   </el-table-column>
                   <el-table-column prop="createTime" width="150" label="创建时间"/>
                   <el-table-column prop="createBy" label="创建人"/>
-                  <el-table-column prop="approver" width="120" label="审批者"/>
+                  <el-table-column prop="approver" width="120" label="预审批人"/>
                   <el-table-column label="审核结果" :formatter="approveResultFormat"/>
                   <el-table-column prop="duration" label="审批时长"/>
                   <el-table-column label="审批意见">
@@ -253,6 +253,7 @@
                       </el-popover>
                     </template>
                   </el-table-column>
+                  <el-table-column label="实际审批人" :formatter="updateByFormat"/>
                   <!--审批-->
                   <!--                  <el-table-column
                                       label="操作"
@@ -678,6 +679,14 @@ export default {
         return '待审批'
       } else {
         return row.approvedResult
+      }
+    },
+    // 更新者--即实际审批人
+    updateByFormat(row, col) {
+      if (row.approvedResult === undefined) {
+        return null
+      } else {
+        return row.updateBy
       }
     },
     // 格式化操作日志表格消息内容
