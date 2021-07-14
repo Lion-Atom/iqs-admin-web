@@ -99,7 +99,7 @@
             <el-tab-pane :label="taskLabel" name="second">
               <!-- 工具栏 -->
               <div class="head-container">
-                <Search/>
+                <TaskSearch/>
                 <crudOperation>
                   <el-button
                     slot="left"
@@ -349,7 +349,7 @@ import { getToken } from '@/utils/auth'
 import store from '@/store'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, crud } from '@crud/crud'
-import Search from '../../monitor/log/search'
+import TaskSearch from './taskSearch'
 import crudOperation from '@crud/CRUD.operation'
 import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
@@ -359,7 +359,7 @@ import crudTask, { submitTask, batchSubmitTask } from '@/api/system/toolsTask'
 
 export default {
   name: 'Center',
-  components: { updatePass, updateEmail, myUpload, Search, crudOperation, udApprove, pagination },
+  components: { updatePass, updateEmail, myUpload, TaskSearch, crudOperation, udApprove, pagination },
   cruds() {
     return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask } })
   },

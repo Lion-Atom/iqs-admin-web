@@ -17,6 +17,7 @@
   # 密码（注意，某些邮箱需要为SMTP服务单独设置密码即发送开启验证后生成的登录，如QQ和163等等）
   # 是否开启ssl，默认开启
   # Tips:发送报554,请检查测试发送的内容是否合法，可适当修改为正式用词
+  # 可支持本地图片发送，远程功能暂未开启
         </pre>
         <blockquote class="my-blockquote">更多帮助</blockquote>
         <pre class="my-code">更多帮助请查看网上教程：<a style="color:#009688"

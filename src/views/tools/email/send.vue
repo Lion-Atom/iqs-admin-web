@@ -14,16 +14,17 @@
         <el-button style="margin-left:0;" icon="el-icon-minus" @click.prevent="removeDomain(domain)"/>
       </el-form-item>
       <div class="editor" ref="editor" v-model="form.content"/>
-      <el-button :loading="loading" style="margin-left:1.6%;" size="medium" type="primary" @click="doSubmit">发送邮件
+      <el-button :loading="selfLoading" style="margin-left:1.6%;" size="medium" type="primary" @click="doSubmit">发送邮件
       </el-button>
-      <el-button :loading="loading" style="margin-left:1.6%;" size="medium" type="primary" @click="agentSubmit">管理员代发
+      <el-button :loading="agentLoading" style="margin-left:1.6%;" size="medium" type="primary" @click="agentSubmit">
+        管理员代发
       </el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-import { send, adminSend } from '@/api/tools/email'
+import { send } from '@/api/tools/email'
 import { upload } from '@/utils/upload'
 import { validEmail } from '@/utils/validate'
 import { mapGetters } from 'vuex'
@@ -33,7 +34,8 @@ export default {
   name: 'Index',
   data() {
     return {
-      loading: false,
+      selfLoading: false,
+      agentLoading: false,
       form: {
         subject: '',
         tos: [],
@@ -120,16 +122,16 @@ export default {
           if (sub) {
             return false
           }
-          this.loading = true
+          this.selfLoading = true
           send(this.form).then(res => {
             this.$notify({
               title: '发送成功',
               type: 'success',
               duration: 2500
             })
-            this.loading = false
+            this.selfLoading = false
           }).catch(err => {
-            this.loading = false
+            this.selfLoading = false
             console.log(err.response.data.message)
           })
         } else {
@@ -163,7 +165,7 @@ export default {
           if (sub) {
             return false
           }
-          this.loading = true
+          this.agentLoading = true
           this.form.isAdminSend = true
           send(this.form).then(res => {
             this.$notify({
@@ -171,9 +173,9 @@ export default {
               type: 'success',
               duration: 2500
             })
-            this.loading = false
+            this.agentLoading = false
           }).catch(err => {
-            this.loading = false
+            this.agentLoading = false
             console.log(err.response.data.message)
           })
         } else {

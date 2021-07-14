@@ -347,7 +347,7 @@
                     <el-option
                       v-for="item in superiors"
                       :key="item.id"
-                      :label="item.dept.name + '-' + item.jobs[0].name + '-'+ item.username "
+                      :label="item.jobs[0].name + '-'+ item.username "
                       :value="item.id"
                     />
                   </el-select>

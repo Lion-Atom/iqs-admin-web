@@ -187,6 +187,7 @@
                   v-loading="crud.loading"
                   :data="approvalProcessData"
                   style="width: 100%;"
+                  :row-class-name="tableRowClassName"
                 >
                   <el-table-column prop="realName" label="文件真实名">
                     <template slot-scope="scope">
@@ -531,6 +532,17 @@ export default {
         this.total = res.totalElements
       })
     },
+    // 根据审批状态设置样式
+    tableRowClassName({ row, rowIndex }) {
+      if (row.approvedResult === undefined) {
+        return 'warning-row'
+      } else if (row.approvedResult === '驳回') {
+        return 'alert-row'
+      } else if (row.approvedResult === '同意') {
+        return 'success-row'
+      }
+      return ''
+    },
     // 搜索重置
     resetQueryProcess() {
       this.params.blurry = ''
@@ -723,7 +735,19 @@ export default {
   }
 }
 </script>
+<style>
+.el-table .alert-row {
+  background: #ffa4a4;
+}
 
+.el-table .warning-row {
+  background: oldlace;
+}
+
+.el-table .success-row {
+  background: #f0f9eb;
+}
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .vue-treeselect__control, ::v-deep .vue-treeselect__placeholder, ::v-deep .vue-treeselect__single-value {
   height: 30px;
