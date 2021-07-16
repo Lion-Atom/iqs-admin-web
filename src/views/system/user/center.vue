@@ -99,7 +99,7 @@
             <el-tab-pane :label="taskLabel" name="second">
               <!-- 工具栏 -->
               <div class="head-container">
-                <TaskSearch v-bind:isAdmin=user.isAdmin/>
+                <TaskSearch v-bind:isAdmin="user.isAdmin"/>
                   <crudOperation>
                     <el-button
                       slot="left"

@@ -992,7 +992,7 @@ export default {
         // alert(JSON.stringify(this.preTrail))
         this.updateApprover(this.preTrail)
         // 更新审批进度信息
-        let process = this.approvalProcessList[0]
+        const process = this.approvalProcessList[0]
         process.approvedBy = this.form.superiorId
         this.updateAppProcess(process)
       }
