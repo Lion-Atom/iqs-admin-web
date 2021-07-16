@@ -316,13 +316,15 @@
                       </div>
                       <div v-if="form.approvalStatus !== 'approved'">
                         <b style="color: red">*当前审批人:</b>{{ currApproverName }}
-                        <b style="color: red">*已等待时长:</b>{{ waitingTime }}<br/>
-                        <b style="color: red">
-                          <el-button @click="sendEmail"><i class="el-icon-message-solid"></i>发送邮件提醒{{
-                              currApproverName
-                            }}
-                          </el-button>
-                        </b>
+                        <div v-if="form.approvalStatus === 'waitingfor' ">
+                          <b style="color: red">*已等待时长:</b>{{ waitingTime }}<br/>
+                          <b style="color: red">
+                            <el-button @click="sendEmail"><i class="el-icon-message-solid"></i>发送邮件提醒{{
+                                currApproverName
+                              }}
+                            </el-button>
+                          </b>
+                        </div>
                       </div>
                       <div v-if="form.approvalStatus === 'approved'">
                         <b style="color: red">*当前审批已完成，最后审批人:</b>{{ currApproverName }}
@@ -679,6 +681,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getToken } from '@/utils/auth'
 import { edit } from '@/api/system/toolsTask'
+import { editApprovalProcess } from '@/api/system/approvalProcess'
 import Date from '@/utils/datetime'
 import { send } from '@/api/tools/email'
 
@@ -983,12 +986,15 @@ export default {
       // alert(JSON.stringify(this.form.superiorId))
       if (this.form.superiorId !== this.approveBy &&
         (this.form.superiorId !== null || true || this.form.superiorId !== '')) {
-        // todo 更新任务信息
+        // 更新任务信息
         // alert(JSON.stringify(this.form.superiorId))
         this.preTrail.approvedBy = this.form.superiorId
+        // alert(JSON.stringify(this.preTrail))
         this.updateApprover(this.preTrail)
-        // todo 更新审批进度信息
-        // this.updateAppProcess()
+        // 更新审批进度信息
+        let process = this.approvalProcessList[0]
+        process.approvedBy = this.form.superiorId
+        this.updateAppProcess(process)
       }
       this.crud.resetQuery()
     },
@@ -996,6 +1002,13 @@ export default {
     updateApprover(data) {
       edit(data).then(res => {
         // alert("更新审批者成功")
+      })
+    },
+    // 更新任务对应的审批进度信息
+    updateAppProcess(data) {
+      // 更新审批进度信息
+      editApprovalProcess(data).then(res => {
+        // alert("更新审批信息成功")
       })
     },
     getRowKeys(row) {

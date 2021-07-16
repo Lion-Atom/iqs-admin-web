@@ -8,4 +8,12 @@ export function getApprovalProcess(params) {
   })
 }
 
-export default { getApprovalProcess }
+export function editApprovalProcess(data) {
+  return request({
+    url: 'api/approvalProcess',
+    method: 'put',
+    data
+  })
+}
+
+export default { getApprovalProcess, editApprovalProcess }
