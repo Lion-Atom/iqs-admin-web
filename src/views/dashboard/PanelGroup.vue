@@ -132,14 +132,14 @@ export default {
     handleFileCategoryDbClick() {
       this.$router.push(
         {
-          path: '/sys-tools/filecategory',
+          path: '/fileManagement/filecategory',
           query: {}
         })
     },
     handleFileDbClick() {
       this.$router.push(
         {
-          path: '/sys-tools/file',
+          path: '/fileManagement/file',
           query: {}
         })
     }

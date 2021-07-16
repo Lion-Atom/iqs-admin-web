@@ -39,15 +39,21 @@
               @keyup.enter.native="crud.toQuery"
               @input="inputChange($event)"
             />
-            <!-- 文件分类筛选，需要更改为树表筛选 -->
-            <treeselect
-              v-model="query.fileCategoryId"
-              :options="fileCategories"
-              :load-options="loadCategories"
-              class="newTree-item"
-              placeholder="选择文件分类"
-              @input="crud.toQuery"
+            <date-range-picker
+              v-model="query.createTime"
+              class="date-item"
+              @change="crud.toQuery"
+              @input="dateTimeChange($event)"
             />
+            <!-- 文件分类筛选，需要更改为树表筛选,暂时注释掉 -->
+            <!--            <treeselect
+                          v-model="query.fileCategoryId"
+                          :options="fileCategories"
+                          :load-options="loadCategories"
+                          class="newTree-item"
+                          placeholder="选择文件分类"
+                          @input="crud.toQuery"
+                        />-->
             <!-- 文件所属部门筛选，需要更改为树表筛选 -->
             <treeselect
               v-model="query.deptId"
@@ -57,6 +63,26 @@
               placeholder="选择所属部门"
               @input="crud.toQuery"
             />
+            <!-- 审批状态筛选 -->
+            <el-select
+              v-model="query.approvalStatus"
+              clearable
+              size="small"
+              placeholder="审批状态"
+              class="filter-item"
+              style="width: 120px"
+              @change="crud.toQuery"
+            >
+              <el-option
+                v-for="item in dict.approval_status"
+                :key="item.id"
+                :label="item.label"
+                :value="item.value"
+              >
+                <span style="float: left">{{ item.label }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+              </el-option>
+            </el-select>
             <!-- 文件类型筛选 -->
             <el-select
               v-model="query.fileType"
@@ -77,12 +103,6 @@
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
               </el-option>
             </el-select>
-            <date-range-picker
-              v-model="query.createTime"
-              class="date-item"
-              @change="crud.toQuery"
-              @input="dateTimeChange($event)"
-            />
             <el-select
               v-model="query.fileStatus"
               clearable
@@ -524,6 +544,7 @@
           :data="crud.data"
           style="width: 100%;"
           :row-key="getRowKeys"
+          :default-sort="{prop: 'createTime', order: 'descending'}"
           @selection-change="crud.selectionChangeHandler"
           @row-dblclick="dbSelected"
           @row-click="stepsListRowClick"
@@ -834,13 +855,19 @@ export default {
     this.getFileCategoryDatas()
     this.getFileCategories()
     this.getFileDepts()
+    //
+    if (this.$route.query.fileId !== undefined) {
+      this.query.fileId = this.$route.query.fileId
+      this.crud.toQuery()
+    }
     // 详情返回列表中某一列处于命中状态
     if (this.$route.query.blurry !== undefined) {
       this.query.blurry = this.$route.query.blurry
-      this.crud.toQuery()
+      // this.crud.toQuery()
       // 刷新表格
-      this.crud.attchTable()
+      // this.crud.attchTable()
     }
+    // 文件类型
     if (this.$route.query.fileType !== undefined) {
       this.query.fileType = this.$route.query.fileType
       this.crud.toQuery()
@@ -850,6 +877,7 @@ export default {
       this.query.deptId = this.$route.query.deptId
       this.crud.toQuery()
     }
+    // 创建事件范围
     if (this.$route.query.createTime !== undefined) {
       // alert(this.$route.query.createTime)
       const startTime = this.$route.query.createTime + ' 00:00:00'
@@ -857,6 +885,7 @@ export default {
       this.query.createTime = [startTime, endTime]
       this.crud.toQuery()
     }
+    // 文件等级名称
     if (this.$route.query.fileLevelName !== undefined) {
       this.fileLevelName = this.$route.query.fileLevelName
       const data = { id: null }
@@ -959,7 +988,7 @@ export default {
         this.preTrail.approvedBy = this.form.superiorId
         this.updateApprover(this.preTrail)
         // todo 更新审批进度信息
-        //this.updateAppProcess()
+        // this.updateAppProcess()
       }
       this.crud.resetQuery()
     },
@@ -1107,7 +1136,7 @@ export default {
     [CRUD.HOOK.beforeToEdit](crud, form) {
       // alert(JSON.stringify(this.$store.getters.user))
       // alert(JSON.stringify(form.approvalStatus))
-      //强制初始化覆盖文件计数为0
+      // 强制初始化覆盖文件计数为0
       this.coverFileCount = 0
       this.comment = null
       if (form.isRevision === 'true') {
@@ -1368,7 +1397,6 @@ export default {
           this.taskCount = res.content.length
         }
       })
-
     },
     // 查询审批数据变化
     getApprovalProcessRecord(id) {
@@ -1586,14 +1614,12 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 
-
 //修改disabled的样式
 
 .dialog > > > .is-disabled .el-input__inner {
   background-color: #ffffff;
   color: #000000;
 }
-
 
 ::v-deep .vue-treeselect__control, ::v-deep .vue-treeselect__placeholder, ::v-deep .vue-treeselect__single-value {
   height: 29px;

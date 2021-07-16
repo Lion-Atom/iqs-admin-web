@@ -15,6 +15,11 @@
       @change="crud.toQuery"
       @input="change($event)"
     />
+    <el-select v-if="isAdmin" v-model="query.selfFlag" clearable size="small" placeholder="查询范围" class="filter-item"
+               style="width: 120px" @change="queryTask" @input="changeScope($event)"
+    >
+      <el-option v-for="item in scopeTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+    </el-select>
     <el-select v-model="query.isDone" clearable size="small" placeholder="审批状态" class="filter-item"
                style="width: 120px" @change="queryTask" @input="changeStatus($event)"
     >
@@ -38,8 +43,13 @@ import DateRangePicker from '@/components/DateRangePicker'
 export default {
   components: { rrOperation, DateRangePicker },
   mixins: [header(), crud()],
+  props: ['isAdmin'],
   data() {
     return {
+      scopeTypeOptions: [
+        { key: false, display_name: '全部' },
+        { key: true, display_name: '本人' }
+      ],
       enabledTypeOptions: [
         { key: false, display_name: '待处理' },
         { key: true, display_name: '已完成' }
@@ -55,6 +65,11 @@ export default {
     this.crud.toQuery()
   },
   methods: {
+    // 监控审批状态选择器输入变化，强制刷新
+    changeScope() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
     // 监控审批状态选择器输入变化，强制刷新
     changeStatus() {
       this.$forceUpdate()

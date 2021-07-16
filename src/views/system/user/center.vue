@@ -99,17 +99,17 @@
             <el-tab-pane :label="taskLabel" name="second">
               <!-- 工具栏 -->
               <div class="head-container">
-                <TaskSearch/>
-                <crudOperation>
-                  <el-button
-                    slot="left"
-                    class="filter-item"
-                    type="danger"
-                    icon="el-icon-thumb"
-                    size="mini"
-                    :loading="crud.loading"
-                    :disabled="crud.selections.length === 0"
-                    @click="batchApprove(crud.selections)"
+                <TaskSearch v-bind:isAdmin=user.isAdmin/>
+                  <crudOperation>
+                    <el-button
+                      slot="left"
+                      class="filter-item"
+                      type="danger"
+                      icon="el-icon-thumb"
+                      size="mini"
+                      :loading="crud.loading"
+                      :disabled="crud.selections.length === 0"
+                      @click="batchApprove(crud.selections)"
                   >
                     审批
                   </el-button>
@@ -140,7 +140,7 @@
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="任务发起人">
-                          <el-input v-model="taskForm.createBy" disabled/>
+                          <el-input v-model="taskForm.ownerName" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>

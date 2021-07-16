@@ -656,7 +656,8 @@ export default {
         {
           path: '/fileManagement/file',
           query: {
-            blurry: this.form.name
+            blurry: this.form.name,
+            fileId: this.form.id
           }
         })
     },
