@@ -20,10 +20,22 @@
     >
       <el-option v-for="item in scopeTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
     </el-select>
-    <el-select v-model="query.isDone" clearable size="small" placeholder="审批状态" class="filter-item"
-               style="width: 120px" @change="queryTask" @input="changeStatus($event)"
+    <el-select
+      v-model="query.isDone"
+      clearable
+      size="small"
+      placeholder="审批状态"
+      class="filter-item"
+      style="width: 90px"
+      @change="queryTask"
+      @input="changeStatus($event)"
     >
-      <el-option v-for="item in enabledTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+      <el-option
+        v-for="item in enabledTypeOptions"
+        :key="item.key"
+        :label="item.display_name"
+        :value="item.key"
+      />
     </el-select>
     <el-select v-if="query.isDone" v-model="query.approveResult" clearable size="small" placeholder="审批结论"
                class="filter-item"
@@ -43,7 +55,7 @@ import DateRangePicker from '@/components/DateRangePicker'
 export default {
   components: { rrOperation, DateRangePicker },
   mixins: [header(), crud()],
-  props: ['isAdmin'],
+  props: ['isAdmin', 'createTime'],
   data() {
     return {
       scopeTypeOptions: [
@@ -60,9 +72,8 @@ export default {
       ]
     }
   },
-  mounted() {
-    this.query.isDone = false
-    this.crud.toQuery()
+  mounted: function() {
+    alert(JSON.stringify(this.query))
   },
   methods: {
     // 监控审批状态选择器输入变化，强制刷新

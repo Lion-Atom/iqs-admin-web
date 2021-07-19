@@ -99,17 +99,67 @@
             <el-tab-pane :label="taskLabel" name="second">
               <!-- 工具栏 -->
               <div class="head-container">
-                <TaskSearch v-bind:isAdmin="user.isAdmin"/>
-                  <crudOperation>
-                    <el-button
-                      slot="left"
-                      class="filter-item"
-                      type="danger"
-                      icon="el-icon-thumb"
-                      size="mini"
-                      :loading="crud.loading"
-                      :disabled="crud.selections.length === 0"
-                      @click="batchApprove(crud.selections)"
+                <div v-if="crud.props.searchToggle">
+                  <el-input
+                    v-model="query.blurry"
+                    clearable
+                    size="small"
+                    placeholder="请输入你要搜索的内容"
+                    style="width: 200px;"
+                    class="filter-item"
+                    @keyup.enter.native="crud.toQuery"
+                  />
+                  <date-range-picker
+                    v-model="query.createTime"
+                    class="date-item"
+                    @change="crud.toQuery"
+                    @input="changeDate($event)"
+                  />
+                  <el-select v-if="user.isAdmin" v-model="query.selfFlag" clearable size="small" placeholder="查询范围"
+                             class="filter-item"
+                             style="width: 120px" @change="crud.toQuery" @input="changeScope($event)"
+                  >
+                    <el-option v-for="item in scopeTypeOptions" :key="item.key" :label="item.display_name"
+                               :value="item.key"
+                    />
+                  </el-select>
+                  <el-select
+                    v-model="query.isDone"
+                    clearable
+                    size="small"
+                    placeholder="审批状态"
+                    class="filter-item"
+                    style="width: 90px"
+                    @change="crud.toQuery"
+                    @input="changeStatus($event)"
+                  >
+                    <el-option
+                      v-for="item in enabledTypeOptions"
+                      :key="item.key"
+                      :label="item.display_name"
+                      :value="item.key"
+                    />
+                  </el-select>
+                  <el-select v-if="query.isDone" v-model="query.approveResult" clearable size="small" placeholder="审批结论"
+                             class="filter-item"
+                             style="width: 120px" @change="crud.toQuery" @input="changeResult($event)"
+                  >
+                    <el-option v-for="item in resultTypeOptions" :key="item.key" :label="item.display_name"
+                               :value="item.key"
+                    />
+                  </el-select>
+                  <rrOperation/>
+                </div>
+                <crudOperation>
+                  <el-button
+                    slot="left"
+                    class="filter-item"
+                    type="danger"
+                    icon="el-icon-thumb"
+                    size="mini"
+                    :loading="crud.loading"
+                    :disabled="crud.selections.length === 0"
+                    @click="batchApprove(crud.selections)"
                   >
                     审批
                   </el-button>
@@ -349,17 +399,18 @@ import { getToken } from '@/utils/auth'
 import store from '@/store'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, crud } from '@crud/crud'
-import TaskSearch from './taskSearch'
 import crudOperation from '@crud/CRUD.operation'
 import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
 import { editUser } from '@/api/system/user'
 import Avatar from '@/assets/images/avatar.png'
 import crudTask, { submitTask, batchSubmitTask } from '@/api/system/toolsTask'
+import rrOperation from '@crud/RR.operation'
+import DateRangePicker from '@/components/DateRangePicker'
 
 export default {
   name: 'Center',
-  components: { updatePass, updateEmail, myUpload, TaskSearch, crudOperation, udApprove, pagination },
+  components: { updatePass, updateEmail, myUpload, rrOperation, DateRangePicker, crudOperation, udApprove, pagination },
   cruds() {
     return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask } })
   },
@@ -407,7 +458,19 @@ export default {
         { key: true, display_name: '同意' }
       ],
       oldResult: null,
-      isHavResult: false
+      isHavResult: false,
+      scopeTypeOptions: [
+        { key: false, display_name: '全部' },
+        { key: true, display_name: '本人' }
+      ],
+      enabledTypeOptions: [
+        { key: false, display_name: '待处理' },
+        { key: true, display_name: '已完成' }
+      ],
+      resultTypeOptions: [
+        { key: true, display_name: '同意' },
+        { key: false, display_name: '驳回' }
+      ]
     }
   },
   computed: {
@@ -438,25 +501,44 @@ export default {
     }
   },
   mounted() {
-    this.query.isDone = false
     if (this.$route.query.createTime !== undefined) {
       // alert(this.$route.query.createTime)
       const startTime = this.$route.query.createTime + ' 00:00:00'
       const endTime = this.$route.query.createTime + ' 23:59:59'
       this.query.createTime = [startTime, endTime]
+      console.log(this.query.createTime)
+      this.crud.toQuery()
     }
-    this.crud.toQuery()
   },
   methods: {
     // 获取子组件：udApprove传来的值
     getMsgFormSon(msg) {
-      // alert(JSON.stringify(msg.data.approveResult))
       this.dialogFormVisible = msg.show
       this.taskForm = msg.data
       this.oldResult = msg.data.approveResult
       this.isHavResult = !(this.oldResult === undefined ||
         this.oldResult === '' ||
         this.oldResult === null)
+    },
+    // 监控审批状态选择器输入变化，强制刷新
+    changeDate() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
+    // 监控审批状态选择器输入变化，强制刷新
+    changeScope() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
+    // 监控审批状态选择器输入变化，强制刷新
+    changeStatus() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
+    // 监控审批结论选择器输入变化，强制刷新
+    changeResult() {
+      this.$forceUpdate()
+      this.crud.toQuery()
     },
     // 取消审批
     cancelApprove() {

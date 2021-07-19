@@ -354,7 +354,7 @@
                         <div slot="content">you can choose the owner's approver for faster approval (<b
                           style="color: red"
                         >*</b>Superior has not approved only).<br>
-                          默认创建者的直接领导，<b style="color: red">直接领导尚未审批情况下</b>，允许切换临时审批者(仅限本部门内审批)以加快审批进度.</div>
+                          默认审批发起者【{{ currCreateName }}】的直接领导，<b style="color: red">直接领导尚未审批情况下</b>，允许切换临时审批者(仅限发起者部门成员)以加快审批进度.</div>
                         <i class="el-icon-question"/>
                       </el-tooltip>
                       <span>首批人</span>
@@ -405,6 +405,7 @@
             >
               <el-upload
                 ref="coverUpload"
+                drag
                 :limit="1"
                 :before-upload="beforeCover"
                 :auto-upload="false"
@@ -413,7 +414,9 @@
                 :on-error="handleError"
                 :action="fileCoverUploadApi + '?id=' + form.id+ '&approvalStatus=' + form.approvalStatus "
               >
-                <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                <!--                <div class="eladmin-upload"><i class="el-icon-upload"/> 添加文件</div>-->
                 <div slot="tip" class="el-upload__tip"><i style="color: #ff0000">*</i>文件覆盖操作完成审批后改版才能生效，请做好备份并确认新文件正确性
                 </div>
               </el-upload>
@@ -437,7 +440,9 @@
             <!--   上传文件   -->
             <el-form-item v-if="crud.status.add" label="上传" style="width:520px;">
               <el-upload
+                class="upload-demo"
                 ref="upload"
+                drag
                 :limit="1"
                 :before-upload="beforeUpload"
                 :auto-upload="false"
@@ -450,7 +455,8 @@
                   + '&deptId=' + form.fileDept.id+ '&fileStatus=' + 'draft' + '&fileType=' + form.fileType
                   + '&securityLevel=' + form.securityLevel + '&expirationTime=' + form.expirationTime + '&fileDesc=' + form.fileDesc"
               >
-                <div class="eladmin-upload"><i class="el-icon-upload"/> Add file 添加文件</div>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件，且不超过100M</div>
               </el-upload>
             </el-form-item>
@@ -686,6 +692,7 @@ import Date from '@/utils/datetime'
 import { send } from '@/api/tools/email'
 
 let bindingFiles = []
+let ids = []
 const defaultForm = {
   id: null,
   name: '',
@@ -811,8 +818,9 @@ export default {
       uploadCoverFile: '',
       comment: null,
       taskCount: 1,
-      currApprover: null,
-      currApproverName: null,
+      currApprover: null, // 当前审批人信息
+      currApproverName: null, //当前审批人姓名
+      currCreateName: null, //当前任务发起者
       params: {},
       approvalProcessList: [],
       waitingTime: '',
@@ -976,11 +984,6 @@ export default {
       }
 
       this.crud.submitCU()
-      // alert(JSON.stringify(this.preTrail))
-      /* if (this.$route.query.fileName !== undefined) {
-        this.query.blurry = ''
-        this.crud.toQuery()
-      } */
       // alert('原审批者：' + this.approveBy + '-------现审批者：' + this.form.superiorId)
       // 原审批者和现审批者不一致则需要更改成审批流程和任务信息
       // alert(JSON.stringify(this.form.superiorId))
@@ -993,6 +996,7 @@ export default {
         this.updateApprover(this.preTrail)
         // 更新审批进度信息
         const process = this.approvalProcessList[0]
+        process.approvedResult = null
         process.approvedBy = this.form.superiorId
         this.updateAppProcess(process)
       }
@@ -1159,7 +1163,6 @@ export default {
       }
       // && this.form.fileStatus === 'draft'
       // 获取审批领导
-      this.getSeniors(form.createBy)
       // 编辑前置空变更描述
       this.form.changeDesc = ''
       // 编辑前存储编辑前的可变的属性的数据信息
@@ -1356,6 +1359,8 @@ export default {
           this.form.changeDesc = '新文件替代原文件,文件升级版本，待审批'
         }
       }
+      // 标注变化
+      this.editFormChanged++
       this.form.approvalStatus = 'waitingfor'
       this.form.isRevision = 'false'
       this.preTrail = response[0]
@@ -1381,14 +1386,19 @@ export default {
     },
     // 获取文件待审批任务项
     getPreTrails(id) {
-      // 查询文件对应得审批任务
-      getPreTrailByFileId(id, false).then(res => {
+      // 获取最新的关联任务数据
+      getPreTrailByFileId(id, true).then(res => {
+        // 任务数目取判断进度条-判断条件：已审批/待审批/已废止
         // alert(JSON.stringify(res.currApprover))
-        this.preTrail = res.content[0]
         // 获取（第一个关联任务即直系领导任务）是否已审批，已审批不允许更改第一审批者
         this.isDone = res.content[0].isDone
+        this.currCreateName = res.content[0].createBy
+        this.preTrail = res.content[0]
+        this.getSeniors(res.content[0].createBy)
         // 获取上级领导标识
         this.form.superiorId = res.content[0].approvedBy
+        // todo 判断，如果上级不术语本部门，即this.form.superiorId不在this.superiors范围，则不显示
+
         this.oldSuperiorId = this.form.superiorId
         this.approveBy = this.form.superiorId
         this.currApprover = res.currApprover
@@ -1398,10 +1408,6 @@ export default {
         if (res.comment !== undefined) {
           this.comment = res.comment
         }
-      })
-      // 获取最新的关联任务数据
-      getPreTrailByFileId(id, true).then(res => {
-        // todo 任务数目取判断进度条-判断条件：已审批/待审批/已废止
         if (this.form.approvalStatus === 'waitingfor') {
           this.taskCount = (res.content.length - 1) < 0 ? 0 : res.content.length - 1
         } else if (this.form.approvalStatus === 'approved') {
@@ -1593,7 +1599,7 @@ export default {
     checkboxT(row, rowIndex) {
       // todo 当前的user(除管理员外)与文件创建部门（大含小）不符合，只能看不能修改
       // this.$store.getters.user.isAdmin
-      return row.fileLevel.id !== 16
+      return row.fileLevel.id !== 1
     },
     // 单击时候选中某列
     stepsListRowClick(row, index) {
