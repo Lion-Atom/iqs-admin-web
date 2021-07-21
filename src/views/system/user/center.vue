@@ -56,7 +56,7 @@
                 安全设置
                 <div class="user-right">
                   <a @click="$refs.pass.dialog = true">修改密码&nbsp;</a>
-                  <a @click="$refs.email.dialog = true">修改邮箱</a>
+<!--                  <a @click="$refs.email.dialog = true">修改邮箱</a>-->
                 </div>
               </li>
             </ul>
@@ -267,12 +267,17 @@
                           </el-select>
                         </el-form-item>
                       </el-col>
+                      <el-col :span="12">
+                        <el-form-item v-if="taskForm.isDone" label="完成时间">
+                          <el-input v-model="taskForm.updateTime" disabled/>
+                        </el-form-item>
+                      </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="24">
                         <el-form-item label="审批建议">
                           <el-input
-                            v-model="taskForm.comment"
+                            v-model="taskForm.comment === undefined ?'--无--':taskForm.comment"
                             placeholder="可填写驳回理由或者修改意见等"
                             :disabled="taskForm.isDone"
                           />

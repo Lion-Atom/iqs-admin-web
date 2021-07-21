@@ -36,7 +36,7 @@
           />
         </el-form-item>
         <el-form-item label="最高等级">
-          <el-radio-group v-model="form.isTop" style="width: 140px">
+          <el-radio-group :disabled="form.id === 1" v-model="form.isTop" style="width: 140px">
             <el-radio label="1">是</el-radio>
             <el-radio label="0">否</el-radio>
           </el-radio-group>

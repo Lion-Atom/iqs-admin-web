@@ -319,7 +319,7 @@
                         <div v-if="form.approvalStatus === 'waitingfor' ">
                           <b style="color: red">*已等待时长:</b>{{ waitingTime }}<br/>
                           <b style="color: red">
-                            <el-button @click="sendEmail"><i class="el-icon-message-solid"></i>发送邮件提醒{{
+                            <el-button :loading="sendLoading" @click="sendEmail"><i class="el-icon-message-solid"></i>发送邮件提醒{{
                                 currApproverName
                               }}
                             </el-button>
@@ -722,6 +722,7 @@ export default {
   dicts: ['file_status', 'approval_status', 'common_status', 'file_type', 'file_security'],
   data() {
     return {
+      sendLoading: false,
       editFormChanged: 0, // 是否修改标识
       preForm: this.form,
       centerDialogVisible: false,
@@ -768,7 +769,7 @@ export default {
           onClick(picker) {
             const date = new Date()
             date.setTime(date.getTime() + 3600 * 1000 * 24)
-            picker.$emit('pick', new Date())
+            picker.$emit('pick', date)
           }
         }, {
           text: '三天',
@@ -918,6 +919,7 @@ export default {
     },
     // 发起申请，投递邮件
     sendEmail() {
+      this.sendLoading = true
       this.emailForm.subject = '文件审批申请，望尽快处理'
       this.emailForm.content = '<p>任务主题：' + this.preTrail.changeDesc + '</p>' +
         '<p>任务发起人：' + this.preTrail.createBy + '</p>' +
@@ -929,10 +931,11 @@ export default {
         this.$notify({
           title: '提醒邮件已成功送达',
           type: 'success',
-          duration: 2500
+          duration: 1000
         })
-        this.loading = false
+        this.sendLoading = false
       }).catch(err => {
+        this.sendLoading = false
         console.log(err.response.data.message)
       })
     },
@@ -1389,7 +1392,6 @@ export default {
       // 获取最新的关联任务数据
       getPreTrailByFileId(id, true).then(res => {
         // 任务数目取判断进度条-判断条件：已审批/待审批/已废止
-        // alert(JSON.stringify(res.currApprover))
         // 获取（第一个关联任务即直系领导任务）是否已审批，已审批不允许更改第一审批者
         this.isDone = res.content[0].isDone
         this.currCreateName = res.content[0].createBy

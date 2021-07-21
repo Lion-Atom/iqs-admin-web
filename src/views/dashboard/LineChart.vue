@@ -35,6 +35,7 @@ export default {
   data() {
     return {
       chart: null,
+      titleName: null,
       lengendData: []
     }
   },
@@ -65,16 +66,22 @@ export default {
     },
     setOptions({ title, personalCount, count, xAxisData } = {}) {
       if (title.search('Tasks') !== -1) {
-        this.lengendData = ['Total Add', 'Personal Add']
+        this.lengendData = ['全局', '个人']
+        this.titleName = '每日任务增长趋势图'
       } else if (title.search('LocalStorages') !== -1) {
-        this.lengendData = ['Total Add', 'Depart Add']
-      } else {
-        this.lengendData = ['Total Add']
+        this.lengendData = ['全部', '部门']
+        this.titleName = '文件增长趋势图'
+      } else if (title.search('FileCategories') !== -1) {
+        this.lengendData = ['全局']
+        this.titleName = '文件分类增长趋势图'
+      } else if (title.search('Departments') !== -1) {
+        this.lengendData = ['全局']
+        this.titleName = '部门增长趋势图'
       }
       this.chart.setOption({
         title: {
-          text: title,
-          left: 'right'
+          text: this.titleName,
+          left: 'center'
         },
         xAxis: {
           data: xAxisData,
@@ -107,12 +114,14 @@ export default {
           }
         },
         legend: {
-          data: this.lengendData
+          data: this.lengendData,
+          left: 30
         },
         series: [{
           name: this.lengendData[0], itemStyle: {
             normal: {
               color: '#FF005A',
+              label: { show: true },
               lineStyle: {
                 color: '#FF005A',
                 width: 2
@@ -128,6 +137,7 @@ export default {
           name: this.lengendData[1], itemStyle: {
             normal: {
               color: '#3888fa',
+              label: { show: true },
               lineStyle: {
                 color: '#3888fa',
                 width: 2
@@ -183,12 +193,12 @@ export default {
           )
         } else if (title.search('FileCategories') !== -1) {
           this.$router.push(
-              {
-                path: '/fileManagement/filecategory',
-                query: {
-                  createTime: params.name
-                }
+            {
+              path: '/fileManagement/filecategory',
+              query: {
+                createTime: params.name
               }
+            }
           )
         }
       })

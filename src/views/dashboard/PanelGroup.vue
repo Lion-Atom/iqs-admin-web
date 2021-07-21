@@ -7,7 +7,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Departments
+            部门
           </div>
           <count-to :start-val="0" :end-val="departmentCount" :duration="3000" class="card-panel-num"/>
         </div>
@@ -20,7 +20,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Members
+            人员
           </div>
           <count-to :start-val="0" :end-val="memberCount" :duration="3000" class="card-panel-num"/>
         </div>
@@ -33,7 +33,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Tasks
+            待处理
           </div>
           <count-to :start-val="0" :end-val="taskCount" :duration="3000" class="card-panel-num"/>
         </div>
@@ -46,7 +46,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            FileCategories
+            文件分类
           </div>
           <count-to :start-val="0" :end-val="fileCategoryCount" :duration="3000" class="card-panel-num"/>
         </div>
@@ -59,7 +59,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Files
+            部门文件
           </div>
           <count-to :start-val="0" :end-val="fileCount" :duration="3600" class="card-panel-num"/>
         </div>

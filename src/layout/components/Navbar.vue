@@ -121,7 +121,8 @@ export default {
     },
     logout() {
       this.$store.dispatch('LogOut').then(() => {
-        location.reload()
+        // location.reload()
+        this.$router.push({ path: '/login' })
       })
     }
   }

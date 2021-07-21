@@ -130,7 +130,8 @@ export default {
         })
         // 标题：首字符大写后并拼接完成名称，此处如此处理是防抖动
         lineChartData.departments = {
-          title: name.charAt(0).toUpperCase() + name.slice(1) + ' Growth Trend Chart 增长趋势图',
+          // title: name.charAt(0).toUpperCase() + name.slice(1) + '增长趋势图',
+          title: name.charAt(0).toUpperCase() + name.slice(1),
           count: count,
           personalCount: personalCount,
           xAxisData: xAxisData

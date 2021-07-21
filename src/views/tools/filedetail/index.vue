@@ -106,7 +106,7 @@
           </el-form-item>
         </el-collapse-item>
         <!--关联文件-->
-        <el-collapse-item title="Reference 关联文件" name="3" class="collapse-item">
+        <el-collapse-item title="Reference 参考文献" name="3" class="collapse-item">
           <el-row>
             <el-col>
               <div v-if="bindFileItems.length>0">
