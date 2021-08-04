@@ -73,7 +73,7 @@ export default {
     }
   },
   mounted: function() {
-    alert(JSON.stringify(this.query))
+    // alert(JSON.stringify(this.query))
   },
   methods: {
     // 监控审批状态选择器输入变化，强制刷新

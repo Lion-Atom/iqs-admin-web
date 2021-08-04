@@ -5,7 +5,8 @@ import Layout from '../layout/index'
 Vue.use(Router)
 
 export const constantRouterMap = [
-  { path: '/login',
+  {
+    path: '/login',
     meta: { title: '登录', noCache: true },
     component: (resolve) => require(['@/views/login'], resolve),
     hidden: true
@@ -55,6 +56,26 @@ export const constantRouterMap = [
         component: (resolve) => require(['@/views/system/user/center'], resolve),
         name: '个人中心',
         meta: { title: '个人中心' }
+      }
+    ]
+  },
+  {
+    path: '/8D',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'detail',
+        component: (resolve) => require(['@/views/tools/8D/detail/index'], resolve),
+        name: '8D流程',
+        meta: { title: '8D流程' }
+      },
+      {
+        path: 'overview',
+        component: (resolve) => require(['@/views/tools/8D/overview/index'], resolve),
+        name: '8D预览',
+        meta: { title: '8D预览' }
       }
     ]
   }

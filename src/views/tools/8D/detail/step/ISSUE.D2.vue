@@ -1,0 +1,440 @@
+<template>
+  <div>
+    <!--问题基本信息-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">相关数据</span>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="toAddNum">增加新数据</el-button>
+      </div>
+      <div>
+        <!--新增/编辑数据弹窗-->
+        <el-dialog
+          :title="numOperationTitle"
+          :visible.sync="addNumVisible"
+          width="600px"
+          :before-close="handleClose"
+        >
+          <el-form
+            ref="form"
+            :model="issueNumForm"
+            :rules="numRules"
+            size="small"
+            label-width="120px"
+          >
+            <el-form-item
+              label="产品料号"
+              prop="caPartNum"
+            >
+              <el-input
+                v-model="issueNumForm.caPartNum"
+                style="width: 370px;"
+              />
+            </el-form-item>
+            <el-form-item
+              label="产品生产日期"
+              prop="componentDateCode"
+            >
+              <el-date-picker
+                v-model="issueNumForm.componentDateCode"
+                type="datetime"
+                style="width: 370px;"
+                placeholder="选择日期时间"
+                default-time="12:00:00"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item
+              label="产品批号"
+              prop="componentLotNum"
+            >
+              <el-input
+                v-model="issueNumForm.componentLotNum"
+                style="width: 370px;"
+              />
+            </el-form-item>
+            <el-form-item
+              label="不良数量"
+              prop="defectQuantity"
+            >
+              <el-input
+                v-model="issueNumForm.defectQuantity"
+                style="width: 370px;"
+              />
+            </el-form-item>
+            <el-form-item
+              label="客户影响"
+              prop="customerImpact"
+            >
+              <el-input
+                v-model="issueNumForm.customerImpact"
+                style="width: 370px;"
+              />
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+         <el-button @click="addNumVisible = false">取 消</el-button>
+         <el-button type="primary" @click="submitNum">确 定</el-button>
+      </span>
+        </el-dialog>
+        <!--数据列表-->
+        <el-table
+          ref="table"
+          v-loading="numLoading"
+          :data="issueNums"
+          style="width: 100%;"
+        >
+          <el-table-column prop="caPartNum" label="产品料号" width="150"/>
+          <el-table-column prop="componentDateCode" label="产品生产日期" width="180"/>
+          <el-table-column prop="componentLotNum" label="产品批号" width="180"/>
+          <el-table-column prop="defectQuantity" label="不良数量" width="120"/>
+          <el-table-column label="客户影响">
+            <template slot-scope="scope">
+              <el-popover
+                placement="top-start"
+                title="客户影响"
+                width="200"
+                trigger="hover"
+              >
+                <div>{{ scope.row.customerImpact }}</div>
+                <a
+                  slot="reference"
+                  style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;"
+                >
+                  {{ scope.row.customerImpact }}
+                </a>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <!--   编辑与删除   -->
+          <el-table-column
+            label="操作"
+            width="130px"
+            align="center"
+            fixed="right"
+          >
+            <template slot-scope="scope">
+              <div>
+                <!--编辑-->
+                <el-button slot="reference" v-permission="permission.edit" :disabled="scope.row.isLeader === true"
+                           size="mini"
+                           type="primary" icon="el-icon-edit" @click="editNum(scope.row)"
+                />
+                <!--删除-->
+                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
+                            width="180"
+                >
+                  <p>确定删除本条数据吗？</p>
+                  <div style="text-align: right; margin: 0">
+                    <el-button size="mini" type="text"
+                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    >取消
+                    </el-button>
+                    <el-button type="primary" size="mini"
+                               @click="deleteNum(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    >确定
+                    </el-button>
+                  </div>
+                  <el-button slot="reference" v-permission="permission.del" type="danger" icon="el-icon-delete"
+                             size="mini"
+                  />
+                </el-popover>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-card>
+    <!--详细描述-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">供应商详细问题描述</span>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="addSupDesc(form)">保存</el-button>
+      </div>
+      <div>
+        <el-form :inline="true" :model="form" class="demo-form-inline" label-width="120">
+          <el-form-item
+            prop="supplierDescription"
+          >
+            <el-input
+              type="textarea"
+              :rows="3"
+              v-model="form.supplierDescription"
+              style="min-width: 800px;"
+            />
+          </el-form-item>
+        </el-form>
+      </div>
+    </el-card>
+
+    <!--添加附件及其列表-->
+    <UploadFile :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep" @func="getMsgFormSon"/>
+
+    <!--确认完成-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">确认完成</span>
+      </div>
+      <div>
+        <el-row>
+          <el-col :span="6">
+            确认完成当前步骤：
+            <el-popover
+              placement="top"
+              width="300"
+              v-model="confirmVisible"
+            >
+              <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
+                <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
+              </div>
+              <el-button slot="reference" :loading="selfLoading" v-permission="permission.edit" type="success"
+                         :disabled="isFinished"
+                         icon="el-icon-check"
+              >确认完成
+              </el-button>
+            </el-popover>
+          </el-col>
+        </el-row>
+      </div>
+    </el-card>
+
+  </div>
+</template>
+
+<script>
+
+import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
+import { getIssueById, edit } from '@/api/tools/issue'
+import { addIssueNum, editIssueNum, delIssueNum, getIssueNumByIssueId } from '@/api/tools/issueNum'
+import { mapGetters } from 'vuex'
+import { getToken } from '@/utils/auth'
+// import { getIssueFileByExample, delIssueFile } from '@/api/tools/issueFile'
+import UploadFile from '../../module/uploadFile.vue'
+
+export default {
+  name: 'SecondForm',
+  props: ['issueId'],
+  components: { UploadFile },
+  data() {
+    return {
+      permission: {
+        add: ['admin', 'd:add'],
+        edit: ['admin', 'd:edit'],
+        del: ['admin', 'd:del']
+      },
+      loading: false,
+      headers: {
+        'Authorization': getToken()
+      },
+      selfLoading: false,
+      numLoading: false,
+      issueNums: [],
+      addNumVisible: false,
+      numOperationTitle: '',
+      issueNumForm: {
+        caPartNum: null,
+        componentDateCode: null,
+        componentLotNum: null,
+        defectQuantity: null,
+        customerImpact: null
+      },
+      numRules: {
+        caPartNum: [
+          { required: true, message: '请输入产品料号', trigger: 'blur' }
+        ],
+        componentDateCode: [
+          { required: true, message: '请输入产品生产日期', trigger: 'blur' }
+        ],
+        componentLotNum: [
+          { required: true, message: '请输入产品批号', trigger: 'blur' }
+        ],
+        defectQuantity: [
+          { required: true, message: '请输入产品不良数量', trigger: 'blur' }
+        ],
+        customerImpact: [
+          { required: true, message: '请描述对客户造成的影响', trigger: 'blur' }
+        ]
+      },
+      confirmVisible: false,
+      timeManagement: {},
+      curStep: 'D2',
+      curTime: 'd2Time',
+      form: {},
+      isFinished: false
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'baseApi',
+      'appendixUploadApi'
+    ])
+  },
+  created() {
+    this.getTimeManagementByIssueId(this.$props.issueId)
+  },
+  mounted: function() {
+    this.getIssueInfoById(this.$props.issueId)
+    this.getNumByIssueId(this.$props.issueId)
+  },
+  methods: {
+    // 监控附件组件相关改动
+    getMsgFormSon(msg) {
+      this.isFinished = msg
+      this.$emit('func', this.isFinished)
+    },
+    // 获取问题信息
+    getIssueInfoById(id) {
+      getIssueById(id).then(res => {
+        this.form = res
+      })
+    },
+    // 获取问题关联记录信息
+    getNumByIssueId(id) {
+      this.numLoading = true
+      getIssueNumByIssueId(id).then(res => {
+        this.numLoading = false
+        this.issueNums = res.content
+      })
+    },
+    // 获取时间进程
+    getTimeManagementByIssueId(id) {
+      this.selfLoading = true
+      getByIssueId(id).then(res => {
+        this.timeManagement = res
+        if (res.d2Status) {
+          this.isFinished = true
+        }
+        this.selfLoading = false
+      })
+    },
+    // 编辑记录
+    editNum(row) {
+      this.issueNumForm = row
+      this.numOperationTitle = '编辑数据'
+      this.addNumVisible = true
+    },
+    toAddNum() {
+      this.issueNumForm = {}
+      this.numOperationTitle = '新增数据'
+      this.addNumVisible = true
+    },
+    submitNum() {
+      this.$refs.form.validate().then((valid) => {
+        if (!valid) {
+          return false
+        } else {
+          this.issueNumForm.issueId = this.$props.issueId
+          if (this.issueNumForm.id === undefined) {
+            addIssueNum(this.issueNumForm).then(res => {
+              this.$message({
+                message: 'Add Record Success! 新增记录成功!',
+                type: 'success'
+              })
+              this.addNumVisible = false
+              this.isFinished = false
+              this.$emit('func', this.isFinished)
+              this.getNumByIssueId(this.$props.issueId)
+            })
+          } else {
+            editIssueNum(this.issueNumForm).then(res => {
+              this.$message({
+                message: 'Edit Record Success! 变更记录成功!',
+                type: 'success'
+              })
+              this.addNumVisible = false
+              this.isFinished = false
+              this.$emit('func', this.isFinished)
+              this.getNumByIssueId(this.$props.issueId)
+            })
+          }
+        }
+      })
+    },
+    // 删除记录
+    deleteNum(id) {
+      // alert(JSON.stringify(id))
+      const data = []
+      data.push(id)
+      delIssueNum(data).then(res => {
+        this.$message({
+          message: 'Del Record Success! 删除记录成功!',
+          type: 'success'
+        })
+        this.isFinished = false
+        this.$emit('func', this.isFinished)
+        this.getNumByIssueId(this.$props.issueId)
+      }).catch(() => {
+        this.$message({
+          message: 'Del Failed! 删除记录失败!',
+          type: 'error'
+        })
+      })
+    },
+    addSupDesc(form) {
+      edit(form).then(res => {
+        //编辑问题，添加供应商详细描述
+        this.$message({
+          message: 'Submit Success! 添加描述完成!',
+          type: 'success'
+        })
+        this.isFinished = false
+        this.$emit('func', this.isFinished)
+      })
+    },
+    // 关闭弹窗前操作
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {
+        })
+    },
+    // 确认完成
+    confirmFinished() {
+      // 确认D2完成
+      this.timeManagement.curStep = 'D2'
+      this.timeManagement.d2Status = true
+      this.timeManagement.d2Time = new Date()
+      if (!this.timeManagement.d1Status) {
+        this.$message({
+          message: 'Cannot submit! 上一步尚未完成，无法执行此操作!',
+          type: 'warning'
+        })
+      } else {
+        // 上一步已完成方可执行
+        editTimeManage(this.timeManagement).then(res => {
+          this.confirmVisible = false
+          this.isFinished = true
+          this.$emit('func', this.isFinished)
+          this.$message({
+            message: 'Submit Success! D2提交完成!',
+            type: 'success'
+          })
+        })
+      }
+    }
+  }
+}
+</script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+::v-deep .box-card {
+  margin-bottom: 5px;
+}
+
+.elRow {
+  border-bottom: 1px solid #808080;
+}
+
+.el-form-item--small.el-form-item {
+  margin-bottom: 15px;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+</style>

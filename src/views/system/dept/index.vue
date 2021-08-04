@@ -28,7 +28,7 @@
             style="width: 370px;"
           />
         </el-form-item>
-        <el-form-item label="顶级部门">
+        <el-form-item label="公司级别">
           <el-radio-group v-model="form.isTop" style="width: 140px">
             <el-radio label="1">是</el-radio>
             <el-radio label="0">否</el-radio>
@@ -70,8 +70,9 @@
       <!--      <el-table-column label="排序" prop="deptSort" />-->
       <el-table-column label="文件数目">
         <template slot-scope="scope">
-          <div class="name-wrapper"
-               v-if="(!isAdmin && scope.row.id === belongDeptId) || (isAdmin && scope.row.pid===undefined) "
+          <div
+            class="name-wrapper"
+            v-if="(!isAdmin && scope.row.id === belongDeptId) || (isAdmin && scope.row.pid===undefined) "
           >
             <el-button type="text" @click="routeToFile(scope.row)">{{ scope.row.fileCount }}</el-button>
           </div>
