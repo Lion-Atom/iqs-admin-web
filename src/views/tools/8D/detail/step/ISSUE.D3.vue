@@ -367,10 +367,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep" @func="getMsgFormSon"/>
+    <UploadFile :issue-id="this.$props.issueId" :is-need="isNeed" :permission="permission" :step-name="curStep"
+                @func="getMsgFormSon"
+    />
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -423,7 +425,7 @@ import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExampl
 
 export default {
   name: 'ThirdForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
   components: { UploadFile },
   data() {
@@ -530,6 +532,7 @@ export default {
         isCon: false,
         type: 'D3'
       },
+      isNeed: true,
       submitLoading: false
     }
   },
@@ -537,6 +540,7 @@ export default {
 
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
     this.getIssueConActionByIssueId(this.$props.issueId)

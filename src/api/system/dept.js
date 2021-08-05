@@ -16,6 +16,15 @@ export function getDeptByUserId(params) {
   })
 }
 
+export function getDeptTree() {
+  const params = {}
+  return request({
+    url: 'api/dept/topDept',
+    method: 'get',
+    params
+  })
+}
+
 export function getDeptSuperior(ids) {
   const data = ids.length || ids.length === 0 ? ids : Array.of(ids)
   return request({
@@ -49,4 +58,4 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del, getDepts, getDeptByUserId, getDeptSuperior }
+export default { add, edit, del, getDepts, getDeptByUserId, getDeptTree, getDeptSuperior }

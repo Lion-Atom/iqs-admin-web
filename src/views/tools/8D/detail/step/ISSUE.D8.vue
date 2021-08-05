@@ -8,7 +8,14 @@
         <el-button style="float: right; padding: 3px 0" type="text" @click="saveConclusion(conclusion)">保存</el-button>
       </div>
       <div>
-        <el-form :inline="true" :model="conclusion" class="demo-form-inline" label-width="120px">
+        <el-form
+          ref="conclusionForm"
+          :rules="conclusionRules"
+          :inline="true"
+          :model="conclusion"
+          class="demo-form-inline"
+          label-width="120px"
+        >
           <el-form-item
             prop="leaderConclusion"
             label="组长意见"
@@ -62,7 +69,7 @@
     </el-card>
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -102,10 +109,11 @@
 import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
 import { getIssueById, edit } from '@/api/tools/issue'
 import { editConclusion, getConclusionByIssueId } from '@/api/tools/issueConclusion'
+import { validIsNull } from '@/utils/validationUtil'
 
 export default {
   name: 'SeventhForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
   data() {
     return {
@@ -115,7 +123,20 @@ export default {
         del: ['admin', 'd:del']
       },
       form: {},
-      conclusion: {},
+      conclusion: {
+        leaderConclusion: null,
+        managerConclusion: null,
+        otherConclusion: null
+      },
+      conclusionRules: {
+        leaderConclusion: [
+          { required: true, message: '组件意见不可为空', trigger: 'blur' }
+        ],
+        managerConclusion: [
+          { required: true, message: '管理层意见不可为空', trigger: 'blur' }
+        ]
+      },
+      isNeed: true,
       confirmVisible: false,
       curStep: 'd8Status',
       curTime: 'd8Time',
@@ -125,11 +146,13 @@ export default {
     }
   },
   created() {
-    this.getTimeManagementByIssueId(this.$props.issueId)
+
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getIssueConclusionByIssueId(this.$props.issueId)
+    this.getTimeManagementByIssueId(this.$props.issueId)
   },
   methods: {
     // 获取问题信息
@@ -156,14 +179,22 @@ export default {
       })
     },
     saveConclusion(data) {
-      editConclusion(data).then(res => {
-        //编辑问题，添加供应商详细描述
-        this.$message({
-          message: 'Submit Conclusion Success! 添加各项意见完成!',
-          type: 'success'
-        })
-        this.isFinished = false
-        this.$emit('func', this.isFinished)
+      this.$refs.conclusionForm.validate().then((valid) => {
+        if (!valid) {
+          return false
+        } else {
+          editConclusion(data).then(res => {
+            //编辑问题，添加供应商详细描述
+            this.$message({
+              message: 'Submit Conclusion Success! 添加各项意见完成!',
+              type: 'success'
+            })
+            this.isFinished = false
+            this.$emit('func', this.isFinished)
+          }).catch(() => {
+            this.getIssueConclusionByIssueId(this.$props.issueId)
+          })
+        }
       })
     },
     saveScore(form) {
@@ -189,15 +220,33 @@ export default {
         })
       } else {
         // 上一步已完成方可执行
-        editTimeManage(this.timeManagement).then(res => {
-          this.confirmVisible = false
-          this.isFinished = true
-          this.$emit('func', this.isFinished)
+        // 验证各方是否完成结论填写
+        let val = true
+        if (!validIsNull(this.conclusion.leaderConclusion)) {
           this.$message({
-            message: 'Submit Success! D8提交完成!',
-            type: 'success'
+            message: 'Cannot submit! 组长意见为空，不可提交8D!',
+            type: 'warning'
           })
-        })
+          val = false
+        }
+        if (!validIsNull(this.conclusion.managerConclusion)) {
+          this.$message({
+            message: 'Cannot submit! 管理层意见为空，不可提交8D!',
+            type: 'warning'
+          })
+          val = false
+        }
+        if (val) {
+          editTimeManage(this.timeManagement).then(res => {
+            this.confirmVisible = false
+            this.isFinished = true
+            this.$emit('func', this.isFinished)
+            this.$message({
+              message: 'Submit Success! D8提交完成!',
+              type: 'success'
+            })
+          })
+        }
         this.getIssueInfoById(this.$props.issueId)
       }
     }
@@ -215,7 +264,7 @@ export default {
 }
 
 .el-form-item--small.el-form-item {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .header-title {

@@ -11,6 +11,17 @@ export function getWhysByCauseId(id) {
   })
 }
 
+export function getWhysByIssueId(id) {
+  const params = {
+    issueId: id
+  }
+  return request({
+    url: 'api/why/byIssueId',
+    method: 'get',
+    params
+  })
+}
+
 export function addWhys(data) {
   return request({
     url: 'api/why',
@@ -27,4 +38,4 @@ export function editWhys(data) {
   })
 }
 
-export default { getWhysByCauseId, addWhys, editWhys }
+export default { getWhysByCauseId, getWhysByIssueId, addWhys, editWhys }

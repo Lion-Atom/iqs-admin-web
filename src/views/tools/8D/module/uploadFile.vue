@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card class="box-card">
+    <el-card v-if="this.$props.isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">添加附件</span>
       </div>
@@ -118,7 +118,7 @@ import { getToken } from '@/utils/auth'
 
 export default {
   name: 'uploadFile',
-  props: ['issueId', 'stepName', 'permission'],
+  props: ['issueId', 'stepName', 'permission', 'isNeed'],
   data() {
     return {
       headers: {

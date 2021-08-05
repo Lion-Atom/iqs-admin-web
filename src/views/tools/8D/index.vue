@@ -20,22 +20,17 @@
       <el-table-column prop="partNum" label="物料编码" width="150"/>
       <el-table-column prop="customerName" label="客户名称" width="120"/>
       <el-table-column prop="status" label="状态"/>
-      <!--      <el-table-column prop="process" label="8D进程" width="200" :formatter="timeManageFormat"/>-->
-      <el-table-column prop="process" label="8D进程" width="200">
+      <el-table-column prop="process" label="8D进程" min-width="350">
         <template slot-scope="scope">
-          <!--          <div class="tag-group">
-                      <el-tag
-                        v-for="item in scope.row.steps"
-                        :key="item.id"
-                        :type="item"
-                        size="small"
-                        style="margin-right: 1px;"
-                        effect="plain"
-                      >
-                        {{ item}}
-                      </el-tag>
-                    </div>-->
-          todo-待格式化处理
+          <!--格式化8D进程-->
+          <el-steps style="margin-bottom:5px;" class="steps">
+            <el-step
+              v-for="item in scope.row.commonDTOList"
+              :key="item.name"
+              :status="item.value"
+            >
+            </el-step>
+          </el-steps>
         </template>
       </el-table-column>
       <el-table-column prop="createBy" label="创建者"/>
@@ -97,6 +92,20 @@ export default {
         edit: ['admin', 'd:edit'],
         del: ['admin', 'd:del']
       },
+      steps: [
+        {
+          name: 'D1',
+          value: 'success'
+        },
+        {
+          name: 'D2',
+          value: 'process'
+        },
+        {
+          name: 'D3',
+          value: 'wait'
+        }
+      ],
       activeNames: '1'
     }
   },
@@ -114,10 +123,6 @@ export default {
       form.hasSimilar = form.hasSimilar.toString()
       form.hasReport = form.hasReport.toString()
       form.hasScore = form.hasScore.toString()
-    },
-    // 时间进程格式化
-    timeManageFormat(row, col) {
-      alert(JSON.stringify(row.timeManagement))
     },
     // 双击选中的行列
     dbSelected(row) {
@@ -148,6 +153,12 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+.steps > > .el-step__icon {
+  height: 16px;
+  width: 16px;
+  font-size: 12px !important;
+}
+
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }

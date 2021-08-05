@@ -170,7 +170,7 @@
     <UploadFile :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep" @func="getMsgFormSon"/>
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -188,9 +188,13 @@
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button slot="reference" :loading="selfLoading" v-permission="permission.edit" type="success"
-                         :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                :loading="selfLoading"
+                v-permission="permission.edit"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -214,7 +218,7 @@ import UploadFile from '../../module/uploadFile.vue'
 
 export default {
   name: 'SecondForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   components: { UploadFile },
   data() {
     return {
@@ -256,6 +260,7 @@ export default {
           { required: true, message: '请描述对客户造成的影响', trigger: 'blur' }
         ]
       },
+      isNeed: true,
       confirmVisible: false,
       timeManagement: {},
       curStep: 'D2',
@@ -271,11 +276,13 @@ export default {
     ])
   },
   created() {
-    this.getTimeManagementByIssueId(this.$props.issueId)
+
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getNumByIssueId(this.$props.issueId)
+    this.getTimeManagementByIssueId(this.$props.issueId)
   },
   methods: {
     // 监控附件组件相关改动
@@ -373,7 +380,7 @@ export default {
     },
     addSupDesc(form) {
       edit(form).then(res => {
-        //编辑问题，添加供应商详细描述
+        // 编辑问题，添加供应商详细描述
         this.$message({
           message: 'Submit Success! 添加描述完成!',
           type: 'success'

@@ -60,6 +60,17 @@ export function getIssueCauseByExample(data) {
   })
 }
 
+export function getCauseTreeByIssueId(id) {
+  const params = {
+    issueId: id
+  }
+  return request({
+    url: 'api/issueCause/createTree/byIssueId',
+    method: 'get',
+    params
+  })
+}
+
 export default {
   addCause,
   editCause,
@@ -67,5 +78,6 @@ export default {
   getCauseByIssueId,
   getIssueCause,
   getIssueCauseSuperior,
-  getIssueCauseByExample
+  getIssueCauseByExample,
+  getCauseTreeByIssueId
 }

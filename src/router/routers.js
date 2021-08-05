@@ -78,6 +78,20 @@ export const constantRouterMap = [
         meta: { title: '8D预览' }
       }
     ]
+  },
+  {
+    path: '/8D',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'fishBone',
+        component: (resolve) => require(['@/views/tools/8D/detail/fishbone/index'], resolve),
+        name: '鱼骨图',
+        meta: { title: '鱼骨图' }
+      }
+    ]
   }
 ]
 

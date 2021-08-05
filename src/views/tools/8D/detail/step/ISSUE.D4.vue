@@ -33,11 +33,11 @@
       </div>
     </el-card>
 
-    <!--todo 添加根本原因-->
+    <!--添加根本原因-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">根本原因分析</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="checkFishBone(causeData)">查看鱼骨图</el-button>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="checkFishBone">查看鱼骨图</el-button>
       </div>
       <div>
         <!--新增/编辑5Hys数据弹窗-->
@@ -106,10 +106,10 @@
                 ></el-table-column>
                 <el-table-column label="内容" align="center">
                   <template slot-scope="scope">
-                    <el-input type="textarea" autosize v-model="scope.row.content" style="width: 90%;"/>
+                    <el-input type="textarea" autosize v-model="scope.row.content" style="width: 93%;"/>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" align="center" width="80">
+                <el-table-column label="操作" align="center" width="70">
                   <template slot-scope="scope">
                     <el-button size="mini" type="danger" icon="el-icon-delete"
                                @click="handleDelete(scope.$index, scope.row)"
@@ -150,12 +150,18 @@
               <el-input v-model="form.name" style="width: 370px;"/>
             </el-form-item>
             <el-form-item label="发生/检测" prop="judgeResult" required>
-              <el-select v-model="form.judgeResult" size="small" placeholder="发生/检测"
-                         class="filter-item"
-                         style="width: 370px;"
+              <el-select
+                v-model="form.judgeResult"
+                size="small"
+                placeholder="发生/检测"
+                class="filter-item"
+                style="width: 370px;"
               >
-                <el-option v-for="item in judgeTypeOptions" :key="item.key" :label="item.display_name"
-                           :value="item.key"
+                <el-option
+                  v-for="item in judgeTypeOptions"
+                  :key="item.key"
+                  :label="item.display_name"
+                  :value="item.key"
                 />
               </el-select>
             </el-form-item>
@@ -166,8 +172,13 @@
               <el-input v-model="form.result" style="width: 370px;"/>
             </el-form-item>
             <el-form-item label="原因占比" prop="contribution" required>
-              <el-input-number v-model="form.contribution" style="width: 370px;" :precision="2" :step="0.1" :min="0"
-                               :max="100"
+              <el-input-number
+                v-model="form.contribution"
+                style="width: 370px;"
+                :precision="2"
+                :step="0.1"
+                :min="0"
+                :max="100"
               ></el-input-number>
             </el-form-item>
             <el-form-item label="是否是根本原因" prop="isExact" required>
@@ -218,8 +229,13 @@
           >
             <template slot-scope="scope">
               <div>
-                <el-button v-permission="permission.edit" size="mini" type="primary" icon="el-icon-plus"
-                           @click="toAddCause(scope.row)" class="btn"
+                <el-button
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-plus"
+                  @click="toAddCause(scope.row)"
+                  class="btn"
                 ></el-button>
                 <el-button style="margin-left: 0;" v-permission="permission.edit" class="btn"
                            v-if="scope.row.pid > 0 " size="mini" type="primary" icon="el-icon-edit"
@@ -256,9 +272,43 @@
       </div>
     </el-card>
 
+    <!--todo 显示鱼骨图-->
+    <el-card v-if="!isNeed" class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">原因分析-鱼骨图</span>
+      </div>
+      <div>
+        --鱼骨图进行中--
+      </div>
+    </el-card>
+    <!--显示5WHYS-->
+    <el-card v-if="!isNeed" class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">原因分析-5Whys</span>
+      </div>
+      <div>
+        <div v-for="(item,index) in causeWhys" :key="item.id" class="text item">
+          <div class="cause-container">
+            <el-col :span="12">
+              <el-row>
+              <span style="text-decoration: underline;">根本原因{{ index + 1 }}：<b>{{ item.name }}</b>&nbsp;&nbsp;
+              原因分析-5Whys:</span>
+              </el-row>
+              <el-row>
+                <div v-for="(item,index) in item.whyList" :key="item.id" class="why-content">
+                <span :class="'label-margin-p' + item.orderSort"> {{ item.orderSort }}
+                  <span class="li-div">{{ item.content }}</span>
+                </span>
+                </div>
+              </el-row>
+            </el-col>
+          </div>
+        </div>
+      </div>
+    </el-card>
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -294,18 +344,23 @@
 
 import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
 import { getStepDefectByIssueId, editStepDefect } from '@/api/tools/stepDefect'
-import { getCauseByIssueId, getIssueCause, addCause, editCause, delCause } from '@/api/tools/issueCause'
-import { editWhys, getWhysByCauseId } from '@/api/tools/causeWhy'
+import {
+  getCauseByIssueId,
+  getIssueCause,
+  addCause,
+  editCause,
+  delCause
+} from '@/api/tools/issueCause'
+import { editWhys, getWhysByCauseId, getWhysByIssueId } from '@/api/tools/causeWhy'
 import { validIsNull } from '@/utils/validationUtil'
 
 export default {
   name: 'ForthForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
 
   data() {
     return {
-      issueId: this.$props.issueId,
       permission: {
         add: ['admin', 'd:add'],
         edit: ['admin', 'd:edit'],
@@ -378,7 +433,10 @@ export default {
           content: '表头自定义了一个“添加”按钮，点击+动态添加一行。'
         }
       ],
+      causeWhysLoading: false,
+      causeWhys: [],
       timeManagement: {},
+      isNeed: true,
       innerVisible: false
     }
   },
@@ -386,9 +444,11 @@ export default {
 
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getStepDefectByIssueId(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
     this.getIssueCauseByIssueId(this.$props.issueId)
+    this.getIssueCauseWhysByIssueId(this.$props.issueId)
   },
   methods: {
     // 保存缺陷定位信息
@@ -417,6 +477,15 @@ export default {
       getCauseByIssueId(id).then(res => {
         this.causeData = res
         this.causeLoading = false
+      })
+    },
+    // 获取原因-5Whys信息
+    getIssueCauseWhysByIssueId(id) {
+      this.causeWhysLoading = true
+      getWhysByIssueId(id).then(res => {
+        console.log(res)
+        this.causeWhys = res
+        this.causeWhysLoading = false
       })
     },
     // 批量保存缺陷定位数据
@@ -540,16 +609,19 @@ export default {
     },
     // 新增5Whys
     updateWhys(whys) {
+      let val = true
       whys.forEach((why, index) => {
         if (!validIsNull(why.content)) {
           this.$message({
             message: 'Content of Why should not be null! Why内容均不可为空，请填写有效内容后提交!',
             type: 'warning'
           })
-        } else {
-          this.innerVisible = true
+          val = false
         }
       })
+      if (val) {
+        this.innerVisible = true
+      }
     },
     // 提交5Whys更新
     updateSubmit(whys) {
@@ -589,6 +661,14 @@ export default {
     },
     checkFishBone(data) {
       // todo 查看鱼骨图
+      // 跳转到8D明细中
+      this.$router.push(
+        {
+          path: '/8D/fishbone',
+          query: {
+            issueId: this.$props.issueId
+          }
+        })
     },
     // 确认完成
     confirmFinished() {
@@ -621,6 +701,67 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .box-card {
   margin-bottom: 5px;
+}
+
+.cause-container {
+  padding: 10px 20px 5px 20px;
+}
+
+.why-content {
+  padding: 10px 0 10px 0;
+}
+
+.li-div {
+  width: 100%;
+  padding: 5px;
+  height: 30px;
+  border: 1px solid #1d9cd6;
+  position: relative;
+  border-radius: 4px;
+}
+
+.label-margin-p0 {
+  margin: 10px 0 5px 0 !important;
+}
+
+.label-margin-p1 {
+  margin: 10px 0 5px 20px !important;
+}
+
+.label-margin-p2 {
+  margin: 10px 0 5px 40px !important;
+}
+
+.label-margin-p3 {
+  margin: 10px 0 5px 60px !important;
+}
+
+.label-margin-p4 {
+  margin: 10px 0 5px 80px !important;
+}
+
+.label-margin-p5 {
+  margin: 10px 0 5px 100px !important;
+}
+
+.label-margin-p6 {
+  margin: 10px 0 5px 120px !important;
+}
+
+.label-margin-p7 {
+  margin: 10px 0 5px 140px !important;
+}
+
+.label-margin-p8 {
+  margin: 10px 0 5px 160px !important;
+}
+
+.label-margin-p9 {
+  margin: 10px 0 5px 180px !important;
+}
+
+.label-margin-p10 {
+  margin: 10px 0 5px 200px !important;
 }
 
 .btn {

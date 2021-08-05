@@ -180,9 +180,12 @@
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit" v-if="scope.row.id !==undefined"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editCorrectAction(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  v-if="scope.row.id !==undefined"
+                  size="mini"
+                  type="primary" icon="el-icon-edit" @click="editCorrectAction(scope.row)"
                 >纠正措施
                 </el-button>
               </div>
@@ -272,8 +275,8 @@
               <el-input
                 placeholder="请填写移除备注"
                 type="textarea"
-                :rows="3"
                 v-model="removeActionForm.comment"
+                :rows="3"
                 style="width: 370px;"
               />
             </el-form-item>
@@ -303,9 +306,14 @@
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit" v-if="scope.row.id !==undefined"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editRemoveAction(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  v-if="scope.row.id !==undefined"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editRemoveAction(scope.row)"
                 />
               </div>
             </template>
@@ -337,10 +345,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep" @func="getMsgFormSon"/>
+    <UploadFile :is-need="isNeed" :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep"
+                @func="getMsgFormSon"
+    />
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -358,9 +368,13 @@
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button slot="reference" :loading="selfLoading" v-permission="permission.edit" type="success"
-                         :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                :loading="selfLoading"
+                v-permission="permission.edit"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -368,7 +382,6 @@
         </el-row>
       </div>
     </el-card>
-
   </div>
 </template>
 
@@ -379,7 +392,6 @@ import { getIssueById, edit } from '@/api/tools/issue'
 
 import UploadFile from '../../module/uploadFile.vue'
 import {
-  addIssueAction,
   editIssueAction,
   getIssueActionByExample,
   getIssueActionById,
@@ -389,7 +401,7 @@ import { getMembersByIssueId } from '@/api/tools/teamMember'
 
 export default {
   name: 'SixthForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
   components: { UploadFile },
   data() {
@@ -499,13 +511,15 @@ export default {
         comment: null
       },
       removeActionRules: {},
-      canBeRemoveActions: []
+      canBeRemoveActions: [],
+      isNeed: false
     }
   },
   created() {
 
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
     this.getCorrectActionByExample(this.$props.issueId)
@@ -664,11 +678,10 @@ export default {
         this.getCorrectActionByExample(this.$props.issueId)
         this.getRemoveActionByExample(this.$props.issueId)
       })
-
     },
     addSixthDesc(form) {
       edit(form).then(res => {
-        //编辑问题，添加供应商详细描述
+        // 编辑问题，添加供应商详细描述
         this.$message({
           message: 'Submit D6-Desc Success! 添加D6详细描述完成!',
           type: 'success'

@@ -375,10 +375,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep" @func="getMsgFormSon"/>
+    <UploadFile :is-need="isNeed" :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep"
+                @func="getMsgFormSon"
+    />
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -439,7 +441,7 @@ import UploadFile from '@/views/tools/8D/module/uploadFile'
 
 export default {
   name: 'SeventhForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
   components: { UploadFile },
   data() {
@@ -450,6 +452,7 @@ export default {
         del: ['admin', 'd:del']
       },
       changeDescs: [],
+      isNeed: false,
       confirmVisible: false,
       curStep: 'D7',
       form: {},
@@ -534,6 +537,7 @@ export default {
 
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getChangeDescByIssueId(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)

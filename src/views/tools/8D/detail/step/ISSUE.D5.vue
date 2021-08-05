@@ -191,10 +191,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep" @func="getMsgFormSon"/>
+    <UploadFile :is-need="isNeed" :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep"
+                @func="getMsgFormSon"
+    />
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -238,7 +240,7 @@ import UploadFile from '../../module/uploadFile.vue'
 
 export default {
   name: 'FifthForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
   components: { UploadFile },
   data() {
@@ -299,6 +301,7 @@ export default {
         issueId: null,
         isExact: true
       },
+      isNeed: false,
       submitLoading: false,
       correctActLoading: false,
       correctActions: []
@@ -308,6 +311,7 @@ export default {
 
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
     this.getTeamMembersByIssueId(this.$props.issueId)

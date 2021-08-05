@@ -55,6 +55,18 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <el-row v-if="!isNeed" class="elRow">
+            <el-col :span="12">
+              <el-form-item label="关闭时间 :">
+                <span>{{ form.closeTime }}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="结案时长 :">
+                <span>{{ form.duration }}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
       </div>
     </el-card>
@@ -157,6 +169,14 @@
         size="small"
         label-width="160px"
       >
+        <el-form-item label="第0步：选择部门" prop="deptName">
+          <treeselect
+            v-model="member.deptId"
+            :options="options"
+            style="width: 190px"
+            placeholder="选择人员所属部门"
+          />
+        </el-form-item>
         <el-form-item label="第一步：选择部门" prop="deptName">
           <treeselect
             v-model="member.deptId"
@@ -214,12 +234,12 @@
           :data="members"
           style="width: 100%;"
         >
-          <el-table-column prop="companyName" label="公司名称" width="150"/>
-          <el-table-column prop="deptName" label="部门名称" width="120"/>
-          <el-table-column prop="userName" label="组员" width="160"/>
-          <el-table-column prop="phone" label="联系电话" width="160"/>
-          <el-table-column prop="email" label="电子邮箱" width="180"/>
-          <el-table-column prop="teamRole" label="成员角色" width="80"/>
+          <!--          <el-table-column prop="companyName" label="公司名称" width="150"/>-->
+          <el-table-column prop="deptName" label="部门名称"/>
+          <el-table-column prop="userName" label="组员"/>
+          <el-table-column prop="phone" label="联系电话"/>
+          <el-table-column prop="email" label="电子邮箱"/>
+          <el-table-column prop="teamRole" label="成员角色"/>
           <!--   编辑与删除   -->
           <el-table-column
             label="操作"
@@ -296,7 +316,7 @@
     </el-card>
 
     <!--确认完成-->
-    <el-card class="box-card">
+    <el-card v-if="isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">确认完成</span>
       </div>
@@ -336,7 +356,7 @@ import { getIssueById } from '@/api/tools/issue'
 import { getUserByDeptId } from '@/api/system/user'
 import { getMembersByIssueId, addMember, delMember, editMember } from '@/api/tools/teamMember'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
-import { getDepts } from '@/api/system/dept'
+import { getDepts, getDeptTree } from '@/api/system/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { validTwo } from '@/utils/validationUtil'
@@ -344,7 +364,7 @@ import { validTwo } from '@/utils/validationUtil'
 
 export default {
   name: 'FirstForm',
-  props: ['issueId'],
+  props: ['issueId', 'needConfirm'],
   components: { Treeselect },
   data() {
     return {
@@ -353,6 +373,7 @@ export default {
         edit: ['admin', 'd:edit'],
         del: ['admin', 'd:del']
       },
+      isNeed: true,
       confirmVisible: false,
       curStep: 'D1',
       curTime: 'd1Time',
@@ -425,16 +446,35 @@ export default {
         { key: '管理层', display_name: '管理层' },
         { key: '组员', display_name: '组员' }
       ],
-      isFinished: false
+      isFinished: false,
+      options: [{
+        id: 'a',
+        label: 'a',
+        children: [{
+          id: 'aa',
+          label: 'aa'
+        }, {
+          id: 'ab',
+          label: 'ab'
+        }]
+      }, {
+        id: 'b',
+        label: 'b'
+      }, {
+        id: 'c',
+        label: 'c'
+      }]
     }
   },
   created() {
 
   },
   mounted: function() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getTeamMembersByIssueId(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
+    this.getTopDept()
   },
   watch: {
     // 监听deptId
@@ -457,6 +497,12 @@ export default {
         this.form = res
       })
     },
+    // todo 获取所在部门树结构
+    getTopDept() {
+      getDeptTree().then(res => {
+        // alert(JSON.stringify(res))
+      })
+    },
     getTimeManagementByIssueId(id) {
       getByIssueId(id).then(res => {
         this.timeManagement = res
@@ -467,6 +513,7 @@ export default {
     },
     getTeamMembersByIssueId(id) {
       getMembersByIssueId(id).then(res => {
+        console.log(res)
         this.members = res.content
       })
     },
@@ -478,7 +525,16 @@ export default {
         !validTwo(this.timeManagement.planStep3, this.timeManagement.planTime3)) {
         this.$message({
           message: '设置预计完成步骤与对应的预计时间不可单独填写!',
-          type: 'error'
+          type: 'warning'
+        })
+        val = false
+      }
+      if (this.timeManagement.planStep1 === this.timeManagement.planStep2 ||
+        this.timeManagement.planStep1 === this.timeManagement.planStep3 ||
+        this.timeManagement.planStep2 === this.timeManagement.planStep3) {
+        this.$message({
+          message: '请不要设置重复步骤!',
+          type: 'warning'
         })
         val = false
       }
