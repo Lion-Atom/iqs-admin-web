@@ -50,6 +50,7 @@
               type="success"
               icon="el-icon-edit"
               :disabled="crud.selections.length !== 1 || crud.selections[0].hasReport !== true"
+              :loading="viewLoading"
               @click="gotoView(crud.selections[0])"
             >
         生成预览
@@ -130,7 +131,7 @@
 </template>
 <script>
 import CRUD, { crud } from '@crud/crud'
-
+import { getCauseTreeByIssueId } from '@/api/tools/issueCause'
 function sortWithRef(src, ref) {
   const result = Object.assign([], ref)
   let cursor = -1
@@ -175,7 +176,9 @@ export default {
       allColumnsSelectedIndeterminate: false,
       tableUnwatcher: null,
       // 忽略下次表格列变动
-      ignoreNextTableColumnsChange: false
+      ignoreNextTableColumnsChange: false,
+      viewLoading: false,
+      fishData: {}
     }
   },
   watch: {
@@ -293,14 +296,22 @@ export default {
         })
     },
     gotoView(data) {
-      // 跳转到8D预览界面
-      this.$router.push(
-        {
-          path: '/8D/overview',
-          query: {
-            issueId: data.id
-          }
-        })
+      this.viewLoading = true
+      getCauseTreeByIssueId(data.id).then(res => {
+        this.fishData = {}
+        this.fishData.name = res.issueTitle
+        this.fishData.children = res.content
+        this.viewLoading = false
+        // 跳转到8D预览界面
+        this.$router.push(
+          {
+            path: '/8D/overview',
+            query: {
+              issueId: data.id,
+              initFishData: this.fishData
+            }
+          })
+      })
     }
   }
 }

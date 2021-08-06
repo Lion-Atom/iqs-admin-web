@@ -134,8 +134,9 @@ export default {
       d5Status: false,
       d6Status: false,
       d7Status: false,
-      d8Status: false
+      d8Status: false,
 
+      initFishData: null
     }
   },
   created: function() {

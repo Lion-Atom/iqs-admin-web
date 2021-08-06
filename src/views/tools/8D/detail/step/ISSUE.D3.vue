@@ -274,7 +274,7 @@
               <el-input
                 v-model="otherConActionForm.description"
                 type="textarea"
-                :rows="3"
+                autosize
                 style="width: 370px;"
               />
             </el-form-item>

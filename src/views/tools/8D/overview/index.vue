@@ -1,6 +1,18 @@
 <template>
-  <div class="app-container">
-    <el-row class="report-title">{{ reportTitle }}</el-row>
+  <div id="pdfDom" class="app-container">
+    <el-row class="report-title">
+      {{ reportTitle }}
+      <el-button
+        id="save_pdf"
+        type="primary"
+        plain
+        icon="el-icon-download"
+        size="mini"
+        @click="savePdf"
+        style="position:fixed;top:20%;right:3%;z-index: 50;"
+      >另存为pdf
+      </el-button>
+    </el-row>
     <el-divider></el-divider>
     <el-collapse v-model="activeNames" @change="handleChange">
       <el-collapse-item class="collapse-title" title="D1 - 问题介绍和小组定义" name="1">
@@ -13,7 +25,7 @@
         <ThirdForm :issue-id="issueId" :need-confirm="confirmVisible"/>
       </el-collapse-item>
       <el-collapse-item class="collapse-title" title="D4 - 根本原因分析与验证" name="4">
-        <ForthForm :issue-id="issueId" :need-confirm="confirmVisible"/>
+        <ForthForm :issue-id="issueId" :init-fish="initFishData" :need-confirm="confirmVisible"/>
       </el-collapse-item>
       <el-collapse-item class="collapse-title" title="D5 - 改善措施" name="5">
         <FifthForm :issue-id="issueId" :need-confirm="confirmVisible"/>
@@ -46,17 +58,20 @@ import { getIssueById } from '@/api/tools/issue'
 export default {
   name: 'Overview',
   components: { FirstForm, SecondForm, ThirdForm, ForthForm, FifthForm, SixthForm, SeventhForm, EighthForm },
+  props: {},
   data() {
     return {
       issueId: null,
-      activeNames: ['1'],
+      activeNames: ['1', '2', '3', '4', '5', '6', '7', '8'],
       reportTitle: null,
-      confirmVisible: false
+      confirmVisible: false,
+      initFishData: {}
     }
   },
   created: function() {
     if (this.$route.query.issueId !== undefined) {
       this.issueId = this.$route.query.issueId
+      this.initFishData = this.$route.query.initFishData
       this.getIssueInfoById(this.issueId)
     }
   },
@@ -64,12 +79,27 @@ export default {
     // 查询问题信息
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
-        this.reportTitle = res.issueTitle + '_8D报'
+        this.reportTitle = res.issueTitle + '_8D报告'
       })
     },
     // 手风琴操作
     handleChange(val) {
       console.log(val)
+    },
+    // 导出PDF
+    savePdf() {
+      this.activeNames = ['1', '2', '3', '4', '5', '6', '7', '8']
+      let btn = document.getElementsByTagName('button')
+      let btn_save_pdf = document.getElementById('save_pdf')
+      for (let i = 0; i < btn.length; i++) {
+        if (!btn[i].isEqualNode(btn_save_pdf)) {
+          btn[i].style.display = 'none'
+        }
+      }
+      setTimeout(() => {
+        // this.getPdf() // 分页导出
+        this.printPdf()  // 不分页导出
+      }, 300)
     }
   }
 
@@ -93,5 +123,6 @@ export default {
   font-weight: bold;
   font-size: 18px;
 }
+
 
 </style>

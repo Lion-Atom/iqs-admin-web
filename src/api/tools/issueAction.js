@@ -54,11 +54,21 @@ export function getCanRemoveActionByIssueId(id) {
   })
 }
 
+export function getUserAction() {
+  const params = {}
+  return request({
+    url: 'api/issueAction/getUserAction',
+    method: 'get',
+    params
+  })
+}
+
 export default {
   editIssueAction,
   addIssueAction,
   delIssueAction,
   getIssueActionByExample,
   getIssueActionById,
-  getCanRemoveActionByIssueId
+  getCanRemoveActionByIssueId,
+  getUserAction
 }

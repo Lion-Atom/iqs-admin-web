@@ -272,13 +272,13 @@
       </div>
     </el-card>
 
-    <!--todo 显示鱼骨图-->
+    <!--显示鱼骨图-->
     <el-card v-if="!isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">原因分析-鱼骨图</span>
       </div>
       <div>
-        --鱼骨图进行中--
+        <Jtopo :fish-data="initFish"/>
       </div>
     </el-card>
     <!--显示5WHYS-->
@@ -342,23 +342,25 @@
 
 <script>
 
-import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
-import { getStepDefectByIssueId, editStepDefect } from '@/api/tools/stepDefect'
+import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
+import { editStepDefect, getStepDefectByIssueId } from '@/api/tools/stepDefect'
 import {
-  getCauseByIssueId,
-  getIssueCause,
   addCause,
+  delCause,
   editCause,
-  delCause
+  getCauseByIssueId,
+  getCauseTreeByIssueId,
+  getIssueCause
 } from '@/api/tools/issueCause'
 import { editWhys, getWhysByCauseId, getWhysByIssueId } from '@/api/tools/causeWhy'
+import Jtopo from '@/views/components/Jtopo'
 import { validIsNull } from '@/utils/validationUtil'
 
 export default {
   name: 'ForthForm',
-  props: ['issueId', 'needConfirm'],
+  props: ['issueId', 'needConfirm', 'initFish'],
   dicts: ['common_status'],
-
+  components: { Jtopo },
   data() {
     return {
       permission: {
@@ -437,7 +439,8 @@ export default {
       causeWhys: [],
       timeManagement: {},
       isNeed: true,
-      innerVisible: false
+      innerVisible: false,
+      fishData: null
     }
   },
   created() {
@@ -449,6 +452,7 @@ export default {
     this.getTimeManagementByIssueId(this.$props.issueId)
     this.getIssueCauseByIssueId(this.$props.issueId)
     this.getIssueCauseWhysByIssueId(this.$props.issueId)
+    this.getCauseTreeByIssueId(this.$props.issueId)
   },
   methods: {
     // 保存缺陷定位信息
@@ -486,6 +490,14 @@ export default {
         console.log(res)
         this.causeWhys = res
         this.causeWhysLoading = false
+      })
+    },
+    // 获取原因树数据
+    getCauseTreeByIssueId(id) {
+      getCauseTreeByIssueId(id).then(res => {
+        this.fishData = {}
+        this.fishData.name = res.issueTitle
+        this.fishData.children = res.content
       })
     },
     // 批量保存缺陷定位数据
@@ -666,7 +678,7 @@ export default {
         {
           path: '/8D/fishbone',
           query: {
-            issueId: this.$props.issueId
+            fishData: this.fishData
           }
         })
     },

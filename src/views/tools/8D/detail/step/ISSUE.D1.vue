@@ -169,7 +169,7 @@
         size="small"
         label-width="160px"
       >
-        <el-form-item label="第0步：选择部门" prop="deptName">
+        <el-form-item label="第一步：选择部门" prop="deptName">
           <treeselect
             v-model="member.deptId"
             :options="options"
@@ -177,15 +177,15 @@
             placeholder="选择人员所属部门"
           />
         </el-form-item>
-        <el-form-item label="第一步：选择部门" prop="deptName">
-          <treeselect
-            v-model="member.deptId"
-            :options="depts"
-            :load-options="loadDepts"
-            style="width: 190px"
-            placeholder="选择人员所属部门"
-          />
-        </el-form-item>
+        <!--        <el-form-item label="第一步：选择部门" prop="deptName">
+                  <treeselect
+                    v-model="member.deptId"
+                    :options="depts"
+                    :load-options="loadDepts"
+                    style="width: 190px"
+                    placeholder="选择人员所属部门"
+                  />
+                </el-form-item>-->
         <el-form-item
           label="第二步：选择组员"
           prop="userId"
@@ -234,7 +234,7 @@
           :data="members"
           style="width: 100%;"
         >
-          <!--          <el-table-column prop="companyName" label="公司名称" width="150"/>-->
+          <el-table-column prop="companyName" label="公司名称" width="150"/>
           <el-table-column prop="deptName" label="部门名称"/>
           <el-table-column prop="userName" label="组员"/>
           <el-table-column prop="phone" label="联系电话"/>
@@ -447,23 +447,7 @@ export default {
         { key: '组员', display_name: '组员' }
       ],
       isFinished: false,
-      options: [{
-        id: 'a',
-        label: 'a',
-        children: [{
-          id: 'aa',
-          label: 'aa'
-        }, {
-          id: 'ab',
-          label: 'ab'
-        }]
-      }, {
-        id: 'b',
-        label: 'b'
-      }, {
-        id: 'c',
-        label: 'c'
-      }]
+      options: []
     }
   },
   created() {
@@ -500,7 +484,7 @@ export default {
     // todo 获取所在部门树结构
     getTopDept() {
       getDeptTree().then(res => {
-        // alert(JSON.stringify(res))
+        this.options = res.content
       })
     },
     getTimeManagementByIssueId(id) {
@@ -716,7 +700,7 @@ export default {
 }
 
 .el-form-item--small.el-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .header-title {

@@ -31,7 +31,9 @@ import './assets/icons' // icon
 import './router/index' // permission control
 import 'echarts-gl'
 import './utils/directive'
+import htmlToPdf from '@/components/utils/htmlToPdf'
 
+Vue.use(htmlToPdf)
 Vue.use(checkPer)
 Vue.use(VueHighlightJS)
 Vue.use(mavonEditor)
