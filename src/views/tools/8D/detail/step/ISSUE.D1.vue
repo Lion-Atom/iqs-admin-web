@@ -351,15 +351,14 @@
 
 <script>
 
-import { getByIssueId, addTimeManage, editTimeManage } from '@/api/tools/timeManagement'
+import { addTimeManage, editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
 import { getIssueById } from '@/api/tools/issue'
 import { getUserByDeptId } from '@/api/system/user'
-import { getMembersByIssueId, addMember, delMember, editMember } from '@/api/tools/teamMember'
-import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+import { addMember, delMember, editMember, getMembersByIssueId } from '@/api/tools/teamMember'
+import Treeselect, { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getDepts, getDeptTree } from '@/api/system/dept'
-import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { validTwo } from '@/utils/validationUtil'
+import { validIsNull, validTwo } from '@/utils/validationUtil'
 // import ConfirmFinish from '@/views/tools/8D/module/ConfirmFinish'
 
 export default {
@@ -476,6 +475,7 @@ export default {
         })
       }
     },
+    // 获取问题基本信息
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
@@ -496,14 +496,21 @@ export default {
       })
     },
     getTeamMembersByIssueId(id) {
+      this.teamLoading = true
+      this.members = []
       getMembersByIssueId(id).then(res => {
         console.log(res)
         this.members = res.content
       })
+      this.teamLoading = false
     },
     saveTimeManagement(timeData) {
       // 提交前验证
       let val = true
+      let step1 = this.timeManagement.planStep1
+      let step2 = this.timeManagement.planStep2
+      let step3 = this.timeManagement.planStep3
+
       if (!validTwo(this.timeManagement.planStep1, this.timeManagement.planTime1) ||
         !validTwo(this.timeManagement.planStep2, this.timeManagement.planTime2) ||
         !validTwo(this.timeManagement.planStep3, this.timeManagement.planTime3)) {
@@ -512,10 +519,9 @@ export default {
           type: 'warning'
         })
         val = false
-      }
-      if (this.timeManagement.planStep1 === this.timeManagement.planStep2 ||
-        this.timeManagement.planStep1 === this.timeManagement.planStep3 ||
-        this.timeManagement.planStep2 === this.timeManagement.planStep3) {
+      } else if (((validIsNull(step1) && validIsNull(step2)) && step1 === step2) ||
+        ((validIsNull(step1) && validIsNull(step3)) && step1 === step3) ||
+        ((validIsNull(step2) && validIsNull(step3)) && step2 === step3)) {
         this.$message({
           message: '请不要设置重复步骤!',
           type: 'warning'
@@ -555,8 +561,8 @@ export default {
             })
           })
         }
+        this.getTimeManagementByIssueId(this.$props.issueId)
       }
-      this.getTimeManagementByIssueId(this.$props.issueId)
     },
     // 填充所属部门数据
     getDepts() {
@@ -644,8 +650,9 @@ export default {
           })
           this.isFinished = false
           this.$emit('func', this.isFinished)
+        }).catch(() => {
+          this.getTeamMembersByIssueId(this.$props.issueId)
         })
-        this.getTeamMembersByIssueId(this.$props.issueId)
       }
     },
     deleteMember(id) {
@@ -661,10 +668,11 @@ export default {
         this.$emit('func', this.isFinished)
         this.getTeamMembersByIssueId(this.$props.issueId)
       }).catch(() => {
-        this.$message({
+        /*this.$message({
           message: 'Del Failed! 删除小组成员失败!',
           type: 'error'
-        })
+        })*/
+        this.getTeamMembersByIssueId(this.$props.issueId)
       })
     },
     confirmFinished() {

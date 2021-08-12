@@ -147,7 +147,7 @@
     <!--详细描述-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">供应商详细问题描述</span>
+        <span class="header-title">详细问题描述</span>
         <el-button style="float: right; padding: 3px 0" type="text" @click="addSupDesc(form)">保存</el-button>
       </div>
       <div>
@@ -166,8 +166,47 @@
       </div>
     </el-card>
 
+    <!--5W2H描述-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">5W2H描述</span>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="saveQuestions(questions)">保存</el-button>
+      </div>
+      <div>
+        <el-table
+          ref="table"
+          v-loading="questionLoading"
+          :data="questions"
+          style="width: 100%;"
+        >
+          <el-table-column label="序号" width="60" align="center">
+            <template slot-scope="scope">
+              {{ scope.$index + 1 }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="标题" width="200"/>
+          <el-table-column label="内容">
+            <template scope="scope">
+              <el-input
+                type="textarea"
+                autosize
+                v-model="scope.row.description"
+                style="min-width: 800px;"
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-card>
+
     <!--添加附件及其列表-->
-    <UploadFile :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep" @func="getMsgFormSon"/>
+    <UploadFile
+      :issue-id="this.$props.issueId"
+      :is-need="isNeed"
+      :permission="permission"
+      :step-name="curStep"
+      @func="getMsgFormSon"
+    />
 
     <!--确认完成-->
     <el-card v-if="isNeed" class="box-card">
@@ -208,12 +247,12 @@
 
 <script>
 
-import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
-import { getIssueById, edit } from '@/api/tools/issue'
-import { addIssueNum, editIssueNum, delIssueNum, getIssueNumByIssueId } from '@/api/tools/issueNum'
+import { editQuestion, getQuestionByIssueId } from '@/api/tools/issueQuestion'
+import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
+import { edit, getIssueById } from '@/api/tools/issue'
+import { addIssueNum, delIssueNum, editIssueNum, getIssueNumByIssueId } from '@/api/tools/issueNum'
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
-// import { getIssueFileByExample, delIssueFile } from '@/api/tools/issueFile'
 import UploadFile from '../../module/uploadFile.vue'
 
 export default {
@@ -266,7 +305,9 @@ export default {
       curStep: 'D2',
       curTime: 'd2Time',
       form: {},
-      isFinished: false
+      isFinished: false,
+      questionLoading: false,
+      questions: []
     }
   },
   computed: {
@@ -283,6 +324,7 @@ export default {
     this.getIssueInfoById(this.$props.issueId)
     this.getNumByIssueId(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
+    this.getQuestionByIssueId(this.$props.issueId)
   },
   methods: {
     // 监控附件组件相关改动
@@ -315,6 +357,30 @@ export default {
         this.selfLoading = false
       })
     },
+    getQuestionByIssueId(id) {
+      this.questionLoading = true
+      this.questions = []
+      getQuestionByIssueId(id).then(res => {
+        this.questions = res
+        this.questionLoading = false
+      })
+    },
+    // 批量保存缺陷定位数据
+    saveQuestions(data) {
+      editQuestion(data).then(res => {
+        this.$message({
+          message: 'Save 5W2H Success! 保存5W2H内容成功!',
+          type: 'success'
+        })
+        this.isFinished = false
+        this.$emit('func', this.isFinished)
+      }).catch(() => {
+        this.$message({
+          message: 'Save 5W2H Failed! 保存5W2H内容失败!',
+          type: 'error'
+        })
+      })
+    },
     // 编辑记录
     editNum(row) {
       this.issueNumForm = row
@@ -338,7 +404,6 @@ export default {
                 message: 'Add Record Success! 新增记录成功!',
                 type: 'success'
               })
-              this.addNumVisible = false
               this.isFinished = false
               this.$emit('func', this.isFinished)
               this.getNumByIssueId(this.$props.issueId)
@@ -355,6 +420,7 @@ export default {
               this.getNumByIssueId(this.$props.issueId)
             })
           }
+          this.addNumVisible = false
         }
       })
     },
@@ -378,6 +444,7 @@ export default {
         })
       })
     },
+    // 保存详细描述
     addSupDesc(form) {
       edit(form).then(res => {
         // 编辑问题，添加供应商详细描述

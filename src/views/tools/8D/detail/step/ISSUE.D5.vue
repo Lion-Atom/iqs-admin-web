@@ -39,7 +39,7 @@
               </el-select>
             </el-form-item>
             <el-form-item
-              label="改善行动标题"
+              label="改善行动"
               prop="name"
             >
               <el-input
@@ -48,7 +48,7 @@
               />
             </el-form-item>
             <el-form-item
-              label="验证方法"
+              label="确认方法"
               prop="validationMethod"
             >
               <el-input
@@ -59,7 +59,7 @@
               />
             </el-form-item>
             <el-form-item
-              label="验证结果"
+              label="确认结果"
               prop="validationResult"
             >
               <el-input
@@ -70,7 +70,7 @@
               />
             </el-form-item>
             <el-form-item
-              label="%有效性"
+              label=有效性(%)"
               prop="efficiency"
             >
               <el-input-number v-model="correctActionForm.efficiency" style="width: 370px;" :precision="2" :step="0.1"
@@ -157,8 +157,13 @@
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" type="danger" icon="el-icon-delete"
-                             size="mini" v-if="scope.row.id !==undefined"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
+                    v-if="scope.row.id !==undefined"
                   />
                 </el-popover>
               </div>
@@ -191,8 +196,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :is-need="isNeed" :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep"
-                @func="getMsgFormSon"
+    <UploadFile
+      :is-need="isNeed"
+      :issue-id="this.$props.issueId"
+      :permission="permission"
+      :step-name="curStep"
+      @func="getMsgFormSon"
     />
 
     <!--确认完成-->
@@ -410,7 +419,6 @@ export default {
                 message: 'Add Record Success! 新增改善行动成功!',
                 type: 'success'
               })
-              this.correctActionVisible = false
               this.isFinished = false
               this.$emit('func', this.isFinished)
               this.getCorrectActionByExample(this.$props.issueId)
@@ -428,8 +436,9 @@ export default {
               this.$emit('func', this.isFinished)
               this.getCorrectActionByExample(this.$props.issueId)
             })
-            this.submitLoading = false
           }
+          this.correctActionVisible = false
+          this.submitLoading = false
         }
       })
     },

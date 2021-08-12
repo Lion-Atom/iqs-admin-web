@@ -32,8 +32,12 @@
               label="%有效性"
               prop="efficiency"
             >
-              <el-input-number v-model="correctActionForm.efficiency" style="width: 370px;" :precision="2" :step="0.1"
-                               :max="100"
+              <el-input-number
+                v-model="correctActionForm.efficiency"
+                style="width: 370px;"
+                :precision="2"
+                :step="0.1"
+                :max="100"
               ></el-input-number>
             </el-form-item>
             <!--- 负责人列表查询 -->
@@ -99,8 +103,11 @@
                 placeholder="请选择状态"
                 style="width: 370px;"
               >
-                <el-option v-for="item in statusTypeOptions" :key="item.key" :label="item.display_name"
-                           :value="item.key"
+                <el-option
+                  v-for="item in statusTypeOptions"
+                  :key="item.key"
+                  :label="item.display_name"
+                  :value="item.key"
                 />
               </el-select>
             </el-form-item>
@@ -159,9 +166,10 @@
           <el-table-column prop="identification" label="标识"/>
           <el-table-column prop="status" label="状态">
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.status!== undefined"
-                      :type="scope.row.status === '已移除' ? 'danger' : 'success'"
-                      disable-transitions
+              <el-tag
+                v-if="scope.row.status!== undefined"
+                :type="scope.row.status === '已移除' ? 'danger' : 'success'"
+                disable-transitions
               >{{ scope.row.status }}
               </el-tag>
               <span v-else>{{ scope.row.status }}</span>
@@ -185,7 +193,9 @@
                   v-permission="permission.edit"
                   v-if="scope.row.id !==undefined"
                   size="mini"
-                  type="primary" icon="el-icon-edit" @click="editCorrectAction(scope.row)"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editCorrectAction(scope.row)"
                 >纠正措施
                 </el-button>
               </div>
@@ -345,8 +355,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :is-need="isNeed" :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep"
-                @func="getMsgFormSon"
+    <UploadFile
+      :is-need="isNeed"
+      :issue-id="this.$props.issueId"
+      :permission="permission"
+      :step-name="curStep"
+      @func="getMsgFormSon"
     />
 
     <!--确认完成-->
@@ -518,6 +532,10 @@ export default {
   created() {
 
   },
+  watch: {
+    // 监听removeActionForm.id
+    'removeActionForm.id': 'currActionChange'
+  },
   mounted: function() {
     this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
@@ -526,10 +544,6 @@ export default {
     this.getTeamMembersByIssueId(this.$props.issueId)
     this.getRemoveActionByExample(this.$props.issueId)
     this.getCanBeRemoveAction(this.$props.issueId)
-  },
-  watch: {
-    // 监听deptId
-    'removeActionForm.id': 'currActionChange'
   },
   methods: {
     // 监控改善行动变化
@@ -671,13 +685,13 @@ export default {
           message: 'Edit Record Success! 保存移除改善行动成功!',
           type: 'success'
         })
-        this.submitRemoveActLoading = false
-        this.removeActionVisible = false
         this.isFinished = false
         this.$emit('func', this.isFinished)
         this.getCorrectActionByExample(this.$props.issueId)
         this.getRemoveActionByExample(this.$props.issueId)
       })
+      this.submitRemoveActLoading = false
+      this.removeActionVisible = false
     },
     addSixthDesc(form) {
       edit(form).then(res => {

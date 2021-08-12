@@ -54,7 +54,7 @@
     </el-card>
 
     <!--关闭-->
-    <el-card class="box-card">
+    <el-card v-if="this.form.hasScore" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">关闭</span>
         <el-button style="float: right; padding: 3px 0" type="text" @click="saveScore(form)">保存</el-button>
@@ -62,7 +62,7 @@
       <div>
         <div class="demo-input-suffix">
           分数：
-          <el-input-number v-model="form.score" style="width: 200px;" :precision="2" :step="0.1" :max="100"
+          <el-input-number v-model="form.score" style="width: 200px;" :precision="2" :step="0.1" :min="0" :max="100"
           ></el-input-number>
         </div>
       </div>
@@ -199,9 +199,9 @@ export default {
     },
     saveScore(form) {
       edit(form).then(res => {
-        //编辑问题，添加供应商详细描述
+        // 编辑问题，添加8D分数
         this.$message({
-          message: 'Submit Conclusion Success! 添加各项意见完成!',
+          message: 'Submit Score Success! 分数更新完成!',
           type: 'success'
         })
         this.isFinished = false
@@ -236,6 +236,13 @@ export default {
           })
           val = false
         }
+        if (this.form.hasScore && !validIsNull(this.form.score)) {
+          this.$message({
+            message: 'Cannot submit! 提交前请给8D打个分',
+            type: 'warning'
+          })
+          val = false
+        }
         if (val) {
           editTimeManage(this.timeManagement).then(res => {
             this.confirmVisible = false
@@ -246,6 +253,7 @@ export default {
               type: 'success'
             })
           })
+
         }
         this.getIssueInfoById(this.$props.issueId)
       }

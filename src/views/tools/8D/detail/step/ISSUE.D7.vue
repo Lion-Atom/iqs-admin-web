@@ -322,9 +322,13 @@
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editPreAction(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editPreAction(scope.row)"
                 />
                 <!--删除-->
                 <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
@@ -375,8 +379,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :is-need="isNeed" :issue-id="this.$props.issueId" :permission="permission" :step-name="curStep"
-                @func="getMsgFormSon"
+    <UploadFile
+      :is-need="isNeed"
+      :issue-id="this.$props.issueId"
+      :permission="permission"
+      :step-name="curStep"
+      @func="getMsgFormSon"
     />
 
     <!--确认完成-->
@@ -592,13 +600,15 @@ export default {
         this.preActions = res
       })
     },
-    // 批量保存缺陷定位数据
+    // 批量保存文档数据
     saveChangeDescs(data) {
       editChangeDesc(data).then(res => {
         this.$message({
           message: 'Save Documentation Success! 保存文档更改内容成功!',
           type: 'success'
         })
+        this.isFinished = false
+        this.$emit('func', this.isFinished)
       }).catch(() => {
         this.$message({
           message: 'Save Documentation Failed! 保存文档更改内容失败!',
@@ -729,8 +739,6 @@ export default {
                 message: 'Add Record Success! 新增其他围堵措施记录成功!',
                 type: 'success'
               })
-              this.submitLoading = false
-              this.addPreActionVisible = false
               this.isFinished = false
               this.$emit('func', this.isFinished)
               // 刷新分析列表
@@ -745,8 +753,8 @@ export default {
                 message: 'Edit Record Success! 编辑其他围堵措施记录成功!',
                 type: 'success'
               })
-              this.submitLoading = false
-              this.addPreActionVisible = false
+              /*this.submitLoading = false
+              this.addPreActionVisible = false*/
               this.isFinished = false
               this.$emit('func', this.isFinished)
               // 刷新分析列表
@@ -755,6 +763,8 @@ export default {
               this.getPreActionByExample(this.$props.issueId)
             })
           }
+          this.submitLoading = false
+          this.addPreActionVisible = false
         }
       })
     },

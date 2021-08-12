@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import Logo from '@/assets/images/logo.png'
+import Logo from '@/assets/images/qlink_logo.png'
 export default {
   name: 'SidebarLogo',
   props: {

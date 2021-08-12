@@ -196,7 +196,7 @@
             label-width="120px"
           >
             <el-form-item
-              label="围堵措施标题"
+              label="自定义围堵措施"
               prop="name"
             >
               <el-input
@@ -290,7 +290,7 @@
           :data="otherConActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="其他围堵对策标题"/>
+          <el-table-column prop="name" label="自定义围堵措施"/>
           <el-table-column prop="responsibleName" label="负责人"/>
           <el-table-column prop="efficiency" label="有效性(%)"/>
           <el-table-column prop="plannedTime" label="计划执行时间"/>
@@ -367,8 +367,12 @@
     </el-card>
 
     <!--添加附件及其列表-->
-    <UploadFile :issue-id="this.$props.issueId" :is-need="isNeed" :permission="permission" :step-name="curStep"
-                @func="getMsgFormSon"
+    <UploadFile
+      :issue-id="this.$props.issueId"
+      :is-need="isNeed"
+      :permission="permission"
+      :step-name="curStep"
+      @func="getMsgFormSon"
     />
 
     <!--确认完成-->
@@ -401,8 +405,12 @@
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button slot="reference" v-permission="permission.edit" type="success" :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                v-permission="permission.edit"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -619,12 +627,12 @@ export default {
               message: 'Edit Containment Success! 编辑围堵措施成功!',
               type: 'success'
             })
-            this.addConActionVisible = false
             this.isFinished = false
             this.$emit('func', this.isFinished)
             this.getIssueConActionByIssueId(this.$props.issueId)
           })
         }
+        this.addConActionVisible = false
       })
     },
     // 删除记录

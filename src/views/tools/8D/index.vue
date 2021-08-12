@@ -19,6 +19,7 @@
       <el-table-column prop="issueTitle" label="问题标题" width="160"/>
       <el-table-column prop="partNum" label="物料编码" width="150"/>
       <el-table-column prop="customerName" label="客户名称" width="120"/>
+      <el-table-column prop="hasReport" label="执行选择" width="120"/>
       <el-table-column prop="status" label="状态"/>
       <el-table-column prop="process" label="8D进程" min-width="350">
         <template slot-scope="scope">
@@ -49,7 +50,7 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
-            :disabled-edit="scope.row.hasReport !== true"
+            :disabled-edit="scope.row.hasReport === undefined"
           />
         </template>
       </el-table-column>
@@ -58,7 +59,7 @@
     <pagination/>
     <!--表单渲染-->
     <eForm :d-status="dict.d_status" :d-source="dict.d_source" :d-enabled="dict.common_status"
-           :activeNames=activeNames
+           :d-execute="dict.d_execute" :activeNames=activeNames
     />
   </div>
 </template>
@@ -84,7 +85,7 @@ export default {
   },
   mixins: [presenter()],
   // 数据字典
-  dicts: ['d_status', 'd_process', 'd_source', 'common_status'],
+  dicts: ['d_status', 'd_process', 'd_source', 'common_status', 'd_execute'],
   data() {
     return {
       permission: {
@@ -126,8 +127,7 @@ export default {
     },
     // 双击选中的行列
     dbSelected(row) {
-      // alert(JSON.stringify(row))
-      if (row.hasReport) {
+      if (row.hasReport === '系统8D') {
         // 跳转到8D明细中
         this.$router.push(
           {
@@ -136,14 +136,23 @@ export default {
               issueId: row.id
             }
           })
+      } else if (row.hasReport === '直接结案') {
+        this.$message({
+          message: '该问题直接结案!',
+          type: 'warning'
+        })
+      } else if (row.hasReport === '单独报告') {
+        // 跳转到单独报告
+        this.$router.push(
+          {
+            path: '/8D/report',
+            query: {
+              issueId: row.id
+            }
+          })
       } else if (row.hasReport === undefined) {
         this.$message({
           message: '尚未审核!',
-          type: 'warning'
-        })
-      } else if (row.hasReport === false) {
-        this.$message({
-          message: '该问题不执行8D!',
           type: 'warning'
         })
       }

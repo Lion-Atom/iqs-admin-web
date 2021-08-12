@@ -37,7 +37,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">根本原因分析</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="checkFishBone">查看鱼骨图</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="checkFishBone">查看鱼骨图
+        </el-button>
       </div>
       <div>
         <!--新增/编辑5Hys数据弹窗-->
@@ -217,7 +218,7 @@
         >
           <el-table-column type="selection" width="55"/>
           <el-table-column label="原因名称" prop="name" min-width="150"/>
-          <el-table-column label="发生/检测 " prop="judgeResult" width="80"/>
+          <el-table-column label="发生/检测 " prop="judgeResult" width="120"/>
           <el-table-column label="确认方法" prop="method" min-width="150"/>
           <el-table-column label="确认结果" prop="result" min-width="150"/>
           <el-table-column label="原因占比" prop="contribution"/>
@@ -422,8 +423,10 @@ export default {
         { key: false, display_name: '否' }
       ],
       judgeTypeOptions: [
-        { key: '发生', display_name: '发生' },
-        { key: '检测', display_name: '检测' }
+        { key: '发生技术原因', display_name: '发生技术原因' },
+        { key: '发生管理原因', display_name: '发生管理原因' },
+        { key: '检测技术原因', display_name: '检测技术原因' },
+        { key: '检测管理原因', display_name: '检测管理原因' }
       ],
       addWhyVisible: false,
       causeName: '',
@@ -552,8 +555,6 @@ export default {
                 type: 'success'
               })
               this.getIssueCauseByIssueId(this.$props.issueId)
-              this.submitLoading = false
-              this.addCauseVisible = false
               this.isFinished = false
               this.$emit('func', this.isFinished)
             })
@@ -571,6 +572,8 @@ export default {
               this.$emit('func', this.isFinished)
             })
           }
+          this.submitLoading = false
+          this.addCauseVisible = false
         }
       })
     },
@@ -661,18 +664,20 @@ export default {
         })
       })
     },
-    addClick() { //添加行数
-      let obj = {
+    //添加行数
+    addClick() {
+      const obj = {
         orderSort: this.whys.length + 1,
         content: ''
       }
       this.whys.push(obj)
     },
-    handleDelete(index) { //删除行数
+    //删除行数
+    handleDelete(index) {
       this.whys.splice(index, 1)
     },
+    // 查看鱼骨图
     checkFishBone(data) {
-      // todo 查看鱼骨图
       // 跳转到8D明细中
       this.$router.push(
         {

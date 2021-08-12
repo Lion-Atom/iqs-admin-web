@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
-    :title="crud.status.title === '编辑问题'?'审核问题':crud.status.title"
+    :title="crud.status.title === '编辑问题'?'审核问题 review issue':crud.status.title"
     width="700px"
   >
 
@@ -188,7 +188,7 @@
           <!--审核问题-->
           <el-collapse-item title="审核问题" name="2" class="collapse-item">
             <el-form-item
-              label="客户联系电话"
+              label="客户/供应商联系电话"
               prop="phone"
             >
               <el-input
@@ -197,7 +197,7 @@
               />
             </el-form-item>
             <el-form-item
-              label="客户邮箱"
+              label="客户/供应商邮箱"
               prop="email"
             >
               <el-input
@@ -283,19 +283,40 @@
               />
             </el-form-item>
             <el-form-item
-              label="是否执行8D"
+              label="执行选择"
               prop="hasReport"
             >
               <el-radio-group v-model="form.hasReport">
                 <el-radio
-                  v-for="item in dEnabled"
+                  v-for="item in dExecute"
                   :key="item.id"
                   :label="item.value"
-                >{{ item.label }}
+                >{{ item.value }}
                 </el-radio>
               </el-radio-group>
             </el-form-item>
+            <!--todo 任命组长-->
             <el-form-item
+              v-if="form.hasReport==='系统8D'"
+              label="指派组长"
+              prop="leaderId"
+            >
+              <el-select
+                v-model="form.leaderId"
+                placeholder="请指派组长"
+                style="width: 370px;"
+                filterable
+              >
+                <el-option
+                  v-for="item in members"
+                  :key="item.id"
+                  :label="item.dept.name + '-'+item.jobs[0].name + '-'+ item.username "
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item
+              v-if="form.hasReport==='系统8D'"
               label="是否评分"
               prop="hasScore"
             >
@@ -336,6 +357,7 @@
 
 <script>
 import { form } from '@crud/crud'
+import { getAllUser } from '@/api/system/user'
 
 const defaultForm = {
   id: null,
@@ -349,6 +371,7 @@ const defaultForm = {
   description: null,
   phone: null,
   email: null,
+  leaderId: null,
   type: null,
   isRepeat: null,
   hasSimilar: null,
@@ -371,6 +394,10 @@ export default {
       required: true
     },
     dEnabled: {
+      type: Array,
+      required: true
+    },
+    dExecute: {
       type: Array,
       required: true
     },
@@ -432,17 +459,33 @@ export default {
           { required: true, message: '请输入客户要求的时间截点', trigger: 'blur' }
         ],
         other: [
-          { required: true, message: '补充信息', trigger: 'blur' }
+          { required: true, message: '请补充完整信息', trigger: 'blur' }
         ],
         hasReport: [
-          { required: true, message: '务必选择是否执行8D', trigger: 'blur' }
+          { required: true, message: '请务必选择是否执行8D', trigger: 'blur' }
+        ],
+        leaderId: [
+          { required: true, message: '请务必指派小组组长', trigger: 'blur' }
         ],
         hasScore: [
-          { required: true, message: '务必选择是否评分', trigger: 'blur' }
+          { required: true, message: '请务必选择是否评分', trigger: 'blur' }
         ]
-      }
+      },
+      members: []
+    }
+  },
+  created() {
+    this.getAvailableUser()
+  },
+  methods: {
+    // 获取人员信息
+    getAvailableUser() {
+      getAllUser().then(res => {
+        this.members = res.content
+      })
     }
   }
+
 }
 </script>
 

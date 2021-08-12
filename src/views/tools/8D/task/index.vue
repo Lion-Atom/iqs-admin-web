@@ -92,6 +92,7 @@
       <el-table-column prop="name" label="措施标题" min-width="150"/>
       <el-table-column prop="issueTitle" label="问题标题"/>
       <el-table-column prop="status" label="状态"/>
+      <el-table-column prop="hasReport" label="执行选择"/>
       <el-table-column prop="plannedTime" label="预期执行时间"/>
       <el-table-column prop="type" label="所属进程"/>
       <!--   编辑与删除   -->
@@ -118,8 +119,7 @@
 </template>
 
 <script>
-import { getUserAction, editIssueAction } from '@/api/tools/issueAction'
-import { validIsNull } from '@/utils/validationUtil'
+import { editIssueAction, getUserAction } from '@/api/tools/issueAction'
 
 export default {
   name: '8DTask',
@@ -211,14 +211,26 @@ export default {
     },
     // 双击选中的行列
     dbSelected(row) {
-      // 跳转到8D明细中
-      this.$router.push(
-        {
-          path: '/8D/detail',
-          query: {
-            issueId: row.issueId
-          }
-        })
+      // 跳转到单独报告中
+      if (row.hasReport === '单独报告') {
+        // 跳转到单独报告
+        this.$router.push(
+          {
+            path: '/8D/report',
+            query: {
+              issueId: row.issueId
+            }
+          })
+      } else if (row.hasReport === '系统8D') {
+        // 跳转到8D明细中
+        this.$router.push(
+          {
+            path: '/8D/detail',
+            query: {
+              issueId: row.issueId
+            }
+          })
+      }
     }
   }
 }

@@ -72,6 +72,12 @@ export const constantRouterMap = [
         meta: { title: '8D流程' }
       },
       {
+        path: 'report',
+        component: (resolve) => require(['@/views/tools/8D/report/index'], resolve),
+        name: '单独报告',
+        meta: { title: '单独报告' }
+      },
+      {
         path: 'overview',
         component: (resolve) => require(['@/views/tools/8D/overview/index'], resolve),
         name: '8D预览',

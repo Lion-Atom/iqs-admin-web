@@ -3,7 +3,7 @@
     <el-button
       v-permission="permission.edit"
       :loading="crud.status.cu === 2"
-      :disabled="disabledEdit"
+      :disabled="data.hasReport === undefined || data.hasReport === '直接结案'"
       size="mini"
       type="primary"
       icon="el-icon-edit"
@@ -84,13 +84,23 @@ export default {
     },
     gotoEdit(data) {
       // 跳转到8D明细中
-      this.$router.push(
-        {
-          path: '/8D/detail',
-          query: {
-            issueId: data.id
-          }
-        })
+      if (data.hasReport === '系统8D') {
+        this.$router.push(
+          {
+            path: '/8D/detail',
+            query: {
+              issueId: data.id
+            }
+          })
+      } else if (data.hasReport === '单独报告') {
+        this.$router.push(
+          {
+            path: '/8D/report',
+            query: {
+              issueId: data.id
+            }
+          })
+      }
     }
   }
 }

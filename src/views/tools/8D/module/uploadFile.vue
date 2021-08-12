@@ -2,7 +2,7 @@
   <div>
     <el-card v-if="this.$props.isNeed" class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">添加附件</span>
+        <span class="header-title">{{ uploadHeader }}</span>
       </div>
       <div style="width:360px;">
         <el-upload
@@ -20,12 +20,12 @@
           <div class="el-upload__text">将文件拖到此处，或<em>选取上传</em></div>
           <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件，且不超过100M</div>
         </el-upload>
-        <el-button size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+        <el-button style="margin-top:8px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
       </div>
     </el-card>
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">附件列表</span>
+        <span class="header-title">{{ listHeader }}</span>
       </div>
       <div>
         <el-table
@@ -118,7 +118,7 @@ import { getToken } from '@/utils/auth'
 
 export default {
   name: 'uploadFile',
-  props: ['issueId', 'stepName', 'permission', 'isNeed'],
+  props: ['uploadTitle', 'listTitle', 'issueId', 'stepName', 'permission', 'isNeed'],
   data() {
     return {
       headers: {
@@ -130,7 +130,9 @@ export default {
         issueId: this.$props.issueId,
         stepName: this.$props.stepName
       },
-      files: []
+      files: [],
+      uploadHeader: this.$props.uploadTitle === undefined ? '添加附件' : this.$props.uploadTitle,
+      listHeader: this.$props.listTitle === undefined ? '附件列表' : this.$props.listTitle
     }
   },
   computed: {
@@ -139,8 +141,9 @@ export default {
       'appendixUploadApi'
     ])
   },
+  created() {
+  },
   mounted: function() {
-    // alert(JSON.stringify(this.cond))
     this.getFiles(this.cond)
   },
   methods: {
@@ -208,6 +211,21 @@ export default {
 }
 </script>
 
-<style scoped>
+<style rel="stylesheet/scss" lang="scss" scoped>
+::v-deep .box-card {
+  margin-bottom: 5px;
+}
 
+.elRow {
+  border-bottom: 1px solid #808080;
+}
+
+.el-form-item--small.el-form-item {
+  margin-bottom: 10px;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: bold;
+}
 </style>

@@ -154,8 +154,8 @@ let MakFishBone = (function(window) {
           nodeZ.x = nodeZ.x + 20
           nodeA.y = nodeA.y - img.height / 2
           nodeZ.y = nodeZ.y - img.height / 2
-          nodeA.setImage('/static/image/fish_tail.png', true)
-          nodeZ.setImage('/static/image/fish_head.png', true)
+          nodeA.setImage('/image/fish_tail.png', true)
+          nodeZ.setImage('/image/fish_head.png', true)
         }
       }
       this.scene.add(nodeA)

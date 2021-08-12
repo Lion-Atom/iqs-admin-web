@@ -16,7 +16,7 @@
         新增
       </el-button>
        </el-tooltip>
-      <el-tooltip class="item" effect="dark" content="执行8D可能进入编辑流程哦" placement="top-start">
+      <el-tooltip class="item" effect="dark" content="不同的执行指向不同的编辑流程哦" placement="top-start">
       <el-button
         v-if="crud.optShow.edit"
         v-permission="permission.edit"
@@ -35,13 +35,14 @@
         v-permission="permission.edit"
         class="filter-item"
         size="mini"
-        type="success"
+        type="primary"
         icon="el-icon-edit"
-        :disabled="crud.selections.length !== 1 || crud.selections[0].hasReport !== true"
+        :disabled="crud.selections.length !== 1 || (crud.selections[0].hasReport !== '系统8D')"
         @click="gotoEdit(crud.selections[0])"
       >
         编辑8D
       </el-button>
+      <el-tooltip class="item" effect="dark" content="执行8D才有预览噢" placement="top-start">
             <el-button
               v-if="crud.optShow.edit"
               v-permission="permission.edit"
@@ -49,12 +50,13 @@
               size="mini"
               type="success"
               icon="el-icon-edit"
-              :disabled="crud.selections.length !== 1 || crud.selections[0].hasReport !== true"
+              :disabled="crud.selections.length !== 1 || crud.selections[0].hasReport !== '系统8D'"
               :loading="viewLoading"
               @click="gotoView(crud.selections[0])"
             >
-        生成预览
+        预览8D
       </el-button>
+      </el-tooltip>
       <el-button
         v-if="crud.optShow.del"
         slot="reference"
@@ -132,6 +134,7 @@
 <script>
 import CRUD, { crud } from '@crud/crud'
 import { getCauseTreeByIssueId } from '@/api/tools/issueCause'
+
 function sortWithRef(src, ref) {
   const result = Object.assign([], ref)
   let cursor = -1
