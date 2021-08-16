@@ -142,20 +142,24 @@ let MakFishBone = (function(window) {
       nodeText.setLocation(tx, ty)
       this.scene.add(nodeText)
 
+      //页面解析到当前为止所有的script标签
+      var js = document.scripts
+//js[js.length - 1] 就是当前的js文件的路径
+      js = js[js.length - 1].src.substring(0, js[js.length - 1].src.lastIndexOf('/') + 1)
       let nodeA = this.getFishBoneNode(PntA)
       let nodeZ = this.getFishBoneNode(PntZ)
-      if (depth == 0) {
+      if (depth === 0) {
         //获取鱼骨图，设置根节点x,y坐标
         let img = new Image()
-        img.src = '/static/image/fish_head.png'
+        img.src = '/public/static/image/fish_head.png'
         //图片加载完成之后执行
         img.onload = function() {
           nodeA.x = nodeA.x - 350
           nodeZ.x = nodeZ.x + 20
           nodeA.y = nodeA.y - img.height / 2
           nodeZ.y = nodeZ.y - img.height / 2
-          nodeA.setImage('/image/fish_tail.png', true)
-          nodeZ.setImage('/image/fish_head.png', true)
+          nodeA.setImage('/public/static/image/fish_tail.png', true)
+          nodeZ.setImage('/public/static/image/fish_head.png', true)
         }
       }
       this.scene.add(nodeA)

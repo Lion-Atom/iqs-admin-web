@@ -1317,7 +1317,7 @@ export default {
             this.$message({
               type: 'info',
               message: action === 'cancel'
-                ? 'Save Cover 放弃撤销'
+                ? 'Quit Cover 放弃撤销'
                 : 'Reconsider 暂停留本页面，考虑一下'
             })
           })

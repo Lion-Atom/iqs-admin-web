@@ -2,7 +2,7 @@
  * @param {string} str
  * @returns {Boolean}
  */
-export function validIsNull(str) {
+export function validIsNotNull(str) {
   return !(str == null || str === '')
 }
 

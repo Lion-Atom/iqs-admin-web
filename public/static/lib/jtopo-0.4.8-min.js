@@ -287,8 +287,7 @@
     var b = 0, c = 0
     if ('getBoundingClientRect' in document.documentElement) {
       var d = a.getBoundingClientRect(), e = a.ownerDocument,
-        f = e.body, g = e.documentElement, h = g.clientTop || f.clientTop || 0,
-        i = g.clientLeft || f.clientLeft || 0,
+        f = e.body, g = e.documentElement, h = g.clientTop || f.clientTop || 0, i = g.clientLeft || f.clientLeft || 0,
         b = d.top + (self.pageYOffset || g && g.scrollTop || f.scrollTop) - h,
         c = d.left + (self.pageXOffset || g && g.scrollLeft || f.scrollLeft) - i
     } else {
@@ -400,11 +399,9 @@
           e.save(), e.clearRect(0, 0, this.canvas.width, this.canvas.height), a.childs.forEach(function(a) {
             1 == a.visible && (a.save(), a.centerAndZoom(null, null, e), a.repaint(e), a.restore())
           })
-          var f = d(a.childs[0]),
-            g = f.translateX * (this.canvas.width / a.canvas.width) * a.childs[0].scaleX,
-            h = f.translateY * (this.canvas.height / a.canvas.height) * a.childs[0].scaleY,
-            i = a.getBound(), j = a.canvas.width / a.childs[0].scaleX / i.width,
-            k = a.canvas.height / a.childs[0].scaleY / i.height
+          var f = d(a.childs[0]), g = f.translateX * (this.canvas.width / a.canvas.width) * a.childs[0].scaleX,
+            h = f.translateY * (this.canvas.height / a.canvas.height) * a.childs[0].scaleY, i = a.getBound(),
+            j = a.canvas.width / a.childs[0].scaleX / i.width, k = a.canvas.height / a.childs[0].scaleY / i.height
           j > 1 && (j = 1), k > 1 && (j = 1), g *= j, h *= k, i.left < 0 && (g -= Math.abs(i.left) * (this.width / i.width)), i.top < 0 && (h -= Math.abs(i.top) * (this.height / i.height)), e.save(), e.lineWidth = 1, e.strokeStyle = 'rgba(255,0,0,1)', e.strokeRect(-g, -h, e.canvas.width * j, e.canvas.height * k), e.restore()
           var l = null
           try {
@@ -527,7 +524,7 @@
       for (var b = 0; b < this.childs.length; b++) if (this.childs[b] === a) return
       a.addTo(this), this.childs.push(a)
     }, this.remove = function(a) {
-      if (null == a) throw new Error('Stage.remove鍑洪敊: 鍙傛暟涓簄ull!')
+      if (null == a) throw new Error('Stage.removeå‡ºé”™: å‚æ•°ä¸ºnull!')
       for (var b = 0; b < this.childs.length; b++) if (this.childs[b] === a) return a.stage = null, this.childs = this.childs.del(b), this
       return this
     }, this.clear = function() {
@@ -802,9 +799,9 @@
       var c = this.toSceneEvent(b)
       this.mode == a.SceneMode.normal ? null == this.currentElement || this.currentElement instanceof a.Link ? 1 == this.translate && (this.stage.cursor = a.MouseCursor.closed_hand, this.translateX = this.lastTranslateX + c.dx, this.translateY = this.lastTranslateY + c.dy) : this.dragElements(c) : this.mode == a.SceneMode.drag ? 1 == this.translate && (this.stage.cursor = a.MouseCursor.closed_hand, this.translateX = this.lastTranslateX + c.dx, this.translateY = this.lastTranslateY + c.dy) : this.mode == a.SceneMode.select ? null != this.currentElement ? 1 == this.currentElement.dragable && this.dragElements(c) : 1 == this.areaSelect && this.areaSelectHandle(c) : this.mode == a.SceneMode.edit && (null == this.currentElement || this.currentElement instanceof a.Link ? 1 == this.translate && (this.stage.cursor = a.MouseCursor.closed_hand, this.translateX = this.lastTranslateX + c.dx, this.translateY = this.lastTranslateY + c.dy) : this.dragElements(c)), this.dispatchEvent('mousedrag', c)
     }, this.areaSelectHandle = function(a) {
-      var b = a.offsetLeft, c = a.offsetTop, f = this.mouseDownEvent.offsetLeft,
-        g = this.mouseDownEvent.offsetTop, h = b >= f ? f : b, i = c >= g ? g : c,
-        j = Math.abs(a.dx) * this.scaleX, k = Math.abs(a.dy) * this.scaleY, l = new d(h, i, j, k)
+      var b = a.offsetLeft, c = a.offsetTop, f = this.mouseDownEvent.offsetLeft, g = this.mouseDownEvent.offsetTop,
+        h = b >= f ? f : b, i = c >= g ? g : c, j = Math.abs(a.dx) * this.scaleX, k = Math.abs(a.dy) * this.scaleY,
+        l = new d(h, i, j, k)
       e.clearOperations().addOperation(l), b = a.x, c = a.y, f = this.mouseDownEvent.x, g = this.mouseDownEvent.y, h = b >= f ? f : b, i = c >= g ? g : c, j = Math.abs(a.dx), k = Math.abs(a.dy)
       for (var m = h + j, n = i + k, o = 0; o < e.childs.length; o++) {
         var p = e.childs[o]
@@ -880,8 +877,8 @@
       this.translateX = -c, this.translateY = -d
     }, this.centerAndZoom = function(a, b, c) {
       if (this.translateToCenter(c), null == a || null == b) {
-        var d = this.getElementsBound(), e = d.right - d.left, f = d.bottom - d.top,
-          g = this.stage.canvas.width / e, h = this.stage.canvas.height / f
+        var d = this.getElementsBound(), e = d.right - d.left, f = d.bottom - d.top, g = this.stage.canvas.width / e,
+          h = this.stage.canvas.height / f
         c && (g = c.canvas.width / e, h = c.canvas.height / f)
         var i = Math.min(g, h)
         if (i > 1) return
@@ -1143,16 +1140,16 @@
     }, this.paintAlarmText = function(a) {
       if (null != this.alarm && '' != this.alarm) {
         var b = this.alarmColor || '255,0,0', c = this.alarmAlpha || .5
-        a.beginPath(), a.font = this.alarmFont || '10px 寰蒋闆呴粦'
-        var d = a.measureText(this.alarm).width + 6, e = a.measureText('鐢�').width + 6,
-          f = this.width / 2 - d / 2, g = -this.height / 2 - e - 8
+        a.beginPath(), a.font = this.alarmFont || '10px å¾®è½¯é›…é»‘'
+        var d = a.measureText(this.alarm).width + 6, e = a.measureText('ç”°').width + 6, f = this.width / 2 - d / 2,
+          g = -this.height / 2 - e - 8
         a.strokeStyle = 'rgba(' + b + ', ' + c + ')', a.fillStyle = 'rgba(' + b + ', ' + c + ')', a.lineCap = 'round', a.lineWidth = 1, a.moveTo(f, g), a.lineTo(f + d, g), a.lineTo(f + d, g + e), a.lineTo(f + d / 2 + 6, g + e), a.lineTo(f + d / 2, g + e + 8), a.lineTo(f + d / 2 - 6, g + e), a.lineTo(f, g + e), a.lineTo(f, g), a.fill(), a.stroke(), a.closePath(), a.beginPath(), a.strokeStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillText(this.alarm, f + 2, g + e - 4), a.closePath()
       }
     }, this.paintText = function(a) {
       var b = this.text
       if (null != b && '' != b) {
         a.beginPath(), a.font = this.font
-        var c = a.measureText(b).width, d = a.measureText('鐢�').width
+        var c = a.measureText(b).width, d = a.measureText('ç”°').width
         a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')'
         var e = this.getTextPostion(this.textPosition, c, d)
         a.fillText(b, e.x, e.y), a.closePath()
@@ -1194,7 +1191,7 @@
         y: c / 2
       }), null != this.textOffsetX && (d.x += this.textOffsetX), null != this.textOffsetY && (d.y += this.textOffsetY), d
     }, this.setImage = function(b, c) {
-      if (null == b) throw new Error('Node.setImage(): 鍙傛暟Image瀵硅薄涓虹┖!')
+      if (null == b) throw new Error('Node.setImage(): å‚æ•°Imageå¯¹è±¡ä¸ºç©º!')
       var d = this
       if ('string' == typeof b) {
         var e = j[b]
@@ -1222,13 +1219,13 @@
 
   function d(a) {
     this.initialize(), this.text = a, this.elementType = 'TextNode', this.paint = function(a) {
-      a.beginPath(), a.font = this.font, this.width = a.measureText(this.text).width, this.height = a.measureText('鐢�').width, a.strokeStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillText(this.text, -this.width / 2, this.height / 2), a.closePath(), this.paintBorder(a), this.paintCtrl(a), this.paintAlarmText(a)
+      a.beginPath(), a.font = this.font, this.width = a.measureText(this.text).width, this.height = a.measureText('ç”°').width, a.strokeStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillText(this.text, -this.width / 2, this.height / 2), a.closePath(), this.paintBorder(a), this.paintCtrl(a), this.paintAlarmText(a)
     }
   }
 
   function e(a, b, c) {
     this.initialize(), this.text = a, this.href = b, this.target = c, this.elementType = 'LinkNode', this.isVisited = !1, this.visitedColor = null, this.paint = function(a) {
-      a.beginPath(), a.font = this.font, this.width = a.measureText(this.text).width, this.height = a.measureText('鐢�').width, this.isVisited && null != this.visitedColor ? (a.strokeStyle = 'rgba(' + this.visitedColor + ', ' + this.alpha + ')', a.fillStyle = 'rgba(' + this.visitedColor + ', ' + this.alpha + ')') : (a.strokeStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')'), a.fillText(this.text, -this.width / 2, this.height / 2), this.isMouseOver && (a.moveTo(-this.width / 2, this.height), a.lineTo(this.width / 2, this.height), a.stroke()), a.closePath(), this.paintBorder(a), this.paintCtrl(a), this.paintAlarmText(a)
+      a.beginPath(), a.font = this.font, this.width = a.measureText(this.text).width, this.height = a.measureText('ç”°').width, this.isVisited && null != this.visitedColor ? (a.strokeStyle = 'rgba(' + this.visitedColor + ', ' + this.alpha + ')', a.fillStyle = 'rgba(' + this.visitedColor + ', ' + this.alpha + ')') : (a.strokeStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')'), a.fillText(this.text, -this.width / 2, this.height / 2), this.isMouseOver && (a.moveTo(-this.width / 2, this.height), a.lineTo(this.width / 2, this.height), a.stroke()), a.closePath(), this.paintBorder(a), this.paintCtrl(a), this.paintAlarmText(a)
     }, this.mousemove(function() {
       var a = document.getElementsByTagName('canvas')
       if (a && a.length > 0) for (var b = 0; b < a.length; b++) a[b].style.cursor = 'pointer'
@@ -1396,10 +1393,9 @@
       var d = e(this.nodeA, this.nodeZ)
       if (1 == d) return [b, c]
       var f = Math.atan2(c.y - b.y, c.x - b.x),
-        g = { x: b.x + this.bundleOffset * Math.cos(f), y: b.y + this.bundleOffset * Math.sin(f) }, h = {
-          x: c.x + this.bundleOffset * Math.cos(f - Math.PI),
-          y: c.y + this.bundleOffset * Math.sin(f - Math.PI)
-        }, i = f - Math.PI / 2, j = f - Math.PI / 2, k = d * this.bundleGap / 2 - this.bundleGap / 2,
+        g = { x: b.x + this.bundleOffset * Math.cos(f), y: b.y + this.bundleOffset * Math.sin(f) },
+        h = { x: c.x + this.bundleOffset * Math.cos(f - Math.PI), y: c.y + this.bundleOffset * Math.sin(f - Math.PI) },
+        i = f - Math.PI / 2, j = f - Math.PI / 2, k = d * this.bundleGap / 2 - this.bundleGap / 2,
         l = this.bundleGap * this.nodeIndex, m = { x: g.x + l * Math.cos(i), y: g.y + l * Math.sin(i) },
         n = { x: h.x + l * Math.cos(j), y: h.y + l * Math.sin(j) }
       return m = {
@@ -1444,7 +1440,7 @@
       if (4 == b.length && (c = b[1], d = b[2]), this.text && this.text.length > 0) {
         var e = (d.x + c.x) / 2 + this.textOffsetX, f = (d.y + c.y) / 2 + this.textOffsetY
         a.save(), a.beginPath(), a.font = this.font
-        var g = a.measureText(this.text).width, h = a.measureText('鐢�').width
+        var g = a.measureText(this.text).width, h = a.measureText('ç”°').width
         if (a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', this.nodeA === this.nodeZ) {
           var j = this.bundleGap * (this.nodeIndex + 1) / 2, e = this.nodeA.x + j * Math.cos(i),
             f = this.nodeA.y + j * Math.sin(i)
@@ -1496,7 +1492,7 @@
       if (this.text && this.text.length > 0) {
         var c = b[1], d = c.x + this.textOffsetX, e = c.y + this.textOffsetY
         a.save(), a.beginPath(), a.font = this.font
-        var f = a.measureText(this.text).width, g = a.measureText('鐢�').width
+        var f = a.measureText(this.text).width, g = a.measureText('ç”°').width
         a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')', a.fillText(this.text, d - f / 2, e - g / 2), a.stroke(), a.closePath(), a.restore()
       }
     }
@@ -1583,7 +1579,7 @@
       var b = this.text
       if (null != b && '' != b) {
         a.beginPath(), a.font = this.font
-        var c = a.measureText(b).width, d = a.measureText('鐢�').width
+        var c = a.measureText(b).width, d = a.measureText('ç”°').width
         a.fillStyle = 'rgba(' + this.fontColor + ', ' + this.alpha + ')'
         var e = this.getTextPostion(this.textPosition, c, d)
         a.fillText(b, e.x, e.y), a.closePath()
@@ -1596,10 +1592,7 @@
       } : 'Top_Center' == a ? d = {
         x: this.x + this.width / 2 - b / 2,
         y: this.y - c / 2
-      } : 'Top_Right' == a ? d = {
-        x: this.x + this.width - b,
-        y: this.y - c / 2
-      } : 'Top_Left' == a ? d = {
+      } : 'Top_Right' == a ? d = { x: this.x + this.width - b, y: this.y - c / 2 } : 'Top_Left' == a ? d = {
         x: this.x,
         y: this.y - c / 2
       } : 'Bottom_Right' == a ? d = {
@@ -1944,7 +1937,7 @@
         var g = this.datas[f] * Math.PI * 2
         a.save(), a.beginPath(), a.fillStyle = b.colors[f], a.moveTo(0, 0), a.arc(0, 0, this.radius, e, e + g, !1), a.fill(), a.closePath(), a.restore(), a.beginPath(), a.font = this.font
         var h = this.titles[f] + ': ' + (100 * this.datas[f]).toFixed(2) + '%', i = a.measureText(h).width,
-          j = (a.measureText('鐢�').width, (e + e + g) / 2), k = this.radius * Math.cos(j),
+          j = (a.measureText('ç”°').width, (e + e + g) / 2), k = this.radius * Math.cos(j),
           l = this.radius * Math.sin(j)
         j > Math.PI / 2 && j <= Math.PI ? k -= i : j > Math.PI && j < 2 * Math.PI * 3 / 4 ? k -= i : j > 2 * Math.PI * .75, a.fillStyle = '#FFFFFF', a.fillText(h, k, l), a.moveTo(this.radius * Math.cos(j), this.radius * Math.sin(j)), j > Math.PI / 2 && j < 2 * Math.PI * 3 / 4 && (k -= i), j > Math.PI, a.fill(), a.stroke(), a.closePath(), e += g
       }
@@ -1960,7 +1953,7 @@
         a.save(), a.beginPath(), a.fillStyle = b.colors[e]
         var f = this.datas[e], g = e * (d + c) - this.width / 2, h = this.height - f - this.height / 2
         a.fillRect(g, h, d, f)
-        var i = '' + parseInt(this.datas[e]), j = a.measureText(i).width, k = a.measureText('鐢�').width
+        var i = '' + parseInt(this.datas[e]), j = a.measureText(i).width, k = a.measureText('ç”°').width
         a.fillStyle = '#FFFFFF', a.fillText(i, g + (d - j) / 2, h - k), a.fillText(this.titles[e], g + (d - j) / 2, this.height / 2 + k), a.fill(), a.closePath(), a.restore()
       }
     }, b

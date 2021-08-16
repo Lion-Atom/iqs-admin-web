@@ -406,7 +406,8 @@
         </el-row>
         <el-row v-if="form.recoverTempFile === false" style="margin-bottom: 20px;">
           <el-col :span="12">
-            <el-input placeholder="请输入拒绝回收的理由" v-model="form.tempFileComment" clearable></el-input>
+            <el-input placeholder="请输入拒绝回收的理由" v-model="form.tempFileComment" @input="inputCommentEv" clearable
+            ></el-input>
           </el-col>
         </el-row>
         <el-row>
@@ -438,13 +439,13 @@
 
 <script>
 
-import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
-import { getIssueById, edit } from '@/api/tools/issue'
+import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
+import { edit, getIssueById } from '@/api/tools/issue'
 import { editChangeDesc, getChangeDescByIssueId } from '@/api/tools/changeDesc'
-import { getIssueActionByExample, editIssueAction, addIssueAction, delIssueAction } from '@/api/tools/issueAction'
+import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 import { editAnalysis, getAnalysisByIssueId } from '@/api/tools/issueAnalysis'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
-
+import { validIsNotNull, validTwo } from '@/utils/validationUtil'
 import UploadFile from '@/views/tools/8D/module/uploadFile'
 
 export default {
@@ -465,6 +466,7 @@ export default {
       curStep: 'D7',
       form: {},
       oldRecoverTempFile: null,
+      oldTempFileComment: null,
       timeManagement: {},
       selfLoading: false,
       isFinished: false,
@@ -538,7 +540,8 @@ export default {
         comment: [
           { required: true, message: '若无其他补充，可填入”暂无“', trigger: 'blur' }
         ]
-      }
+      },
+      oldComment: null
     }
   },
   created() {
@@ -564,7 +567,9 @@ export default {
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
+        this.oldComment = res.commentD7
         this.oldRecoverTempFile = res.recoverTempFile
+        this.oldTempFileComment = res.tempFileComment
       })
     },
     // 获取人员信息
@@ -635,14 +640,25 @@ export default {
       })
     },
     addSeventhDesc(form) {
-      edit(form).then(res => {
-        //编辑问题，添加供应商详细描述
+      let val = true
+      if (this.oldComment === form.commentD7) {
         this.$message({
-          message: 'Submit D7-Desc Success! 添加D7详细描述完成!',
-          type: 'success'
+          message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+          type: 'warning'
         })
-        this.isFinished = false
-      })
+        val = false
+      }
+      if (val) {
+        edit(form).then(res => {
+          //编辑问题，添加供应商详细描述
+          this.$message({
+            message: 'Submit D7-Desc Success! 添加D7详细描述完成!',
+            type: 'success'
+          })
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+        })
+      }
     },
     // 编辑临时措施状态之前
     openEditStatus(row) {
@@ -676,9 +692,9 @@ export default {
     },
     // 提交编辑分析结果
     editResult(index, row) {
-      if (this.analysis.result === '' || this.analysis.result === undefined || this.analysis.result === null) {
+      if (!validIsNotNull(this.analysis.result) && !validIsNotNull(row.result)) {
         this.$message({
-          message: 'No data to  save!请填写分析结果',
+          message: 'No data to save!请填写分析结果',
           type: 'warning'
         })
       } else if (this.analysis.result === row.result) {
@@ -690,7 +706,7 @@ export default {
         row.result = this.analysis.result
         editAnalysis(row).then(res => {
           this.$message({
-            message: 'Edit Analysis Result Success! 变更分析结果成功!',
+            message: !validIsNotNull(this.analysis.result) ? 'Clear Analysis Result Success! 清空分析结果成功!' : 'Edit Analysis Result Success! 变更分析结果成功!',
             type: 'success'
           })
           this.getAnalysisByIssueId(this.$props.issueId)
@@ -801,13 +817,27 @@ export default {
     recoverTempFileChange(val) {
       if (val !== this.oldRecoverTempFile) {
         this.isFinished = false
+      } else {
+        this.isFinished = true
+      }
+    },
+    // 输入框变化
+    inputCommentEv(val) {
+      if (val !== this.oldTempFileComment) {
+        this.isFinished = false
+      } else {
+        this.isFinished = true
       }
     },
     confirmFinished() {
       // 判断是否回收临时文件选项
-      edit(this.form).then(res => {
-        // 编辑是否存在临时文件
-      })
+      if (this.oldRecoverTempFile !== this.form.recoverTempFile || ((validIsNotNull(this.oldTempFileComment) ||
+        validIsNotNull(this.form.tempFileComment)) && this.oldTempFileComment !== this.form.tempFileComment)
+      ) {
+        edit(this.form).then(res => {
+          // 编辑是否存在临时文件
+        })
+      }
 
       // 确认D7完成
       this.timeManagement.curStep = 'D7'

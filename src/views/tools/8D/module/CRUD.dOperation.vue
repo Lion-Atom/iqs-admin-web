@@ -292,7 +292,7 @@ export default {
       // 跳转到8D明细中
       this.$router.push(
         {
-          path: '/8D/detail',
+          path: '/issue/detail',
           query: {
             issueId: data.id
           }
@@ -308,7 +308,7 @@ export default {
         // 跳转到8D预览界面
         this.$router.push(
           {
-            path: '/8D/overview',
+            path: '/issue/overview',
             query: {
               issueId: data.id,
               initFishData: this.fishData

@@ -50,9 +50,11 @@
               <span>D4 根本原因分析</span>
            </span>
         </span>
-        <ForthForm :issue-id="issueId" :status="d4Status" @func="getMsgFormForthSon" v-if="isForth"/>
+        <ForthForm :issue-id="issueId" :status="d4Status" @func="getMsgFormForthSon" @funx="getSpecialMsgSon"
+                   v-if="isForth"
+        />
       </el-tab-pane>
-      <el-tab-pane name="D5">
+      <el-tab-pane name="D5" v-if="!isSpecial">
        <span slot="label">
            <span class="span-box">
                 <i v-if="d5Status" class="el-icon-check"/>
@@ -62,7 +64,7 @@
         </span>
         <FifthForm :issue-id="issueId" :status="d5Status" @func="getMsgFormFifthSon" v-if="isFifth"/>
       </el-tab-pane>
-      <el-tab-pane name="D6">
+      <el-tab-pane name="D6" v-if="!isSpecial">
         <span slot="label">
            <span class="span-box">
                 <i v-if="d6Status" class="el-icon-check"/>
@@ -72,7 +74,7 @@
         </span>
         <SixthForm :issue-id="issueId" :status="d6Status" @func="getMsgFormSixthSon" v-if="isSixth"/>
       </el-tab-pane>
-      <el-tab-pane name="D7">
+      <el-tab-pane name="D7" v-if="!isSpecial">
         <span slot="label">
            <span class="span-box">
                 <i v-if="d7Status" class="el-icon-check"/>
@@ -99,6 +101,8 @@
 <script>
 
 import { getByIssueId } from '@/api/tools/timeManagement'
+import { getIssueById } from '@/api/tools/issue'
+import { validIsNotNull } from '@/utils/validationUtil'
 import FirstForm from './step/ISSUE.D1'
 import SecondForm from './step/ISSUE.D2'
 import ThirdForm from './step/ISSUE.D3'
@@ -136,6 +140,8 @@ export default {
       d7Status: false,
       d8Status: false,
 
+      isSpecial: false,
+
       initFishData: null
     }
   },
@@ -143,9 +149,18 @@ export default {
     if (this.$route.query.issueId !== undefined) {
       this.issueId = this.$route.query.issueId
       this.getTimeManagementByIssueId(this.$route.query.issueId)
+      this.getIssueInfoById(this.$route.query.issueId)
     }
   },
   methods: {
+    // 获取问题信息
+    getIssueInfoById(id) {
+      getIssueById(id).then(res => {
+        if (validIsNotNull(res.specialEvent)) {
+          this.isSpecial = true
+        }
+      })
+    },
     // 监控附件组件相关改动
     getMsgFormFirstSon(msg) {
       this.d1Status = msg
@@ -180,6 +195,9 @@ export default {
       this.d6Status = false
       this.d7Status = false
       this.d8Status = false
+    },
+    getSpecialMsgSon(msg) {
+      this.isSpecial = msg
     },
     getMsgFormFifthSon(msg) {
       this.d5Status = msg

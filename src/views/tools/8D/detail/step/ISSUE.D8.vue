@@ -109,7 +109,7 @@
 import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
 import { getIssueById, edit } from '@/api/tools/issue'
 import { editConclusion, getConclusionByIssueId } from '@/api/tools/issueConclusion'
-import { validIsNull } from '@/utils/validationUtil'
+import { validIsNotNull } from '@/utils/validationUtil'
 
 export default {
   name: 'SeventhForm',
@@ -213,34 +213,40 @@ export default {
       this.timeManagement.curStep = 'D8'
       this.timeManagement.d8Status = true
       this.timeManagement.d8Time = new Date()
-      if (!this.timeManagement.d7Status) {
+      if (!this.timeManagement.d7Status && !validIsNotNull(this.form.specialEvent)) {
         this.$message({
           message: 'Cannot submit! 上一步尚未完成，无法执行此操作!',
+          type: 'warning'
+        })
+      } else if (validIsNotNull(this.form.specialEvent) && !this.timeManagement.d4Status) {
+        this.$message({
+          message: 'Cannot submit! D4尚未完成，无法执行此特殊事件的完结操作!',
           type: 'warning'
         })
       } else {
         // 上一步已完成方可执行
         // 验证各方是否完成结论填写
         let val = true
-        if (!validIsNull(this.conclusion.leaderConclusion)) {
+        if (!validIsNotNull(this.conclusion.leaderConclusion)) {
           this.$message({
             message: 'Cannot submit! 组长意见为空，不可提交8D!',
             type: 'warning'
           })
           val = false
         }
-        if (!validIsNull(this.conclusion.managerConclusion)) {
+        if (!validIsNotNull(this.conclusion.managerConclusion)) {
           this.$message({
             message: 'Cannot submit! 管理层意见为空，不可提交8D!',
             type: 'warning'
           })
           val = false
         }
-        if (this.form.hasScore && !validIsNull(this.form.score)) {
+        if (this.form.hasScore && !validIsNotNull(this.form.score)) {
           this.$message({
             message: 'Cannot submit! 提交前请给8D打个分',
             type: 'warning'
           })
+          this.confirmVisible = false
           val = false
         }
         if (val) {
@@ -253,7 +259,6 @@ export default {
               type: 'success'
             })
           })
-
         }
         this.getIssueInfoById(this.$props.issueId)
       }

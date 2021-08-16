@@ -4,6 +4,7 @@
     <canvas id="canvas" ref="canvas" style="background-color: rgb(238, 238, 238);width:1080px;height:600px"></canvas>
   </div>
 </template>
+
 <script>
 
 export default {

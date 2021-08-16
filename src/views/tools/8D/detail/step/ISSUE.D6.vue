@@ -29,7 +29,7 @@
               />
             </el-form-item>
             <el-form-item
-              label="%有效性"
+              label="有效性(%)"
               prop="efficiency"
             >
               <el-input-number
@@ -524,6 +524,7 @@ export default {
         removeTime: null,
         comment: null
       },
+      oldComment: null,
       removeActionRules: {},
       canBeRemoveActions: [],
       isNeed: false
@@ -563,6 +564,7 @@ export default {
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
+        this.oldComment = res.commentD6
       })
     },
     // 获取时间进程
@@ -694,14 +696,25 @@ export default {
       this.removeActionVisible = false
     },
     addSixthDesc(form) {
-      edit(form).then(res => {
-        // 编辑问题，添加供应商详细描述
+      let val = true
+      if (this.oldComment === form.commentD6) {
         this.$message({
-          message: 'Submit D6-Desc Success! 添加D6详细描述完成!',
-          type: 'success'
+          message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+          type: 'warning'
         })
-        this.isFinished = false
-      })
+        val = false
+      }
+      if (val) {
+        edit(form).then(res => {
+          // 编辑问题，添加供应商详细描述
+          this.$message({
+            message: 'Submit D6-Desc Success! 添加D6详细描述完成!',
+            type: 'success'
+          })
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+        })
+      }
     },
     // 关闭弹窗前操作
     handleClose(done) {

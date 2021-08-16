@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- todo 围堵措施-->
+    <!--围堵措施-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">常见围堵措施</span>
@@ -65,7 +65,7 @@
                 <el-option
                   v-for="item in members"
                   :key="item.userId"
-                  :label="item.userName"
+                  :label="item.deptName + ' - ' + item.userName "
                   :value="item.userId"
                 />
               </el-select>
@@ -79,9 +79,19 @@
               ></el-input-number>
             </el-form-item>
             <el-form-item
-              label="产品标识"
               prop="partIdentification"
             >
+              <span slot="label">
+                    <span class="span-box">
+                      <el-tooltip placement="top" effect="light">
+                        <div slot="content">
+                          需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
+                        </div>
+                        <i class="el-icon-question"/>
+                      </el-tooltip>
+                      <span>产品标识</span>
+                    </span>
+              </span>
               <el-input
                 v-model="conActionForm.partIdentification"
                 style="width: 370px;"
@@ -232,7 +242,7 @@
                 <el-option
                   v-for="item in members"
                   :key="item.userId"
-                  :label="item.userName"
+                  :label="item.deptName + ' - ' + item.userName "
                   :value="item.userId"
                 />
               </el-select>
@@ -424,9 +434,9 @@
 
 <script>
 
-import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
-import { getIssueById, edit } from '@/api/tools/issue'
-import { editConAction, clearConAction, getConActionByIssueId } from '@/api/tools/conAction'
+import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
+import { edit, getIssueById } from '@/api/tools/issue'
+import { clearConAction, editConAction, getConActionByIssueId } from '@/api/tools/conAction'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
 import UploadFile from '../../module/uploadFile.vue'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
@@ -540,6 +550,7 @@ export default {
         isCon: false,
         type: 'D3'
       },
+      oldDesc: null,
       isNeed: true,
       submitLoading: false
     }
@@ -565,6 +576,7 @@ export default {
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
+        this.oldDesc = res.riskAssessment
         this.oldHasTemp = res.hasTempFile
       })
     },
@@ -722,15 +734,25 @@ export default {
       })
     },
     addRiskAssessment(form) {
-      edit(form).then(res => {
-        //编辑问题，添加供应商详细描述
+      let val = true
+      if (this.oldDesc === form.riskAssessment) {
         this.$message({
-          message: 'Submit Success! 添加风险评估成功!',
-          type: 'success'
+          message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+          type: 'warning'
         })
-        this.isFinished = false
-        this.$emit('func', this.isFinished)
-      })
+        val = false
+      }
+      if (val) {
+        edit(form).then(res => {
+          //编辑问题，添加供应商详细描述
+          this.$message({
+            message: 'Submit Success! 保存风险评估成功!',
+            type: 'success'
+          })
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+        })
+      }
     },
     // 关闭弹窗前操作
     handleClose(done) {

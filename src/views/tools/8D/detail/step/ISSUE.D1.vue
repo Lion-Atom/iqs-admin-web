@@ -358,7 +358,7 @@ import { addMember, delMember, editMember, getMembersByIssueId } from '@/api/too
 import Treeselect, { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getDepts, getDeptTree } from '@/api/system/dept'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { validIsNull, validTwo } from '@/utils/validationUtil'
+import { validIsNotNull, validTwo } from '@/utils/validationUtil'
 // import ConfirmFinish from '@/views/tools/8D/module/ConfirmFinish'
 
 export default {
@@ -519,9 +519,9 @@ export default {
           type: 'warning'
         })
         val = false
-      } else if (((validIsNull(step1) && validIsNull(step2)) && step1 === step2) ||
-        ((validIsNull(step1) && validIsNull(step3)) && step1 === step3) ||
-        ((validIsNull(step2) && validIsNull(step3)) && step2 === step3)) {
+      } else if (((validIsNotNull(step1) && validIsNotNull(step2)) && step1 === step2) ||
+        ((validIsNotNull(step1) && validIsNotNull(step3)) && step1 === step3) ||
+        ((validIsNotNull(step2) && validIsNotNull(step3)) && step2 === step3)) {
         this.$message({
           message: '请不要设置重复步骤!',
           type: 'warning'

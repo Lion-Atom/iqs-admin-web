@@ -60,7 +60,7 @@ export const constantRouterMap = [
     ]
   },
   {
-    path: '/8D',
+    path: '/issue',
     component: Layout,
     hidden: true,
     redirect: 'noredirect',
@@ -70,6 +70,12 @@ export const constantRouterMap = [
         component: (resolve) => require(['@/views/tools/8D/detail/index'], resolve),
         name: '8D流程',
         meta: { title: '8D流程' }
+      },
+      {
+        path: 'fishBone',
+        component: (resolve) => require(['@/views/tools/8D/detail/fishbone/index'], resolve),
+        name: '鱼骨图',
+        meta: { title: '鱼骨图' }
       },
       {
         path: 'report',
@@ -82,20 +88,6 @@ export const constantRouterMap = [
         component: (resolve) => require(['@/views/tools/8D/overview/index'], resolve),
         name: '8D预览',
         meta: { title: '8D预览' }
-      }
-    ]
-  },
-  {
-    path: '/8D',
-    component: Layout,
-    hidden: true,
-    redirect: 'noredirect',
-    children: [
-      {
-        path: 'fishBone',
-        component: (resolve) => require(['@/views/tools/8D/detail/fishbone/index'], resolve),
-        name: '鱼骨图',
-        meta: { title: '鱼骨图' }
       }
     ]
   }

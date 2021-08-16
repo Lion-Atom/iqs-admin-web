@@ -8,9 +8,10 @@ export function editQuestion(data) {
   })
 }
 
-export function getQuestionByIssueId(id) {
+export function getQuestionByIssueId(id, type) {
   const params = {
-    issueId: id
+    issueId: id,
+    type: type
   }
   return request({
     url: 'api/issueQuestion/byIssueId',

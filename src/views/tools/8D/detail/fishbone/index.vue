@@ -23,20 +23,18 @@ export default {
   created() {
     if (this.$route.query.fishData !== undefined) {
       this.fishData = this.$route.query.fishData
-      /*this.issueId = this.$route.query.issueId
-      this.getCauseTreeByIssueId(this.issueId)*/
     } else {
       window.location.go(-1)
     }
-    /*this.fishData = {"name":"一期内胶内壁难清理异物",
+    /* this.fishData = {"name":"一期内胶内壁难清理异物",
       "children":
         [{"children":[{"name":"内胶挤出时脏污随芯棒被内胶覆盖","children":[]}],"name":"机器"},
           {"children":[{"name":"粗心大意","children":[]}],"name":"人员"},
           {"children":[{"name":"芯棒不干净","children":[]}],"name":"材料"},
           {"children":[{"name":"芯棒清洗过程控制不好","children":[]}],"name":"方法"},
           {"children":[{"name":"转运过程中芯棒受到污染","children":[]}],"name":"环境"}]
-    }*/
-    /*this.fishData = {
+    } */
+    /* this.fishData = {
       'children': [
         {
           'children': [

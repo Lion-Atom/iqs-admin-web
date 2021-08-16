@@ -87,7 +87,7 @@ export default {
       if (data.hasReport === '系统8D') {
         this.$router.push(
           {
-            path: '/8D/detail',
+            path: '/issue/detail',
             query: {
               issueId: data.id
             }
@@ -95,7 +95,7 @@ export default {
       } else if (data.hasReport === '单独报告') {
         this.$router.push(
           {
-            path: '/8D/report',
+            path: '/issue/report',
             query: {
               issueId: data.id
             }

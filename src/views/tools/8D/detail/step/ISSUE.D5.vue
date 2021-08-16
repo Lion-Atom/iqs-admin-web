@@ -70,12 +70,16 @@
               />
             </el-form-item>
             <el-form-item
-              label=有效性(%)"
+              label="有效性(%)"
               prop="efficiency"
             >
-              <el-input-number v-model="correctActionForm.efficiency" style="width: 370px;" :precision="2" :step="0.1"
-                               :max="100"
-              ></el-input-number>
+              <el-input-number
+                v-model="correctActionForm.efficiency"
+                style="width: 370px;"
+                :precision="2"
+                :step="0.1"
+                :max="100"
+              />
             </el-form-item>
             <!--- 负责人列表查询 -->
             <el-form-item
@@ -90,7 +94,7 @@
                 <el-option
                   v-for="item in members"
                   :key="item.userId"
-                  :label="item.userName"
+                  :label="item.deptName + ' - ' + item.userName "
                   :value="item.userId"
                 />
               </el-select>
@@ -239,8 +243,8 @@
 
 <script>
 
-import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
-import { getIssueById, edit } from '@/api/tools/issue'
+import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
+import { edit, getIssueById } from '@/api/tools/issue'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 import { getIssueCauseByExample } from '@/api/tools/issueCause'
@@ -310,6 +314,7 @@ export default {
         issueId: null,
         isExact: true
       },
+      oldComment: null,
       isNeed: false,
       submitLoading: false,
       correctActLoading: false,
@@ -337,6 +342,7 @@ export default {
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
+        this.oldComment = res.commentD5
       })
     },
     // 获取时间进程
@@ -377,14 +383,25 @@ export default {
     },
     // 添加D5问题详细描述
     addFifthDesc(form) {
-      edit(form).then(res => {
-        //编辑问题，添加供应商详细描述
+      let val = true
+      if (this.oldComment === form.commentD5) {
         this.$message({
-          message: 'Submit D6-Desc Success! 添加D5详细描述完成!',
-          type: 'success'
+          message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+          type: 'warning'
         })
-        this.isFinished = false
-      })
+        val = false
+      }
+      if (val) {
+        edit(form).then(res => {
+          //编辑问题，添加供应商详细描述
+          this.$message({
+            message: 'Submit D6-Desc Success! 添加D5详细描述完成!',
+            type: 'success'
+          })
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+        })
+      }
     },
     // 改善措施的新增弹窗
     addCorrectAction() {

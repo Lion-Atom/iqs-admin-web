@@ -199,6 +199,62 @@
       </div>
     </el-card>
 
+    <!--是/否描述-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">IS/IS Not描述</span>
+        <el-popover
+          placement="right"
+          width="800"
+          trigger="click"
+        >
+          <el-table
+            :data="isNotData"
+            :span-method="objectSpanMethod"
+          >
+            <el-table-column width="120" property="name" label="问题描述"></el-table-column>
+            <el-table-column width="80" property="description" label="Item 细目"></el-table-column>
+            <el-table-column width="300" property="isContent" label="IS"></el-table-column>
+            <el-table-column width="300" property="notContent" label="IS-NOT"></el-table-column>
+          </el-table>
+          <el-button type="text" size="small" slot="reference">参考</el-button>
+        </el-popover>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="saveIsNots(isNots)">保存</el-button>
+      </div>
+      <div>
+        <el-table
+          ref="table"
+          v-loading="isNotLoading"
+          :data="isNots"
+          :span-method="objectSpanMethod"
+          style="width: 100%;"
+        >
+          <el-table-column prop="name" label="问题描述" width="120"/>
+          <el-table-column width="120" property="description" label="Item 细目"></el-table-column>
+          <el-table-column label="IS 是">
+            <template scope="scope">
+              <el-input
+                type="textarea"
+                autosize
+                v-model="scope.row.isContent"
+                style="min-width: 300px;"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column label="IS-NOT 否">
+            <template scope="scope">
+              <el-input
+                type="textarea"
+                autosize
+                v-model="scope.row.notContent"
+                style="min-width: 300px;"
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-card>
+
     <!--添加附件及其列表-->
     <UploadFile
       :issue-id="this.$props.issueId"
@@ -305,9 +361,57 @@ export default {
       curStep: 'D2',
       curTime: 'd2Time',
       form: {},
+      oldDesc: null,
       isFinished: false,
       questionLoading: false,
-      questions: []
+      questions: [],
+      isNotLoading: false,
+      isNots: [],
+      types: ['5W2H', 'IS/NOT'],
+      isNotData: [
+        {
+          'name': 'What 什么',
+          'description': '对象',
+          'isContent': '什么零件发生了问题？',
+          'notContent': '可能是什么别的零件发生了问题，但是没有发生？'
+        },
+        {
+          'name': 'What 什么',
+          'description': '缺陷',
+          'isContent': '缺陷是什么？',
+          'notContent': '可能是什么别的缺陷，但是没有发生？'
+        },
+        {
+          'name': 'Where 哪里',
+          'description': '位置/过程',
+          'isContent': '是在零件什么位置发生了缺陷？',
+          'notContent': '零件的什么位置没有发生缺陷？'
+        },
+        {
+          'name': 'Where 哪里',
+          'description': '何处',
+          'isContent': '在过程中的什么位置发现了缺陷？',
+          'notContent': '过程中其他什么位置并未发现缺陷？'
+        },
+        {
+          'name': 'When 何时',
+          'description': '何时',
+          'isContent': '何时第一次发现问题？（如果可以的话可以详细到日期、班次和时间）',
+          'notContent': '其他什么时候？'
+        },
+        {
+          'name': 'When 何时',
+          'description': '模式',
+          'isContent': '当问题出现的时候，问题是否在某个时间段内持续出现？（如果可以的话可以详细到分钟、时、天）',
+          'notContent': '其他什么时间？'
+        },
+        {
+          'name': 'Extent 严重程度',
+          'description': '数量/程度',
+          'isContent': '有多少个零件有这样的缺陷？缺陷的趋势是什么？是在逐渐加重或减轻？每个零件上有多少缺陷？总体缺陷比例如何？',
+          'notContent': '多少零件没有缺陷？什么其他趋势？大于或小于某个缺陷比例？'
+        }
+      ]
     }
   },
   computed: {
@@ -336,6 +440,7 @@ export default {
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
+        this.oldDesc = res.supplierDescription
       })
     },
     // 获取问题关联记录信息
@@ -360,12 +465,18 @@ export default {
     getQuestionByIssueId(id) {
       this.questionLoading = true
       this.questions = []
-      getQuestionByIssueId(id).then(res => {
+      this.isNotLoading = true
+      this.isNots = []
+      getQuestionByIssueId(id, this.types[0]).then(res => {
         this.questions = res
         this.questionLoading = false
       })
+      getQuestionByIssueId(id, this.types[1]).then(res => {
+        this.isNots = res
+        this.isNotLoading = false
+      })
     },
-    // 批量保存缺陷定位数据
+    // 批量保存5W2H数据
     saveQuestions(data) {
       editQuestion(data).then(res => {
         this.$message({
@@ -377,6 +488,22 @@ export default {
       }).catch(() => {
         this.$message({
           message: 'Save 5W2H Failed! 保存5W2H内容失败!',
+          type: 'error'
+        })
+      })
+    },
+    // 批量保存IS/IS Not数据
+    saveIsNots(data) {
+      editQuestion(data).then(res => {
+        this.$message({
+          message: 'Save 5W2H Success! 保存IS/IS Not内容成功!',
+          type: 'success'
+        })
+        this.isFinished = false
+        this.$emit('func', this.isFinished)
+      }).catch(() => {
+        this.$message({
+          message: 'Save 5W2H Failed! 保存IS/IS Not内容失败!',
           type: 'error'
         })
       })
@@ -444,17 +571,43 @@ export default {
         })
       })
     },
+    // IS NOT表合并
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 0) {
+        if (rowIndex % 2 === 0) {
+          return {
+            rowspan: 2,
+            colspan: 1
+          }
+        } else {
+          return {
+            rowspan: 0,
+            colspan: 0
+          }
+        }
+      }
+    },
     // 保存详细描述
     addSupDesc(form) {
-      edit(form).then(res => {
-        // 编辑问题，添加供应商详细描述
+      let val = true
+      if (this.oldDesc === form.supplierDescription) {
         this.$message({
-          message: 'Submit Success! 添加描述完成!',
-          type: 'success'
+          message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+          type: 'warning'
         })
-        this.isFinished = false
-        this.$emit('func', this.isFinished)
-      })
+        val = false
+      }
+      if (val) {
+        edit(form).then(res => {
+          // 编辑问题，添加供应商详细描述
+          this.$message({
+            message: 'Submit Success! 添加描述完成!',
+            type: 'success'
+          })
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+        })
+      }
     },
     // 关闭弹窗前操作
     handleClose(done) {

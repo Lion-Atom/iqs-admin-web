@@ -29,6 +29,7 @@
               v-for="item in scope.row.commonDTOList"
               :key="item.name"
               :status="item.value"
+              :title="item.name"
             >
             </el-step>
           </el-steps>
@@ -131,7 +132,7 @@ export default {
         // 跳转到8D明细中
         this.$router.push(
           {
-            path: '/8D/detail',
+            path: '/issue/detail',
             query: {
               issueId: row.id
             }
@@ -145,7 +146,7 @@ export default {
         // 跳转到单独报告
         this.$router.push(
           {
-            path: '/8D/report',
+            path: '/issue/report',
             query: {
               issueId: row.id
             }

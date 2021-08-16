@@ -33,7 +33,7 @@
       </div>
     </el-card>
 
-    <!--添加根本原因-->
+    <!--根本原因分析-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">根本原因分析</span>
@@ -273,6 +273,121 @@
       </div>
     </el-card>
 
+    <!--风险评估-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">风险评估</span>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="addRbi(issueForm)">保存</el-button>
+      </div>
+      <div>
+        <el-form :inline="true" :model="issueForm" class="demo-form-inline">
+          <el-form-item
+            prop="riskAssessment"
+          >
+            <el-input
+              type="textarea"
+              :rows="3"
+              v-model="issueForm.rbi"
+              style="min-width: 800px;"
+            />
+          </el-form-item>
+        </el-form>
+      </div>
+    </el-card>
+
+    <!--特殊处理-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">
+          <el-form :inline="true" :model="issueForm" style="float: left;">
+          <el-form-item
+            label="特殊事件"
+            prop="riskAssessment"
+          >
+           <el-select
+             v-model="issueForm.specialEvent"
+             placeholder="请选择状态"
+             style="width: 200px;"
+             @change="changeSpecialEvent"
+             clearable
+           >
+            <el-option v-for="item in specialEventOptions" :key="item.key" :label="item.display_name"
+                       :value="item.key"
+            />
+          </el-select>
+          </el-form-item>
+          </el-form>
+          <el-button style="float: right; padding: 3px 0" type="text" @click="saveSpecial">保存</el-button>
+        </span>
+      </div>
+      <div>
+        <div v-if="issueForm.specialEvent === 'NTF不能复制'|| issueForm.specialEvent === '公司外部原因'">
+          <el-form
+            :inline="true"
+            label-width="120px"
+            :model="specialForm"
+            class="demo-form-inline"
+            :rules="specialRules"
+            ref="specialForm"
+          >
+            <el-form-item
+              label="原因说明"
+              prop="reason"
+            >
+              <el-input
+                type="textarea"
+                autosize
+                v-model="specialForm.reason"
+                style="width: 600px;"
+              />
+            </el-form-item>
+            <el-form-item
+              v-if="issueForm.specialEvent === 'NTF不能复制'"
+              label="NTF验证"
+              prop="validation"
+            >
+              <el-input
+                v-model="specialForm.validation"
+                style="width: 600px;"
+              />
+            </el-form-item>
+            <el-form-item
+              prop="evidence"
+            >
+              <span slot="label">
+                    <span class="span-box">
+                      <el-tooltip placement="top" effect="light">
+                        <div slot="content">
+                          需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
+                        </div>
+                        <i class="el-icon-question"/>
+                      </el-tooltip>
+                      <span>证据</span>
+                    </span>
+              </span>
+              <el-input
+                v-model="specialForm.evidence"
+                type="textarea"
+                autosize
+                style="width: 600px;"
+              />
+            </el-form-item>
+            <el-form-item
+              label="其他"
+              prop="other"
+            >
+              <el-input
+                v-model="specialForm.other"
+                type="textarea"
+                autosize
+                style="width: 600px;"
+              />
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+    </el-card>
+
     <!--显示鱼骨图-->
     <el-card v-if="!isNeed" class="box-card">
       <div slot="header" class="clearfix">
@@ -282,6 +397,7 @@
         <Jtopo :fish-data="initFish"/>
       </div>
     </el-card>
+
     <!--显示5WHYS-->
     <el-card v-if="!isNeed" class="box-card">
       <div slot="header" class="clearfix">
@@ -307,6 +423,15 @@
         </div>
       </div>
     </el-card>
+
+    <!--添加附件及其列表-->
+    <UploadFile
+      :issue-id="this.$props.issueId"
+      :is-need="isNeed"
+      :permission="permission"
+      :step-name="curStep"
+      @func="getMsgFormSon"
+    />
 
     <!--确认完成-->
     <el-card v-if="isNeed" class="box-card">
@@ -355,13 +480,16 @@ import {
 } from '@/api/tools/issueCause'
 import { editWhys, getWhysByCauseId, getWhysByIssueId } from '@/api/tools/causeWhy'
 import Jtopo from '@/views/components/Jtopo'
-import { validIsNull } from '@/utils/validationUtil'
+import { validIsNotNull } from '@/utils/validationUtil'
+import { edit, getIssueById } from '@/api/tools/issue'
+import { addSpecial, delSpecialByIssueId, editSpecial, getSpecialByIssueId } from '@/api/tools/issueSpecail'
+import UploadFile from '@/views/tools/8D/module/uploadFile'
 
 export default {
   name: 'ForthForm',
   props: ['issueId', 'needConfirm', 'initFish'],
   dicts: ['common_status'],
-  components: { Jtopo },
+  components: { Jtopo, UploadFile },
   data() {
     return {
       permission: {
@@ -376,11 +504,12 @@ export default {
       submitLoading: false,
       delLoading: false,
       causeOperationTitle: null,
+      issueForm: {},
       form: {
         id: null,
         pid: null,
         name: null,
-        judgeResult: '发生',
+        judgeResult: null,
         subCount: 0,
         method: null,
         result: null,
@@ -418,6 +547,7 @@ export default {
       curTime: 'd4Time',
       causeData: [],
       isFinished: false,
+      isSpecial: false,
       resultTypeOptions: [
         { key: true, display_name: '是' },
         { key: false, display_name: '否' }
@@ -441,9 +571,41 @@ export default {
       causeWhysLoading: false,
       causeWhys: [],
       timeManagement: {},
+      oldRbi: null,
       isNeed: true,
       innerVisible: false,
-      fishData: null
+      fishData: null,
+      specialEventOptions: [
+        { key: 'NTF不能复制', display_name: 'NTF不能复制' },
+        { key: '公司外部原因', display_name: '公司外部原因' }
+      ],
+      specialForm: {
+        issueId: null,
+        type: null,
+        reason: null,
+        validation: null,
+        evidence: null,
+        other: null
+      },
+      specialRules: {
+        reason: [
+          { required: true, message: '原因说明不可为空', trigger: 'blur' }
+        ],
+        validation: [
+          { required: true, message: 'NTF验证不可缺少', trigger: 'blur' }
+        ],
+        evidence: [
+          { required: true, message: '请提供相关证据', trigger: 'blur' }
+        ],
+        other: [
+          { required: true, message: '若无其他补充，可填入”暂无“', trigger: 'blur' }
+        ]
+      },
+      oldReason: null,
+      oldEvidence: null,
+      oldValidation: null,
+      oldOther: null,
+      oldSpecialJudge: null
     }
   },
   created() {
@@ -451,6 +613,7 @@ export default {
   },
   mounted: function() {
     this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
+    this.getIssueInfoById(this.$props.issueId)
     this.getStepDefectByIssueId(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
     this.getIssueCauseByIssueId(this.$props.issueId)
@@ -458,12 +621,28 @@ export default {
     this.getCauseTreeByIssueId(this.$props.issueId)
   },
   methods: {
+    // 监控附件相关改动
+    getMsgFormSon(msg) {
+      this.isFinished = msg
+      this.$emit('func', this.isFinished)
+    },
     // 保存缺陷定位信息
     getStepDefectByIssueId(id) {
       this.defectLoading = true
       getStepDefectByIssueId(id).then(res => {
         this.stepDefects = res
         this.defectLoading = false
+      })
+    },
+    // 获取问题信息
+    getIssueInfoById(id) {
+      getIssueById(id).then(res => {
+        this.issueForm = res
+        this.oldSpecialJudge = res.specialEvent
+        this.oldRbi = res.rbi
+        if (validIsNotNull(res.specialEvent)) {
+          this.getSpecialByIssueId(this.$props.issueId, res.specialEvent)
+        }
       })
     },
     // 获取时间进程
@@ -475,6 +654,23 @@ export default {
           this.isFinished = true
         }
         this.selfLoading = false
+      })
+    },
+    // 下拉框变更事件
+    changeSpecialEvent(val) {
+      this.getSpecialByIssueId(this.$props.issueId, val)
+    },
+    // 获取特殊事件信息
+    getSpecialByIssueId(id, type) {
+      this.specialForm = {}
+      getSpecialByIssueId(id, type).then(res => {
+        if (validIsNotNull(res.reason)) {
+          this.specialForm = res
+          this.oldReason = res.reason
+          this.oldEvidence = res.evidence
+          this.oldValidation = res.validation
+          this.oldOther = res.other
+        }
       })
     },
     // 获取原因信息
@@ -551,7 +747,7 @@ export default {
             this.submitLoading = true
             addCause(this.form).then(res => {
               this.$message({
-                message: 'Add Record Success! 新增其他围堵措施记录成功!',
+                message: 'Add Record Success! 新增原因分析记录成功!',
                 type: 'success'
               })
               this.getIssueCauseByIssueId(this.$props.issueId)
@@ -562,7 +758,7 @@ export default {
             this.submitLoading = true
             editCause(this.form).then(res => {
               this.$message({
-                message: 'Edit Record Success! 编辑其他围堵措施记录成功!',
+                message: 'Edit Record Success! 编辑原因分析记录成功!',
                 type: 'success'
               })
               this.getIssueCauseByIssueId(this.$props.issueId)
@@ -626,7 +822,7 @@ export default {
     updateWhys(whys) {
       let val = true
       whys.forEach((why, index) => {
-        if (!validIsNull(why.content)) {
+        if (!validIsNotNull(why.content)) {
           this.$message({
             message: 'Content of Why should not be null! Why内容均不可为空，请填写有效内容后提交!',
             type: 'warning'
@@ -664,6 +860,111 @@ export default {
         })
       })
     },
+    saveSpecial() {
+      if (!validIsNotNull(this.issueForm.specialEvent) && !validIsNotNull(this.oldSpecialJudge)) {
+        this.$message({
+          message: 'No change! 没发生变动，无需提交!',
+          type: 'warning'
+        })
+      } else if (!validIsNotNull(this.issueForm.specialEvent) && validIsNotNull(this.oldSpecialJudge)) {
+        // 清空特殊事件
+        this.$confirm('此操作会清空已有的特殊事件信息，切换为传统8D模式？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 确定切换',
+          cancelButtonText: 'NO 放弃切换'
+        })
+          .then(() => {
+            delSpecialByIssueId(this.$props.issueId).then(res => {
+              // 通知主页面
+              this.isFinished = false
+              this.$emit('func', this.isFinished)
+              this.$message({
+                type: 'success',
+                message: '切换成功'
+              })
+            })
+            this.isSpecial = false
+            this.$emit('funx', this.isSpecial)
+          })
+          .catch(action => {
+            this.$message({
+              type: 'info',
+              message: action === 'cancel'
+                ? 'Quit Change 放弃切换'
+                : 'Reconsider 暂停留本页面，考虑一下'
+            })
+          })
+      } else {
+        this.$refs.specialForm.validate().then((valid) => {
+          if (!valid) {
+            return false
+          } else {
+            // 判断是否有变动
+            let val = true
+            if (this.issueForm.specialEvent !== 'NTF不能复制') {
+              if (this.specialForm.reason === this.oldReason &&
+                this.specialForm.evidence === this.oldEvidence &&
+                this.specialForm.other === this.oldOther) {
+                val = false
+                this.$message({
+                  message: 'No change! 没发生变动，无需提交!',
+                  type: 'warning'
+                })
+              }
+            } else {
+              if (this.specialForm.reason === this.oldReason &&
+                this.specialForm.evidence === this.oldEvidence &&
+                this.specialForm.other === this.oldOther &&
+                this.specialForm.validation === this.oldValidation
+              ) {
+                val = false
+                this.$message({
+                  message: 'No change! 没发生变动，无需提交!',
+                  type: 'warning'
+                })
+              }
+            }
+
+            if (val) {
+              this.specialForm.issueId = this.$props.issueId
+              this.specialForm.type = this.issueForm.specialEvent
+              // 保存特殊事件
+              if (validIsNotNull(this.specialForm.id)) {
+                editSpecial(this.specialForm).then(res => {
+                  //编辑问题，添加D4特殊事件
+                  this.$message({
+                    message: 'Submit Success! 编辑特殊事件信息成功!',
+                    type: 'success'
+                  })
+
+                  this.isSpecial = true
+                  this.$emit('funx', this.isSpecial)
+
+                  this.isFinished = false
+                  this.$emit('func', this.isFinished)
+                })
+
+              } else {
+                addSpecial(this.specialForm).then(res => {
+                  //编辑问题，添加D4特殊事件
+                  this.$message({
+                    message: 'Submit Success! 新增特殊事件信息成功!',
+                    type: 'success'
+                  })
+                  this.isFinished = false
+                  this.$emit('func', this.isFinished)
+                  this.isSpecial = true
+                  this.$emit('funx', this.isSpecial)
+
+                })
+              }
+            }
+            this.getIssueInfoById(this.$props.issueId)
+            this.getSpecialByIssueId(this.$props.issueId, this.issueForm.specialEvent)
+          }
+        })
+      }
+    },
     //添加行数
     addClick() {
       const obj = {
@@ -671,22 +972,48 @@ export default {
         content: ''
       }
       this.whys.push(obj)
-    },
+    }
+    ,
     //删除行数
     handleDelete(index) {
       this.whys.splice(index, 1)
-    },
+    }
+    ,
     // 查看鱼骨图
     checkFishBone(data) {
       // 跳转到8D明细中
       this.$router.push(
         {
-          path: '/8D/fishbone',
+          path: '/issue/fishbone',
           query: {
             fishData: this.fishData
           }
         })
-    },
+    }
+    ,
+    // 保存D4-风险评估
+    addRbi(form) {
+      let val = true
+      if (this.oldRbi === form.rbi) {
+        this.$message({
+          message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+          type: 'warning'
+        })
+        val = false
+      }
+      if (val) {
+        edit(form).then(res => {
+          //编辑问题，添加D4风险评估
+          this.$message({
+            message: 'Submit Success! 保存风险评估成功!',
+            type: 'success'
+          })
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+        })
+      }
+    }
+    ,
     // 确认完成
     confirmFinished() {
       // 确认D4完成
