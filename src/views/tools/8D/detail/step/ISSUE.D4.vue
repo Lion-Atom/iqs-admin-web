@@ -301,9 +301,20 @@
         <span class="header-title">
           <el-form :inline="true" :model="issueForm" style="float: left;">
           <el-form-item
-            label="特殊事件"
-            prop="riskAssessment"
+            prop="specialEvent"
           >
+            <span slot="label">
+                <span class="span-box">
+                  <span>特殊事件</span>
+                  <el-tooltip placement="top" effect="light">
+                    <div slot="content">
+                      应用场景：【NTF不能重复】和【公司外部原因】，执行模式：D1->D2->D3->D4->D8<br>
+                      <b style="color: red">*</b>正常8D流程可忽略，并支持正常8D和特殊场景切换但需注意数据备份
+                    </div>
+                    <i class="el-icon-question"/>
+                  </el-tooltip>
+                </span>
+              </span>
            <el-select
              v-model="issueForm.specialEvent"
              placeholder="请选择状态"
@@ -355,15 +366,15 @@
               prop="evidence"
             >
               <span slot="label">
-                    <span class="span-box">
-                      <el-tooltip placement="top" effect="light">
-                        <div slot="content">
+                <span class="span-box">
+                  <span>证据</span>
+                  <el-tooltip placement="top" effect="light">
+                    <div slot="content">
                           需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
-                        </div>
-                        <i class="el-icon-question"/>
-                      </el-tooltip>
-                      <span>证据</span>
-                    </span>
+                    </div>
+                    <i class="el-icon-question"/>
+                  </el-tooltip>
+                </span>
               </span>
               <el-input
                 v-model="specialForm.evidence"

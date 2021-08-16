@@ -27,13 +27,13 @@
       <el-collapse-item class="collapse-title" title="D4 - 根本原因分析与验证" name="4">
         <ForthForm :issue-id="issueId" :init-fish="initFishData" :need-confirm="confirmVisible"/>
       </el-collapse-item>
-      <el-collapse-item class="collapse-title" title="D5 - 改善措施" name="5">
+      <el-collapse-item v-if="!isSpecial" class="collapse-title" title="D5 - 改善措施" name="5">
         <FifthForm :issue-id="issueId" :need-confirm="confirmVisible"/>
       </el-collapse-item>
-      <el-collapse-item class="collapse-title" title="D6 - 改善措施的有效性评估" name="6">
+      <el-collapse-item v-if="!isSpecial" class="collapse-title" title="D6 - 改善措施的有效性评估" name="6">
         <SixthForm :issue-id="issueId" :need-confirm="confirmVisible"/>
       </el-collapse-item>
-      <el-collapse-item class="collapse-title" title="D7 - 永久措施" name="7">
+      <el-collapse-item v-if="!isSpecial" class="collapse-title" title="D7 - 永久措施" name="7">
         <SeventhForm :issue-id="issueId" :need-confirm="confirmVisible"/>
       </el-collapse-item>
       <el-collapse-item class="collapse-title" title="D8 - 关闭8D" name="8">
@@ -54,6 +54,7 @@ import SixthForm from '../../../tools/8D/detail/step/ISSUE.D6'
 import SeventhForm from '../../../tools/8D/detail/step/ISSUE.D7'
 import EighthForm from '../../../tools/8D/detail/step/ISSUE.D8'
 import { getIssueById } from '@/api/tools/issue'
+import { validIsNotNull } from '@/utils/validationUtil'
 
 export default {
   name: 'Overview',
@@ -65,6 +66,7 @@ export default {
       activeNames: ['1', '2', '3', '4', '5', '6', '7', '8'],
       reportTitle: null,
       confirmVisible: false,
+      isSpecial: false,
       initFishData: {}
     }
   },
@@ -79,6 +81,9 @@ export default {
     // 查询问题信息
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
+        if (validIsNotNull(res.specialEvent)) {
+          this.isSpecial = true
+        }
         this.reportTitle = res.issueTitle + '_8D报告'
       })
     },
