@@ -83,13 +83,13 @@
             >
               <span slot="label">
                     <span class="span-box">
+                      <span>产品标识</span>
                       <el-tooltip placement="top" effect="light">
                         <div slot="content">
                           需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
                         </div>
                         <i class="el-icon-question"/>
                       </el-tooltip>
-                      <span>产品标识</span>
                     </span>
               </span>
               <el-input

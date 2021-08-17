@@ -20,11 +20,12 @@
       <el-table-column prop="partNum" label="物料编码" width="150"/>
       <el-table-column prop="customerName" label="客户名称" width="120"/>
       <el-table-column prop="hasReport" label="执行选择" width="120"/>
+      <el-table-column prop="specialEvent" label="特殊事件" width="120"/>
       <el-table-column prop="status" label="状态"/>
       <el-table-column prop="process" label="8D进程" min-width="350">
         <template slot-scope="scope">
           <!--格式化8D进程-->
-          <el-steps style="margin-bottom:5px;" class="steps">
+          <el-steps class="steps">
             <el-step
               v-for="item in scope.row.commonDTOList"
               :key="item.name"
@@ -60,7 +61,7 @@
     <pagination/>
     <!--表单渲染-->
     <eForm :d-status="dict.d_status" :d-source="dict.d_source" :d-enabled="dict.common_status"
-           :d-execute="dict.d_execute" :activeNames=activeNames
+           :d-execute="dict.d_execute"
     />
   </div>
 </template>
@@ -73,6 +74,7 @@ import CRUD, { presenter } from '@crud/crud'
 import crudOperation from './module/CRUD.dOperation'
 import pagination from '@crud/Pagination'
 import udOperation from './module/UD.dOperation'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Issue',
@@ -107,9 +109,10 @@ export default {
           name: 'D3',
           value: 'wait'
         }
-      ],
-      activeNames: '1'
+      ]
     }
+  },
+  created() {
   },
   methods: {
     // 新增前将多选的值设置为空

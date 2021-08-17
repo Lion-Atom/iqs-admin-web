@@ -330,6 +330,17 @@
               </el-radio-group>
             </el-form-item>
           </el-collapse-item>
+
+          <!--添加附件及其列表-->
+          <el-collapse-item title="附件管理" name="3" class="collapse-item">
+            <UploadFile
+              :issue-id="form.id"
+              :permission="permission"
+              :is-need="isNeed"
+              :step-name="curStep"
+              :shadow="never"
+            />
+          </el-collapse-item>
         </el-collapse>
       </div>
 
@@ -347,6 +358,7 @@
       <el-button
         :loading="crud.status.cu === 2"
         type="primary"
+        :disabled="!user.isAdmin"
         @click="crud.submitCU"
       >
         确认
@@ -358,6 +370,8 @@
 <script>
 import { form } from '@crud/crud'
 import { getAllUser } from '@/api/system/user'
+import UploadFile from '../module/uploadFile.vue'
+import { mapGetters } from 'vuex'
 
 const defaultForm = {
   id: null,
@@ -400,14 +414,16 @@ export default {
     dExecute: {
       type: Array,
       required: true
-    },
-    activeNames: {
-      type: String,
-      required: true
     }
   },
+  components: { UploadFile },
   data() {
     return {
+      permission: {
+        add: ['admin', 'd:add'],
+        edit: ['admin', 'd:edit'],
+        del: ['admin', 'd:del']
+      },
       rules: {
         issueTitle: [
           { required: true, message: '请输入问题标题', trigger: 'blur' }
@@ -471,10 +487,20 @@ export default {
           { required: true, message: '请务必选择是否评分', trigger: 'blur' }
         ]
       },
-      members: []
+      members: [],
+      activeNames: '1',
+      isNeed: true,
+      never: 'never',
+      curStep: 'D0'
     }
   },
+  computed: {
+    ...mapGetters([
+      'user'
+    ])
+  },
   created() {
+    this.user.isAdmin ? this.isNeed = true : this.isNeed = false
     this.getAvailableUser()
   },
   methods: {

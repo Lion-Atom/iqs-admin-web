@@ -27,7 +27,7 @@
         :disabled="crud.selections.length !== 1"
         @click="crud.toEdit(crud.selections[0])"
       >
-        审核问题
+        {{ editTitle }}
       </el-button>
       </el-tooltip>
       <el-button
@@ -134,6 +134,7 @@
 <script>
 import CRUD, { crud } from '@crud/crud'
 import { getCauseTreeByIssueId } from '@/api/tools/issueCause'
+import { mapGetters } from 'vuex'
 
 function sortWithRef(src, ref) {
   const result = Object.assign([], ref)
@@ -174,6 +175,7 @@ export default {
   },
   data() {
     return {
+      editTitle: '审核问题',
       tableColumns: [],
       allColumnsSelected: true,
       allColumnsSelectedIndeterminate: false,
@@ -198,7 +200,13 @@ export default {
       this.updateTableColumns()
     }
   },
+  computed: {
+    ...mapGetters([
+      'user'
+    ])
+  },
   created() {
+    this.user.isAdmin ? this.editTitle = '审核问题' : this.editTitle = '查看问题'
     this.crud.updateProp('searchToggle', true)
   },
   methods: {

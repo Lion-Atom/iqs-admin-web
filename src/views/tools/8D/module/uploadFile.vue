@@ -1,6 +1,10 @@
 <template>
   <div>
-    <el-card v-if="this.$props.isNeed" class="box-card">
+    <el-card
+      v-if="this.$props.isNeed"
+      class="box-card"
+      :shadow="this.$props.shadow === undefined ? 'always':this.$props.shadow"
+    >
       <div slot="header" class="clearfix">
         <span class="header-title">{{ uploadHeader }}</span>
       </div>
@@ -23,7 +27,7 @@
         <el-button style="margin-top:8px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
       </div>
     </el-card>
-    <el-card class="box-card">
+    <el-card class="box-card" :shadow="this.$props.shadow === undefined ? 'always':this.$props.shadow">
       <div slot="header" class="clearfix">
         <span class="header-title">{{ listHeader }}</span>
       </div>
@@ -34,7 +38,7 @@
           :data="files"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="附件名称" width="300">
+          <el-table-column prop="name" label="附件名称" max-width="300">
             <template slot-scope="scope">
               <el-popover
                 :content="'file/' + scope.row.type + '/' + scope.row.name"
@@ -57,27 +61,28 @@
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column prop="path" label="预览图">
-            <template slot-scope="{row}">
-              <el-image
-                :src=" baseApi + '/file/' + row.type + '/' + row.name"
-                :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.name]"
-                fit="contain"
-                lazy
-                class="el-avatar"
-              >
-                <div slot="error">
-                  <i class="el-icon-document"/>
-                </div>
-              </el-image>
-            </template>
-          </el-table-column>
+          <!--          <el-table-column prop="path" label="预览图">
+                      <template slot-scope="{row}">
+                        <el-image
+                          :src=" baseApi + '/file/' + row.type + '/' + row.name"
+                          :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.name]"
+                          fit="contain"
+                          lazy
+                          class="el-avatar"
+                        >
+                          <div slot="error">
+                            <i class="el-icon-document"/>
+                          </div>
+                        </el-image>
+                      </template>
+                    </el-table-column>-->
           <el-table-column prop="size" label="大小"/>
           <el-table-column prop="createBy" label="创建者"/>
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="!(!user.isAdmin && this.cond.stepName === 'D0')"
             label="操作"
-            width="130px"
+            max-width="130px"
             align="center"
             fixed="right"
           >
@@ -93,13 +98,19 @@
                                @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="deleteFile(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="deleteFile(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" type="danger" icon="el-icon-delete"
-                             size="mini"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
                   />
                 </el-popover>
               </div>
@@ -118,7 +129,7 @@ import { getToken } from '@/utils/auth'
 
 export default {
   name: 'uploadFile',
-  props: ['uploadTitle', 'listTitle', 'issueId', 'stepName', 'permission', 'isNeed'],
+  props: ['uploadTitle', 'listTitle', 'issueId', 'stepName', 'permission', 'isNeed', 'shadow'],
   data() {
     return {
       headers: {
@@ -137,6 +148,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'user',
       'baseApi',
       'appendixUploadApi'
     ])
