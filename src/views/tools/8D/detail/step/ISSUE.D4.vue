@@ -764,6 +764,10 @@ export default {
               this.getIssueCauseByIssueId(this.$props.issueId)
               this.isFinished = false
               this.$emit('func', this.isFinished)
+              this.submitLoading = false
+              this.addCauseVisible = false
+            }).catch(res => {
+              this.submitLoading = false
             })
           } else {
             this.submitLoading = true
@@ -777,10 +781,10 @@ export default {
               this.addCauseVisible = false
               this.isFinished = false
               this.$emit('func', this.isFinished)
+            }).catch(res => {
+              this.submitLoading = false
             })
           }
-          this.submitLoading = false
-          this.addCauseVisible = false
         }
       })
     },
