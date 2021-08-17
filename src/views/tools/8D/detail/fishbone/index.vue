@@ -26,7 +26,7 @@ export default {
     } else {
       window.location.go(-1)
     }
-    /* this.fishData = {"name":"一期内胶内壁难清理异物",
+    /*this.fishData = {"name":"一期内胶内壁难清理异物",
       "children":
         [{"children":[{"name":"内胶挤出时脏污随芯棒被内胶覆盖","children":[]}],"name":"机器"},
           {"children":[{"name":"粗心大意","children":[]}],"name":"人员"},

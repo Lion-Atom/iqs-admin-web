@@ -15,6 +15,7 @@ let MakFishBone = (function(window) {
         data: null,
         /*是否可以拖动，默认是true */
         dragable: true,
+        title: '鱼骨图',
         /*是否显示工具条 */
         showToolbar: true,
         /* debug模式 */
@@ -30,13 +31,13 @@ let MakFishBone = (function(window) {
       let stage = new JTopo.Stage(canvas)
       this.stage = stage
       //显示工具栏
-      showJTopoToobar(stage)
+      showJTopoToolbar(stage)
       this.scene = new JTopo.Scene(stage)
     },
     getFishBoneNode: function(position, text) {
       let jNode = new JTopo.Node(text || '')
       jNode.shadow = false
-      // jNode.showSelected = false;
+      jNode.showSelected = false
       jNode.dragable = false
       if (position) {
         jNode.setLocation(position.x, position.y)
@@ -69,7 +70,22 @@ let MakFishBone = (function(window) {
     //格式化文本节点值
     getFormatText: function(text) {
       //每行文本字符数
-      let textNumberRow = 11
+      let textNumberRow = 18
+      let tmptext = ''
+      if (text) {
+        for (let i = 0; i < text.length; i++) {
+          if (i > 0 && i % textNumberRow == 0) {
+            tmptext += '\n'
+          }
+          tmptext += text[i]
+        }
+      }
+      return tmptext
+    },
+    //格式化文本节点值
+    getRootFormatText: function(text) {
+      //每行文本字符数
+      let textNumberRow = 20
       let tmptext = ''
       if (text) {
         for (let i = 0; i < text.length; i++) {
@@ -83,17 +99,19 @@ let MakFishBone = (function(window) {
     },
     getNewTextNode: function(PntA, text, PntZ, depth) {
       let tmptext
-      if (depth == 1) {
+      if (depth === 0) {
+        tmptext = this.getRootFormatText(text)
+      } else if (depth === 1) {
         tmptext = text
       } else {
         tmptext = this.getFormatText(text)
       }
       let nodeText = new JTopo.TextNode(tmptext || '')
       nodeText.shadow = false
-      //nodeText.showSelected = false;
+      nodeText.showSelected = true
       nodeText.dragable = false
-      nodeText.fontColor = '40,40,40'
-      nodeText.font = '12px 微软雅黑'
+      nodeText.fontColor = '0,40,40'
+      nodeText.font = '16px 微软雅黑'
       nodeText.paint = function(a) {
         a.beginPath()
         a.font = this.font
@@ -125,12 +143,16 @@ let MakFishBone = (function(window) {
       nodeText.textSize = size
       let tx = 0, ty = 0
       //设置中骨文本节点坐标
-      if (depth == 1) {
-        tx = PntZ.x + 15, ty = PntZ.y - 15
+      if (depth === 0) {
+        //设置根节点的文本显示位置
+        tx = PntZ.x + 250, ty = PntZ.y - 160
+        nodeText.font = ' bold 18px  微软雅黑 '
+        nodeText.fontColor = '0,40,40'
+        //nodeText.text
       } else {
         tx = PntA.x, ty = PntA.y
       }
-      if (PntA.y == PntZ.y) {
+      if (PntA.y === PntZ.y) {
         //横线
         tx -= size.width
         ty -= size.lineHeight / 2
@@ -142,24 +164,20 @@ let MakFishBone = (function(window) {
       nodeText.setLocation(tx, ty)
       this.scene.add(nodeText)
 
-      //页面解析到当前为止所有的script标签
-      var js = document.scripts
-//js[js.length - 1] 就是当前的js文件的路径
-      js = js[js.length - 1].src.substring(0, js[js.length - 1].src.lastIndexOf('/') + 1)
       let nodeA = this.getFishBoneNode(PntA)
       let nodeZ = this.getFishBoneNode(PntZ)
       if (depth === 0) {
         //获取鱼骨图，设置根节点x,y坐标
         let img = new Image()
-        img.src = '/public/static/image/fish_head.png'
+        img.src = '/static/image/fish_head.png'
         //图片加载完成之后执行
         img.onload = function() {
-          nodeA.x = nodeA.x - 350
+          nodeA.x = nodeA.x - 250
           nodeZ.x = nodeZ.x + 20
           nodeA.y = nodeA.y - img.height / 2
           nodeZ.y = nodeZ.y - img.height / 2
-          nodeA.setImage('/public/static/image/fish_tail.png', true)
-          nodeZ.setImage('/public/static/image/fish_head.png', true)
+          nodeA.setImage('/static/image/fish_tail.png', true)
+          nodeZ.setImage('/static/image/fish_head.png', true)
         }
       }
       this.scene.add(nodeA)
@@ -169,14 +187,16 @@ let MakFishBone = (function(window) {
       nodeA.assPnt = nodeZ
 
       let link = new JTopo.Link(nodeA, nodeZ, '')
-      link.bundleOffset = 60 // 折线拐角处的长度
-      link.bundleGap = 20 // 线条之间的间隔
+      link.bundleOffset = 40 // 折线拐角处的长度
+      link.bundleGap = 30 // 线条之间的间隔
       link.textOffsetY = 3 // 文本偏移量（向下3个像素）
-      if (depth === 0) {
+      if (depth == 0) {
         link.lineWidth = 40 // 线宽
+        // link.setImage(js+'/fish_tail.png', true);
         link.strokeColor = '140,192,220'
+        // link.href(js+'/body.png');
       } else {
-        link.lineWidth = 8 // 线宽
+        link.lineWidth = 6 // 线宽
         link.strokeColor = '140,192,220'
       }
       this.scene.add(link)
@@ -225,6 +245,7 @@ let MakFishBone = (function(window) {
         size = this.getNodeTextRect(node, tmptext)
       }
       node.nodes.nodeA.y = -node.nodes.nodeA.y
+      //node.nodes.nodeZ.x = -node.nodes.nodeZ.x
       node.nodes.nodeZ.y = -node.nodes.nodeZ.y
       node.nodes.text.y = -node.nodes.text.y + (size ? -size.height : 0)
       if (node.children) {
@@ -243,7 +264,7 @@ let MakFishBone = (function(window) {
       let isHorizontal = (depth % 2) === 0
       for (let i = 0; i < clevels.length; i++) {
         let arow = clevels[i]
-        let lineLength = 100
+        let lineLength = 120
         //筛选子节点
         let chilnodes = []
         let tnodes = []
@@ -256,7 +277,7 @@ let MakFishBone = (function(window) {
         }
         this.AllTmpNode = tnodes
         //固定间隔
-        let fixedInterval = 40
+        let fixedInterval = 60
         if (isHorizontal) {
           //横线
           //先计算子节点宽度（分斜线左边部分，和斜线右边部分

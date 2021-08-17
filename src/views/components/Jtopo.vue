@@ -1,7 +1,7 @@
 <template>
-  <div id="content" style="width:100%">
+  <div id="content" ref="content" style="width:100%">
     <br/>
-    <canvas id="canvas" ref="canvas" style="background-color: rgb(238, 238, 238);width:1080px;height:600px"></canvas>
+    <canvas id="canvas" ref="canvas" :style="{width:canvasW, height:canvasH}"></canvas>
   </div>
 </template>
 
@@ -14,11 +14,24 @@ export default {
       type: Object
     }
   },
+  data() {
+    return {
+      canvasW: '0px',
+      canvasH: '600px'
+    }
+  },
+  created() {
+    setTimeout(() => {
+      this.initTopo()
+    }, 1000)
+  },
   mounted() {
-    this.initTopo()
+    let contentW = this.$refs.content.offsetWidth
+    this.canvasW = contentW + 'px'
   },
   methods: {
     initTopo() {
+      console.log(this.fishData)
       let canvas = this.$refs.canvas
       if (this.fishData) {
         let mfb = new MakFishBone(canvas, { data: this.fishData })

@@ -55,6 +55,7 @@ import SeventhForm from '../../../tools/8D/detail/step/ISSUE.D7'
 import EighthForm from '../../../tools/8D/detail/step/ISSUE.D8'
 import { getIssueById } from '@/api/tools/issue'
 import { validIsNotNull } from '@/utils/validationUtil'
+import { delSpecialByIssueId } from '@/api/tools/issueSpecail'
 
 export default {
   name: 'Overview',
@@ -93,18 +94,33 @@ export default {
     },
     // 导出PDF
     savePdf() {
-      this.activeNames = ['1', '2', '3', '4', '5', '6', '7', '8']
-      let btn = document.getElementsByTagName('button')
-      let btn_save_pdf = document.getElementById('save_pdf')
-      for (let i = 0; i < btn.length; i++) {
-        if (!btn[i].isEqualNode(btn_save_pdf)) {
-          btn[i].style.display = 'none'
-        }
-      }
-      setTimeout(() => {
-        // this.getPdf() // 分页导出
-        this.printPdf()  // 不分页导出
-      }, 300)
+      this.$confirm('导出前确认下鱼骨图是否样式回正？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: 'Yes 继续导出',
+        cancelButtonText: 'Wait 调整鱼骨样式'
+      })
+        .then(() => {
+          this.activeNames = ['1', '2', '3', '4', '5', '6', '7', '8']
+          let btn = document.getElementsByTagName('button')
+          let btn_save_pdf = document.getElementById('save_pdf')
+          for (let i = 0; i < btn.length; i++) {
+            if (!btn[i].isEqualNode(btn_save_pdf)) {
+              btn[i].style.display = 'none'
+            }
+          }
+          setTimeout(() => {
+            // this.getPdf() // 分页导出
+            this.printPdf()  // 不分页导出
+          }, 300)
+        })
+        .catch(action => {
+          this.$message({
+            type: 'info',
+            message: action === 'cancel'
+              ? 'Wait 调整鱼骨样式'
+              : 'Reconsider 暂停留本页面，考虑一下'
+          })
+        })
     }
   }
 

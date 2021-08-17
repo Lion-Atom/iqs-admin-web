@@ -38,13 +38,9 @@ module.exports = {
   /**
    * 是否显示设置的底部信息
    */
-  showFooter: true,
+  showFooter: false,
   /**
    * 底部文字，支持html语法
    */
   footerTxt: '© 2021 QLink Apache License 1.0</a>'
-  /**
-   * 备案号
-   */
-  // caseNumber: '苏ICP备18000012号'
 }

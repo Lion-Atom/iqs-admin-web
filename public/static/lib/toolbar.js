@@ -1,12 +1,13 @@
 // 页面工具栏
-function showJTopoToobar(stage) {
+function showJTopoToolbar(stage) {
   var toobarDiv = $('<div class="jtopo_toolbar">').html(''
-    + '<input type="button" id="centerButton" value="居中显示"/>'
-    + '<input type="button" id="fullScreenButton" value="全屏显示"/>'
+    + '&nbsp;&nbsp;<input type="button" id="centerButton" value="居中显示"/>'
+    // +'<input type="button" id="fullScreenButton" value="全屏显示"/>'
     + '<input type="button" id="zoomOutButton" value=" 放 大 " />'
     + '<input type="button" id="zoomInButton" value=" 缩 小 " />'
     + '&nbsp;&nbsp;<input type="checkbox" id="zoomCheckbox"/><label for="zoomCheckbox">鼠标缩放</label>'
-    + '&nbsp;&nbsp;<input type="button" id="exportButton" value="导出PNG">')
+    // +'&nbsp;&nbsp;<input type="button" id="exportButton" value="导出PNG">'
+  )
 
   $('#content').prepend(toobarDiv)
 
@@ -107,4 +108,4 @@ var runPrefixMethod = function(element, method) {
   )
 
   return usablePrefixMethod
-}
+};
