@@ -957,6 +957,9 @@ export default {
 
                   this.isFinished = false
                   this.$emit('func', this.isFinished)
+                }).catch(res => {
+                  this.getIssueInfoById(this.$props.issueId)
+                  this.getSpecialByIssueId(this.$props.issueId, this.issueForm.specialEvent)
                 })
 
               } else {
@@ -970,12 +973,13 @@ export default {
                   this.$emit('func', this.isFinished)
                   this.isSpecial = true
                   this.$emit('funx', this.isSpecial)
-
+                }).catch(res => {
+                  this.getIssueInfoById(this.$props.issueId)
+                  this.getSpecialByIssueId(this.$props.issueId, this.issueForm.specialEvent)
                 })
               }
             }
-            this.getIssueInfoById(this.$props.issueId)
-            this.getSpecialByIssueId(this.$props.issueId, this.issueForm.specialEvent)
+
           }
         })
       }
@@ -1023,6 +1027,7 @@ export default {
             message: 'Submit Success! 保存风险评估成功!',
             type: 'success'
           })
+          this.oldRbi = form.rbi
           this.isFinished = false
           this.$emit('func', this.isFinished)
         })
@@ -1060,6 +1065,10 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .box-card {
   margin-bottom: 5px;
+}
+
+.dialog-footer {
+  margin-left: 250px;
 }
 
 .cause-container {

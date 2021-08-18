@@ -749,6 +749,7 @@ export default {
             message: 'Submit Success! 保存风险评估成功!',
             type: 'success'
           })
+          this.oldDesc = form.riskAssessment
           this.isFinished = false
           this.$emit('func', this.isFinished)
         })

@@ -1,7 +1,6 @@
 <template>
-
-  <div class="app-container">
-    <el-card class="box-card">
+  <div @dblclick="back" class="app-container">
+    <el-card v-if="isNeed" class="box-card">
       <el-page-header @back="goBack" content="单独报告"></el-page-header>
     </el-card>
 
@@ -57,6 +56,42 @@
             <el-col :span="12">
               <el-form-item label="具体描述 :">
                 <span>{{ form.description }}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row class="elRow">
+            <el-col :span="12">
+              <el-form-item label="客户/供应商联系电话 :">
+                <span>{{ form.phone }}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="客户/供应商邮箱 :">
+                <span>{{ form.email }}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row class="elRow">
+            <el-col :span="12">
+              <el-form-item label="问题类型 :">
+                <span>{{ form.type }}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="初步风险评估 :">
+                <span>{{ form.initRisk }}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row class="elRow">
+            <el-col :span="12">
+              <el-form-item label="关联部门 :">
+                <span>{{ form.department }}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="客户要求时间 :">
+                <span>{{ form.customerTime }}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -182,6 +217,33 @@
               </el-date-picker>
             </el-form-item>
             <el-form-item
+              label="计划完成时间"
+              prop="plannedCompleteTime"
+            >
+              <el-date-picker
+                v-model="reportActionForm.plannedCompleteTime"
+                type="datetime"
+                style="width: 370px;"
+                placeholder="选择日期时间"
+                default-time="12:00:00"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item
+              v-if="reportActionForm.status==='完成'"
+              label="实际完成时间"
+              prop="completeTime"
+            >
+              <el-date-picker
+                v-model="reportActionForm.completeTime"
+                type="datetime"
+                style="width: 370px;"
+                placeholder="选择日期时间"
+                default-time="12:00:00"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item
               label="其他"
               prop="comment"
             >
@@ -218,6 +280,8 @@
           <el-table-column prop="responsibleName" label="负责人"/>
           <el-table-column prop="efficiency" label="有效性(%)"/>
           <el-table-column prop="plannedTime" label="计划执行时间"/>
+          <el-table-column prop="plannedCompleteTime" label="计划完成时间"/>
+          <el-table-column prop="completeTime" label="实际完成时间"/>
           <!--   编辑与删除   -->
           <el-table-column
             label="操作"
@@ -318,7 +382,8 @@ import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExampl
 import { getAllUser } from '@/api/system/user'
 
 export default {
-  name: 'report',
+  name: 'SingleReport',
+  props: ['issueId', 'needConfirm'],
   components: { UploadFile },
   data() {
     return {
@@ -365,6 +430,8 @@ export default {
         responsibleId: null,
         efficiency: null,
         plannedTime: null,
+        plannedCompleteTime: null,
+        completeTime: null,
         comment: null,
         description: null,
         isCon: false,
@@ -387,6 +454,12 @@ export default {
         plannedTime: [
           { required: true, message: '请选择计划执行时间', trigger: 'blur' }
         ],
+        plannedCompleteTime: [
+          { required: true, message: '请选择计划完成时间', trigger: 'blur' }
+        ],
+        completeTime: [
+          { required: true, message: '请据实填写实际完成时间', trigger: 'blur' }
+        ],
         comment: [
           { required: true, message: '若无其他补充，可填入”暂无“', trigger: 'blur' }
         ],
@@ -397,6 +470,7 @@ export default {
       statusTypeOptions: [
         { key: '开始', display_name: '开始' },
         { key: '进行中', display_name: '进行中' },
+        { key: '完成', display_name: '完成' },
         { key: '关闭', display_name: '关闭' }
       ],
       submitLoading: false,
@@ -411,6 +485,7 @@ export default {
     }
   },
   created() {
+    this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     if (this.$route.query.issueId !== undefined) {
       this.issueId = this.$route.query.issueId
     }
@@ -425,6 +500,17 @@ export default {
     // 返回上一页
     goBack() {
       window.history.back()
+    },
+    // 双击返回事件
+    back() {
+      this.$confirm('回到问题列表？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: 'Yes 回到列表',
+        cancelButtonText: 'Wait 再看看'
+      })
+        .then(() => {
+          window.history.back()
+        })
     },
     // 监控附件组件相关改动
     getMsgFormSon(msg) {
@@ -469,17 +555,18 @@ export default {
       })
     },
     // 预新增应对措施
-    // 围堵措施的新增弹窗
     toAddReportAct() {
       this.reportActionForm = {}
       this.actOperationTitle = '新增对应措施'
       this.addReportActionVisible = true
     },
+    // 预编辑应对措施
     editReportAction(row) {
       this.reportActionForm = row
       this.actOperationTitle = '编辑对应措施'
       this.addReportActionVisible = true
     },
+    // 取消操作
     doCancelReportAct() {
       this.getReportActionByExample(this.issueId)
       this.addReportActionVisible = false
@@ -497,7 +584,7 @@ export default {
             this.submitLoading = true
             addIssueAction(this.reportActionForm).then(res => {
               this.$message({
-                message: 'Add Record Success! 新增其他围堵措施记录成功!',
+                message: 'Add Record Success! 新增措施记录成功!',
                 type: 'success'
               })
               this.submitLoading = false
@@ -509,7 +596,7 @@ export default {
             this.submitLoading = true
             editIssueAction(this.reportActionForm).then(res => {
               this.$message({
-                message: 'Edit Record Success! 编辑其他围堵措施记录成功!',
+                message: 'Edit Record Success! 编辑措施记录成功!',
                 type: 'success'
               })
               this.submitLoading = false
@@ -551,7 +638,8 @@ export default {
       this.form.closeTime = new Date()
       edit(this.form).then(res => {
         this.confirmVisible = false
-        // 编辑问题，添加与纳音描述
+        this.finished = true
+        // 编辑问题，添加原因描述
         this.$message({
           message: 'Submit Success! 成功结案!',
           type: 'success'
@@ -573,7 +661,7 @@ export default {
 }
 
 .el-form-item--small.el-form-item {
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .header-title {

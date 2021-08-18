@@ -86,8 +86,8 @@ export const constantRouterMap = [
       {
         path: 'overview',
         component: (resolve) => require(['@/views/tools/8D/overview/index'], resolve),
-        name: '8D预览',
-        meta: { title: '8D预览' }
+        name: '打印预览',
+        meta: { title: '打印预览' }
       }
     ]
   }

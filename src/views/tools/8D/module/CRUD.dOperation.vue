@@ -44,17 +44,17 @@
       </el-button>
       <el-tooltip class="item" effect="dark" content="执行8D才有预览噢" placement="top-start">
             <el-button
-              v-if="crud.optShow.edit"
-              v-permission="permission.edit"
-              class="filter-item"
-              size="mini"
-              type="success"
-              icon="el-icon-edit"
-              :disabled="crud.selections.length !== 1 || crud.selections[0].hasReport !== '系统8D'"
-              :loading="viewLoading"
-              @click="gotoView(crud.selections[0])"
+                v-if="crud.optShow.edit"
+                v-permission="permission.edit"
+                class="filter-item"
+                size="mini"
+                type="success"
+                icon="el-icon-edit"
+                :disabled="crud.selections.length !== 1 || crud.selections[0].status === '待审核'"
+                :loading="viewLoading"
+                @click="gotoView(crud.selections[0])"
             >
-        预览8D
+        打印预览
       </el-button>
       </el-tooltip>
       <el-button

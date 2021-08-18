@@ -383,6 +383,7 @@ export default {
     },
     // 添加D5问题详细描述
     addFifthDesc(form) {
+      console.log(this.oldComment)
       let val = true
       if (this.oldComment === form.commentD5) {
         this.$message({
@@ -398,6 +399,7 @@ export default {
             message: 'Submit D6-Desc Success! 添加D5详细描述完成!',
             type: 'success'
           })
+          this.oldComment = form.commentD5
           this.isFinished = false
           this.$emit('func', this.isFinished)
         })

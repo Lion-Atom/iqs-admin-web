@@ -1,18 +1,22 @@
 <template>
-  <div class="app-container">
+  <div @dblclick="back" class="app-container">
     <!--    <pre class="my-code" style="padding: 8px;!important;">8D明细-&#45;&#45;开发中</pre>-->
+    <el-card class="box-card">
+      <el-page-header @back="goBack" :content="headerContent"></el-page-header>
+    </el-card>
 
-    <el-radio-group v-model="tabPosition" style="margin-bottom: 30px;">
-      <el-radio-button label="top">top</el-radio-button>
-      <el-radio-button label="right">right</el-radio-button>
-      <el-radio-button label="bottom">bottom</el-radio-button>
-      <el-radio-button label="left">left</el-radio-button>
-    </el-radio-group>
-
-    <el-tabs v-model="activeName" :tab-position="tabPosition" style="height: 100%;" type="card"
-             @tab-click="handleClick"
-    >
-      <el-tab-pane name="D1">
+    <el-card class="box-card">
+      <div>
+        <el-radio-group v-model="tabPosition" style="margin-bottom: 10px;">
+          <el-radio-button label="top">top</el-radio-button>
+          <el-radio-button label="right">right</el-radio-button>
+          <el-radio-button label="bottom">bottom</el-radio-button>
+          <el-radio-button label="left">left</el-radio-button>
+        </el-radio-group>
+        <el-tabs v-model="activeName" :tab-position="tabPosition" style="height: 100%;" type="card"
+                 @tab-click="handleClick"
+        >
+          <el-tab-pane name="D1">
         <span slot="label">
            <span class="span-box">
                 <i v-if="d1Status" class="el-icon-check"/>
@@ -20,9 +24,9 @@
               <span>D1 成立小组</span>
            </span>
         </span>
-        <FirstForm :issue-id="issueId" :status="d1Status" @func="getMsgFormFirstSon"/>
-      </el-tab-pane>
-      <el-tab-pane name="D2">
+            <FirstForm :issue-id="issueId" :status="d1Status" @func="getMsgFormFirstSon"/>
+          </el-tab-pane>
+          <el-tab-pane name="D2">
         <span slot="label">
            <span class="span-box">
                 <i v-if="d2Status" class="el-icon-check"/>
@@ -30,9 +34,9 @@
               <span>D2 问题描述</span>
            </span>
         </span>
-        <SecondForm :issue-id="issueId" :status="d2Status" @func="getMsgFormSecSon" v-if="isSecond"/>
-      </el-tab-pane>
-      <el-tab-pane name="D3">
+            <SecondForm :issue-id="issueId" :status="d2Status" @func="getMsgFormSecSon" v-if="isSecond"/>
+          </el-tab-pane>
+          <el-tab-pane name="D3">
        <span slot="label">
            <span class="span-box">
                 <i v-if="d3Status" class="el-icon-check"/>
@@ -40,9 +44,9 @@
               <span>D3 围堵措施</span>
            </span>
         </span>
-        <ThirdForm :issue-id="issueId" :status="d3Status" @func="getMsgFormThirdSon" v-if="isThird"/>
-      </el-tab-pane>
-      <el-tab-pane name="D4">
+            <ThirdForm :issue-id="issueId" :status="d3Status" @func="getMsgFormThirdSon" v-if="isThird"/>
+          </el-tab-pane>
+          <el-tab-pane name="D4">
        <span slot="label">
            <span class="span-box">
                 <i v-if="d4Status" class="el-icon-check"/>
@@ -50,11 +54,11 @@
               <span>D4 根本原因分析</span>
            </span>
         </span>
-        <ForthForm :issue-id="issueId" :status="d4Status" @func="getMsgFormForthSon" @funx="getSpecialMsgSon"
-                   v-if="isForth"
-        />
-      </el-tab-pane>
-      <el-tab-pane name="D5" v-if="!isSpecial">
+            <ForthForm :issue-id="issueId" :status="d4Status" @func="getMsgFormForthSon" @funx="getSpecialMsgSon"
+                       v-if="isForth"
+            />
+          </el-tab-pane>
+          <el-tab-pane name="D5" v-if="!isSpecial">
        <span slot="label">
            <span class="span-box">
                 <i v-if="d5Status" class="el-icon-check"/>
@@ -62,9 +66,9 @@
               <span>D5 验证措施</span>
            </span>
         </span>
-        <FifthForm :issue-id="issueId" :status="d5Status" @func="getMsgFormFifthSon" v-if="isFifth"/>
-      </el-tab-pane>
-      <el-tab-pane name="D6" v-if="!isSpecial">
+            <FifthForm :issue-id="issueId" :status="d5Status" @func="getMsgFormFifthSon" v-if="isFifth"/>
+          </el-tab-pane>
+          <el-tab-pane name="D6" v-if="!isSpecial">
         <span slot="label">
            <span class="span-box">
                 <i v-if="d6Status" class="el-icon-check"/>
@@ -72,9 +76,9 @@
               <span>D6 实施长期纠正措施</span>
            </span>
         </span>
-        <SixthForm :issue-id="issueId" :status="d6Status" @func="getMsgFormSixthSon" v-if="isSixth"/>
-      </el-tab-pane>
-      <el-tab-pane name="D7" v-if="!isSpecial">
+            <SixthForm :issue-id="issueId" :status="d6Status" @func="getMsgFormSixthSon" v-if="isSixth"/>
+          </el-tab-pane>
+          <el-tab-pane name="D7" v-if="!isSpecial">
         <span slot="label">
            <span class="span-box">
                 <i v-if="d7Status" class="el-icon-check"/>
@@ -82,9 +86,9 @@
               <span>D7 永久措施</span>
            </span>
         </span>
-        <SeventhForm :issue-id="issueId" :status="d7Status" @func="getMsgFormSeventhSon" v-if="isSeventh"/>
-      </el-tab-pane>
-      <el-tab-pane name="D8">
+            <SeventhForm :issue-id="issueId" :status="d7Status" @func="getMsgFormSeventhSon" v-if="isSeventh"/>
+          </el-tab-pane>
+          <el-tab-pane name="D8">
         <span slot="label">
            <span class="span-box">
                 <i v-if="d8Status" class="el-icon-check"/>
@@ -92,9 +96,11 @@
               <span>D8 关闭</span>
            </span>
         </span>
-        <EighthForm :issue-id="issueId" :status="d8Status" @func="getMsgFormEighthSon" v-if="isEighth"/>
-      </el-tab-pane>
-    </el-tabs>
+            <EighthForm :issue-id="issueId" :status="d8Status" @func="getMsgFormEighthSon" v-if="isEighth"/>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+    </el-card>
   </div>
 </template>
 
@@ -142,6 +148,8 @@ export default {
 
       isSpecial: false,
 
+      headerContent: '系统8D',
+
       initFishData: null
     }
   },
@@ -158,8 +166,23 @@ export default {
       getIssueById(id).then(res => {
         if (validIsNotNull(res.specialEvent)) {
           this.isSpecial = true
+          this.headerContent = res.specialEvent
         }
       })
+    },
+    // 返回上一页
+    goBack() {
+      window.history.back()
+    },
+    back() {
+      this.$confirm('回到问题列表？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: 'Yes 回到列表',
+        cancelButtonText: 'Wait 再看看'
+      })
+        .then(() => {
+          window.history.back()
+        })
     },
     // 监控附件组件相关改动
     getMsgFormFirstSon(msg) {
@@ -311,6 +334,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style rel="stylesheet/scss" lang="scss" scoped>
+::v-deep .box-card {
+  margin-bottom: 5px;
+}
 </style>

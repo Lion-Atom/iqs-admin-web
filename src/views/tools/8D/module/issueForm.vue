@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
-    :title="crud.status.title === '编辑问题'?'审核问题 review issue':crud.status.title"
+    :title="editTitle"
     width="700px"
   >
 
@@ -93,8 +93,8 @@
         >
           <el-input
             type="textarea"
-            :rows="3"
             v-model="form.description"
+            :rows="3"
             style="width: 370px;"
           />
         </el-form-item>
@@ -358,7 +358,7 @@
       <el-button
         :loading="crud.status.cu === 2"
         type="primary"
-        :disabled="!user.isAdmin"
+        :disabled="!user.isAdmin && crud.status.edit"
         @click="crud.submitCU"
       >
         确认
@@ -424,6 +424,7 @@ export default {
         edit: ['admin', 'd:edit'],
         del: ['admin', 'd:del']
       },
+      editTitle: '审核问题',
       rules: {
         issueTitle: [
           { required: true, message: '请输入问题标题', trigger: 'blur' }
@@ -449,13 +450,13 @@ export default {
         description: [
           { required: true, message: '请描述下问题具体信息', trigger: 'blur' }
         ],
-        phone: [
+        /*phone: [
           { required: true, message: '请留下电话便于联系', trigger: 'blur' }
         ],
         email: [
           { required: true, message: '请输入邮箱地址', trigger: 'blur' },
           { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
-        ],
+        ],*/
         type: [
           { required: true, message: '请输入问题类型', trigger: 'blur' }
         ],
@@ -501,6 +502,7 @@ export default {
   },
   created() {
     this.user.isAdmin ? this.isNeed = true : this.isNeed = false
+    this.user.isAdmin ? this.editTitle = '审核问题' : this.editTitle = '查看问题'
     this.getAvailableUser()
   },
   methods: {

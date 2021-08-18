@@ -604,8 +604,11 @@ export default {
             message: 'Submit Success! 添加描述完成!',
             type: 'success'
           })
+          this.oldDesc = form.supplierDescription
           this.isFinished = false
           this.$emit('func', this.isFinished)
+        }).catch(res => {
+
         })
       }
     },

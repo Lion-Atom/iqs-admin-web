@@ -20,7 +20,7 @@
             label-width="120px"
           >
             <el-form-item
-              label="改善行动标题"
+              label="改善行动"
               prop="name"
             >
               <el-input
@@ -697,6 +697,7 @@ export default {
     },
     addSixthDesc(form) {
       let val = true
+      console.log(this.oldComment)
       if (this.oldComment === form.commentD6) {
         this.$message({
           message: 'Cannot submit! 内容未发生变更，无需重复提交!',
@@ -711,6 +712,7 @@ export default {
             message: 'Submit D6-Desc Success! 添加D6详细描述完成!',
             type: 'success'
           })
+          this.oldComment = form.commentD6
           this.isFinished = false
           this.$emit('func', this.isFinished)
         })

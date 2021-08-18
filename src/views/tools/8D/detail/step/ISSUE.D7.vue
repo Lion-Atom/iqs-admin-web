@@ -16,12 +16,14 @@
           <el-table-column prop="name" label="文档" width="200"/>
           <el-table-column label="更改内容">
             <template scope="scope">
-              <el-input
-                type="textarea"
-                :rows="3"
-                v-model="scope.row.description"
-                style="min-width: 800px;"
-              />
+              <template slot-scope="scope">
+                <el-input
+                  type="textarea"
+                  :rows="3"
+                  v-model="scope.row.description"
+                  style="max-width: 800px;"
+                />
+              </template>
             </template>
           </el-table-column>
         </el-table>
@@ -445,8 +447,9 @@ import { editChangeDesc, getChangeDescByIssueId } from '@/api/tools/changeDesc'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 import { editAnalysis, getAnalysisByIssueId } from '@/api/tools/issueAnalysis'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
-import { validIsNotNull, validTwo } from '@/utils/validationUtil'
+import { validIsNotNull } from '@/utils/validationUtil'
 import UploadFile from '@/views/tools/8D/module/uploadFile'
+import { isvalidPhone } from '@/utils/validate'
 
 export default {
   name: 'SeventhForm',
@@ -547,6 +550,7 @@ export default {
   created() {
 
   },
+  watch: {},
   mounted: function() {
     this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
@@ -582,7 +586,7 @@ export default {
     getChangeDescByIssueId(id) {
       this.changeDescs = []
       getChangeDescByIssueId(id).then(res => {
-        this.changeDescs = res
+        this.oldChangeDescs = res
       })
     },
     // 获取临时措施信息
@@ -607,19 +611,32 @@ export default {
     },
     // 批量保存文档数据
     saveChangeDescs(data) {
-      editChangeDesc(data).then(res => {
-        this.$message({
-          message: 'Save Documentation Success! 保存文档更改内容成功!',
-          type: 'success'
+      let val = true
+      // todo 保存文档描述的监控：有无变化
+      /* if (
+         data[0].description ===
+       ) {
+         this.$message({
+           message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+           type: 'warning'
+         })
+         val = false
+       }*/
+      if (val) {
+        editChangeDesc(data).then(res => {
+          this.$message({
+            message: 'Save Documentation Success! 保存文档更改内容成功!',
+            type: 'success'
+          })
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+        }).catch(() => {
+          this.$message({
+            message: 'Save Documentation Failed! 保存文档更改内容失败!',
+            type: 'error'
+          })
         })
-        this.isFinished = false
-        this.$emit('func', this.isFinished)
-      }).catch(() => {
-        this.$message({
-          message: 'Save Documentation Failed! 保存文档更改内容失败!',
-          type: 'error'
-        })
-      })
+      }
     },
     // 获取时间进程
     getTimeManagementByIssueId(id) {

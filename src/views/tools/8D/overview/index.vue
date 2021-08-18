@@ -1,5 +1,5 @@
 <template>
-  <div id="pdfDom" class="app-container">
+  <div @dblclick="back" id="pdfDom" class="app-container">
     <el-row class="report-title">
       {{ reportTitle }}
       <el-button
@@ -13,8 +13,9 @@
       >另存为pdf
       </el-button>
     </el-row>
-    <el-divider></el-divider>
-    <el-collapse v-model="activeNames" @change="handleChange">
+    <!--    <el-divider></el-divider>-->
+    <!--系统8D-->
+    <el-collapse v-if="type==='系统8D'" v-model="activeNames" @change="handleChange">
       <el-collapse-item class="collapse-title" title="D1 - 问题介绍和小组定义" name="1">
         <FirstForm :issue-id="issueId" :need-confirm="confirmVisible"/>
       </el-collapse-item>
@@ -40,6 +41,10 @@
         <EighthForm :issue-id="issueId" :need-confirm="confirmVisible"/>
       </el-collapse-item>
     </el-collapse>
+    <!--单独报告-->
+    <SingleReport v-if="type==='单独报告'" :issue-id="issueId" :need-confirm="confirmVisible"/>
+    <!--直接结案-->
+    <Shutdown v-if="type==='直接结案'" :issue-id="issueId" :need-confirm="confirmVisible"/>
   </div>
 </template>
 
@@ -55,19 +60,32 @@ import SeventhForm from '../../../tools/8D/detail/step/ISSUE.D7'
 import EighthForm from '../../../tools/8D/detail/step/ISSUE.D8'
 import { getIssueById } from '@/api/tools/issue'
 import { validIsNotNull } from '@/utils/validationUtil'
-import { delSpecialByIssueId } from '@/api/tools/issueSpecail'
+import SingleReport from '../../../tools/8D/report'
+import Shutdown from '../../../tools/8D/shutdown'
 
 export default {
   name: 'Overview',
-  components: { FirstForm, SecondForm, ThirdForm, ForthForm, FifthForm, SixthForm, SeventhForm, EighthForm },
+  components: {
+    FirstForm,
+    SecondForm,
+    ThirdForm,
+    ForthForm,
+    FifthForm,
+    SixthForm,
+    SeventhForm,
+    EighthForm,
+    SingleReport,
+    Shutdown
+  },
   props: {},
   data() {
     return {
       issueId: null,
       activeNames: ['1', '2', '3', '4', '5', '6', '7', '8'],
-      reportTitle: null,
+      type: null,
       confirmVisible: false,
       isSpecial: false,
+      reportTitle: null,
       initFishData: {}
     }
   },
@@ -85,42 +103,72 @@ export default {
         if (validIsNotNull(res.specialEvent)) {
           this.isSpecial = true
         }
-        this.reportTitle = res.issueTitle + '_8D报告'
+        this.type = res.hasReport
+        if (res.hasReport === '单独报告') {
+          this.reportTitle = res.issueTitle + '_' + res.hasReport
+        } else {
+          this.reportTitle = res.issueTitle + '_' + res.hasReport + '报告'
+        }
       })
     },
     // 手风琴操作
     handleChange(val) {
       console.log(val)
     },
-    // 导出PDF
-    savePdf() {
-      this.$confirm('导出前确认下鱼骨图是否样式回正？', '确认信息', {
+    back() {
+      this.$confirm('回到问题列表？', '确认信息', {
         distinguishCancelAndClose: true,
-        confirmButtonText: 'Yes 继续导出',
-        cancelButtonText: 'Wait 调整鱼骨样式'
+        confirmButtonText: 'Yes 回到列表',
+        cancelButtonText: 'Wait 再看看'
       })
         .then(() => {
-          this.activeNames = ['1', '2', '3', '4', '5', '6', '7', '8']
-          let btn = document.getElementsByTagName('button')
-          let btn_save_pdf = document.getElementById('save_pdf')
-          for (let i = 0; i < btn.length; i++) {
-            if (!btn[i].isEqualNode(btn_save_pdf)) {
-              btn[i].style.display = 'none'
+          window.history.back()
+        })
+    },
+    // 导出PDF
+    savePdf() {
+      if (this.type === '系统8D') {
+        this.$confirm('导出前确认下鱼骨图是否样式回正？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 继续导出',
+          cancelButtonText: 'Wait 调整鱼骨样式'
+        })
+          .then(() => {
+            this.activeNames = ['1', '2', '3', '4', '5', '6', '7', '8']
+            let btn = document.getElementsByTagName('button')
+            let btn_save_pdf = document.getElementById('save_pdf')
+            for (let i = 0; i < btn.length; i++) {
+              if (!btn[i].isEqualNode(btn_save_pdf)) {
+                btn[i].style.display = 'none'
+              }
             }
-          }
-          setTimeout(() => {
-            // this.getPdf() // 分页导出
-            this.printPdf()  // 不分页导出
-          }, 300)
-        })
-        .catch(action => {
-          this.$message({
-            type: 'info',
-            message: action === 'cancel'
-              ? 'Wait 调整鱼骨样式'
-              : 'Reconsider 暂停留本页面，考虑一下'
+            setTimeout(() => {
+              // this.getPdf() // 分页导出
+              this.printPdf()  // 不分页导出
+            }, 300)
           })
-        })
+          .catch(action => {
+            this.$message({
+              type: 'info',
+              message: action === 'cancel'
+                ? 'Wait 调整鱼骨样式'
+                : 'Reconsider 暂停留本页面，考虑一下'
+            })
+          })
+      } else {
+        let btn = document.getElementsByTagName('button')
+        let btn_save_pdf = document.getElementById('save_pdf')
+        for (let i = 0; i < btn.length; i++) {
+          if (!btn[i].isEqualNode(btn_save_pdf)) {
+            btn[i].style.display = 'none'
+          }
+        }
+        btn_save_pdf.style.display = 'none'
+        setTimeout(() => {
+          // this.getPdf() // 分页导出
+          this.printPdf()  // 不分页导出
+        }, 200)
+      }
     }
   }
 

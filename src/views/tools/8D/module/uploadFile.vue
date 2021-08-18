@@ -38,7 +38,7 @@
           :data="files"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="附件名称" max-width="300">
+          <el-table-column prop="name" label="附件名称" min-width="200">
             <template slot-scope="scope">
               <el-popover
                 :content="'file/' + scope.row.type + '/' + scope.row.name"
@@ -76,7 +76,8 @@
                         </el-image>
                       </template>
                     </el-table-column>-->
-          <el-table-column prop="size" label="大小"/>
+          <el-table-column prop="size" label="大小" min-width="120"/>
+          <el-table-column prop="type" label="附件类型" min-width="120"/>
           <el-table-column prop="createBy" label="创建者"/>
           <!--   编辑与删除   -->
           <el-table-column
