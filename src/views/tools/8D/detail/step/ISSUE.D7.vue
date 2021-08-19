@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <!--文档描述-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
@@ -16,14 +15,13 @@
           <el-table-column prop="name" label="文档" width="200"/>
           <el-table-column label="更改内容">
             <template scope="scope">
-              <template slot-scope="scope">
-                <el-input
-                  type="textarea"
-                  :rows="3"
-                  v-model="scope.row.description"
-                  style="max-width: 800px;"
-                />
-              </template>
+              <el-input
+                @input="inputChange"
+                type="textarea"
+                :rows="3"
+                v-model="scope.row.description"
+                style="max-width: 800px;"
+              />
             </template>
           </el-table-column>
         </el-table>
@@ -449,7 +447,6 @@ import { editAnalysis, getAnalysisByIssueId } from '@/api/tools/issueAnalysis'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
 import { validIsNotNull } from '@/utils/validationUtil'
 import UploadFile from '@/views/tools/8D/module/uploadFile'
-import { isvalidPhone } from '@/utils/validate'
 
 export default {
   name: 'SeventhForm',
@@ -524,6 +521,8 @@ export default {
       },
       isAddPreAct: false,
       submitLoading: false,
+      oldFirstDesc: null,
+      oldSecDesc: null,
       preActionRules: {
         name: [
           { required: true, message: '围堵措施标题不可为空', trigger: 'blur' }
@@ -586,7 +585,10 @@ export default {
     getChangeDescByIssueId(id) {
       this.changeDescs = []
       getChangeDescByIssueId(id).then(res => {
-        this.oldChangeDescs = res
+        this.changeDescs = res
+        // 防止内存地址指向同一处，因此不用oldArr赋值
+        this.oldFirstDesc = res[0].description
+        this.oldSecDesc = res[1].description
       })
     },
     // 获取临时措施信息
@@ -609,25 +611,30 @@ export default {
         this.preActions = res
       })
     },
+    inputChange(val) {
+    },
     // 批量保存文档数据
     saveChangeDescs(data) {
       let val = true
-      // todo 保存文档描述的监控：有无变化
-      /* if (
-         data[0].description ===
-       ) {
-         this.$message({
-           message: 'Cannot submit! 内容未发生变更，无需重复提交!',
-           type: 'warning'
-         })
-         val = false
-       }*/
+      //  保存文档描述的监控：有无变化
+      if (
+        (data[0].description === this.oldFirstDesc || (!validIsNotNull(data[0].description) && !validIsNotNull(this.oldFirstDesc))) &&
+        (data[1].description === this.oldSecDesc || (!validIsNotNull(data[1].description) && !validIsNotNull(this.oldSecDesc)))
+      ) {
+        this.$message({
+          message: 'Cannot submit! 内容未发生变更，无需重复提交!',
+          type: 'warning'
+        })
+        val = false
+      }
       if (val) {
         editChangeDesc(data).then(res => {
           this.$message({
             message: 'Save Documentation Success! 保存文档更改内容成功!',
             type: 'success'
           })
+          this.oldFirstDesc = data[0].description
+          this.oldSecDesc = data[1].description
           this.isFinished = false
           this.$emit('func', this.isFinished)
         }).catch(() => {

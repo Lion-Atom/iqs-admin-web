@@ -253,14 +253,16 @@ export default {
           editTimeManage(this.timeManagement).then(res => {
             this.confirmVisible = false
             this.isFinished = true
+            this.getIssueInfoById(this.$props.issueId)
             this.$emit('func', this.isFinished)
             this.$message({
               message: 'Submit Success! D8提交完成!',
               type: 'success'
             })
+          }).catch(res => {
+
           })
         }
-        this.getIssueInfoById(this.$props.issueId)
       }
     }
   }

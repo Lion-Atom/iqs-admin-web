@@ -1,5 +1,5 @@
 <template>
-  <div @dblclick="back" class="app-container">
+  <div class="app-container">
     <el-card v-if="isNeed" class="box-card">
       <el-page-header @back="goBack" content="单独报告"></el-page-header>
     </el-card>
@@ -172,8 +172,11 @@
                 placeholder="请选择状态"
                 style="width: 370px;"
               >
-                <el-option v-for="item in statusTypeOptions" :key="item.key" :label="item.display_name"
-                           :value="item.key"
+                <el-option
+                  v-for="item in statusTypeOptions"
+                  :key="item.key"
+                  :label="item.display_name"
+                  :value="item.key"
                 />
               </el-select>
             </el-form-item>
@@ -199,8 +202,13 @@
               label="%有效性"
               prop="efficiency"
             >
-              <el-input-number v-model="reportActionForm.efficiency" style="width: 370px;" :precision="2" :step="0.1"
-                               :min="0" :max="100"
+              <el-input-number
+                v-model="reportActionForm.efficiency"
+                style="width: 370px;"
+                :precision="2"
+                :step="0.1"
+                :min="0"
+                :max="100"
               ></el-input-number>
             </el-form-item>
             <el-form-item
@@ -292,27 +300,42 @@
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editReportAction(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editReportAction(scope.row)"
                 />
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定删除本条数据吗？</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="delReportAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="delReportAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" type="danger" icon="el-icon-delete"
-                             size="mini"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
                   />
                 </el-popover>
               </div>
@@ -500,17 +523,6 @@ export default {
     // 返回上一页
     goBack() {
       window.history.back()
-    },
-    // 双击返回事件
-    back() {
-      this.$confirm('回到问题列表？', '确认信息', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: 'Yes 回到列表',
-        cancelButtonText: 'Wait 再看看'
-      })
-        .then(() => {
-          window.history.back()
-        })
     },
     // 监控附件组件相关改动
     getMsgFormSon(msg) {

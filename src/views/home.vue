@@ -94,7 +94,7 @@ export default {
         createTime: []
       },
       defaultCategory: 'departments',
-      lineChartData: null,
+      lineChartData: {},
       departments: {
         count: [],
         personalCount: [],

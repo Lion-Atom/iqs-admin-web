@@ -1,5 +1,5 @@
 <template>
-  <div @dblclick="back" class="app-container">
+  <div class="app-container">
     <!--    <pre class="my-code" style="padding: 8px;!important;">8D明细-&#45;&#45;开发中</pre>-->
     <el-card class="box-card">
       <el-page-header @back="goBack" :content="headerContent"></el-page-header>
@@ -173,16 +173,6 @@ export default {
     // 返回上一页
     goBack() {
       window.history.back()
-    },
-    back() {
-      this.$confirm('回到问题列表？', '确认信息', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: 'Yes 回到列表',
-        cancelButtonText: 'Wait 再看看'
-      })
-        .then(() => {
-          window.history.back()
-        })
     },
     // 监控附件组件相关改动
     getMsgFormFirstSon(msg) {
