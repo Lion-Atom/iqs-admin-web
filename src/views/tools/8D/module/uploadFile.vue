@@ -81,7 +81,7 @@
           <el-table-column prop="createBy" label="创建者"/>
           <!--   编辑与删除   -->
           <el-table-column
-            v-if="!(!user.isAdmin && this.cond.stepName === 'D0')"
+            v-if="!(!this.user.isAdmin && this.cond.stepName === 'D0') && isNeed"
             label="操作"
             max-width="130px"
             align="center"

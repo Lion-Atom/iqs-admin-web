@@ -4,7 +4,9 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">文档描述</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="saveChangeDescs(changeDescs)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveChangeDescs(changeDescs)">
+          保存
+        </el-button>
       </div>
       <div>
         <el-table
@@ -21,6 +23,7 @@
                 :rows="3"
                 v-model="scope.row.description"
                 style="max-width: 800px;"
+                :disabled="!isNeed"
               />
             </template>
           </el-table-column>
@@ -50,6 +53,7 @@
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -113,7 +117,7 @@
         >
           <el-table-column prop="systemWide" label="过程分析" width="320"/>
           <el-table-column prop="result" label="分析结果"/>
-          <el-table-column label="长久措施" min-width="120">
+          <el-table-column label="长久措施">
             <template slot-scope="scope">
               <div class="tag-group">
                 <el-tag
@@ -135,6 +139,7 @@
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -318,6 +323,7 @@
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -360,7 +366,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">详细描述</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addSeventhDesc(form)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addSeventhDesc(form)">保存
+        </el-button>
       </div>
       <div>
         <el-form :inline="true" :model="form" class="demo-form-inline">
@@ -372,6 +379,7 @@
               :rows="3"
               v-model="form.commentD7"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
         </el-form>

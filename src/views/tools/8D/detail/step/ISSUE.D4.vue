@@ -4,7 +4,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">缺陷定位</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="saveDefects(stepDefects)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveDefects(stepDefects)">保存
+        </el-button>
       </div>
       <div>
         <el-table
@@ -16,17 +17,17 @@
           <el-table-column prop="processStep" label="缺陷在哪个过程步骤中被创建/被检测到/应该被检测到" width="320"/>
           <el-table-column label="被创建" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.created"></el-checkbox>
+              <el-checkbox v-model="scope.row.created" :disabled="!isNeed"></el-checkbox>
             </template>
           </el-table-column>
           <el-table-column label="被检测到" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.detected"></el-checkbox>
+              <el-checkbox v-model="scope.row.detected" :disabled="!isNeed"></el-checkbox>
             </template>
           </el-table-column>
           <el-table-column label="可能已被检测到" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.shouldDetected"></el-checkbox>
+              <el-checkbox v-model="scope.row.shouldDetected" :disabled="!isNeed"></el-checkbox>
             </template>
           </el-table-column>
         </el-table>
@@ -227,6 +228,7 @@
             width="250px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -277,7 +279,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">风险评估</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addRbi(issueForm)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addRbi(issueForm)">保存
+        </el-button>
       </div>
       <div>
         <el-form :inline="true" :model="issueForm" class="demo-form-inline">
@@ -289,6 +292,7 @@
               :rows="3"
               v-model="issueForm.rbi"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
         </el-form>
@@ -317,10 +321,11 @@
               </span>
            <el-select
              v-model="issueForm.specialEvent"
-             placeholder="请选择状态"
+             placeholder="请选择特殊事件应用场景"
              style="width: 200px;"
              @change="changeSpecialEvent"
              clearable
+             :disabled="!isNeed"
            >
             <el-option v-for="item in specialEventOptions" :key="item.key" :label="item.display_name"
                        :value="item.key"
@@ -328,7 +333,7 @@
           </el-select>
           </el-form-item>
           </el-form>
-          <el-button style="float: right; padding: 3px 0" type="text" @click="saveSpecial">保存</el-button>
+          <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveSpecial">保存</el-button>
         </span>
       </div>
       <div>
@@ -403,9 +408,11 @@
     <el-card v-if="!isNeed" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">原因分析-鱼骨图</span>
+        <!--        <span class="header-title">原因分析图</span>-->
       </div>
       <div>
-        <Jtopo :fish-data="initFish"/>
+        <Jtopo :issue-id="issueId" :fish-data="initFish"/>
+        <!--        <TreeChart :issue-id="issueId" :fish-data="fishData"/>-->
       </div>
     </el-card>
 
@@ -495,12 +502,13 @@ import { validIsNotNull } from '@/utils/validationUtil'
 import { edit, getIssueById } from '@/api/tools/issue'
 import { addSpecial, delSpecialByIssueId, editSpecial, getSpecialByIssueId } from '@/api/tools/issueSpecail'
 import UploadFile from '@/views/tools/8D/module/uploadFile'
+import TreeChart from '@/components/Echarts/TreeChart'
 
 export default {
   name: 'ForthForm',
   props: ['issueId', 'needConfirm', 'initFish'],
   dicts: ['common_status'],
-  components: { Jtopo, UploadFile },
+  components: { Jtopo, UploadFile, TreeChart },
   data() {
     return {
       permission: {
@@ -1005,6 +1013,7 @@ export default {
         {
           path: '/issue/fishbone',
           query: {
+            issueId: this.$props.issueId,
             fishData: this.fishData
           }
         })

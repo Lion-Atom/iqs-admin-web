@@ -77,3 +77,21 @@
 .el-range-editor.el-input__inner {
   display: inline-flex !important;
 }
+
+// fix el-textarea disabled-style
+.el-textarea.is-disabled .el-textarea__inner {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+// fix el-select disabled-style
+.el-select .el-input.is-disabled .el-input__inner {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+// fix check-box disabled-style
+.el-checkbox__input.is-disabled .el-checkbox__inner {
+  background-color: #fff !important;
+  color: #000 !important;
+}

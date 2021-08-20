@@ -42,17 +42,17 @@
       >
         编辑8D
       </el-button>
-      <el-tooltip class="item" effect="dark" content="执行8D才有预览噢" placement="top-start">
+      <el-tooltip class="item" effect="dark" content="打印之前要确定数据都加载完毕哦" placement="top-start">
             <el-button
-                v-if="crud.optShow.edit"
-                v-permission="permission.edit"
-                class="filter-item"
-                size="mini"
-                type="success"
-                icon="el-icon-edit"
-                :disabled="crud.selections.length !== 1 || crud.selections[0].status === '待审核'"
-                :loading="viewLoading"
-                @click="gotoView(crud.selections[0])"
+              v-if="crud.optShow.edit"
+              v-permission="permission.edit"
+              class="filter-item"
+              size="mini"
+              type="success"
+              icon="el-icon-edit"
+              :disabled="crud.selections.length !== 1 || crud.selections[0].status === '待审核'"
+              :loading="viewLoading"
+              @click="gotoView(crud.selections[0])"
             >
         打印预览
       </el-button>

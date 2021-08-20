@@ -74,7 +74,9 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">时间要求</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="saveTimeManagement(timeManagement)">保存
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text"
+                   @click="saveTimeManagement(timeManagement)"
+        >保存
         </el-button>
       </div>
       <div>
@@ -83,9 +85,17 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="预计完成步骤 :" prop="planStep1">
-                <el-select v-model="timeManagement.planStep1" clearable placeholder="选择预期要完成的步骤">
-                  <el-option v-for="item in resultTypeOptions" :key="item.key" :label="item.display_name"
-                             :value="item.key"
+                <el-select
+                  v-model="timeManagement.planStep1"
+                  placeholder="选择预期要完成的步骤"
+                  clearable
+                  :disabled="!isNeed"
+                >
+                  <el-option
+                    v-for="item in resultTypeOptions"
+                    :key="item.key"
+                    :label="item.display_name"
+                    :value="item.key"
                   />
                 </el-select>
               </el-form-item>
@@ -98,6 +108,7 @@
                   style="width: 200px;"
                   placeholder="选择日期时间"
                   default-time="12:00:00"
+                  :disabled="!isNeed"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -107,9 +118,18 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="预计完成步骤 :" prop="planStep1">
-                <el-select v-model="timeManagement.planStep2" clearable placeholder="选择预期要完成的步骤">
-                  <el-option v-for="item in resultTypeOptions" :key="item.key" :label="item.display_name"
-                             :value="item.key"
+                <el-select
+                  :disabled="!isNeed"
+                  v-model="timeManagement.planStep2"
+                  clearable
+                  placeholder="选择预期要完成的步骤"
+                >
+                  <el-option
+                    v-for="item in resultTypeOptions"
+                    :key="item.key"
+                    :label="item.display_name"
+                    :value="item.key"
+                    :disabled="!isNeed"
                   />
                 </el-select>
               </el-form-item>
@@ -122,6 +142,7 @@
                   style="width: 200px;"
                   placeholder="选择日期时间"
                   default-time="12:00:00"
+                  :disabled="!isNeed"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -131,9 +152,18 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="预计完成步骤 :" prop="planStep1">
-                <el-select v-model="timeManagement.planStep3" clearable placeholder="选择预期要完成的步骤">
-                  <el-option v-for="item in resultTypeOptions" :key="item.key" :label="item.display_name"
-                             :value="item.key"
+                <el-select
+                  v-model="timeManagement.planStep3"
+                  clearable
+                  placeholder="选择预期要完成的步骤"
+                  :disabled="!isNeed"
+                >
+                  <el-option
+                    v-for="item in resultTypeOptions"
+                    :key="item.key"
+                    :label="item.display_name"
+                    :value="item.key"
+                    :disabled="!isNeed"
                   />
                 </el-select>
               </el-form-item>
@@ -146,6 +176,7 @@
                   style="width: 200px;"
                   placeholder="选择日期时间"
                   default-time="12:00:00"
+                  :disabled="!isNeed"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -225,7 +256,7 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">成员组成</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="toAddMember">增加新成员</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="toAddMember">增加新成员</el-button>
       </div>
       <div>
         <el-table
@@ -245,6 +276,7 @@
             label="操作"
             width="130px"
             align="center"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>

@@ -5,7 +5,9 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">各方意见</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="saveConclusion(conclusion)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveConclusion(conclusion)">
+          保存
+        </el-button>
       </div>
       <div>
         <el-form
@@ -25,6 +27,7 @@
               :rows="3"
               v-model="conclusion.leaderConclusion"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
           <el-form-item
@@ -36,6 +39,7 @@
               :rows="3"
               v-model="conclusion.managerConclusion"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
           <el-form-item
@@ -47,6 +51,7 @@
               :rows="3"
               v-model="conclusion.otherConclusion"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
         </el-form>
@@ -62,7 +67,13 @@
       <div>
         <div class="demo-input-suffix">
           分数：
-          <el-input-number v-model="form.score" style="width: 200px;" :precision="2" :step="0.1" :min="0" :max="100"
+          <el-input-number
+            v-model="form.score"
+            style="width: 200px;"
+            :precision="2"
+            :step="0.1"
+            :min="0"
+            :max="100"
           ></el-input-number>
         </div>
       </div>
@@ -87,9 +98,13 @@
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button slot="reference" :loading="selfLoading" v-permission="permission.edit" type="success"
-                         :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                :loading="selfLoading"
+                v-permission="permission.edit"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -184,7 +199,7 @@ export default {
           return false
         } else {
           editConclusion(data).then(res => {
-            //编辑问题，添加供应商详细描述
+            // 编辑问题，添加供应商详细描述
             this.$message({
               message: 'Submit Conclusion Success! 添加各项意见完成!',
               type: 'success'

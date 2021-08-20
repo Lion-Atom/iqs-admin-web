@@ -522,7 +522,12 @@ export default {
   methods: {
     // 返回上一页
     goBack() {
-      window.history.back()
+      this.$router.push(
+        {
+          path: '/8D/issue',
+          query: {}
+        }
+      )
     },
     // 监控附件组件相关改动
     getMsgFormSon(msg) {

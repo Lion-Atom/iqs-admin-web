@@ -184,6 +184,7 @@
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -209,7 +210,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">移除行动</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addRemoveAct">新增移除行动</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addRemoveAct">新增移除行动
+        </el-button>
       </div>
       <div>
         <el-dialog
@@ -305,13 +307,14 @@
           <el-table-column prop="name" label="移除的改善行动"/>
           <el-table-column prop="comment" label="评论"/>
           <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="removeTime" label="移除时间" width="140"/>
+          <el-table-column prop="removeTime" label="移除时间"/>
           <!--   编辑与删除   -->
           <el-table-column
             label="操作"
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -336,7 +339,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">详细描述</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addSixthDesc(form)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addSixthDesc(form)">保存
+        </el-button>
       </div>
       <div>
         <el-form :inline="true" :model="form" class="demo-form-inline">
@@ -348,6 +352,7 @@
               :rows="3"
               v-model="form.commentD6"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
         </el-form>

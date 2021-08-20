@@ -4,7 +4,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">改善行动</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addCorrectAction">添加改善行动</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addCorrectAction">添加改善行动
+        </el-button>
       </div>
       <div>
         <el-dialog
@@ -138,6 +139,7 @@
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -181,7 +183,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">详细描述</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addFifthDesc(form)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addFifthDesc(form)">保存
+        </el-button>
       </div>
       <div>
         <el-form :inline="true" :model="form" class="demo-form-inline">
@@ -193,6 +196,7 @@
               :rows="3"
               v-model="form.commentD5"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
         </el-form>

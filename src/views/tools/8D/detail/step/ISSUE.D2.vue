@@ -4,7 +4,7 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">相关数据</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="toAddNum">增加新数据</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="toAddNum">增加新数据</el-button>
       </div>
       <div>
         <!--新增/编辑数据弹窗-->
@@ -83,16 +83,16 @@
           :data="issueNums"
           style="width: 100%;"
         >
-          <el-table-column prop="caPartNum" label="产品料号" width="150"/>
-          <el-table-column prop="componentDateCode" label="产品生产日期" width="180"/>
-          <el-table-column prop="componentLotNum" label="产品批号" width="180"/>
+          <el-table-column prop="caPartNum" label="产品料号" min-width="120"/>
+          <el-table-column prop="componentDateCode" label="产品生产日期" min-width="120"/>
+          <el-table-column prop="componentLotNum" label="产品批号" min-width="120"/>
           <el-table-column prop="defectQuantity" label="不良数量" width="120"/>
           <el-table-column label="客户影响">
             <template slot-scope="scope">
               <el-popover
                 placement="top-start"
                 title="客户影响"
-                width="200"
+                min-width="180"
                 trigger="hover"
               >
                 <div>{{ scope.row.customerImpact }}</div>
@@ -111,6 +111,7 @@
             width="130px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -144,11 +145,13 @@
         </el-table>
       </div>
     </el-card>
+
     <!--详细描述-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">详细问题描述</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addSupDesc(form)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addSupDesc(form)">保存
+        </el-button>
       </div>
       <div>
         <el-form :inline="true" :model="form" class="demo-form-inline" label-width="120">
@@ -160,6 +163,7 @@
               :rows="3"
               v-model="form.supplierDescription"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
         </el-form>
@@ -170,7 +174,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">5W2H描述</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="saveQuestions(questions)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveQuestions(questions)">保存
+        </el-button>
       </div>
       <div>
         <el-table
@@ -192,6 +197,7 @@
                 autosize
                 v-model="scope.row.description"
                 style="min-width: 800px;"
+                :disabled="!isNeed"
               />
             </template>
           </el-table-column>
@@ -217,9 +223,10 @@
             <el-table-column width="300" property="isContent" label="IS"></el-table-column>
             <el-table-column width="300" property="notContent" label="IS-NOT"></el-table-column>
           </el-table>
-          <el-button type="text" size="small" slot="reference">参考</el-button>
+          <el-button v-if="isNeed" type="text" size="small" slot="reference">参考</el-button>
         </el-popover>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="saveIsNots(isNots)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveIsNots(isNots)">保存
+        </el-button>
       </div>
       <div>
         <el-table
@@ -238,6 +245,7 @@
                 autosize
                 v-model="scope.row.isContent"
                 style="min-width: 300px;"
+                :disabled="!isNeed"
               />
             </template>
           </el-table-column>
@@ -248,6 +256,7 @@
                 autosize
                 v-model="scope.row.notContent"
                 style="min-width: 300px;"
+                :disabled="!isNeed"
               />
             </template>
           </el-table-column>

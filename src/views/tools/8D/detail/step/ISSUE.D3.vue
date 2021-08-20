@@ -137,19 +137,20 @@
         >
           <el-table-column prop="title" label="紧急处理产品" width="150"/>
           <el-table-column prop="qtyOk" label="良品数量" width="80"/>
-          <el-table-column prop="qtyNo" label="不良品数量" width="80"/>
+          <el-table-column prop="qtyNo" label="不良品数量" min-width="80"/>
           <el-table-column prop="actionName" label="围堵对策" width="180"/>
-          <el-table-column prop="responsibleName" label="负责人" width="80"/>
+          <el-table-column prop="responsibleName" label="负责人"/>
           <el-table-column prop="efficiency" label="有效性(%)" width="100"/>
           <el-table-column prop="partIdentification" label="产品标识" width="100"/>
-          <el-table-column prop="plannedTime" label="计划执行时间" width="150"/>
-          <el-table-column prop="actualTime" label="实际执行时间" width="150"/>
+          <el-table-column prop="plannedTime" label="计划执行时间" min-width="150"/>
+          <el-table-column prop="actualTime" label="实际执行时间" min-width="150"/>
           <!--   编辑与删除   -->
           <el-table-column
             label="操作"
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -189,7 +190,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">自定义围堵措施</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="toAddOtherConAct">增加新措施</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="toAddOtherConAct">增加新措施
+        </el-button>
       </div>
       <div>
         <el-dialog
@@ -310,6 +312,7 @@
             width="160px"
             align="center"
             fixed="right"
+            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -358,7 +361,8 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">风险评估</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addRiskAssessment(form)">保存</el-button>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="addRiskAssessment(form)">保存
+        </el-button>
       </div>
       <div>
         <el-form :inline="true" :model="form" class="demo-form-inline">
@@ -370,6 +374,7 @@
               :rows="3"
               v-model="form.riskAssessment"
               style="min-width: 800px;"
+              :disabled="!isNeed"
             />
           </el-form-item>
         </el-form>

@@ -122,7 +122,12 @@ export default {
         cancelButtonText: 'Wait 再看看'
       })
         .then(() => {
-          window.history.back()
+          this.$router.push(
+            {
+              path: '/8D/issue',
+              query: {}
+            }
+          )
         })
     },
     // 导出PDF
@@ -131,7 +136,7 @@ export default {
         this.$confirm('导出前确认下鱼骨图是否样式回正？', '确认信息', {
           distinguishCancelAndClose: true,
           confirmButtonText: 'Yes 继续导出',
-          cancelButtonText: 'Wait 调整鱼骨样式'
+          cancelButtonText: 'Wait 调整鱼骨图'
         })
           .then(() => {
             this.activeNames = ['1', '2', '3', '4', '5', '6', '7', '8']
@@ -151,7 +156,7 @@ export default {
             this.$message({
               type: 'info',
               message: action === 'cancel'
-                ? 'Wait 调整鱼骨样式'
+                ? 'Wait 调整鱼骨图'
                 : 'Reconsider 暂停留本页面，考虑一下'
             })
           })
@@ -159,9 +164,9 @@ export default {
         let btn = document.getElementsByTagName('button')
         let btn_save_pdf = document.getElementById('save_pdf')
         for (let i = 0; i < btn.length; i++) {
-          if (!btn[i].isEqualNode(btn_save_pdf)) {
+          //if (!btn[i].isEqualNode(btn_save_pdf)) {
             btn[i].style.display = 'none'
-          }
+          // }
         }
         btn_save_pdf.style.display = 'none'
         setTimeout(() => {
