@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+export function get(params) {
+  return request({
+    url: 'api/issue',
+    method: 'get',
+    params
+  })
+}
+
 export function editIssueAction(data) {
   return request({
     url: 'api/issueAction',
@@ -64,6 +72,7 @@ export function getUserAction() {
 }
 
 export default {
+  get,
   editIssueAction,
   addIssueAction,
   delIssueAction,

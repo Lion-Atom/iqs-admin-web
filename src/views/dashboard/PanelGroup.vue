@@ -40,15 +40,15 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('fileCategories')" @dblclick="handleFileCategoryDbClick()">
+      <div class="card-panel" @click="handleSetLineChartData('issues')" @dblclick="handleIssuesDbClick()">
         <div class="card-panel-icon-wrapper icon-nested">
           <svg-icon icon-class="nested" class-name="card-panel-icon"/>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            文件分类
+            8D执行
           </div>
-          <count-to :start-val="0" :end-val="fileCategoryCount" :duration="3000" class="card-panel-num"/>
+          <count-to :start-val="0" :end-val="issueCount" :duration="3000" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
@@ -87,6 +87,7 @@ export default {
       memberCount: 0,
       taskCount: 0,
       fileCategoryCount: 0,
+      issueCount: 0,
       fileCount: 103
     }
   },
@@ -100,6 +101,7 @@ export default {
         this.departmentCount = res.dept
         this.memberCount = res.user
         this.taskCount = res.task
+        this.issueCount = res.issue
         this.fileCategoryCount = res.fileCategory
         this.fileCount = res.file
       }).catch(() => {
@@ -129,10 +131,10 @@ export default {
           query: {}
         })
     },
-    handleFileCategoryDbClick() {
+    handleIssuesDbClick() {
       this.$router.push(
         {
-          path: '/fileManagement/filecategory',
+          path: '/8D/issue',
           query: {}
         })
     },

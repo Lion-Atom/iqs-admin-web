@@ -19,7 +19,7 @@ export default {
     }
   },
   created() {
-    let contentW = this.$refs.content.offsetWidth
+    const contentW = this.$refs.content.offsetWidth
     this.canvasW = contentW + 'px'
     setTimeout(() => {
       this.getChartDateByIssueId(this.issueId)
@@ -43,9 +43,9 @@ export default {
       })
     },
     initTopo() {
-      let canvas = this.$refs.canvas
+      const canvas = this.$refs.canvas
       if (this.fishData) {
-        let mfb = new MakFishBone(canvas, { data: this.fishData })
+        const mfb = new MakFishBone(canvas, { data: this.fishData })
         mfb.start()
       }
     }

@@ -69,6 +69,12 @@ const lineChartData = {
     personalCount: [],
     xAxisData: []
   },
+  issues: {
+    title: '',
+    count: [],
+    personalCount: [],
+    xAxisData: []
+  },
   fileCategories: {
     title: '',
     count: [],

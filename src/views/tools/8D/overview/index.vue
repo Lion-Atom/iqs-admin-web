@@ -130,6 +130,13 @@ export default {
           )
         })
     },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
+    },
     // 导出PDF
     savePdf() {
       if (this.type === '系统8D') {
@@ -140,17 +147,19 @@ export default {
         })
           .then(() => {
             this.activeNames = ['1', '2', '3', '4', '5', '6', '7', '8']
-            let btn = document.getElementsByTagName('button')
+            // let btn = document.getElementsByTagName('button')
             let btn_save_pdf = document.getElementById('save_pdf')
-            for (let i = 0; i < btn.length; i++) {
+            // $("#centerButton").trigger("click");
+            /* for (let i = 0; i < btn.length; i++) {
               if (!btn[i].isEqualNode(btn_save_pdf)) {
                 btn[i].style.display = 'none'
               }
-            }
+            } */
+            btn_save_pdf.style.display = 'none'
             setTimeout(() => {
               // this.getPdf() // 分页导出
               this.printPdf()  // 不分页导出
-            }, 300)
+            }, 200)
           })
           .catch(action => {
             this.$message({
@@ -161,13 +170,13 @@ export default {
             })
           })
       } else {
-        let btn = document.getElementsByTagName('button')
+        // let btn = document.getElementsByTagName('button')
         let btn_save_pdf = document.getElementById('save_pdf')
-        for (let i = 0; i < btn.length; i++) {
-          //if (!btn[i].isEqualNode(btn_save_pdf)) {
+        /* for (let i = 0; i < btn.length; i++) {
+          if (!btn[i].isEqualNode(btn_save_pdf)) {
             btn[i].style.display = 'none'
-          // }
-        }
+          }
+        } */
         btn_save_pdf.style.display = 'none'
         setTimeout(() => {
           // this.getPdf() // 分页导出

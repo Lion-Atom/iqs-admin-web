@@ -40,6 +40,16 @@ export function getCountByFileDept() {
   })
 }
 
+export function getCountByExecuteType() {
+  const params = {}
+  return request({
+    url: '/api/overview/issue/byExecuteType',
+    method: 'get',
+    params
+  })
+}
+
+
 export function queryByCond(data) {
   return request({
     url: 'api/overview/query/byCond',
@@ -48,4 +58,4 @@ export function queryByCond(data) {
   })
 }
 
-export default { getOverViewAll, getCountByFileType, getCountByFileLevel, getCountByFileDept, queryByCond }
+export default { getOverViewAll, getCountByFileType, getCountByFileLevel, getCountByFileDept,getCountByExecuteType, queryByCond }

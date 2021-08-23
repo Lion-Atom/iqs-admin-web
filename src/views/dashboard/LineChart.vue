@@ -71,9 +71,9 @@ export default {
       } else if (title.search('LocalStorages') !== -1) {
         this.lengendData = ['全部', '部门']
         this.titleName = '文件增长趋势图'
-      } else if (title.search('FileCategories') !== -1) {
+      } else if (title.search('Issues') !== -1) {
         this.lengendData = ['全局']
-        this.titleName = '文件分类增长趋势图'
+        this.titleName = '8D增长趋势图'
       } else if (title.search('Departments') !== -1) {
         this.lengendData = ['全局']
         this.titleName = '部门增长趋势图'
@@ -191,10 +191,10 @@ export default {
               }
             }
           )
-        } else if (title.search('FileCategories') !== -1) {
+        } else if (title.search('Issues') !== -1) {
           this.$router.push(
             {
-              path: '/fileManagement/filecategory',
+              path: '/8D/issue',
               query: {
                 createTime: params.name
               }

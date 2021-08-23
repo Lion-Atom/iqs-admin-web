@@ -7,7 +7,7 @@ import echarts from 'echarts'
 
 require('echarts/theme/macarons') // echarts theme
 import { debounce } from '@/utils'
-import { getCountByFileDept, getCountByFileType } from '@/api/overview/overview'
+import { getCountByFileDept, getCountByFileType,getCountByExecuteType } from '@/api/overview/overview'
 
 const animationDuration = 6000
 
@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     getChartDateByFileDept() {
-      getCountByFileDept().then(res => {
+      getCountByExecuteType().then(res => {
         // alert(JSON.stringify(res))
         this.xAxisData = res.xAxis
         this.yAxisData = res.yAxis
@@ -72,7 +72,7 @@ export default {
 
       this.chart.setOption({
         title: {
-          text: '部门关联文件图',
+          text: '8D执行概况',
           // subtext: 'Department&File',
           subText: 'Scope:' + this.subText,
           left: 'center'
@@ -107,11 +107,19 @@ export default {
           }
         }],
         series: [{
-          name: 'FileCount(文件数目)',
+          name: '执行数目',
           type: 'bar',
           stack: 'files',
           barWidth: '60%',
           data: this.yAxisData,
+          itemStyle:{
+            normal:{
+              color:function(params){
+                const colorList = ['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83', '#ca8622'];
+                return colorList[params.dataIndex]
+              }
+            }
+          },
           animationDuration
         }]
       })
@@ -119,9 +127,9 @@ export default {
         // alert(JSON.stringify(params.data))
         this.$router.push(
           {
-            path: '/fileManagement/file',
+            path: '/8D/issue',
             query: {
-              deptId: params.data.id
+
             }
           }
         )

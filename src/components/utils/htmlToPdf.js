@@ -31,10 +31,12 @@ export default {
             }
           }
           PDF.save(title + '.pdf')
-          let btn = document.getElementsByTagName('button')
+          /*let btn = document.getElementsByTagName('button')
           for (let i = 0; i < btn.length; i++) {
             btn[i].style.display = 'block'
-          }
+          }*/
+        let btn_save_pdf = document.getElementById('save_pdf')
+        btn_save_pdf.style.display = 'block'
         }
       )
     },
@@ -87,10 +89,9 @@ export default {
               this.height * 0.545
             )
             doc.save(title + '.pdf')
-            let btn = document.getElementsByTagName('button')
-            for (let i = 0; i < btn.length; i++) {
-              btn[i].style.display = 'block'
-            }
+            // 将打印按钮重置回来
+            let btn_save_pdf = document.getElementById('save_pdf')
+            btn_save_pdf.style.display = 'block'
             that.dianpingShow = true
           }
         })

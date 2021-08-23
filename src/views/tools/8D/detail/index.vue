@@ -215,7 +215,9 @@ export default {
       this.d8Status = false
     },
     getSpecialMsgSon(msg) {
-      this.isSpecial = msg
+      console.log(msg)
+      this.isSpecial = msg.isSpecial
+      this.headerContent = validIsNotNull(msg.specialEvent)?msg.specialEvent:'系统8D'
     },
     getMsgFormFifthSon(msg) {
       this.d5Status = msg

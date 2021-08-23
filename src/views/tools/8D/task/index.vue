@@ -1,5 +1,11 @@
 <template>
   <div class="app-container">
+
+    <!--工具栏-->
+    <div class="head-container">
+      <eHeader :permission="permission"/>
+    </div>
+
     <el-dialog
       title="编辑措施"
       :visible.sync="editActionVisible"
@@ -32,7 +38,7 @@
           <span>{{ actionForm.description }}</span>
         </el-form-item>
         <el-form-item
-          label="%有效性"
+          label="有效性(%)"
           prop="efficiency"
         >
           <el-input-number v-model="actionForm.efficiency" style="width: 370px;" :precision="2" :step="0.1"
@@ -48,8 +54,8 @@
             placeholder="请选择状态"
             style="width: 370px;"
           >
-            <el-option v-for="item in statusTypeOptions" :key="item.key" :label="item.display_name"
-                       :value="item.key"
+            <el-option v-for="item in statusTypeOptions" :key="item.value" :label="item.label"
+                       :value="item.value"
             />
           </el-select>
         </el-form-item>
@@ -84,17 +90,19 @@
 
     <el-table
       ref="table"
-      v-loading="actionLoading"
-      :data="userActions"
+      v-loading="crud.loading"
+      :data="crud.data"
       style="width: 100%;"
       @row-dblclick="dbSelected"
     >
-      <el-table-column prop="name" label="措施标题" min-width="150"/>
+      <el-table-column prop="name" label="措施标题" min-width="120"/>
       <el-table-column prop="issueTitle" label="问题标题"/>
-      <el-table-column prop="status" label="状态"/>
+      <el-table-column label="状态" :formatter="statusFormat"/>
       <el-table-column prop="hasReport" label="执行选择"/>
       <el-table-column prop="plannedTime" label="预期执行时间"/>
       <el-table-column prop="type" label="所属进程"/>
+      <el-table-column v-if="this.user.isAdmin" prop="responsibleName" label="负责人"/>
+      <el-table-column prop="createTime" label="创建时间"/>
       <!--   编辑与删除   -->
       <el-table-column
         label="操作"
@@ -115,16 +123,38 @@
         </template>
       </el-table-column>
     </el-table>
+    <pagination/>
   </div>
 </template>
 
 <script>
 import { editIssueAction, getUserAction } from '@/api/tools/issueAction'
+import crudAction from '@/api/tools/issueAction'
+import CRUD, { presenter } from '@crud/crud'
+import crudOperation from '../module/CRUD.dOperation'
+import pagination from '@crud/Pagination'
+import udOperation from '../module/UD.dOperation'
+import eHeader from '@/views/tools/8D/task/module/header'
+import { mapGetters } from 'vuex'
 
 export default {
   name: '8DTask',
+  components: { eHeader, crudOperation, pagination, udOperation },
+  cruds() {
+    return CRUD({
+      title: '问题',
+      url: 'api/issueAction',
+      crudMethod: { ...crudAction }
+    })
+  },
+  mixins: [presenter()],
   data() {
     return {
+      permission: {
+        add: ['admin', 'd:add'],
+        edit: ['admin', 'd:edit'],
+        del: ['admin', 'd:del']
+      },
       actionLoading: false,
       userActions: [],
       editActionVisible: false,
@@ -150,13 +180,18 @@ export default {
         ]
       },
       statusTypeOptions: [
-        { key: '已创建', display_name: '已创建' },
-        { key: '进行中', display_name: '进行中' },
-        { key: '关闭', display_name: '关闭' },
-        { key: '已移除', display_name: '已移除' }
+        { label: '已创建', value: '开始' },
+        { label: '进行中', value: '进行中' },
+        { label: '关闭', value: '完成' },
+        { label: '已移除', value: '已移除' }
       ],
       submitLoading: false
     }
+  },
+  computed: {
+    ...mapGetters([
+      'user'
+    ])
   },
   created() {
 
@@ -181,9 +216,20 @@ export default {
         .catch(_ => {
         })
     },
+    // 状态格式化
+    statusFormat(row, col) {
+      if (row.status === '开始') {
+        return '已创建'
+      } else if (row.status === '进行中') {
+        return '进行中'
+      } else if (row.status === '完成') {
+        return '关闭'
+      } else if (row.status === '已移除') {
+        return '已移除'
+      }
+    },
     // 取消编辑
     doCancelAct() {
-      this.getUserActionTask()
       this.editActionVisible = false
     },
     // 准备编辑
@@ -193,11 +239,11 @@ export default {
     },
     // 提交任务编辑
     submitConAct() {
-      this.submitLoading = true
       this.$refs.actionForm.validate().then((valid) => {
         if (!valid) {
           return false
         } else {
+          this.submitLoading = true
           editIssueAction(this.actionForm).then(res => {
             this.$message({
               message: 'Edit Record Success! 编辑措施记录成功!',
@@ -216,7 +262,7 @@ export default {
         // 跳转到单独报告
         this.$router.push(
           {
-            path: '/8D/report',
+            path: '/issue/report',
             query: {
               issueId: row.issueId
             }
@@ -225,7 +271,7 @@ export default {
         // 跳转到8D明细中
         this.$router.push(
           {
-            path: '/8D/detail',
+            path: '/issue/detail',
             query: {
               issueId: row.issueId
             }

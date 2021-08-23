@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
-    :title="editTitle"
+    :title="crud.status.title === '新增问题'?crud.status.title:'审核问题 review issue'"
     width="700px"
   >
 

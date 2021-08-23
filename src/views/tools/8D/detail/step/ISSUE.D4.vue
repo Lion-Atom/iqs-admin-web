@@ -432,7 +432,7 @@
               <el-row>
                 <div v-for="(item,index) in item.whyList" :key="item.id" class="why-content">
                 <span :class="'label-margin-p' + item.orderSort"> {{ item.orderSort }}
-                  <span class="li-div">{{ item.content }}</span>
+                  <div class="li-div" :style="{width:liDivWidth-20*item.orderSort+'px'}">{{ item.content }}</div>
                 </span>
                 </div>
               </el-row>
@@ -624,7 +624,8 @@ export default {
       oldEvidence: null,
       oldValidation: null,
       oldOther: null,
-      oldSpecialJudge: null
+      oldSpecialJudge: null,
+      liDivWidth: 400 // 初始化whys-cause宽度：400
     }
   },
   created() {
@@ -907,7 +908,10 @@ export default {
               })
             })
             this.isSpecial = false
-            this.$emit('funx', this.isSpecial)
+            let obj = {}
+            obj.isSpecial = false
+            obj.specialEvent = null
+            this.$emit('funx', obj)
           })
           .catch(action => {
             this.$message({
@@ -961,7 +965,10 @@ export default {
                   })
 
                   this.isSpecial = true
-                  this.$emit('funx', this.isSpecial)
+                  let obj = {}
+                  obj.isSpecial = true
+                  obj.specialEvent = this.specialForm.type
+                  this.$emit('funx', obj)
 
                   this.isFinished = false
                   this.$emit('func', this.isFinished)
@@ -980,7 +987,10 @@ export default {
                   this.isFinished = false
                   this.$emit('func', this.isFinished)
                   this.isSpecial = true
-                  this.$emit('funx', this.isSpecial)
+                  let obj = {}
+                  obj.isSpecial = true
+                  obj.specialEvent = this.specialForm.type
+                  this.$emit('funx', obj)
                 }).catch(res => {
                   this.getIssueInfoById(this.$props.issueId)
                   this.getSpecialByIssueId(this.$props.issueId, this.issueForm.specialEvent)
@@ -1089,7 +1099,7 @@ export default {
 }
 
 .li-div {
-  width: 100%;
+  display: inline-block;
   padding: 5px;
   height: 30px;
   border: 1px solid #1d9cd6;
