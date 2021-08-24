@@ -13,7 +13,8 @@
       <p>{{ msg }}</p>
       <div style="text-align: right; margin: 0">
         <el-button size="mini" type="text" @click="doCancel(data)">先看看</el-button>
-        <el-button type="primary" size="mini" @click="doApprove(data)">确定</el-button>
+        <el-button v-if="data.type !== '8D'" type="primary" size="mini" @click="doApprove(data)">确定</el-button>
+        <el-button v-else type="primary" size="mini" @click="gotoIssue(data)">确定</el-button>
       </div>
       <el-button
         slot="reference"
@@ -55,10 +56,6 @@ export default {
     disabledDle: {
       type: Boolean,
       default: false
-    },
-    msg: {
-      type: String,
-      default: '是否直接审批通过吗？'
     }
   },
   data() {
@@ -68,7 +65,15 @@ export default {
         data: {},
         show: true
       },
+      msg: null,
       taskForm: {}
+    }
+  },
+  mounted() {
+    if (this.data.type !== '8D') {
+      this.msg = '是否直接审批通过吗？'
+    } else {
+      this.msg = '是否前往8D进行审批？'
     }
   },
   methods: {
@@ -85,6 +90,16 @@ export default {
       this.pop = false
       this.emitMsg.data = row
       this.$emit('func', this.emitMsg)
+    },
+    // 前往8D列表
+    gotoIssue(row) {
+      if (row.type === '8D') {
+        this.$router.push(
+          {
+            path: '/8D/issue',
+            query: {}
+          })
+      }
     },
     doApprove(row) {
       // alert(JSON.stringify(row))

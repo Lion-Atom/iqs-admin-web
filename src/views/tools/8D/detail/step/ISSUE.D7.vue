@@ -14,16 +14,16 @@
           :data="changeDescs"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="文档" width="200"/>
+          <el-table-column prop="name" label="文档" width="200" />
           <el-table-column label="更改内容">
             <template scope="scope">
               <el-input
-                @input="inputChange"
+                v-model="scope.row.description"
                 type="textarea"
                 :rows="3"
-                v-model="scope.row.description"
                 style="max-width: 800px;"
                 :disabled="!isNeed"
+                @input="inputChange"
               />
             </template>
           </el-table-column>
@@ -43,22 +43,26 @@
           :data="tempActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="临时措施"/>
-          <el-table-column prop="responsibleName" label="责任人"/>
-          <el-table-column prop="efficiency" label="有效性(%)"/>
-          <el-table-column prop="status" label="状态"/>
+          <el-table-column prop="name" label="临时措施" />
+          <el-table-column prop="responsibleName" label="责任人" />
+          <el-table-column prop="efficiency" label="有效性(%)" />
+          <el-table-column prop="status" label="状态" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
-                <el-popover :ref="`editRole-popover-${scope.$index}`" v-permission="permission.edit" placement="left"
-                            width="300" title="临时措施状态"
+                <el-popover
+                  :ref="`editRole-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="left"
+                  width="300"
+                  title="临时措施状态"
                 >
                   <el-form
                     ref="form"
@@ -74,25 +78,36 @@
                         v-model="tempAction.status"
                         placeholder="请选择角色"
                       >
-                        <el-option v-for="item in statusTypeOptions" :key="item.key" :label="item.display_name"
-                                   :value="item.key"
+                        <el-option
+                          v-for="item in statusTypeOptions"
+                          :key="item.key"
+                          :label="item.display_name"
+                          :value="item.key"
                         />
                       </el-select>
                     </el-form-item>
                   </el-form>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="editStatus(scope.$index,scope.row), scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="editStatus(scope.$index,scope.row), scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.edit"
-                             size="mini"
-                             type="primary" icon="el-icon-edit" @click="openEditStatus(scope.row)"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.edit"
+                    size="mini"
+                    type="primary"
+                    icon="el-icon-edit"
+                    @click="openEditStatus(scope.row)"
                   >编辑状态
                   </el-button>
                 </el-popover>
@@ -115,8 +130,8 @@
           :data="analysisData"
           style="width: 100%;"
         >
-          <el-table-column prop="systemWide" label="过程分析" width="320"/>
-          <el-table-column prop="result" label="分析结果"/>
+          <el-table-column prop="systemWide" label="过程分析" width="320" />
+          <el-table-column prop="result" label="分析结果" />
           <el-table-column label="长久措施">
             <template slot-scope="scope">
               <div class="tag-group">
@@ -135,17 +150,21 @@
           </el-table-column>
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑分析结果-->
-                <el-popover :ref="`editResult-popover-${scope.$index}`" v-permission="permission.edit" placement="left"
-                            width="600" title="编辑分析结果"
+                <el-popover
+                  :ref="`editResult-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="left"
+                  width="600"
+                  title="编辑分析结果"
                 >
                   <el-form
                     ref="form"
@@ -158,34 +177,46 @@
                       prop="result"
                     >
                       <el-input
+                        v-model="analysis.result"
                         type="textarea"
                         autosize
-                        v-model="analysis.result"
                         style="min-width: 400px;"
                       />
                     </el-form-item>
                   </el-form>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`editResult-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`editResult-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="editResult(scope.$index,scope.row), scope._self.$refs[`editResult-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="editResult(scope.$index,scope.row), scope._self.$refs[`editResult-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.edit"
-                             size="mini"
-                             type="primary" style="margin-bottom: 2px;" icon="el-icon-edit"
-                             @click="openEditResult(scope.row)"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.edit"
+                    size="mini"
+                    type="primary"
+                    style="margin-bottom: 2px;"
+                    icon="el-icon-edit"
+                    @click="openEditResult(scope.row)"
                   >编辑分析结果
                   </el-button>
                 </el-popover>
                 <!--添加长久措施-->
-                <el-button slot="reference" v-permission="permission.edit"
-                           size="mini"
-                           type="primary" icon="el-icon-plus" @click="openAddPreAct(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-plus"
+                  @click="openAddPreAct(scope.row)"
                 >添加永久措施
                 </el-button>
               </div>
@@ -215,9 +246,9 @@
             label-width="120px"
           >
             <el-form-item
+              v-if="isAddPreAct"
               label="系统标题"
               prop="systemWide"
-              v-if="isAddPreAct"
             >
               <span>{{ analysis.systemWide }}</span>
             </el-form-item>
@@ -240,8 +271,11 @@
                 placeholder="请选择状态"
                 style="width: 370px;"
               >
-                <el-option v-for="item in preStatusTypeOptions" :key="item.key" :label="item.display_name"
-                           :value="item.key"
+                <el-option
+                  v-for="item in preStatusTypeOptions"
+                  :key="item.key"
+                  :label="item.display_name"
+                  :value="item.key"
                 />
               </el-select>
             </el-form-item>
@@ -273,8 +307,7 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="完成时间"
@@ -286,8 +319,7 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="其他"
@@ -302,9 +334,9 @@
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-         <el-button @click="doCancelPreAct">取 消</el-button>
-         <el-button type="primary" :loading="submitLoading" @click="submitPreAct">确 定</el-button>
-      </span>
+            <el-button @click="doCancelPreAct">取 消</el-button>
+            <el-button type="primary" :loading="submitLoading" @click="submitPreAct">确 定</el-button>
+          </span>
         </el-dialog>
         <el-table
           ref="table"
@@ -312,18 +344,18 @@
           :data="preActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="永久措施"/>
-          <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="plannedTime" label="预期时间"/>
-          <el-table-column prop="completeTime" label="完成时间"/>
-          <el-table-column prop="status" label="状态"/>
+          <el-table-column prop="name" label="永久措施" />
+          <el-table-column prop="responsibleName" label="负责人" />
+          <el-table-column prop="plannedTime" label="预期时间" />
+          <el-table-column prop="completeTime" label="完成时间" />
+          <el-table-column prop="status" label="状态" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -337,22 +369,33 @@
                   @click="editPreAction(scope.row)"
                 />
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定删除本条数据吗？</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="delPreAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="delPreAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" type="danger" icon="el-icon-delete"
-                             size="mini"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
                   />
                 </el-popover>
               </div>
@@ -375,9 +418,9 @@
             prop="supplierDescription"
           >
             <el-input
+              v-model="form.commentD7"
               type="textarea"
               :rows="3"
-              v-model="form.commentD7"
               style="min-width: 800px;"
               :disabled="!isNeed"
             />
@@ -406,7 +449,7 @@
             <span>临时文件是否全部回收?</span>
           </el-col>
           <el-col :span="6">
-            <el-radio-group @change="recoverTempFileChange" v-model="form.recoverTempFile">
+            <el-radio-group v-model="form.recoverTempFile" @change="recoverTempFileChange">
               <el-radio :label="true">是</el-radio>
               <el-radio :label="false">否</el-radio>
             </el-radio-group>
@@ -414,26 +457,34 @@
         </el-row>
         <el-row v-if="form.recoverTempFile === false" style="margin-bottom: 20px;">
           <el-col :span="12">
-            <el-input placeholder="请输入拒绝回收的理由" v-model="form.tempFileComment" @input="inputCommentEv" clearable
-            ></el-input>
+            <el-input
+              v-model="form.tempFileComment"
+              placeholder="请输入拒绝回收的理由"
+              clearable
+              @input="inputCommentEv"
+            />
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="6">
             确认完成当前步骤：
             <el-popover
+              v-model="confirmVisible"
               placement="top"
               width="300"
-              v-model="confirmVisible"
             >
               <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button slot="reference" :loading="selfLoading" v-permission="permission.edit" type="success"
-                         :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                v-permission="permission.edit"
+                :loading="selfLoading"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -458,9 +509,9 @@ import UploadFile from '@/views/tools/8D/module/uploadFile'
 
 export default {
   name: 'SeventhForm',
+  components: { UploadFile },
   props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
-  components: { UploadFile },
   data() {
     return {
       permission: {
@@ -498,7 +549,7 @@ export default {
         { key: '停用', display_name: '停用' }
       ],
       preStatusTypeOptions: [
-        { key: '已创建', display_name: '已创建' },
+        { key: '开始', display_name: '已创建' },
         { key: '进行中', display_name: '进行中' },
         { key: '关闭', display_name: '关闭' }
       ],
@@ -554,10 +605,10 @@ export default {
       oldComment: null
     }
   },
+  watch: {},
   created() {
 
   },
-  watch: {},
   mounted: function() {
     this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
@@ -682,7 +733,7 @@ export default {
       }
       if (val) {
         edit(form).then(res => {
-          //编辑问题，添加供应商详细描述
+          // 编辑问题，添加供应商详细描述
           this.$message({
             message: 'Submit D7-Desc Success! 添加D7详细描述完成!',
             type: 'success'
@@ -801,7 +852,7 @@ export default {
                 message: 'Edit Record Success! 编辑其他围堵措施记录成功!',
                 type: 'success'
               })
-              /*this.submitLoading = false
+              /* this.submitLoading = false
               this.addPreActionVisible = false*/
               this.isFinished = false
               this.$emit('func', this.isFinished)
@@ -907,7 +958,7 @@ export default {
 }
 
 .el-form-item--small.el-form-item {
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .header-title {

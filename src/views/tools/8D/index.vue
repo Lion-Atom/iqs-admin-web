@@ -2,8 +2,8 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <eHeader :dict="dict" :permission="permission"/>
-      <crudOperation :permission="permission"/>
+      <eHeader :dict="dict" :permission="permission" />
+      <crudOperation :permission="permission" />
     </div>
     <!--表格渲染-->
     <el-table
@@ -14,14 +14,14 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="dbSelected"
     >
-      <el-table-column type="selection" width="55"/>
-      <el-table-column prop="encodeNum" label="唯一编码" width="120"/>
-      <el-table-column prop="issueTitle" label="问题标题" width="160"/>
-      <el-table-column prop="partNum" label="物料编码" width="150"/>
-      <el-table-column prop="customerName" label="客户名称" width="120"/>
-      <el-table-column prop="hasReport" label="执行选择" width="120"/>
-      <el-table-column prop="specialEvent" label="特殊事件" width="120"/>
-      <el-table-column prop="status" label="状态"/>
+      <el-table-column type="selection" width="55" />
+      <el-table-column prop="encodeNum" label="唯一编码" width="120" />
+      <el-table-column prop="issueTitle" label="问题标题" width="160" />
+      <el-table-column prop="partNum" label="物料编码" width="150" />
+      <el-table-column prop="customerName" label="客户名称" width="120" />
+      <el-table-column prop="hasReport" label="执行选择" width="120" />
+      <el-table-column prop="specialEvent" label="特殊事件" width="120" />
+      <el-table-column prop="status" label="状态" />
       <el-table-column prop="process" label="8D进程" min-width="350">
         <template slot-scope="scope">
           <!--格式化8D进程-->
@@ -31,15 +31,14 @@
               :key="item.name"
               :status="item.value"
               :title="item.name"
-            >
-            </el-step>
+            />
           </el-steps>
         </template>
       </el-table-column>
-      <el-table-column prop="createBy" label="创建者"/>
-      <el-table-column prop="createTime" label="创建日期" width="140"/>
-      <el-table-column prop="closeTime" label="关闭日期" width="140"/>
-      <el-table-column prop="duration" label="结案时长"/>
+      <el-table-column prop="createBy" label="创建者" />
+      <el-table-column prop="createTime" label="创建日期" width="140" />
+      <el-table-column prop="closeTime" label="关闭日期" width="140" />
+      <el-table-column prop="duration" label="结案时长" />
       <!--   编辑与删除   -->
       <el-table-column
         v-if="checkPer(['admin','d:edit','d:del'])"
@@ -58,10 +57,13 @@
       </el-table-column>
     </el-table>
     <!--分页组件-->
-    <pagination/>
+    <pagination />
     <!--表单渲染-->
-    <eForm :d-status="dict.d_status" :d-source="dict.d_source" :d-enabled="dict.common_status"
-           :d-execute="dict.d_execute"
+    <eForm
+      :d-status="dict.d_status"
+      :d-source="dict.d_source"
+      :d-enabled="dict.common_status"
+      :d-execute="dict.d_execute"
     />
   </div>
 </template>
@@ -113,6 +115,7 @@ export default {
     }
   },
   created() {
+
   },
   methods: {
     // 新增前将多选的值设置为空

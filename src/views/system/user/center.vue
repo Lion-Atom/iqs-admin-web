@@ -26,37 +26,37 @@
             <ul class="user-info">
               <li>
                 <div style="height: 100%">
-                  <svg-icon icon-class="login"/>
+                  <svg-icon icon-class="login" />
                   登录账号
                   <div class="user-right">{{ user.username }}</div>
                 </div>
               </li>
               <li>
-                <svg-icon icon-class="user1"/>
+                <svg-icon icon-class="user1" />
                 用户昵称
                 <div class="user-right">{{ user.nickName }}</div>
               </li>
               <li>
-                <svg-icon icon-class="dept"/>
+                <svg-icon icon-class="dept" />
                 所属部门
                 <div class="user-right"> {{ user.dept.name }}</div>
               </li>
               <li>
-                <svg-icon icon-class="phone"/>
+                <svg-icon icon-class="phone" />
                 手机号码
                 <div class="user-right">{{ user.phone }}</div>
               </li>
               <li>
-                <svg-icon icon-class="email"/>
+                <svg-icon icon-class="email" />
                 用户邮箱
                 <div class="user-right">{{ user.email }}</div>
               </li>
               <li>
-                <svg-icon icon-class="anq"/>
+                <svg-icon icon-class="anq" />
                 安全设置
                 <div class="user-right">
                   <a @click="$refs.pass.dialog = true">修改密码&nbsp;</a>
-<!--                  <a @click="$refs.email.dialog = true">修改邮箱</a>-->
+                  <!--                  <a @click="$refs.email.dialog = true">修改邮箱</a>-->
                 </div>
               </li>
             </ul>
@@ -77,11 +77,11 @@
                 label-width="65px"
               >
                 <el-form-item label="昵称" prop="nickName">
-                  <el-input v-model="form.nickName" style="width: 35%"/>
+                  <el-input v-model="form.nickName" style="width: 35%" />
                   <span style="color: #C0C0C0;margin-left: 10px;">用户昵称不作为登录使用</span>
                 </el-form-item>
                 <el-form-item label="手机号" prop="phone">
-                  <el-input v-model="form.phone" style="width: 35%;"/>
+                  <el-input v-model="form.phone" style="width: 35%;" />
                   <span style="color: #C0C0C0;margin-left: 10px;">手机号码不能重复</span>
                 </el-form-item>
                 <el-form-item label="性别">
@@ -115,21 +115,50 @@
                     @change="crud.toQuery"
                     @input="changeDate($event)"
                   />
-                  <el-select v-if="user.isAdmin" v-model="query.selfFlag" clearable size="small" placeholder="查询范围"
-                             class="filter-item"
-                             style="width: 120px" @change="crud.toQuery" @input="changeScope($event)"
+                  <el-select
+                    v-if="user.isAdmin"
+                    v-model="query.selfFlag"
+                    clearable
+                    size="small"
+                    placeholder="查询范围"
+                    class="filter-item"
+                    style="width: 100px"
+                    @change="crud.toQuery"
+                    @input="changeScope($event)"
                   >
-                    <el-option v-for="item in scopeTypeOptions" :key="item.key" :label="item.display_name"
-                               :value="item.key"
+                    <el-option
+                      v-for="item in scopeTypeOptions"
+                      :key="item.key"
+                      :label="item.display_name"
+                      :value="item.key"
                     />
                   </el-select>
+                  <!--任务类型-->
+                  <el-select
+                    v-model="query.type"
+                    clearable
+                    size="small"
+                    placeholder="任务类型"
+                    class="filter-item"
+                    style="width: 100px"
+                    @change="crud.toQuery"
+                    @input="changeType($event)"
+                  >
+                    <el-option
+                      v-for="item in trailTypeOptions"
+                      :key="item.key"
+                      :label="item.display_name"
+                      :value="item.key"
+                    />
+                  </el-select>
+                  <!--审批状态-->
                   <el-select
                     v-model="query.isDone"
                     clearable
                     size="small"
                     placeholder="审批状态"
                     class="filter-item"
-                    style="width: 90px"
+                    style="width: 100px"
                     @change="crud.toQuery"
                     @input="changeStatus($event)"
                   >
@@ -140,15 +169,25 @@
                       :value="item.key"
                     />
                   </el-select>
-                  <el-select v-if="query.isDone" v-model="query.approveResult" clearable size="small" placeholder="审批结论"
-                             class="filter-item"
-                             style="width: 120px" @change="crud.toQuery" @input="changeResult($event)"
+                  <el-select
+                    v-if="query.isDone"
+                    v-model="query.approveResult"
+                    clearable
+                    size="small"
+                    placeholder="审批结论"
+                    class="filter-item"
+                    style="width: 120px"
+                    @change="crud.toQuery"
+                    @input="changeResult($event)"
                   >
-                    <el-option v-for="item in resultTypeOptions" :key="item.key" :label="item.display_name"
-                               :value="item.key"
+                    <el-option
+                      v-for="item in resultTypeOptions"
+                      :key="item.key"
+                      :label="item.display_name"
+                      :value="item.key"
                     />
                   </el-select>
-                  <rrOperation/>
+                  <rrOperation />
                 </div>
                 <crudOperation>
                   <el-button
@@ -178,62 +217,62 @@
                     <el-row>
                       <el-col :span="24">
                         <el-form-item label="任务名称">
-                          <el-input v-model="taskForm.changeDesc" disabled/>
+                          <el-input v-model="taskForm.changeDesc" disabled />
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="任务单号">
-                          <el-input v-model="taskForm.preTrailNo" disabled/>
+                          <el-input v-model="taskForm.preTrailNo" disabled />
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="任务发起人">
-                          <el-input v-model="taskForm.ownerName" disabled/>
+                          <el-input v-model="taskForm.ownerName" disabled />
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="审批对象">
-                          <el-input v-model="taskForm.storageName" disabled/>
+                          <el-input v-model="taskForm.storageName" disabled />
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象类型">
-                          <el-input v-model="taskForm.type" disabled/>
+                          <el-input v-model="taskForm.type" disabled />
                         </el-form-item>
                       </el-col>
                     </el-row>
-                    <el-row>
+                    <el-row v-if="taskForm.type !== '8D'">
                       <el-col :span="12">
                         <el-form-item label="对象版本">
-                          <el-input v-model="taskForm.version" disabled/>
+                          <el-input v-model="taskForm.version" disabled />
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象大小">
-                          <el-input v-model="taskForm.size" disabled/>
+                          <el-input v-model="taskForm.size" disabled />
                         </el-form-item>
                       </el-col>
                     </el-row>
-                    <el-row>
+                    <el-row v-if="taskForm.type !== '8D'">
                       <el-col :span="12">
                         <el-form-item label="最近更新人">
-                          <el-input v-model="taskForm.updateBy" disabled/>
+                          <el-input v-model="taskForm.updateBy" disabled />
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象大小">
-                          <el-input v-model="taskForm.size" disabled/>
+                          <el-input v-model="taskForm.size" disabled />
                         </el-form-item>
                       </el-col>
                     </el-row>
-                    <el-row>
+                    <el-row v-if="taskForm.type !== '8D'">
                       <el-col :span="23">
                         <el-form-item label="对象位置">
-                          <el-input v-model="taskForm.tarPath" disabled/>
+                          <el-input v-model="taskForm.tarPath" disabled />
                         </el-form-item>
                       </el-col>
                       <el-col :span="1">
@@ -243,11 +282,11 @@
                           class="el-link--primary"
                           style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;"
                         >
-                          <i style="line-height:1.5;font-size: 24px;" class="el-icon-download"/>
+                          <i style="line-height:1.5;font-size: 24px;" class="el-icon-download" />
                         </a>
                       </el-col>
                     </el-row>
-                    <el-row>
+                    <el-row v-if="taskForm.type !== '8D'">
                       <el-col :span="12">
                         <el-form-item label="审批结论" required>
                           <el-select
@@ -269,11 +308,11 @@
                       </el-col>
                       <el-col :span="12">
                         <el-form-item v-if="taskForm.isDone" label="完成时间">
-                          <el-input v-model="taskForm.updateTime" disabled/>
+                          <el-input v-model="taskForm.updateTime" disabled />
                         </el-form-item>
                       </el-col>
                     </el-row>
-                    <el-row>
+                    <el-row v-if="taskForm.type !== '8D'">
                       <el-col :span="24">
                         <el-form-item label="审批建议">
                           <el-input
@@ -285,7 +324,7 @@
                       </el-col>
                     </el-row>
                   </el-form>
-                  <div v-if="!taskForm.isDone" slot="footer" class="dialog-footer">
+                  <div v-if="!taskForm.isDone && taskForm.type !== '8D'" slot="footer" class="dialog-footer">
                     <el-button @click="cancelApprove">取 消</el-button>
                     <el-button type="primary" @click="submitApprove(taskForm)">提交</el-button>
                   </div>
@@ -301,7 +340,7 @@
                   @row-dblclick="dbSelected"
                   @row-click="stepsListRowClick"
                 >
-                  <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55"/>
+                  <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55" />
                   <el-table-column prop="storageName" label="对象名称">
                     <template slot-scope="scope">
                       <el-popover
@@ -322,16 +361,16 @@
                       </el-popover>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="preTrailNo" width="180" label="任务单号"/>
+                  <el-table-column prop="preTrailNo" width="180" label="任务单号" />
+                  <el-table-column prop="type" label="类型" />
                   <!--                                    <el-table-column prop="srcPath" label="原路径" />
                                     <el-table-column prop="tarPath" label="目标路径" />
-                                    <el-table-column prop="type" label="类型" />
                                     <el-table-column prop="version" label="目标版本号" />-->
-                  <el-table-column prop="createTime" width="150" label="创建时间"/>
-                  <el-table-column prop="createBy" label="创建人"/>
-                  <el-table-column label="进度" :formatter="isDoneFormat"/>
-                  <el-table-column label="审核结果" :formatter="approveResultFormat"/>
-                  <el-table-column v-if="user.isAdmin" width="120" prop="approver" label="审核人"/>
+                  <el-table-column prop="createTime" width="150" label="创建时间" />
+                  <el-table-column prop="createBy" label="创建人" />
+                  <el-table-column label="进度" :formatter="isDoneFormat" />
+                  <el-table-column label="审核结果" :formatter="approveResultFormat" />
+                  <el-table-column v-if="user.isAdmin" width="120" prop="approver" label="审核人" />
                   <el-table-column
                     label="操作"
                     width="80"
@@ -348,7 +387,7 @@
                   </el-table-column>
                 </el-table>
                 <!--分页组件-->
-                <pagination/>
+                <pagination />
               </div>
             </el-tab-pane>
             <!--    操作日志    -->
@@ -390,8 +429,8 @@
         </el-card>
       </el-col>
     </el-row>
-    <updateEmail ref="email" :email="user.email"/>
-    <updatePass ref="pass"/>
+    <updateEmail ref="email" :email="user.email" />
+    <updatePass ref="pass" />
   </div>
 </template>
 
@@ -403,13 +442,13 @@ import updateEmail from './center/updateEmail'
 import { getToken } from '@/utils/auth'
 import store from '@/store'
 import { isvalidPhone } from '@/utils/validate'
-import CRUD, { presenter, header, crud } from '@crud/crud'
+import CRUD, { crud, header, presenter } from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
 import { editUser } from '@/api/system/user'
 import Avatar from '@/assets/images/avatar.png'
-import crudTask, { submitTask, batchSubmitTask } from '@/api/system/toolsTask'
+import crudTask, { batchSubmitTask, submitTask } from '@/api/system/toolsTask'
 import rrOperation from '@crud/RR.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 
@@ -417,7 +456,7 @@ export default {
   name: 'Center',
   components: { updatePass, updateEmail, myUpload, rrOperation, DateRangePicker, crudOperation, udApprove, pagination },
   cruds() {
-    return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask } })
+    return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask }})
   },
   mixins: [presenter(), header(), crud()],
   data() {
@@ -471,6 +510,10 @@ export default {
       enabledTypeOptions: [
         { key: false, display_name: '待处理' },
         { key: true, display_name: '已完成' }
+      ],
+      trailTypeOptions: [
+        { key: '文件', display_name: '文件' },
+        { key: '8D', display_name: '8D' }
       ],
       resultTypeOptions: [
         { key: true, display_name: '同意' },
@@ -540,6 +583,11 @@ export default {
       this.$forceUpdate()
       this.crud.toQuery()
     },
+    // 监控审批状态选择器输入变化，强制刷新
+    changeType() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
     // 监控审批结论选择器输入变化，强制刷新
     changeResult() {
       this.$forceUpdate()
@@ -574,7 +622,7 @@ export default {
     // 某些列禁止改动
     checkboxT(row, rowIndex) {
       // 已审核的不可被选中
-      return row.approveResult === undefined
+      return row.approveResult === undefined && row.type !== '8D'
     },
     toggleShow() {
       this.show = !this.show
@@ -661,16 +709,24 @@ export default {
     dbSelected(row) {
       // alert(JSON.stringify(row))
       this.checkboxT(row)
-      this.$router.push(
-        {
-          path: '/fileManagement/filedetail',
-          query: {
-            fileId: row.storageId,
-            name: row.storageName,
-            realName: row.realName,
-            fileDesc: row.fileDesc
-          }
-        })
+      if (row.type === '文件') {
+        this.$router.push(
+          {
+            path: '/fileManagement/filedetail',
+            query: {
+              fileId: row.storageId,
+              name: row.storageName,
+              realName: row.realName,
+              fileDesc: row.fileDesc
+            }
+          })
+      } else if (row.type === '8D') {
+        this.$router.push(
+          {
+            path: '/8D/issue',
+            query: {}
+          })
+      }
     }
   }
 }
