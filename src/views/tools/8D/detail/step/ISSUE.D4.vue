@@ -14,20 +14,20 @@
           :data="stepDefects"
           style="width: 100%;"
         >
-          <el-table-column prop="processStep" label="缺陷在哪个过程步骤中被创建/被检测到/应该被检测到" width="320"/>
+          <el-table-column prop="processStep" label="缺陷在哪个过程步骤中被创建/被检测到/应该被检测到" width="320" />
           <el-table-column label="被创建" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.created" :disabled="!isNeed"></el-checkbox>
+              <el-checkbox v-model="scope.row.created" :disabled="!isNeed" />
             </template>
           </el-table-column>
           <el-table-column label="被检测到" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.detected" :disabled="!isNeed"></el-checkbox>
+              <el-checkbox v-model="scope.row.detected" :disabled="!isNeed" />
             </template>
           </el-table-column>
           <el-table-column label="可能已被检测到" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.shouldDetected" :disabled="!isNeed"></el-checkbox>
+              <el-checkbox v-model="scope.row.shouldDetected" :disabled="!isNeed" />
             </template>
           </el-table-column>
         </el-table>
@@ -94,7 +94,9 @@
           </el-dialog>
           <el-card class="box-card" shadow="never">
             <div slot="header" class="clearfix" style="text-align:center;font-size:16px;font-weight: bolder;">
-              <span><el-link style="text-decoration:underline;font-size:16px;font-weight: bolder;" type="success"
+              <span><el-link
+                style="text-decoration:underline;font-size:16px;font-weight: bolder;"
+                type="success"
               >{{ causeName }}</el-link>-5Whys原因分析</span>
             </div>
             <div>
@@ -104,32 +106,43 @@
                 :data="whys"
                 style="width: 100%;margin-bottom: 20px;"
               >
-                <el-table-column label="序号" width="50" type="index" :index="(index)=>{return index+1}"
-                ></el-table-column>
+                <el-table-column
+                  label="序号"
+                  width="50"
+                  type="index"
+                  :index="(index)=>{return index+1}"
+                />
                 <el-table-column label="内容" align="center">
                   <template slot-scope="scope">
-                    <el-input type="textarea" autosize v-model="scope.row.content" style="width: 93%;"/>
+                    <el-input v-model="scope.row.content" type="textarea" autosize style="width: 93%;" />
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" align="center" width="70">
                   <template slot-scope="scope">
-                    <el-button size="mini" type="danger" icon="el-icon-delete"
-                               @click="handleDelete(scope.$index, scope.row)"
-                    ></el-button>
+                    <el-button
+                      size="mini"
+                      type="danger"
+                      icon="el-icon-delete"
+                      @click="handleDelete(scope.$index, scope.row)"
+                    />
                   </template>
                 </el-table-column>
               </el-table>
               <p style="margin-top: -20px;">
-                <el-button v-permission="permission.edit" size="mini" type="primary" icon="el-icon-plus"
-                           @click="addClick"
+                <el-button
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-plus"
+                  @click="addClick"
                 >添加Why
                 </el-button>
               </p>
             </div>
           </el-card>
           <span slot="footer" class="dialog-footer">
-             <el-button @click="addWhyVisible = false">取 消</el-button>
-             <el-button type="primary" @click="updateWhys(whys)">提 交</el-button>
+            <el-button @click="addWhyVisible = false">取 消</el-button>
+            <el-button type="primary" @click="updateWhys(whys)">提 交</el-button>
           </span>
         </el-dialog>
         <!--5Why验证-->
@@ -149,7 +162,7 @@
             label-width="120px"
           >
             <el-form-item label="原因名称" prop="name" required>
-              <el-input v-model="form.name" style="width: 370px;"/>
+              <el-input v-model="form.name" style="width: 370px;" />
             </el-form-item>
             <el-form-item label="发生/检测" prop="judgeResult" required>
               <el-select
@@ -168,10 +181,10 @@
               </el-select>
             </el-form-item>
             <el-form-item label="确认方法" prop="method" required>
-              <el-input v-model="form.method" style="width: 370px;"/>
+              <el-input v-model="form.method" style="width: 370px;" />
             </el-form-item>
             <el-form-item label="确认结果" prop="result" required>
-              <el-input v-model="form.result" style="width: 370px;"/>
+              <el-input v-model="form.result" style="width: 370px;" />
             </el-form-item>
             <el-form-item label="原因占比" prop="contribution" required>
               <el-input-number
@@ -181,23 +194,29 @@
                 :step="0.1"
                 :min="0"
                 :max="100"
-              ></el-input-number>
+              />
             </el-form-item>
             <el-form-item label="是否是根本原因" prop="isExact" required>
-              <el-select v-model="form.isExact" size="small" placeholder="是/否"
-                         class="filter-item"
-                         style="width: 370px;"
+              <el-select
+                v-model="form.isExact"
+                size="small"
+                placeholder="是/否"
+                class="filter-item"
+                style="width: 370px;"
               >
-                <el-option v-for="item in resultTypeOptions" :key="item.key" :label="item.display_name"
-                           :value="item.key"
+                <el-option
+                  v-for="item in resultTypeOptions"
+                  :key="item.key"
+                  :label="item.display_name"
+                  :value="item.key"
                 />
               </el-select>
             </el-form-item>
             <el-form-item label="评论" prop="comment" required>
               <el-input
+                v-model="form.comment"
                 type="textarea"
                 autosize
-                v-model="form.comment"
                 style="width: 370px;"
               />
             </el-form-item>
@@ -217,18 +236,18 @@
           :data="causeData"
           row-key="id"
         >
-          <el-table-column type="selection" width="55"/>
-          <el-table-column label="原因名称" prop="name" min-width="150"/>
-          <el-table-column label="发生/检测 " prop="judgeResult" width="120"/>
-          <el-table-column label="确认方法" prop="method" min-width="150"/>
-          <el-table-column label="确认结果" prop="result" min-width="150"/>
-          <el-table-column label="原因占比" prop="contribution"/>
+          <el-table-column type="selection" width="55" />
+          <el-table-column label="原因名称" prop="name" min-width="150" />
+          <el-table-column label="发生/检测 " prop="judgeResult" width="120" />
+          <el-table-column label="确认方法" prop="method" min-width="150" />
+          <el-table-column label="确认结果" prop="result" min-width="150" />
+          <el-table-column label="原因占比" prop="contribution" />
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="250px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
@@ -237,34 +256,60 @@
                   size="mini"
                   type="primary"
                   icon="el-icon-plus"
-                  @click="toAddCause(scope.row)"
                   class="btn"
-                ></el-button>
-                <el-button style="margin-left: 0;" v-permission="permission.edit" class="btn"
-                           v-if="scope.row.pid > 0 " size="mini" type="primary" icon="el-icon-edit"
-                           @click="toEditCause(scope.row)"
+                  @click="toAddCause(scope.row)"
+                />
+                <el-button
+                  v-if="scope.row.pid > 0 "
+                  v-permission="permission.edit"
+                  style="margin-left: 0;"
+                  class="btn"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="toEditCause(scope.row)"
                 />
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定删除吗?如果存在下级节点则一并删除，此操作不能撤销！</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini" :loading="delLoading"
-                               @click="toDeleteCause(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      :loading="delLoading"
+                      @click="toDeleteCause(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button v-if="scope.row.pid > 0 " slot="reference" v-permission="permission.del"
-                             type="danger" icon="el-icon-delete" size="mini" class="btn"
+                  <el-button
+                    v-if="scope.row.pid > 0 "
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
+                    class="btn"
                   />
                 </el-popover>
-                <el-button v-permission="permission.edit" v-if="scope.row.isExact" size="mini" type="primary"
-                           icon="el-icon-edit" @click="toEditWhys(scope.row)" class="btn"
+                <el-button
+                  v-if="scope.row.isExact"
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  class="btn"
+                  @click="toEditWhys(scope.row)"
                 >5Whys
                 </el-button>
               </div>
@@ -288,9 +333,9 @@
             prop="riskAssessment"
           >
             <el-input
+              v-model="issueForm.rbi"
               type="textarea"
               :rows="3"
-              v-model="issueForm.rbi"
               style="min-width: 800px;"
               :disabled="!isNeed"
             />
@@ -304,10 +349,10 @@
       <div slot="header" class="clearfix">
         <span class="header-title">
           <el-form :inline="true" :model="issueForm" style="float: left;">
-          <el-form-item
-            prop="specialEvent"
-          >
-            <span slot="label">
+            <el-form-item
+              prop="specialEvent"
+            >
+              <span slot="label">
                 <span class="span-box">
                   <span>特殊事件</span>
                   <el-tooltip placement="top" effect="light">
@@ -315,23 +360,26 @@
                       应用场景：【NTF不能重复】和【公司外部原因】，执行模式：D1->D2->D3->D4->D8<br>
                       <b style="color: red">*</b>正常8D流程可忽略，并支持正常8D和特殊场景切换但需注意数据备份
                     </div>
-                    <i class="el-icon-question"/>
+                    <i class="el-icon-question" />
                   </el-tooltip>
                 </span>
               </span>
-           <el-select
-             v-model="issueForm.specialEvent"
-             placeholder="请选择特殊事件应用场景"
-             style="width: 200px;"
-             @change="changeSpecialEvent"
-             clearable
-             :disabled="!isNeed"
-           >
-            <el-option v-for="item in specialEventOptions" :key="item.key" :label="item.display_name"
-                       :value="item.key"
-            />
-          </el-select>
-          </el-form-item>
+              <el-select
+                v-model="issueForm.specialEvent"
+                placeholder="请选择特殊事件应用场景"
+                style="width: 200px;"
+                clearable
+                :disabled="!isNeed"
+                @change="changeSpecialEvent"
+              >
+                <el-option
+                  v-for="item in specialEventOptions"
+                  :key="item.key"
+                  :label="item.display_name"
+                  :value="item.key"
+                />
+              </el-select>
+            </el-form-item>
           </el-form>
           <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveSpecial">保存</el-button>
         </span>
@@ -339,21 +387,21 @@
       <div>
         <div v-if="issueForm.specialEvent === 'NTF不能复制'|| issueForm.specialEvent === '公司外部原因'">
           <el-form
+            ref="specialForm"
             :inline="true"
             label-width="120px"
             :model="specialForm"
             class="demo-form-inline"
             :rules="specialRules"
-            ref="specialForm"
           >
             <el-form-item
               label="原因说明"
               prop="reason"
             >
               <el-input
+                v-model="specialForm.reason"
                 type="textarea"
                 autosize
-                v-model="specialForm.reason"
                 style="width: 600px;"
               />
             </el-form-item>
@@ -375,9 +423,9 @@
                   <span>证据</span>
                   <el-tooltip placement="top" effect="light">
                     <div slot="content">
-                          需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
+                      需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
                     </div>
-                    <i class="el-icon-question"/>
+                    <i class="el-icon-question" />
                   </el-tooltip>
                 </span>
               </span>
@@ -411,7 +459,7 @@
         <!--        <span class="header-title">原因分析图</span>-->
       </div>
       <div>
-        <Jtopo :issue-id="issueId" :fish-data="initFish"/>
+        <Jtopo :issue-id="issueId" :fish-data="initFish" />
         <!--        <TreeChart :issue-id="issueId" :fish-data="fishData"/>-->
       </div>
     </el-card>
@@ -426,14 +474,14 @@
           <div class="cause-container">
             <el-col :span="12">
               <el-row>
-              <span style="text-decoration: underline;">根本原因{{ index + 1 }}：<b>{{ item.name }}</b>&nbsp;&nbsp;
-              原因分析-5Whys:</span>
+                <span style="text-decoration: underline;">根本原因{{ index + 1 }}：<b>{{ item.name }}</b>&nbsp;&nbsp;
+                  原因分析-5Whys:</span>
               </el-row>
               <el-row>
                 <div v-for="(item,index) in item.whyList" :key="item.id" class="why-content">
-                <span :class="'label-margin-p' + item.orderSort"> {{ item.orderSort }}
-                  <div class="li-div" :style="{width:liDivWidth-20*item.orderSort+'px'}">{{ item.content }}</div>
-                </span>
+                  <span :class="'label-margin-p' + item.orderSort"> {{ item.orderSort }}
+                    <div class="li-div" :style="{width:liDivWidth-20*item.orderSort+'px'}">{{ item.content }}</div>
+                  </span>
                 </div>
               </el-row>
             </el-col>
@@ -461,18 +509,22 @@
           <el-col :span="6">
             确认完成当前步骤：
             <el-popover
+              v-model="confirmVisible"
               placement="top"
               width="300"
-              v-model="confirmVisible"
             >
               <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button :loading="selfLoading" slot="reference" v-permission="permission.edit" type="success"
-                         :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                v-permission="permission.edit"
+                :loading="selfLoading"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -501,14 +553,14 @@ import Jtopo from '@/views/components/Jtopo'
 import { validIsNotNull } from '@/utils/validationUtil'
 import { edit, getIssueById } from '@/api/tools/issue'
 import { addSpecial, delSpecialByIssueId, editSpecial, getSpecialByIssueId } from '@/api/tools/issueSpecail'
-import UploadFile from '@/views/tools/8D/module/uploadFile'
+import UploadFile from '@/components/UploadFile'
 import TreeChart from '@/components/Echarts/TreeChart'
 
 export default {
   name: 'ForthForm',
+  components: { Jtopo, UploadFile, TreeChart },
   props: ['issueId', 'needConfirm', 'initFish'],
   dicts: ['common_status'],
-  components: { Jtopo, UploadFile, TreeChart },
   data() {
     return {
       permission: {
@@ -860,9 +912,9 @@ export default {
     },
     // 提交5Whys更新
     updateSubmit(whys) {
-      let newArr = []
+      const newArr = []
       for (let i = 0; i < whys.length; i++) {
-        let why = {}
+        const why = {}
         why.causeId = this.causeId
         why.orderSort = whys[i].orderSort
         why.content = whys[i].content
@@ -908,7 +960,7 @@ export default {
               })
             })
             this.isSpecial = false
-            let obj = {}
+            const obj = {}
             obj.isSpecial = false
             obj.specialEvent = null
             this.$emit('funx', obj)
@@ -958,14 +1010,14 @@ export default {
               // 保存特殊事件
               if (validIsNotNull(this.specialForm.id)) {
                 editSpecial(this.specialForm).then(res => {
-                  //编辑问题，添加D4特殊事件
+                  // 编辑问题，添加D4特殊事件
                   this.$message({
                     message: 'Submit Success! 编辑特殊事件信息成功!',
                     type: 'success'
                   })
 
                   this.isSpecial = true
-                  let obj = {}
+                  const obj = {}
                   obj.isSpecial = true
                   obj.specialEvent = this.specialForm.type
                   this.$emit('funx', obj)
@@ -976,10 +1028,9 @@ export default {
                   this.getIssueInfoById(this.$props.issueId)
                   this.getSpecialByIssueId(this.$props.issueId, this.issueForm.specialEvent)
                 })
-
               } else {
                 addSpecial(this.specialForm).then(res => {
-                  //编辑问题，添加D4特殊事件
+                  // 编辑问题，添加D4特殊事件
                   this.$message({
                     message: 'Submit Success! 新增特殊事件信息成功!',
                     type: 'success'
@@ -987,7 +1038,7 @@ export default {
                   this.isFinished = false
                   this.$emit('func', this.isFinished)
                   this.isSpecial = true
-                  let obj = {}
+                  const obj = {}
                   obj.isSpecial = true
                   obj.specialEvent = this.specialForm.type
                   this.$emit('funx', obj)
@@ -997,25 +1048,22 @@ export default {
                 })
               }
             }
-
           }
         })
       }
     },
-    //添加行数
+    // 添加行数
     addClick() {
       const obj = {
         orderSort: this.whys.length + 1,
         content: ''
       }
       this.whys.push(obj)
-    }
-    ,
-    //删除行数
+    },
+    // 删除行数
     handleDelete(index) {
       this.whys.splice(index, 1)
-    }
-    ,
+    },
     // 查看鱼骨图
     checkFishBone(data) {
       // 跳转到8D明细中
@@ -1027,8 +1075,7 @@ export default {
             fishData: this.fishData
           }
         })
-    }
-    ,
+    },
     // 保存D4-风险评估
     addRbi(form) {
       let val = true
@@ -1041,7 +1088,7 @@ export default {
       }
       if (val) {
         edit(form).then(res => {
-          //编辑问题，添加D4风险评估
+          // 编辑问题，添加D4风险评估
           this.$message({
             message: 'Submit Success! 保存风险评估成功!',
             type: 'success'
@@ -1051,8 +1098,7 @@ export default {
           this.$emit('func', this.isFinished)
         })
       }
-    }
-    ,
+    },
     // 确认完成
     confirmFinished() {
       // 确认D4完成

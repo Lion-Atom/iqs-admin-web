@@ -74,8 +74,11 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">时间要求</span>
-        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text"
-                   @click="saveTimeManagement(timeManagement)"
+        <el-button
+          v-if="isNeed"
+          style="float: right; padding: 3px 0"
+          type="text"
+          @click="saveTimeManagement(timeManagement)"
         >保存
         </el-button>
       </div>
@@ -109,8 +112,7 @@
                   placeholder="选择日期时间"
                   default-time="12:00:00"
                   :disabled="!isNeed"
-                >
-                </el-date-picker>
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -119,8 +121,8 @@
             <el-col :span="12">
               <el-form-item label="预计完成步骤 :" prop="planStep1">
                 <el-select
-                  :disabled="!isNeed"
                   v-model="timeManagement.planStep2"
+                  :disabled="!isNeed"
                   clearable
                   placeholder="选择预期要完成的步骤"
                 >
@@ -143,8 +145,7 @@
                   placeholder="选择日期时间"
                   default-time="12:00:00"
                   :disabled="!isNeed"
-                >
-                </el-date-picker>
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -177,8 +178,7 @@
                   placeholder="选择日期时间"
                   default-time="12:00:00"
                   :disabled="!isNeed"
-                >
-                </el-date-picker>
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -241,15 +241,18 @@
             v-model="member.teamRole"
             placeholder="请选择角色"
           >
-            <el-option v-for="item in roleTypeOptions" :key="item.key" :label="item.display_name"
-                       :value="item.key"
+            <el-option
+              v-for="item in roleTypeOptions"
+              :key="item.key"
+              :label="item.display_name"
+              :value="item.key"
             />
           </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-         <el-button @click="addMemVisible = false">取 消</el-button>
-         <el-button type="primary" @click="addTeamMember">确 定</el-button>
+        <el-button @click="addMemVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addTeamMember">确 定</el-button>
       </span>
     </el-dialog>
     <!--小组成员-->
@@ -265,24 +268,28 @@
           :data="members"
           style="width: 100%;"
         >
-          <el-table-column prop="companyName" label="公司名称" width="150"/>
-          <el-table-column prop="deptName" label="部门名称"/>
-          <el-table-column prop="userName" label="组员"/>
-          <el-table-column prop="phone" label="联系电话"/>
-          <el-table-column prop="email" label="电子邮箱"/>
-          <el-table-column prop="teamRole" label="成员角色"/>
+          <el-table-column prop="companyName" label="公司名称" width="150" />
+          <el-table-column prop="deptName" label="部门名称" />
+          <el-table-column prop="userName" label="组员" />
+          <el-table-column prop="phone" label="联系电话" />
+          <el-table-column prop="email" label="电子邮箱" />
+          <el-table-column prop="teamRole" label="成员角色" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="130px"
             align="center"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-popover :ref="`editRole-popover-${scope.$index}`" v-permission="permission.edit" placement="left"
-                            width="300" title="编辑角色"
+                <el-popover
+                  :ref="`editRole-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="left"
+                  width="300"
+                  title="编辑角色"
                 >
                   <el-form
                     ref="form"
@@ -300,44 +307,68 @@
                         placeholder="请选择角色"
                         clearable
                       >
-                        <el-option v-for="item in roleTypeOptions" :key="item.key" :label="item.display_name"
-                                   :value="item.key"
+                        <el-option
+                          v-for="item in roleTypeOptions"
+                          :key="item.key"
+                          :label="item.display_name"
+                          :value="item.key"
                         />
                       </el-select>
                     </el-form-item>
                   </el-form>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="editRole(scope.$index,scope.row), scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="editRole(scope.$index,scope.row), scope._self.$refs[`editRole-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.edit" :disabled="scope.row.isLeader === true"
-                             size="mini"
-                             type="primary" icon="el-icon-edit" @click="openEditRole(scope.row)"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.edit"
+                    :disabled="scope.row.isLeader === true"
+                    size="mini"
+                    type="primary"
+                    icon="el-icon-edit"
+                    @click="openEditRole(scope.row)"
                   />
                 </el-popover>
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定删除本条数据吗？</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="deleteMember(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="deleteMember(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" :disabled="scope.row.isLeader === true"
-                             type="danger" icon="el-icon-delete" size="mini"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    :disabled="scope.row.isLeader === true"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
                   />
                 </el-popover>
               </div>
@@ -357,17 +388,21 @@
           <el-col :span="6">
             确认完成当前步骤：
             <el-popover
+              v-model="confirmVisible"
               placement="top"
               width="300"
-              v-model="confirmVisible"
             >
               <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button slot="reference" v-permission="permission.edit" type="success" :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                v-permission="permission.edit"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -395,8 +430,8 @@ import { validIsNotNull, validTwo } from '@/utils/validationUtil'
 
 export default {
   name: 'FirstForm',
-  props: ['issueId', 'needConfirm'],
   components: { Treeselect },
+  props: ['issueId', 'needConfirm'],
   data() {
     return {
       permission: {
@@ -481,6 +516,10 @@ export default {
       options: []
     }
   },
+  watch: {
+    // 监听deptId
+    'member.deptId': 'currDeptChange'
+  },
   created() {
 
   },
@@ -490,10 +529,6 @@ export default {
     this.getTeamMembersByIssueId(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
     this.getTopDept()
-  },
-  watch: {
-    // 监听deptId
-    'member.deptId': 'currDeptChange'
   },
   methods: {
     currDeptChange(val) {
@@ -520,6 +555,7 @@ export default {
       })
     },
     getTimeManagementByIssueId(id) {
+      this.timeManagement = {}
       getByIssueId(id).then(res => {
         this.timeManagement = res
         if (res.d1Status) {
@@ -537,11 +573,12 @@ export default {
       this.teamLoading = false
     },
     saveTimeManagement(timeData) {
+      console.log(timeData)
       // 提交前验证
       let val = true
-      let step1 = this.timeManagement.planStep1
-      let step2 = this.timeManagement.planStep2
-      let step3 = this.timeManagement.planStep3
+      const step1 = this.timeManagement.planStep1
+      const step2 = this.timeManagement.planStep2
+      const step3 = this.timeManagement.planStep3
 
       if (!validTwo(this.timeManagement.planStep1, this.timeManagement.planTime1) ||
         !validTwo(this.timeManagement.planStep2, this.timeManagement.planTime2) ||
@@ -566,10 +603,10 @@ export default {
         if (timeData.id === undefined) {
           timeData.issueId = this.$props.issueId
           addTimeManage(timeData).then(res => {
-            this.$message({
-              message: 'Add Success! 保存时间要求成功!',
-              type: 'success'
-            })
+            this.getTimeManagementByIssueId(this.$props.issueId)
+            setTimeout(() => {
+              this.$message.success('Add Success! 保存时间要求成功!')
+            }, 600)
             this.isFinished = false
             this.$emit('func', this.isFinished)
           }).catch(() => {
@@ -580,10 +617,10 @@ export default {
           })
         } else {
           editTimeManage(timeData).then(res => {
-            this.$message({
-              message: 'Update Success! 更新时间要求成功!',
-              type: 'success'
-            })
+            this.getTimeManagementByIssueId(this.$props.issueId)
+            setTimeout(() => {
+              this.$message.success('Update Success! 更新时间要求成功!')
+            }, 600)
             this.isFinished = false
             this.$emit('func', this.isFinished)
           }).catch(() => {
@@ -593,7 +630,6 @@ export default {
             })
           })
         }
-        this.getTimeManagementByIssueId(this.$props.issueId)
       }
     },
     // 填充所属部门数据
@@ -700,7 +736,7 @@ export default {
         this.$emit('func', this.isFinished)
         this.getTeamMembersByIssueId(this.$props.issueId)
       }).catch(() => {
-        /*this.$message({
+        /* this.$message({
           message: 'Del Failed! 删除小组成员失败!',
           type: 'error'
         })*/

@@ -84,16 +84,15 @@
             type="datetime"
             placeholder="选择日期时间"
             default-time="12:00:00"
-          >
-          </el-date-picker>
+          />
         </el-form-item>
         <el-form-item
           label="具体描述"
           prop="description"
         >
           <el-input
-            type="textarea"
             v-model="form.description"
+            type="textarea"
             :rows="3"
             style="width: 370px;"
           />
@@ -170,17 +169,16 @@
                 type="datetime"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="具体描述"
               prop="description"
             >
               <el-input
+                v-model="form.description"
                 type="textarea"
                 :rows="3"
-                v-model="form.description"
                 style="width: 370px;"
               />
             </el-form-item>
@@ -268,17 +266,16 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="其他"
               prop="other"
             >
               <el-input
+                v-model="form.other"
                 type="textarea"
                 :rows="3"
-                v-model="form.other"
                 style="width: 370px;"
               />
             </el-form-item>
@@ -370,7 +367,7 @@
 <script>
 import { form } from '@crud/crud'
 import { getAllUser } from '@/api/system/user'
-import UploadFile from '../module/uploadFile.vue'
+import UploadFile from '@/components/UploadFile'
 import { mapGetters } from 'vuex'
 
 const defaultForm = {
@@ -450,7 +447,7 @@ export default {
         description: [
           { required: true, message: '请描述下问题具体信息', trigger: 'blur' }
         ],
-        /*phone: [
+        /* phone: [
           { required: true, message: '请留下电话便于联系', trigger: 'blur' }
         ],
         email: [
@@ -523,6 +520,6 @@ export default {
 }
 
 .el-form-item--small.el-form-item {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 </style>

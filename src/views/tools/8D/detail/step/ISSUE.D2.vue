@@ -40,8 +40,7 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="产品批号"
@@ -72,9 +71,9 @@
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-         <el-button @click="addNumVisible = false">取 消</el-button>
-         <el-button type="primary" @click="submitNum">确 定</el-button>
-      </span>
+            <el-button @click="addNumVisible = false">取 消</el-button>
+            <el-button type="primary" @click="submitNum">确 定</el-button>
+          </span>
         </el-dialog>
         <!--数据列表-->
         <el-table
@@ -83,10 +82,10 @@
           :data="issueNums"
           style="width: 100%;"
         >
-          <el-table-column prop="caPartNum" label="产品料号" min-width="120"/>
-          <el-table-column prop="componentDateCode" label="产品生产日期" min-width="120"/>
-          <el-table-column prop="componentLotNum" label="产品批号" min-width="120"/>
-          <el-table-column prop="defectQuantity" label="不良数量" width="120"/>
+          <el-table-column prop="caPartNum" label="产品料号" min-width="120" />
+          <el-table-column prop="componentDateCode" label="产品生产日期" min-width="120" />
+          <el-table-column prop="componentLotNum" label="产品批号" min-width="120" />
+          <el-table-column prop="defectQuantity" label="不良数量" width="120" />
           <el-table-column label="客户影响">
             <template slot-scope="scope">
               <el-popover
@@ -107,36 +106,52 @@
           </el-table-column>
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="130px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit" :disabled="scope.row.isLeader === true"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editNum(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  :disabled="scope.row.isLeader === true"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editNum(scope.row)"
                 />
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定删除本条数据吗？</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="deleteNum(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="deleteNum(scope.row.id), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" type="danger" icon="el-icon-delete"
-                             size="mini"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
                   />
                 </el-popover>
               </div>
@@ -159,9 +174,9 @@
             prop="supplierDescription"
           >
             <el-input
+              v-model="form.supplierDescription"
               type="textarea"
               :rows="3"
-              v-model="form.supplierDescription"
               style="min-width: 800px;"
               :disabled="!isNeed"
             />
@@ -189,13 +204,13 @@
               {{ scope.$index + 1 }}
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="标题" width="200"/>
+          <el-table-column prop="name" label="标题" width="200" />
           <el-table-column label="内容">
             <template scope="scope">
               <el-input
+                v-model="scope.row.description"
                 type="textarea"
                 autosize
-                v-model="scope.row.description"
                 style="min-width: 800px;"
                 :disabled="!isNeed"
               />
@@ -218,12 +233,12 @@
             :data="isNotData"
             :span-method="objectSpanMethod"
           >
-            <el-table-column width="120" property="name" label="问题描述"></el-table-column>
-            <el-table-column width="80" property="description" label="Item 细目"></el-table-column>
-            <el-table-column width="300" property="isContent" label="IS"></el-table-column>
-            <el-table-column width="300" property="notContent" label="IS-NOT"></el-table-column>
+            <el-table-column width="120" property="name" label="问题描述" />
+            <el-table-column width="80" property="description" label="Item 细目" />
+            <el-table-column width="300" property="isContent" label="IS" />
+            <el-table-column width="300" property="notContent" label="IS-NOT" />
           </el-table>
-          <el-button v-if="isNeed" type="text" size="small" slot="reference">参考</el-button>
+          <el-button v-if="isNeed" slot="reference" type="text" size="small">参考</el-button>
         </el-popover>
         <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveIsNots(isNots)">保存
         </el-button>
@@ -236,14 +251,14 @@
           :span-method="objectSpanMethod"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="问题描述" width="120"/>
-          <el-table-column width="120" property="description" label="Item 细目"></el-table-column>
+          <el-table-column prop="name" label="问题描述" width="120" />
+          <el-table-column width="120" property="description" label="Item 细目" />
           <el-table-column label="IS 是">
             <template scope="scope">
               <el-input
+                v-model="scope.row.isContent"
                 type="textarea"
                 autosize
-                v-model="scope.row.isContent"
                 style="min-width: 300px;"
                 :disabled="!isNeed"
               />
@@ -252,9 +267,9 @@
           <el-table-column label="IS-NOT 否">
             <template scope="scope">
               <el-input
+                v-model="scope.row.notContent"
                 type="textarea"
                 autosize
-                v-model="scope.row.notContent"
                 style="min-width: 300px;"
                 :disabled="!isNeed"
               />
@@ -283,9 +298,9 @@
           <el-col :span="6">
             确认完成当前步骤：
             <el-popover
+              v-model="confirmVisible"
               placement="top"
               width="300"
-              v-model="confirmVisible"
             >
               <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
               <div style="text-align: right; margin: 0">
@@ -294,8 +309,8 @@
               </div>
               <el-button
                 slot="reference"
-                :loading="selfLoading"
                 v-permission="permission.edit"
+                :loading="selfLoading"
                 type="success"
                 :disabled="isFinished"
                 icon="el-icon-check"
@@ -318,12 +333,12 @@ import { edit, getIssueById } from '@/api/tools/issue'
 import { addIssueNum, delIssueNum, editIssueNum, getIssueNumByIssueId } from '@/api/tools/issueNum'
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
-import UploadFile from '../../module/uploadFile.vue'
+import UploadFile from '@/components/UploadFile'
 
 export default {
   name: 'SecondForm',
-  props: ['issueId', 'needConfirm'],
   components: { UploadFile },
+  props: ['issueId', 'needConfirm'],
   data() {
     return {
       permission: {

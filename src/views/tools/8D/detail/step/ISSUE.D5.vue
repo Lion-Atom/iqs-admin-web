@@ -110,14 +110,13 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-         <el-button @click="doCancelCorrectAct">取 消</el-button>
-         <el-button type="primary" :loading="submitLoading" @click="submitCorrectAct">确 定</el-button>
-      </span>
+            <el-button @click="doCancelCorrectAct">取 消</el-button>
+            <el-button type="primary" :loading="submitLoading" @click="submitCorrectAct">确 定</el-button>
+          </span>
         </el-dialog>
         <el-table
           ref="table"
@@ -125,51 +124,63 @@
           :data="correctActions"
           style="width: 100%;"
         >
-          <el-table-column prop="causeName" label="根本原因"/>
-          <el-table-column prop="judgeResult" label="发生/检测"/>
-          <el-table-column prop="name" label="改善行动"/>
-          <el-table-column prop="validationMethod" label="确认方法" min-width="140"/>
-          <el-table-column prop="validationResult" label="确认结果"/>
-          <el-table-column prop="efficiency" label="有效性(%)"/>
-          <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="plannedCompleteTime" label="计划完成时间" width="140"/>
+          <el-table-column prop="causeName" label="根本原因" />
+          <el-table-column prop="judgeResult" label="发生/检测" />
+          <el-table-column prop="name" label="改善行动" />
+          <el-table-column prop="validationMethod" label="确认方法" min-width="140" />
+          <el-table-column prop="validationResult" label="确认结果" />
+          <el-table-column prop="efficiency" label="有效性(%)" />
+          <el-table-column prop="responsibleName" label="负责人" />
+          <el-table-column prop="plannedCompleteTime" label="计划完成时间" width="140" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit" v-if="scope.row.id !==undefined"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editCorrectAction(scope.row)"
+                <el-button
+                  v-if="scope.row.id !==undefined"
+                  slot="reference"
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editCorrectAction(scope.row)"
                 />
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定删除本条数据吗？</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="delCorrectAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="delCorrectAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
                   <el-button
+                    v-if="scope.row.id !==undefined"
                     slot="reference"
                     v-permission="permission.del"
                     type="danger"
                     icon="el-icon-delete"
                     size="mini"
-                    v-if="scope.row.id !==undefined"
                   />
                 </el-popover>
               </div>
@@ -192,9 +203,9 @@
             prop="supplierDescription"
           >
             <el-input
+              v-model="form.commentD5"
               type="textarea"
               :rows="3"
-              v-model="form.commentD5"
               style="min-width: 800px;"
               :disabled="!isNeed"
             />
@@ -222,18 +233,22 @@
           <el-col :span="6">
             确认完成当前步骤：
             <el-popover
+              v-model="confirmVisible"
               placement="top"
               width="300"
-              v-model="confirmVisible"
             >
               <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="mini" type="text" @click="confirmVisible = false">取消</el-button>
                 <el-button type="primary" size="mini" @click="confirmFinished">确定</el-button>
               </div>
-              <el-button slot="reference" :loading="selfLoading" v-permission="permission.edit" type="success"
-                         :disabled="isFinished"
-                         icon="el-icon-check"
+              <el-button
+                slot="reference"
+                v-permission="permission.edit"
+                :loading="selfLoading"
+                type="success"
+                :disabled="isFinished"
+                icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
@@ -252,14 +267,13 @@ import { edit, getIssueById } from '@/api/tools/issue'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 import { getIssueCauseByExample } from '@/api/tools/issueCause'
-
-import UploadFile from '../../module/uploadFile.vue'
+import UploadFile from '@/components/UploadFile'
 
 export default {
   name: 'FifthForm',
+  components: { UploadFile },
   props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
-  components: { UploadFile },
   data() {
     return {
       permission: {
@@ -398,7 +412,7 @@ export default {
       }
       if (val) {
         edit(form).then(res => {
-          //编辑问题，添加供应商详细描述
+          // 编辑问题，添加供应商详细描述
           this.$message({
             message: 'Submit D6-Desc Success! 添加D5详细描述完成!',
             type: 'success'

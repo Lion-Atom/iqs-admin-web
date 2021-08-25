@@ -14,7 +14,7 @@
       <div style="text-align: right; margin: 0">
         <el-button size="mini" type="text" @click="doCancel(data)">先看看</el-button>
         <el-button v-if="data.type !== '8D'" type="primary" size="mini" @click="doApprove(data)">确定</el-button>
-        <el-button v-else type="primary" size="mini" @click="gotoIssue(data)">确定</el-button>
+        <el-button v-else type="primary" size="mini" @click="gotoIssue(data)">前往8D</el-button>
       </div>
       <el-button
         slot="reference"
@@ -73,7 +73,7 @@ export default {
     if (this.data.type !== '8D') {
       this.msg = '是否直接审批通过吗？'
     } else {
-      this.msg = '是否前往8D进行审批？'
+      this.msg = '是否在此页面进行审批？'
     }
   },
   methods: {

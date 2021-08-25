@@ -328,6 +328,273 @@
                     <el-button @click="cancelApprove">取 消</el-button>
                     <el-button type="primary" @click="submitApprove(taskForm)">提交</el-button>
                   </div>
+                  <div v-if="taskForm.type === '8D'">
+                    <el-form
+                      ref="issueForm"
+                      :model="issueForm"
+                      :rules="issueRules"
+                      size="small"
+                      label-width="160px"
+                    >
+                      <el-collapse v-model="activeNames" accordion>
+                        <el-collapse-item title="问题明细" name="1" class="collapse-item">
+                          <el-form-item
+                            label="问题标题"
+                            prop="issueTitle"
+                          >
+                            <el-input
+                              v-model="issueForm.issueTitle"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="客户名"
+                            prop="customerName"
+                          >
+                            <el-input
+                              v-model="issueForm.customerName"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="客户追踪码"
+                            prop="caNum"
+                          >
+                            <el-input
+                              v-model="issueForm.caNum"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="产品料号"
+                            prop="partNum"
+                          >
+                            <el-input
+                              v-model="issueForm.partNum"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="问题来源"
+                            prop="source"
+                          >
+                            <el-radio
+                              v-for="item in dict.d_source"
+                              :key="item.value"
+                              v-model="issueForm.source"
+                              :label="item.value"
+                            >
+                              {{ item.value }}
+                            </el-radio>
+                          </el-form-item>
+                          <el-form-item
+                            label="紧急计划"
+                            prop="urgencyPlan"
+                          >
+                            <el-input
+                              v-model="issueForm.urgencyPlan"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="创建时间"
+                            prop="initTime"
+                          >
+                            <el-date-picker
+                              v-model="issueForm.initTime"
+                              style="width: 370px;"
+                              type="datetime"
+                              placeholder="选择日期时间"
+                              default-time="12:00:00"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="具体描述"
+                            prop="description"
+                          >
+                            <el-input
+                              v-model="issueForm.description"
+                              type="textarea"
+                              :rows="3"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                        </el-collapse-item>
+                        <!--审核问题-->
+                        <el-collapse-item title="审核问题" name="2" class="collapse-item">
+                          <el-form-item
+                            label="客户/供应商联系电话"
+                            prop="phone"
+                          >
+                            <el-input
+                              v-model="issueForm.phone"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="客户/供应商邮箱"
+                            prop="email"
+                          >
+                            <el-input
+                              v-model="issueForm.email"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="问题类型"
+                            prop="type"
+                          >
+                            <el-input
+                              v-model="issueForm.type"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="是否为重复发生问题"
+                            prop="isRepeat"
+                          >
+                            <el-radio-group v-model="issueForm.isRepeat">
+                              <el-radio
+                                v-for="item in dict.common_status"
+                                :key="item.id"
+                                :label="item.value"
+                              >{{ item.label }}
+                              </el-radio>
+                            </el-radio-group>
+                          </el-form-item>
+                          <el-form-item
+                            label="是否有类似问题"
+                            prop="hasSimilar"
+                          >
+                            <el-radio-group v-model="issueForm.hasSimilar">
+                              <el-radio
+                                v-for="item in dict.common_status"
+                                :key="item.id"
+                                :label="item.value"
+                              >{{ item.label }}
+                              </el-radio>
+                            </el-radio-group>
+                          </el-form-item>
+                          <el-form-item
+                            label="初步风险评估"
+                            prop="initRisk"
+                          >
+                            <el-input
+                              v-model="issueForm.initRisk"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="关联部门"
+                            prop="department"
+                          >
+                            <el-input
+                              v-model="issueForm.department"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="客户要求时间"
+                            prop="customerTime"
+                          >
+                            <el-date-picker
+                              v-model="issueForm.customerTime"
+                              type="datetime"
+                              style="width: 370px;"
+                              placeholder="选择日期时间"
+                              default-time="12:00:00"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="其他"
+                            prop="other"
+                          >
+                            <el-input
+                              v-model="issueForm.other"
+                              type="textarea"
+                              :rows="3"
+                              style="width: 370px;"
+                            />
+                          </el-form-item>
+                          <el-form-item
+                            label="执行选择"
+                            prop="hasReport"
+                          >
+                            <el-radio-group v-model="issueForm.hasReport">
+                              <el-radio
+                                v-for="item in dict.d_execute"
+                                :key="item.id"
+                                :label="item.value"
+                              >{{ item.value }}
+                              </el-radio>
+                            </el-radio-group>
+                          </el-form-item>
+                          <!--todo 任命组长-->
+                          <el-form-item
+                            v-if="issueForm.hasReport==='系统8D'"
+                            label="指派组长"
+                            prop="leaderId"
+                          >
+                            <el-select
+                              v-model="issueForm.leaderId"
+                              placeholder="请指派组长"
+                              style="width: 370px;"
+                              filterable
+                            >
+                              <el-option
+                                v-for="item in members"
+                                :key="item.id"
+                                :label="item.dept.name + '-'+item.jobs[0].name + '-'+ item.username "
+                                :value="item.id"
+                              />
+                            </el-select>
+                          </el-form-item>
+                          <el-form-item
+                            v-if="issueForm.hasReport==='系统8D'"
+                            label="是否评分"
+                            prop="hasScore"
+                          >
+                            <el-radio-group v-model="issueForm.hasScore">
+                              <el-radio
+                                v-for="item in dict.common_status"
+                                :key="item.id"
+                                :label="item.value"
+                              >{{ item.label }}
+                              </el-radio>
+                            </el-radio-group>
+                          </el-form-item>
+                        </el-collapse-item>
+                        <!--添加附件及其列表-->
+                        <el-collapse-item title="附件管理" name="3" class="collapse-item">
+                          <UploadFile
+                            :issue-id="taskForm.storageId"
+                            :permission="permission"
+                            :is-need="isNeed"
+                            :step-name="curStep"
+                            :shadow="never"
+                          />
+                        </el-collapse-item>
+                      </el-collapse>
+                    </el-form>
+                    <div
+                      v-if="!taskForm.isDone && taskForm.type === '8D'"
+                      slot="footer"
+                      style="margin-left: 85% !important; margin-top: 10px;"
+                    >
+                      <el-button
+                        type="text"
+                        @click="cancelCu"
+                      >
+                        取消
+                      </el-button>
+                      <el-button
+                        type="primary"
+                        @click="submitIssue"
+                      >
+                        确认
+                      </el-button>
+                    </div>
+                  </div>
                 </el-dialog>
                 <!--任务审批列表-->
                 <el-table
@@ -446,19 +713,33 @@ import CRUD, { crud, header, presenter } from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
-import { editUser } from '@/api/system/user'
+import { editUser, getAllUser } from '@/api/system/user'
 import Avatar from '@/assets/images/avatar.png'
 import crudTask, { batchSubmitTask, submitTask } from '@/api/system/toolsTask'
 import rrOperation from '@crud/RR.operation'
 import DateRangePicker from '@/components/DateRangePicker'
+import UploadFile from '@/components/UploadFile'
+import { edit, getIssueById } from '@/api/tools/issue'
+import { validIsNotNull } from '@/utils/validationUtil'
 
 export default {
   name: 'Center',
-  components: { updatePass, updateEmail, myUpload, rrOperation, DateRangePicker, crudOperation, udApprove, pagination },
+  components: {
+    updatePass,
+    updateEmail,
+    myUpload,
+    rrOperation,
+    DateRangePicker,
+    crudOperation,
+    udApprove,
+    pagination,
+    UploadFile
+  },
   cruds() {
     return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask }})
   },
   mixins: [presenter(), header(), crud()],
+  dicts: ['d_status', 'd_process', 'd_source', 'common_status', 'd_execute'],
   data() {
     // 自定义验证
     const validPhone = (rule, value, callback) => {
@@ -489,7 +770,10 @@ export default {
         ]
       },
       permission: {
-        approve: ['admin', 'storage:edit']
+        approve: ['admin', 'storage:edit'],
+        add: ['admin', 'd:add'],
+        edit: ['admin', 'd:edit'],
+        del: ['admin', 'd:del']
       },
       oldNickName: null,
       oldPhone: null,
@@ -518,7 +802,76 @@ export default {
       resultTypeOptions: [
         { key: true, display_name: '同意' },
         { key: false, display_name: '驳回' }
-      ]
+      ],
+      activeNames: ['2'],
+      issueForm: {},
+      issueRules: {
+        issueTitle: [
+          { required: true, message: '请输入问题标题', trigger: 'blur' }
+        ],
+        customerName: [
+          { required: true, message: '请输入客户名', trigger: 'blur' }
+        ],
+        caNum: [
+          { required: true, message: '请输入客户追踪码', trigger: 'blur' }
+        ],
+        partNum: [
+          { required: true, message: '请输入产品料号', trigger: 'blur' }
+        ],
+        source: [
+          { required: true, message: '请选择问题来源', trigger: 'blur' }
+        ],
+        urgencyPlan: [
+          { required: true, message: '请输入紧急计划', trigger: 'blur' }
+        ],
+        initTime: [
+          { required: true, message: '请输入创建时间', trigger: 'blur' }
+        ],
+        description: [
+          { required: true, message: '请描述下问题具体信息', trigger: 'blur' }
+        ],
+        /* phone: [
+          { required: true, message: '请留下电话便于联系', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+          { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+        ],*/
+        type: [
+          { required: true, message: '请输入问题类型', trigger: 'blur' }
+        ],
+        isRepeat: [
+          { required: true, message: '请判断是否为重复问题', trigger: 'blur' }
+        ],
+        hasSimilar: [
+          { required: true, message: '请判断是否有类似问题', trigger: 'blur' }
+        ],
+        initRisk: [
+          { required: true, message: '请评估风险程度', trigger: 'blur' }
+        ],
+        department: [
+          { required: true, message: '请输入关联部门', trigger: 'blur' }
+        ],
+        customerTime: [
+          { required: true, message: '请输入客户要求的时间截点', trigger: 'blur' }
+        ],
+        other: [
+          { required: true, message: '请补充完整信息', trigger: 'blur' }
+        ],
+        hasReport: [
+          { required: true, message: '请务必选择是否执行8D', trigger: 'blur' }
+        ],
+        leaderId: [
+          { required: true, message: '请务必指派小组组长', trigger: 'blur' }
+        ],
+        hasScore: [
+          { required: true, message: '请务必选择是否评分', trigger: 'blur' }
+        ]
+      },
+      members: [],
+      isNeed: true,
+      never: 'never',
+      curStep: 'D0'
     }
   },
   computed: {
@@ -547,6 +900,7 @@ export default {
     } else {
       this.taskLabel = '个人任务'
     }
+    this.getAvailableUser()
   },
   mounted() {
     if (this.$route.query.createTime !== undefined) {
@@ -564,10 +918,42 @@ export default {
       this.dialogFormVisible = msg.show
       this.taskForm = msg.data
       this.oldResult = msg.data.approveResult
+      if (msg.data.type === '8D') {
+        if (msg.data.isDone) {
+          this.isNeed = false
+        }
+        this.getIssueInfoById(msg.data.storageId)
+      }
       this.isHavResult = !(this.oldResult === undefined ||
         this.oldResult === '' ||
         this.oldResult === null)
     },
+    // 获取人员信息
+    getAvailableUser() {
+      getAllUser().then(res => {
+        this.members = res.content
+      })
+    },
+    // 查询问题信息
+    getIssueInfoById(id) {
+      // alert(id)
+      // alert(JSON.stringify(this.dict.common_status))
+      this.issueForm = {}
+      getIssueById(id).then(res => {
+        // alert(JSON.stringify(res))
+        this.issueForm = res
+        if (validIsNotNull(this.issueForm.isRepeat)) {
+          this.issueForm.isRepeat = this.issueForm.isRepeat.toString()
+        }
+        if (validIsNotNull(this.issueForm.hasSimilar)) {
+          this.issueForm.hasSimilar = this.issueForm.hasSimilar.toString()
+        }
+        if (validIsNotNull(this.issueForm.hasScore)) {
+          this.issueForm.hasScore = this.issueForm.hasScore.toString()
+        }
+      })
+    },
+
     // 监控审批状态选择器输入变化，强制刷新
     changeDate() {
       this.$forceUpdate()
@@ -592,6 +978,28 @@ export default {
     changeResult() {
       this.$forceUpdate()
       this.crud.toQuery()
+    },
+    // 取消审核
+    cancelCu() {
+      this.dialogFormVisible = false
+    },
+    // 提交审核问题信息
+    submitIssue() {
+      // alert(JSON.stringify(this.issueForm))
+      this.$refs.issueForm.validate().then((valid) => {
+        if (!valid) {
+          return false
+        } else {
+          edit(this.issueForm).then(res => {
+            this.$message({
+              message: 'Audit Issue Success! 审核成功!',
+              type: 'success'
+            })
+            this.dialogFormVisible = false
+            this.crud.toQuery()
+          })
+        }
+      })
     },
     // 取消审批
     cancelApprove() {

@@ -38,7 +38,7 @@
                 :precision="2"
                 :step="0.1"
                 :max="100"
-              ></el-input-number>
+              />
             </el-form-item>
             <!--- 负责人列表查询 -->
             <el-form-item
@@ -68,8 +68,7 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="完成时间"
@@ -81,8 +80,7 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="标识"
@@ -139,14 +137,13 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-         <el-button @click="doCancelCorrAct">取 消</el-button>
-         <el-button type="primary" :loading="submitLoading" @click="submitCorrectAct">确 定</el-button>
-      </span>
+            <el-button @click="doCancelCorrAct">取 消</el-button>
+            <el-button type="primary" :loading="submitLoading" @click="submitCorrectAct">确 定</el-button>
+          </span>
         </el-dialog>
         <el-table
           ref="table"
@@ -154,16 +151,16 @@
           :data="correctActions"
           style="width: 100%;"
         >
-          <el-table-column prop="causeName" label="根本原因"/>
-          <el-table-column prop="judgeResult" label="发生/检测"/>
-          <el-table-column prop="name" label="改善行动"/>
-          <el-table-column prop="validationMethod" label="确认方法" min-width="140"/>
-          <el-table-column prop="validationResult" label="确认结果"/>
-          <el-table-column prop="efficiency" label="有效性(%)"/>
-          <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="plannedTime" label="预定时间" width="140"/>
-          <el-table-column prop="completeTime" label="完成时间" width="140"/>
-          <el-table-column prop="identification" label="标识"/>
+          <el-table-column prop="causeName" label="根本原因" />
+          <el-table-column prop="judgeResult" label="发生/检测" />
+          <el-table-column prop="name" label="改善行动" />
+          <el-table-column prop="validationMethod" label="确认方法" min-width="140" />
+          <el-table-column prop="validationResult" label="确认结果" />
+          <el-table-column prop="efficiency" label="有效性(%)" />
+          <el-table-column prop="responsibleName" label="负责人" />
+          <el-table-column prop="plannedTime" label="预定时间" width="140" />
+          <el-table-column prop="completeTime" label="完成时间" width="140" />
+          <el-table-column prop="identification" label="标识" />
           <el-table-column prop="status" label="状态">
             <template slot-scope="scope">
               <el-tag
@@ -175,24 +172,24 @@
               <span v-else>{{ scope.row.status }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="correctiveMeasurementMethod" label="测评方法"/>
-          <el-table-column prop="correctiveEfficiencyResult" label="测评结果"/>
-          <el-table-column prop="evaluationTime" label="评估日期" width="140"/>
+          <el-table-column prop="correctiveMeasurementMethod" label="测评方法" />
+          <el-table-column prop="correctiveEfficiencyResult" label="测评结果" />
+          <el-table-column prop="evaluationTime" label="评估日期" width="140" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
                 <el-button
+                  v-if="scope.row.id !==undefined"
                   slot="reference"
                   v-permission="permission.edit"
-                  v-if="scope.row.id !==undefined"
                   size="mini"
                   type="primary"
                   icon="el-icon-edit"
@@ -234,10 +231,10 @@
             >
               <span v-if="!isAdd">{{ removeActionForm.name }}</span>
               <el-select
+                v-if="isAdd"
                 v-model="removeActionForm.id"
                 placeholder="请选择要移除的改善行动"
                 style="width: 370px;"
-                v-if="isAdd"
               >
                 <el-option
                   v-for="item in canBeRemoveActions"
@@ -274,9 +271,9 @@
               </el-select>
             </el-form-item>
             <el-form-item
+              v-if="!isAdd"
               label="移除时间"
               prop="removeTime"
-              v-if="!isAdd"
             >
               <span>{{ removeActionForm.removeTime }}</span>
             </el-form-item>
@@ -285,18 +282,18 @@
               prop="comment"
             >
               <el-input
+                v-model="removeActionForm.comment"
                 placeholder="请填写移除备注"
                 type="textarea"
-                v-model="removeActionForm.comment"
                 :rows="3"
                 style="width: 370px;"
               />
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-         <el-button @click="removeActionVisible = false">取 消</el-button>
-         <el-button type="primary" :loading="submitRemoveActLoading" @click="submitRemoveAct">确 定</el-button>
-      </span>
+            <el-button @click="removeActionVisible = false">取 消</el-button>
+            <el-button type="primary" :loading="submitRemoveActLoading" @click="submitRemoveAct">确 定</el-button>
+          </span>
         </el-dialog>
         <el-table
           ref="table"
@@ -304,25 +301,25 @@
           :data="removeActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="移除的改善行动"/>
-          <el-table-column prop="comment" label="评论"/>
-          <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="removeTime" label="移除时间"/>
+          <el-table-column prop="name" label="移除的改善行动" />
+          <el-table-column prop="comment" label="评论" />
+          <el-table-column prop="responsibleName" label="负责人" />
+          <el-table-column prop="removeTime" label="移除时间" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
                 <el-button
+                  v-if="scope.row.id !==undefined"
                   slot="reference"
                   v-permission="permission.edit"
-                  v-if="scope.row.id !==undefined"
                   size="mini"
                   type="primary"
                   icon="el-icon-edit"
@@ -348,9 +345,9 @@
             prop="supplierDescription"
           >
             <el-input
+              v-model="form.commentD6"
               type="textarea"
               :rows="3"
-              v-model="form.commentD6"
               style="min-width: 800px;"
               :disabled="!isNeed"
             />
@@ -378,9 +375,9 @@
           <el-col :span="6">
             确认完成当前步骤：
             <el-popover
+              v-model="confirmVisible"
               placement="top"
               width="300"
-              v-model="confirmVisible"
             >
               <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
               <div style="text-align: right; margin: 0">
@@ -389,8 +386,8 @@
               </div>
               <el-button
                 slot="reference"
-                :loading="selfLoading"
                 v-permission="permission.edit"
+                :loading="selfLoading"
                 type="success"
                 :disabled="isFinished"
                 icon="el-icon-check"
@@ -408,8 +405,7 @@
 
 import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
 import { getIssueById, edit } from '@/api/tools/issue'
-
-import UploadFile from '../../module/uploadFile.vue'
+import UploadFile from '@/components/UploadFile'
 import {
   editIssueAction,
   getIssueActionByExample,
@@ -420,9 +416,9 @@ import { getMembersByIssueId } from '@/api/tools/teamMember'
 
 export default {
   name: 'SixthForm',
+  components: { UploadFile },
   props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
-  components: { UploadFile },
   data() {
     return {
       permission: {
@@ -535,12 +531,12 @@ export default {
       isNeed: false
     }
   },
-  created() {
-
-  },
   watch: {
     // 监听removeActionForm.id
     'removeActionForm.id': 'currActionChange'
+  },
+  created() {
+
   },
   mounted: function() {
     this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm

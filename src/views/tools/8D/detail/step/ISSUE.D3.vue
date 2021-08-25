@@ -74,23 +74,27 @@
               label="%有效性"
               prop="efficiency"
             >
-              <el-input-number v-model="conActionForm.efficiency" style="width: 370px;" :precision="2" :step="0.1"
-                               :max="100"
-              ></el-input-number>
+              <el-input-number
+                v-model="conActionForm.efficiency"
+                style="width: 370px;"
+                :precision="2"
+                :step="0.1"
+                :max="100"
+              />
             </el-form-item>
             <el-form-item
               prop="partIdentification"
             >
               <span slot="label">
-                    <span class="span-box">
-                      <span>产品标识</span>
-                      <el-tooltip placement="top" effect="light">
-                        <div slot="content">
-                          需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
-                        </div>
-                        <i class="el-icon-question"/>
-                      </el-tooltip>
-                    </span>
+                <span class="span-box">
+                  <span>产品标识</span>
+                  <el-tooltip placement="top" effect="light">
+                    <div slot="content">
+                      需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
+                    </div>
+                    <i class="el-icon-question" />
+                  </el-tooltip>
+                </span>
               </span>
               <el-input
                 v-model="conActionForm.partIdentification"
@@ -107,8 +111,7 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="实际执行时间"
@@ -120,14 +123,13 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-         <el-button @click="doCancelConAct">取 消</el-button>
-         <el-button type="primary" @click="submitConAct">确 定</el-button>
-      </span>
+            <el-button @click="doCancelConAct">取 消</el-button>
+            <el-button type="primary" @click="submitConAct">确 定</el-button>
+          </span>
         </el-dialog>
         <el-table
           ref="table"
@@ -135,47 +137,63 @@
           :data="conActions"
           style="width: 100%;"
         >
-          <el-table-column prop="title" label="紧急处理产品" width="150"/>
-          <el-table-column prop="qtyOk" label="良品数量" width="80"/>
-          <el-table-column prop="qtyNo" label="不良品数量" min-width="80"/>
-          <el-table-column prop="actionName" label="围堵对策" width="180"/>
-          <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="efficiency" label="有效性(%)" width="100"/>
-          <el-table-column prop="partIdentification" label="产品标识" width="100"/>
-          <el-table-column prop="plannedTime" label="计划执行时间" min-width="150"/>
-          <el-table-column prop="actualTime" label="实际执行时间" min-width="150"/>
+          <el-table-column prop="title" label="紧急处理产品" width="150" />
+          <el-table-column prop="qtyOk" label="良品数量" width="80" />
+          <el-table-column prop="qtyNo" label="不良品数量" min-width="80" />
+          <el-table-column prop="actionName" label="围堵对策" width="180" />
+          <el-table-column prop="responsibleName" label="负责人" />
+          <el-table-column prop="efficiency" label="有效性(%)" width="100" />
+          <el-table-column prop="partIdentification" label="产品标识" width="100" />
+          <el-table-column prop="plannedTime" label="计划执行时间" min-width="150" />
+          <el-table-column prop="actualTime" label="实际执行时间" min-width="150" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit" :disabled="scope.row.isLeader === true"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editConAction(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  :disabled="scope.row.isLeader === true"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editConAction(scope.row)"
                 />
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定清空本条数据吗？此操作会联动删除对应的措施</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="clearConAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="clearConAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" type="warning" icon="el-icon-delete"
-                             size="mini"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="warning"
+                    icon="el-icon-delete"
+                    size="mini"
                   >清空
                   </el-button>
                 </el-popover>
@@ -226,8 +244,11 @@
                 placeholder="请选择状态"
                 style="width: 370px;"
               >
-                <el-option v-for="item in statusTypeOptions" :key="item.key" :label="item.display_name"
-                           :value="item.key"
+                <el-option
+                  v-for="item in statusTypeOptions"
+                  :key="item.key"
+                  :label="item.display_name"
+                  :value="item.key"
                 />
               </el-select>
             </el-form-item>
@@ -253,9 +274,14 @@
               label="%有效性"
               prop="efficiency"
             >
-              <el-input-number v-model="otherConActionForm.efficiency" style="width: 370px;" :precision="2" :step="0.1"
-                               :min="0" :max="100"
-              ></el-input-number>
+              <el-input-number
+                v-model="otherConActionForm.efficiency"
+                style="width: 370px;"
+                :precision="2"
+                :step="0.1"
+                :min="0"
+                :max="100"
+              />
             </el-form-item>
             <el-form-item
               label="计划执行时间"
@@ -267,8 +293,7 @@
                 style="width: 370px;"
                 placeholder="选择日期时间"
                 default-time="12:00:00"
-              >
-              </el-date-picker>
+              />
             </el-form-item>
             <el-form-item
               label="其他"
@@ -292,9 +317,9 @@
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-         <el-button @click="doCancelOtherConAct">取 消</el-button>
-         <el-button type="primary" :loading="submitLoading" @click="submitOtherConAct">确 定</el-button>
-      </span>
+            <el-button @click="doCancelOtherConAct">取 消</el-button>
+            <el-button type="primary" :loading="submitLoading" @click="submitOtherConAct">确 定</el-button>
+          </span>
         </el-dialog>
         <el-table
           ref="table"
@@ -302,42 +327,57 @@
           :data="otherConActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="自定义围堵措施"/>
-          <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="efficiency" label="有效性(%)"/>
-          <el-table-column prop="plannedTime" label="计划执行时间"/>
+          <el-table-column prop="name" label="自定义围堵措施" />
+          <el-table-column prop="responsibleName" label="负责人" />
+          <el-table-column prop="efficiency" label="有效性(%)" />
+          <el-table-column prop="plannedTime" label="计划执行时间" />
           <!--   编辑与删除   -->
           <el-table-column
+            v-if="isNeed"
             label="操作"
             width="160px"
             align="center"
             fixed="right"
-            v-if="isNeed"
           >
             <template slot-scope="scope">
               <div>
                 <!--编辑-->
-                <el-button slot="reference" v-permission="permission.edit"
-                           size="mini"
-                           type="primary" icon="el-icon-edit" @click="editOtherConAction(scope.row)"
+                <el-button
+                  slot="reference"
+                  v-permission="permission.edit"
+                  size="mini"
+                  type="primary"
+                  icon="el-icon-edit"
+                  @click="editOtherConAction(scope.row)"
                 />
                 <!--删除-->
-                <el-popover :ref="`delMem-popover-${scope.$index}`" v-permission="permission.edit" placement="top"
-                            width="180"
+                <el-popover
+                  :ref="`delMem-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
                 >
                   <p>确定删除本条数据吗？</p>
                   <div style="text-align: right; margin: 0">
-                    <el-button size="mini" type="text"
-                               @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >取消
                     </el-button>
-                    <el-button type="primary" size="mini"
-                               @click="delOtherConAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="delOtherConAction(scope.row), scope._self.$refs[`delMem-popover-${scope.$index}`].doClose()"
                     >确定
                     </el-button>
                   </div>
-                  <el-button slot="reference" v-permission="permission.del" type="danger" icon="el-icon-delete"
-                             size="mini"
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.del"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
                   />
                 </el-popover>
               </div>
@@ -370,9 +410,9 @@
             prop="riskAssessment"
           >
             <el-input
+              v-model="form.riskAssessment"
               type="textarea"
               :rows="3"
-              v-model="form.riskAssessment"
               style="min-width: 800px;"
               :disabled="!isNeed"
             />
@@ -401,7 +441,7 @@
             <span>是否存在临时文件?</span>
           </el-col>
           <el-col :span="6">
-            <el-radio-group @change="hasTempFileChange" v-model="form.hasTempFile">
+            <el-radio-group v-model="form.hasTempFile" @change="hasTempFileChange">
               <el-radio :label="true">是</el-radio>
               <el-radio :label="false">否</el-radio>
             </el-radio-group>
@@ -411,9 +451,9 @@
           <el-col :span="6">
             确认完成当前步骤：
             <el-popover
+              v-model="confirmVisible"
               placement="top"
               width="300"
-              v-model="confirmVisible"
             >
               <p>您确定所有信息都已填写完毕，此步骤已完成吗？</p>
               <div style="text-align: right; margin: 0">
@@ -443,14 +483,14 @@ import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
 import { edit, getIssueById } from '@/api/tools/issue'
 import { clearConAction, editConAction, getConActionByIssueId } from '@/api/tools/conAction'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
-import UploadFile from '../../module/uploadFile.vue'
+import UploadFile from '@/components/UploadFile'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 
 export default {
   name: 'ThirdForm',
+  components: { UploadFile },
   props: ['issueId', 'needConfirm'],
   dicts: ['common_status'],
-  components: { UploadFile },
   data() {
     return {
       permission: {
@@ -749,7 +789,7 @@ export default {
       }
       if (val) {
         edit(form).then(res => {
-          //编辑问题，添加供应商详细描述
+          // 编辑问题，添加供应商详细描述
           this.$message({
             message: 'Submit Success! 保存风险评估成功!',
             type: 'success'

@@ -505,7 +505,7 @@ import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExampl
 import { editAnalysis, getAnalysisByIssueId } from '@/api/tools/issueAnalysis'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
 import { validIsNotNull } from '@/utils/validationUtil'
-import UploadFile from '@/views/tools/8D/module/uploadFile'
+import UploadFile from '@/components/UploadFile'
 
 export default {
   name: 'SeventhForm',

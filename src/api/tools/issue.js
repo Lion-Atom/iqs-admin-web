@@ -43,4 +43,4 @@ export function getIssueById(id) {
   })
 }
 
-export default { get, add, edit, del }
+export default { get, add, edit, del, getIssueById }
