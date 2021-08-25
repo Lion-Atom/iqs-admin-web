@@ -4,6 +4,7 @@
     <!--工具栏-->
     <div class="head-container">
       <eHeader :permission="permission"/>
+      <crudOperation :permission="permission" />
     </div>
 
     <el-dialog
@@ -142,7 +143,7 @@ export default {
   components: { eHeader, crudOperation, pagination, udOperation },
   cruds() {
     return CRUD({
-      title: '问题',
+      title: '措施',
       url: 'api/issueAction',
       crudMethod: { ...crudAction }
     })
@@ -194,7 +195,7 @@ export default {
     ])
   },
   created() {
-
+    this.crud.optShow = { add: false, edit: false, del: false, download: true }
   },
   mounted: function() {
     this.getUserActionTask()

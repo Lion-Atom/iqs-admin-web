@@ -105,7 +105,7 @@
                     clearable
                     size="small"
                     placeholder="请输入你要搜索的内容"
-                    style="width: 200px;"
+                    style="width: 180px;"
                     class="filter-item"
                     @keyup.enter.native="crud.toQuery"
                   />
@@ -176,7 +176,7 @@
                     size="small"
                     placeholder="审批结论"
                     class="filter-item"
-                    style="width: 120px"
+                    style="width: 100px"
                     @change="crud.toQuery"
                     @input="changeResult($event)"
                   >
@@ -286,8 +286,8 @@
                         </a>
                       </el-col>
                     </el-row>
-                    <el-row v-if="taskForm.type !== '8D'">
-                      <el-col :span="12">
+                    <el-row>
+                      <el-col v-if="taskForm.type !== '8D'" :span="12">
                         <el-form-item label="审批结论" required>
                           <el-select
                             v-model="taskForm.approveResult"
