@@ -162,7 +162,12 @@
             label-width="120px"
           >
             <el-form-item label="原因名称" prop="name" required>
-              <el-input v-model="form.name" style="width: 370px;" />
+              <el-input
+                v-model="form.name"
+                style="width: 370px;"
+                maxlength="20"
+                show-word-limit
+              />
             </el-form-item>
             <el-form-item label="发生/检测" prop="judgeResult" required>
               <el-select

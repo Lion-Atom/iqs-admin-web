@@ -145,7 +145,7 @@ let MakFishBone = (function(window) {
       //设置中骨文本节点坐标
       if (depth === 0) {
         //设置根节点的文本显示位置
-        tx = PntZ.x + 250, ty = PntZ.y - 160
+        tx = PntZ.x + 320, ty = PntZ.y - 200
         nodeText.font = ' bold 18px  微软雅黑 '
         nodeText.fontColor = '0,40,40'
         //nodeText.text
