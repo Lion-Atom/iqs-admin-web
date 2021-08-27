@@ -604,6 +604,7 @@ export default {
           { required: true, message: '若无其他补充，可填入”暂无“', trigger: 'blur' }
         ]
       },
+      saveSuccess: true,
       oldComment: null,
       commentChanged: false,
       tempCommentChanged: false,
@@ -707,6 +708,7 @@ export default {
           this.oldFirstDesc = data[0].description
           this.oldSecDesc = data[1].description
           this.docDescChanged = false
+          this.saveSuccess = true
           this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
@@ -715,6 +717,7 @@ export default {
             message: 'Save Documentation Failed! 保存文档更改内容失败!',
             type: 'error'
           })
+          this.saveSuccess = false
           this.getChangeDescByIssueId(this.$props.issueId)
         })
       }
@@ -920,13 +923,14 @@ export default {
       this.hasTempChanged = this.oldRecoverTempFile !== val
       this.judgeChange()
     },
-    // 输入框变化
+    // 是否收回输入框变化
     inputCommentEv(val) {
-      this.tempCommentChanged = !judgeIsEqual(val, this.oldTempFileComment)
+      this.tempCommentChanged = !judgeIsEqual(val.trim(), this.oldTempFileComment)
       this.judgeChange()
     },
+    // D7-详细描述
     commentChange(val) {
-      this.commentChanged = !judgeIsEqual(val, this.oldComment)
+      this.commentChanged = !judgeIsEqual(val.trim(), this.oldComment)
       this.judgeChange()
     },
     judgeChange() {
@@ -953,6 +957,7 @@ export default {
           confirmButtonText: 'Yes 是',
           cancelButtonText: 'No 否'
         }).then(() => {
+          let editSuccess = true
           // D7描述和是否回收临时文件
           edit(this.form).then(res => {
             this.oldComment =  this.form.commentD7
@@ -962,19 +967,23 @@ export default {
             this.tempCommentChanged = false
             this.hasTempChanged = false
             this.judgeChange()
+            editSuccess = true
           }).catch(res => {
             // 详细描述
             this.form.commentD7 = this.oldComment
             this.form.recoverTempFile = this.oldRecoverTempFile
             this.form.tempFileComment = this.oldTempFileComment
+            editSuccess = false
           })
           // 文档描述
           if(this.docDescChanged){
             this.saveChangeDescs(this.changeDescs)
           }
           setTimeout(() => {
-            this.finishStep()
-          }, 300)
+            if(editSuccess && this.saveSuccess){
+              this.finishStep()
+            }
+          }, 600)
         })
           .catch(() => {
             // 文档描述

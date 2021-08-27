@@ -737,7 +737,7 @@ export default {
         })
     },
     commentChange(val) {
-      this.commentChanged = !judgeIsEqual(val, this.oldComment)
+      this.commentChanged = !judgeIsEqual(val.trim(), this.oldComment)
       this.judgeChange()
     },
     judgeChange(){
@@ -754,10 +754,10 @@ export default {
           .then(() => {
             edit(this.form).then(res => {
               this.oldComment = this.form.commentD6
+              this.finishStep()
             }).catch(res => {
               this.form.commentD6 = this.oldComment
             })
-            this.finishStep()
           })
           .catch(() => {
             this.form.commentD6 = this.oldComment

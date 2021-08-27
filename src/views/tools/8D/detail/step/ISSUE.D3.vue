@@ -824,7 +824,7 @@ export default {
     },
     // 监控风险评估有无变化
     descChange(val) {
-      this.descChanged = !judgeIsEqual(val, this.oldDesc)
+      this.descChanged = !judgeIsEqual(val.trim(), this.oldDesc)
       this.judgeChange()
     },
     // 判断界面输入有无变化
@@ -852,11 +852,11 @@ export default {
             this.oldHasTemp = this.form.hasTempFile
             this.descChanged = false
             this.hasTempChanged = false
+            this.finishStep()
           }).catch(res => {
             this.form.riskAssessment = this.oldDesc
             this.form.hasTempFile = this.oldHasTemp
           })
-          this.finishStep()
         })
           .catch(() => {
             this.form.riskAssessment = this.oldDesc
