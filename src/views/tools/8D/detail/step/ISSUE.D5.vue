@@ -124,14 +124,14 @@
           :data="correctActions"
           style="width: 100%;"
         >
-          <el-table-column prop="causeName" label="根本原因" />
-          <el-table-column prop="judgeResult" label="发生/检测" />
-          <el-table-column prop="name" label="改善行动" />
-          <el-table-column prop="validationMethod" label="确认方法" min-width="140" />
-          <el-table-column prop="validationResult" label="确认结果" />
-          <el-table-column prop="efficiency" label="有效性(%)" />
-          <el-table-column prop="responsibleName" label="负责人" />
-          <el-table-column prop="plannedCompleteTime" label="计划完成时间" width="140" />
+          <el-table-column prop="causeName" label="根本原因"/>
+          <el-table-column prop="judgeResult" label="发生/检测"/>
+          <el-table-column prop="name" label="改善行动"/>
+          <el-table-column prop="validationMethod" label="确认方法" min-width="140"/>
+          <el-table-column prop="validationResult" label="确认结果"/>
+          <el-table-column prop="efficiency" label="有效性(%)"/>
+          <el-table-column prop="responsibleName" label="负责人"/>
+          <el-table-column prop="plannedCompleteTime" label="计划完成时间" width="140"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -208,6 +208,7 @@
               :rows="3"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="commentChange"
             />
           </el-form-item>
         </el-form>
@@ -247,7 +248,7 @@
                 v-permission="permission.edit"
                 :loading="selfLoading"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
@@ -268,6 +269,7 @@ import { getMembersByIssueId } from '@/api/tools/teamMember'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 import { getIssueCauseByExample } from '@/api/tools/issueCause'
 import UploadFile from '@/components/UploadFile'
+import { judgeIsEqual } from '@/utils/validationUtil'
 
 export default {
   name: 'FifthForm',
@@ -333,6 +335,8 @@ export default {
         isExact: true
       },
       oldComment: null,
+      commentChanged: false,
+      noChanged: true,
       isNeed: false,
       submitLoading: false,
       correctActLoading: false,
@@ -414,12 +418,16 @@ export default {
         edit(form).then(res => {
           // 编辑问题，添加供应商详细描述
           this.$message({
-            message: 'Submit D6-Desc Success! 添加D5详细描述完成!',
+            message: 'Submit D5-Desc Success! 添加D5详细描述完成!',
             type: 'success'
           })
           this.oldComment = form.commentD5
+          this.commentChanged = false
+          this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
+        }).catch(res => {
+          this.form.commentD5 = this.oldComment
         })
       }
     },
@@ -504,8 +512,39 @@ export default {
         .catch(_ => {
         })
     },
+    commentChange(val) {
+      this.commentChanged = !judgeIsEqual(val, this.oldComment)
+      this.judgeChange()
+    },
+    judgeChange(){
+      this.noChanged = !this.commentChanged
+    },
     // 确认完成
     confirmFinished() {
+      // alert("this.noChanged的值：" + this.noChanged)
+      if (!this.noChanged) {
+        this.$confirm('检测到【D5-详细描述】内容发生了变化，是否一并保存？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        })
+          .then(() => {
+            edit(this.form).then(res => {
+              this.oldComment = this.form.commentD5
+            }).catch(res => {
+              this.form.commentD5 = this.oldComment
+            })
+            this.finishStep()
+          })
+          .catch(() => {
+            this.form.commentD5 = this.oldComment
+            this.finishStep()
+          })
+      } else {
+        this.finishStep()
+      }
+    },
+    finishStep() {
       // 确认D5完成
       this.timeManagement.curStep = 'D5'
       this.timeManagement.d5Status = true
@@ -520,6 +559,7 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
+          this.noChanged = true
           this.$emit('func', this.isFinished)
           this.$message({
             message: 'Submit Success! D5提交完成!',

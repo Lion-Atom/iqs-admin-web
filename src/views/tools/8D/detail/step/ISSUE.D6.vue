@@ -151,16 +151,16 @@
           :data="correctActions"
           style="width: 100%;"
         >
-          <el-table-column prop="causeName" label="根本原因" />
-          <el-table-column prop="judgeResult" label="发生/检测" />
-          <el-table-column prop="name" label="改善行动" />
-          <el-table-column prop="validationMethod" label="确认方法" min-width="140" />
-          <el-table-column prop="validationResult" label="确认结果" />
-          <el-table-column prop="efficiency" label="有效性(%)" />
-          <el-table-column prop="responsibleName" label="负责人" />
-          <el-table-column prop="plannedTime" label="预定时间" width="140" />
-          <el-table-column prop="completeTime" label="完成时间" width="140" />
-          <el-table-column prop="identification" label="标识" />
+          <el-table-column prop="causeName" label="根本原因"/>
+          <el-table-column prop="judgeResult" label="发生/检测"/>
+          <el-table-column prop="name" label="改善行动"/>
+          <el-table-column prop="validationMethod" label="确认方法" min-width="140"/>
+          <el-table-column prop="validationResult" label="确认结果"/>
+          <el-table-column prop="efficiency" label="有效性(%)"/>
+          <el-table-column prop="responsibleName" label="负责人"/>
+          <el-table-column prop="plannedTime" label="预定时间" width="140"/>
+          <el-table-column prop="completeTime" label="完成时间" width="140"/>
+          <el-table-column prop="identification" label="标识"/>
           <el-table-column prop="status" label="状态">
             <template slot-scope="scope">
               <el-tag
@@ -172,9 +172,9 @@
               <span v-else>{{ scope.row.status }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="correctiveMeasurementMethod" label="测评方法" />
-          <el-table-column prop="correctiveEfficiencyResult" label="测评结果" />
-          <el-table-column prop="evaluationTime" label="评估日期" width="140" />
+          <el-table-column prop="correctiveMeasurementMethod" label="测评方法"/>
+          <el-table-column prop="correctiveEfficiencyResult" label="测评结果"/>
+          <el-table-column prop="evaluationTime" label="评估日期" width="140"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -301,10 +301,10 @@
           :data="removeActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="移除的改善行动" />
-          <el-table-column prop="comment" label="评论" />
-          <el-table-column prop="responsibleName" label="负责人" />
-          <el-table-column prop="removeTime" label="移除时间" />
+          <el-table-column prop="name" label="移除的改善行动"/>
+          <el-table-column prop="comment" label="评论"/>
+          <el-table-column prop="responsibleName" label="负责人"/>
+          <el-table-column prop="removeTime" label="移除时间"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -350,6 +350,7 @@
               :rows="3"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="commentChange"
             />
           </el-form-item>
         </el-form>
@@ -389,7 +390,7 @@
                 v-permission="permission.edit"
                 :loading="selfLoading"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
@@ -403,16 +404,17 @@
 
 <script>
 
-import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
-import { getIssueById, edit } from '@/api/tools/issue'
+import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
+import { edit, getIssueById } from '@/api/tools/issue'
 import UploadFile from '@/components/UploadFile'
 import {
   editIssueAction,
+  getCanRemoveActionByIssueId,
   getIssueActionByExample,
-  getIssueActionById,
-  getCanRemoveActionByIssueId
+  getIssueActionById
 } from '@/api/tools/issueAction'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
+import { judgeIsEqual } from '@/utils/validationUtil'
 
 export default {
   name: 'SixthForm',
@@ -526,6 +528,8 @@ export default {
         comment: null
       },
       oldComment: null,
+      commentChanged: false,
+      noChanged: true,
       removeActionRules: {},
       canBeRemoveActions: [],
       isNeed: false
@@ -714,8 +718,12 @@ export default {
             type: 'success'
           })
           this.oldComment = form.commentD6
+          this.commentChanged = false
+          this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
+        }).catch(res => {
+          this.form.commentD6 = this.oldComment
         })
       }
     },
@@ -728,7 +736,38 @@ export default {
         .catch(_ => {
         })
     },
+    commentChange(val) {
+      this.commentChanged = !judgeIsEqual(val, this.oldComment)
+      this.judgeChange()
+    },
+    judgeChange(){
+      this.noChanged = !this.commentChanged
+    },
     confirmFinished() {
+      // alert("this.noChanged的值：" + this.noChanged)
+      if (!this.noChanged) {
+        this.$confirm('检测到【D6-详细描述】内容发生了变化，是否一并保存？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        })
+          .then(() => {
+            edit(this.form).then(res => {
+              this.oldComment = this.form.commentD6
+            }).catch(res => {
+              this.form.commentD6 = this.oldComment
+            })
+            this.finishStep()
+          })
+          .catch(() => {
+            this.form.commentD6 = this.oldComment
+            this.finishStep()
+          })
+      } else {
+        this.finishStep()
+      }
+    },
+    finishStep(){
       // 确认D6完成
       this.timeManagement.curStep = 'D6'
       this.timeManagement.d6Status = true
@@ -743,6 +782,7 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
+          this.noChanged = true
           this.$emit('func', this.isFinished)
           this.$message({
             message: 'Submit Success! D6提交完成!',

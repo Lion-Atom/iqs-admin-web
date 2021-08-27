@@ -14,7 +14,7 @@
           :data="changeDescs"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="文档" width="200" />
+          <el-table-column prop="name" label="文档" width="200"/>
           <el-table-column label="更改内容">
             <template scope="scope">
               <el-input
@@ -23,7 +23,7 @@
                 :rows="3"
                 style="max-width: 800px;"
                 :disabled="!isNeed"
-                @input="inputChange"
+                @input="inputChange(scope.$index,scope.row.description)"
               />
             </template>
           </el-table-column>
@@ -43,10 +43,10 @@
           :data="tempActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="临时措施" />
-          <el-table-column prop="responsibleName" label="责任人" />
-          <el-table-column prop="efficiency" label="有效性(%)" />
-          <el-table-column prop="status" label="状态" />
+          <el-table-column prop="name" label="临时措施"/>
+          <el-table-column prop="responsibleName" label="责任人"/>
+          <el-table-column prop="efficiency" label="有效性(%)"/>
+          <el-table-column prop="status" label="状态"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -130,8 +130,8 @@
           :data="analysisData"
           style="width: 100%;"
         >
-          <el-table-column prop="systemWide" label="过程分析" width="320" />
-          <el-table-column prop="result" label="分析结果" />
+          <el-table-column prop="systemWide" label="过程分析" width="320"/>
+          <el-table-column prop="result" label="分析结果"/>
           <el-table-column label="长久措施">
             <template slot-scope="scope">
               <div class="tag-group">
@@ -344,11 +344,11 @@
           :data="preActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="永久措施" />
-          <el-table-column prop="responsibleName" label="负责人" />
-          <el-table-column prop="plannedTime" label="预期时间" />
-          <el-table-column prop="completeTime" label="完成时间" />
-          <el-table-column prop="status" label="状态" />
+          <el-table-column prop="name" label="永久措施"/>
+          <el-table-column prop="responsibleName" label="负责人"/>
+          <el-table-column prop="plannedTime" label="预期时间"/>
+          <el-table-column prop="completeTime" label="完成时间"/>
+          <el-table-column prop="status" label="状态"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -423,6 +423,7 @@
               :rows="3"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="commentChange"
             />
           </el-form-item>
         </el-form>
@@ -483,7 +484,7 @@
                 v-permission="permission.edit"
                 :loading="selfLoading"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
@@ -504,7 +505,7 @@ import { editChangeDesc, getChangeDescByIssueId } from '@/api/tools/changeDesc'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 import { editAnalysis, getAnalysisByIssueId } from '@/api/tools/issueAnalysis'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
-import { validIsNotNull } from '@/utils/validationUtil'
+import { judgeIsEqual, validIsNotNull } from '@/utils/validationUtil'
 import UploadFile from '@/components/UploadFile'
 
 export default {
@@ -525,6 +526,7 @@ export default {
       curStep: 'D7',
       form: {},
       oldRecoverTempFile: null,
+      hasTempChanged: false,
       oldTempFileComment: null,
       timeManagement: {},
       selfLoading: false,
@@ -602,7 +604,11 @@ export default {
           { required: true, message: '若无其他补充，可填入”暂无“', trigger: 'blur' }
         ]
       },
-      oldComment: null
+      oldComment: null,
+      commentChanged: false,
+      tempCommentChanged: false,
+      docDescChanged: false,
+      noChanged: true
     }
   },
   watch: {},
@@ -670,7 +676,13 @@ export default {
         this.preActions = res
       })
     },
-    inputChange(val) {
+    inputChange(index,val) {
+      if(index === 0){
+        this.docDescChanged = !judgeIsEqual(val, this.oldFirstDesc)
+      } else {
+        this.docDescChanged = !judgeIsEqual(val, this.oldSecDesc)
+      }
+      this.judgeChange()
     },
     // 批量保存文档数据
     saveChangeDescs(data) {
@@ -694,6 +706,8 @@ export default {
           })
           this.oldFirstDesc = data[0].description
           this.oldSecDesc = data[1].description
+          this.docDescChanged = false
+          this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
         }).catch(() => {
@@ -701,6 +715,7 @@ export default {
             message: 'Save Documentation Failed! 保存文档更改内容失败!',
             type: 'error'
           })
+          this.getChangeDescByIssueId(this.$props.issueId)
         })
       }
     },
@@ -739,7 +754,11 @@ export default {
             type: 'success'
           })
           this.isFinished = false
+          this.commentChanged = false
+          this.judgeChange()
           this.$emit('func', this.isFinished)
+        }).catch(res => {
+          this.form.commentD7 = this.oldComment
         })
       }
     },
@@ -898,30 +917,79 @@ export default {
     },
     // 切换变动
     recoverTempFileChange(val) {
-      if (val !== this.oldRecoverTempFile) {
-        this.isFinished = false
-      } else {
-        this.isFinished = true
-      }
+      this.hasTempChanged = this.oldRecoverTempFile !== val
+      this.judgeChange()
     },
     // 输入框变化
     inputCommentEv(val) {
-      if (val !== this.oldTempFileComment) {
-        this.isFinished = false
-      } else {
-        this.isFinished = true
-      }
+      this.tempCommentChanged = !judgeIsEqual(val, this.oldTempFileComment)
+      this.judgeChange()
+    },
+    commentChange(val) {
+      this.commentChanged = !judgeIsEqual(val, this.oldComment)
+      this.judgeChange()
+    },
+    judgeChange() {
+      this.noChanged = !(this.commentChanged || this.tempCommentChanged || this.hasTempChanged || this.docDescChanged)
     },
     confirmFinished() {
-      // 判断是否回收临时文件选项
-      if (this.oldRecoverTempFile !== this.form.recoverTempFile || ((validIsNotNull(this.oldTempFileComment) ||
-        validIsNotNull(this.form.tempFileComment)) && this.oldTempFileComment !== this.form.tempFileComment)
-      ) {
-        edit(this.form).then(res => {
-          // 编辑是否存在临时文件
+      if(!this.noChanged){
+        let msg = '检测到'
+        if (this.commentChanged) {
+          msg += '【D7详细描述】'
+        }
+        if (this.hasTempChanged) {
+          msg += '【是否回收临时文件选择项】'
+        }
+        if (this.tempCommentChanged) {
+          msg += '【不回收临时文件原因】'
+        }
+        if (this.docDescChanged) {
+          msg += '【文档描述】'
+        }
+        msg += '发生了变化，是否一并保存?'
+        this.$confirm(msg, '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        }).then(() => {
+          // D7描述和是否回收临时文件
+          edit(this.form).then(res => {
+            this.oldComment =  this.form.commentD7
+            this.oldRecoverTempFile = this.form.recoverTempFile
+            this.oldTempFileComment = this.form.tempFileComment
+            this.commentChanged = false
+            this.tempCommentChanged = false
+            this.hasTempChanged = false
+            this.judgeChange()
+          }).catch(res => {
+            // 详细描述
+            this.form.commentD7 = this.oldComment
+            this.form.recoverTempFile = this.oldRecoverTempFile
+            this.form.tempFileComment = this.oldTempFileComment
+          })
+          // 文档描述
+          if(this.docDescChanged){
+            this.saveChangeDescs(this.changeDescs)
+          }
+          setTimeout(() => {
+            this.finishStep()
+          }, 300)
         })
+          .catch(() => {
+            // 文档描述
+            this.getChangeDescByIssueId(this.$props.issueId)
+            // 详细描述
+            this.form.commentD7 = this.oldComment
+            this.form.recoverTempFile = this.oldRecoverTempFile
+            this.form.tempFileComment = this.oldTempFileComment
+            this.finishStep()
+          })
+      }else{
+        this.finishStep()
       }
-
+    },
+    finishStep(){
       // 确认D7完成
       this.timeManagement.curStep = 'D7'
       this.timeManagement.d7Status = true
@@ -936,6 +1004,7 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
+          this.noChanged = true
           this.$emit('func', this.isFinished)
           this.$message({
             message: 'Submit Success! D7提交完成!',

@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <!--文档描述-->
+    <!--各方意见描述-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">各方意见</span>
@@ -28,6 +28,7 @@
               v-model="conclusion.leaderConclusion"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="leaderInputChange"
             />
           </el-form-item>
           <el-form-item
@@ -40,6 +41,7 @@
               v-model="conclusion.managerConclusion"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="managerInputChange"
             />
           </el-form-item>
           <el-form-item
@@ -52,6 +54,7 @@
               v-model="conclusion.otherConclusion"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="otherInputChange"
             />
           </el-form-item>
         </el-form>
@@ -74,6 +77,7 @@
             :step="0.1"
             :min="0"
             :max="100"
+            @input="scoreChange"
           ></el-input-number>
         </div>
       </div>
@@ -103,14 +107,14 @@
                 :loading="selfLoading"
                 v-permission="permission.edit"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
             </el-popover>
           </el-col>
         </el-row>
-        <el-row v-if="form.closeTime !==undefined && isFinished">
+        <el-row v-if="form.closeTime !==undefined && isFinished && noChanged">
           <span>&emsp;关闭时间：{{ form.closeTime }}</span>
         </el-row>
       </div>
@@ -121,10 +125,10 @@
 
 <script>
 
-import { getByIssueId, editTimeManage } from '@/api/tools/timeManagement'
-import { getIssueById, edit } from '@/api/tools/issue'
+import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
+import { edit, getIssueById } from '@/api/tools/issue'
 import { editConclusion, getConclusionByIssueId } from '@/api/tools/issueConclusion'
-import { validIsNotNull } from '@/utils/validationUtil'
+import { judgeIsEqual, validIsNotNull } from '@/utils/validationUtil'
 
 export default {
   name: 'SeventhForm',
@@ -157,7 +161,16 @@ export default {
       curTime: 'd8Time',
       timeManagement: {},
       selfLoading: false,
-      isFinished: false
+      isFinished: false,
+      oldLeaderDesc: null,
+      leaderDescChanged: false,
+      oldManageDesc: null,
+      manageDescChanged: false,
+      oldOtherDesc: null,
+      otherDescChanged: false,
+      oldScore: null,
+      scoreChanged: false,
+      noChanged: true
     }
   },
   created() {
@@ -174,6 +187,7 @@ export default {
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
+        this.oldScore = res.score
       })
     },
     // 获取时间进程
@@ -191,6 +205,9 @@ export default {
     getIssueConclusionByIssueId(id) {
       getConclusionByIssueId(id).then(res => {
         this.conclusion = res
+        this.oldLeaderDesc = res.leaderConclusion
+        this.oldManageDesc = res.managerConclusion
+        this.oldOtherDesc = res.otherConclusion
       })
     },
     saveConclusion(data) {
@@ -198,17 +215,37 @@ export default {
         if (!valid) {
           return false
         } else {
-          editConclusion(data).then(res => {
-            // 编辑问题，添加供应商详细描述
+          let val = true
+          if(judgeIsEqual(data.leaderConclusion, this.oldLeaderDesc) &&
+            judgeIsEqual(data.managerConclusion, this.oldManageDesc) &&
+            judgeIsEqual(data.otherConclusion, this.oldOtherDesc)
+          ){
             this.$message({
-              message: 'Submit Conclusion Success! 添加各项意见完成!',
-              type: 'success'
+              message: 'Submit invalid! 各项意见没有变更，无需重复提交!',
+              type: 'warning'
             })
-            this.isFinished = false
-            this.$emit('func', this.isFinished)
-          }).catch(() => {
-            this.getIssueConclusionByIssueId(this.$props.issueId)
-          })
+            val = false
+          }
+          if(val){
+            editConclusion(data).then(res => {
+              // 编辑问题，添加供应商详细描述
+              this.$message({
+                message: 'Submit Conclusion Success! 添加各项意见完成!',
+                type: 'success'
+              })
+              this.oldLeaderDesc = data.leaderConclusion
+              this.oldManageDesc = data.managerConclusion
+              this.oldOtherDesc = data.otherConclusion
+              this.isFinished = false
+              this.leaderDescChanged = false
+              this.manageDescChanged = false
+              this.otherDescChanged = false
+              this.judgeChange()
+              this.$emit('func', this.isFinished)
+            }).catch(() => {
+              this.getIssueConclusionByIssueId(this.$props.issueId)
+            })
+          }
         }
       })
     },
@@ -220,11 +257,82 @@ export default {
           type: 'success'
         })
         this.isFinished = false
+        this.oldScore =  form.score
+        this.scoreChanged = false
+        this.judgeChange()
         this.$emit('func', this.isFinished)
       })
     },
+    leaderInputChange(val) {
+      this.leaderDescChanged = !judgeIsEqual(val, this.oldLeaderDesc)
+      this.judgeChange()
+    },
+    managerInputChange(val) {
+      this.manageDescChanged = !judgeIsEqual(val, this.oldManageDesc)
+      this.judgeChange()
+    },
+    otherInputChange(val) {
+      this.otherDescChanged = !judgeIsEqual(val, this.oldOtherDesc)
+      this.judgeChange()
+    },
+    scoreChange(val) {
+      this.scoreChanged = !judgeIsEqual(val, this.oldScore)
+      this.judgeChange()
+    },
+    judgeChange() {
+      this.noChanged = !(this.leaderDescChanged || this.manageDescChanged || this.otherDescChanged || this.scoreChanged)
+    },
     confirmFinished() {
-      // 确认D4完成
+      if (!this.noChanged) {
+        let msg = '检测到'
+        if (this.leaderDescChanged) {
+          msg += '【组长意见】'
+        }
+        if (this.manageDescChanged) {
+          msg += '【管理层意见】'
+        }
+        if (this.otherDescChanged) {
+          msg += '【其他部门意见】'
+        }
+        if (this.scoreChanged) {
+          msg += '【8D评分】'
+        }
+        msg += '发生了变化，是否一并保存?'
+        this.$confirm(msg, '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        })
+          .then(() => {
+            if(this.leaderDescChanged || this.manageDescChanged || this.otherDescChanged){
+              this.saveConclusion(this.conclusion)
+            }
+            // 保存8D分数
+            edit(this.form).then(res => {
+              this.oldScore =  this.form.score
+              this.scoreChanged = false
+              this.judgeChange()
+            }).catch(res => {
+              // 详细描述
+              this.form.score = this.oldScore
+            })
+            setTimeout(() => {
+              this.finishStep()
+            }, 300)
+          })
+          .catch(() => {
+            this.form.score = this.oldScore
+            this.conclusion.leaderConclusion = this.oldLeaderDesc
+            this.conclusion.managerConclusion = this.oldManageDesc
+            this.conclusion.otherConclusion = this.oldOtherDesc
+            this.finishStep()
+          })
+      } else {
+        this.finishStep()
+      }
+    },
+    finishStep() {
+      // 确认D8完成
       this.timeManagement.curStep = 'D8'
       this.timeManagement.d8Status = true
       this.timeManagement.d8Time = new Date()
@@ -248,15 +356,13 @@ export default {
             type: 'warning'
           })
           val = false
-        }
-        if (!validIsNotNull(this.conclusion.managerConclusion)) {
+        } else if (!validIsNotNull(this.conclusion.managerConclusion)) {
           this.$message({
             message: 'Cannot submit! 管理层意见为空，不可提交8D!',
             type: 'warning'
           })
           val = false
-        }
-        if (this.form.hasScore && !validIsNotNull(this.form.score)) {
+        } else if (this.form.hasScore && !validIsNotNull(this.form.score)) {
           this.$message({
             message: 'Cannot submit! 提交前请给8D打个分',
             type: 'warning'
@@ -268,6 +374,7 @@ export default {
           editTimeManage(this.timeManagement).then(res => {
             this.confirmVisible = false
             this.isFinished = true
+            this.noChanged = true
             this.getIssueInfoById(this.$props.issueId)
             this.$emit('func', this.isFinished)
             this.$message({

@@ -73,7 +73,15 @@
     <!--时间要求-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">时间要求</span>
+        <span class="header-title">时间要求
+          <el-button
+          size="mini"
+          type="text"
+          icon="el-icon-refresh-left"
+          @click="refreshTimeMange"
+          >
+          </el-button>
+        </span>
         <el-button
           v-if="isNeed"
           style="float: right; padding: 3px 0"
@@ -93,6 +101,7 @@
                   placeholder="选择预期要完成的步骤"
                   clearable
                   :disabled="!isNeed"
+                  @change="firstStepChange"
                 >
                   <el-option
                     v-for="item in resultTypeOptions"
@@ -112,6 +121,7 @@
                   placeholder="选择日期时间"
                   default-time="12:00:00"
                   :disabled="!isNeed"
+                  @change="firstTimeChange"
                 />
               </el-form-item>
             </el-col>
@@ -125,6 +135,7 @@
                   :disabled="!isNeed"
                   clearable
                   placeholder="选择预期要完成的步骤"
+                  @change="secStepChange"
                 >
                   <el-option
                     v-for="item in resultTypeOptions"
@@ -145,6 +156,7 @@
                   placeholder="选择日期时间"
                   default-time="12:00:00"
                   :disabled="!isNeed"
+                  @change="secTimeChange"
                 />
               </el-form-item>
             </el-col>
@@ -158,6 +170,7 @@
                   clearable
                   placeholder="选择预期要完成的步骤"
                   :disabled="!isNeed"
+                  @change="thirdStepChange"
                 >
                   <el-option
                     v-for="item in resultTypeOptions"
@@ -178,6 +191,7 @@
                   placeholder="选择日期时间"
                   default-time="12:00:00"
                   :disabled="!isNeed"
+                  @change="thirdTimeChange"
                 />
               </el-form-item>
             </el-col>
@@ -268,12 +282,12 @@
           :data="members"
           style="width: 100%;"
         >
-          <el-table-column prop="companyName" label="公司名称" width="150" />
-          <el-table-column prop="deptName" label="部门名称" />
-          <el-table-column prop="userName" label="组员" />
-          <el-table-column prop="phone" label="联系电话" />
-          <el-table-column prop="email" label="电子邮箱" />
-          <el-table-column prop="teamRole" label="成员角色" />
+          <el-table-column prop="companyName" label="公司名称" width="150"/>
+          <el-table-column prop="deptName" label="部门名称"/>
+          <el-table-column prop="userName" label="组员"/>
+          <el-table-column prop="phone" label="联系电话"/>
+          <el-table-column prop="email" label="电子邮箱"/>
+          <el-table-column prop="teamRole" label="成员角色"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -401,7 +415,7 @@
                 slot="reference"
                 v-permission="permission.edit"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
@@ -410,9 +424,7 @@
         </el-row>
       </div>
     </el-card>
-    <!--    <ConfirmFinish :time-manage="timeManagement" :confirm-visible="confirmVisible" :cur-step="curStep"
-                       :cur-time="curTime" :is-finished="isFinished"
-        />-->
+
   </div>
 </template>
 
@@ -425,7 +437,7 @@ import { addMember, delMember, editMember, getMembersByIssueId } from '@/api/too
 import Treeselect, { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getDepts, getDeptTree } from '@/api/system/dept'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { validIsNotNull, validTwo } from '@/utils/validationUtil'
+import { GMTToStr, judgeIsEqual, validIsNotNull, validTwo } from '@/utils/validationUtil'
 // import ConfirmFinish from '@/views/tools/8D/module/ConfirmFinish'
 
 export default {
@@ -513,7 +525,20 @@ export default {
         { key: '组员', display_name: '组员' }
       ],
       isFinished: false,
-      options: []
+      options: [],
+      oldStep1: null,
+      oldTime1: null,
+      oldStep2: null,
+      oldTime2: null,
+      oldStep3: null,
+      oldTime3: null,
+      step1Change: false,
+      step2Change: false,
+      step3Change: false,
+      time1Change: false,
+      time2Change: false,
+      time3Change: false,
+      noChanged: true
     }
   },
   watch: {
@@ -542,13 +567,18 @@ export default {
         })
       }
     },
+    // 刷新时间要求
+    refreshTimeMange(){
+      this.noChanged = true
+      this.getTimeManagementByIssueId(this.$props.issueId)
+    },
     // 获取问题基本信息
     getIssueInfoById(id) {
       getIssueById(id).then(res => {
         this.form = res
       })
     },
-    // todo 获取所在部门树结构
+    // 获取所在公司的部门树结构
     getTopDept() {
       getDeptTree().then(res => {
         this.options = res.content
@@ -558,6 +588,12 @@ export default {
       this.timeManagement = {}
       getByIssueId(id).then(res => {
         this.timeManagement = res
+        this.oldStep1 = res.planStep1
+        this.oldTime1 = res.planTime1
+        this.oldStep2 = res.planStep2
+        this.oldTime2 = res.planTime2
+        this.oldStep3 = res.planStep3
+        this.oldTime3 = res.planTime3
         if (res.d1Status) {
           this.isFinished = true
         }
@@ -579,10 +615,17 @@ export default {
       const step1 = this.timeManagement.planStep1
       const step2 = this.timeManagement.planStep2
       const step3 = this.timeManagement.planStep3
+      const time1 = this.timeManagement.planTime1
+      const time2 = this.timeManagement.planTime2
+      const time3 = this.timeManagement.planTime3
 
-      if (!validTwo(this.timeManagement.planStep1, this.timeManagement.planTime1) ||
-        !validTwo(this.timeManagement.planStep2, this.timeManagement.planTime2) ||
-        !validTwo(this.timeManagement.planStep3, this.timeManagement.planTime3)) {
+      // alert("原步骤："+this.oldStep1+"新步骤："+ step1 +"新旧对比："+judgeIsEqual(step1, this.oldStep1) )
+      // alert("原步骤："+this.oldStep2+"新旧对比："+judgeIsEqual(step2, this.oldStep2) )
+      // alert("原步骤："+this.oldStep3+"新旧对比："+judgeIsEqual(step3, this.oldStep3) )
+
+      if (!validTwo(step1, time1) ||
+        !validTwo(step2, time2) ||
+        !validTwo(step3, time3)) {
         this.$message({
           message: '设置预计完成步骤与对应的预计时间不可单独填写!',
           type: 'warning'
@@ -596,6 +639,13 @@ export default {
           type: 'warning'
         })
         val = false
+      } else if (
+        judgeIsEqual(step1, this.oldStep1) && judgeIsEqual(time1, this.oldTime1) &&
+        judgeIsEqual(step2, this.oldStep2) && judgeIsEqual(time2, this.oldTime2) &&
+        judgeIsEqual(step3, this.oldStep3) && judgeIsEqual(time3, this.oldTime3)
+      ) {
+        this.$message.warning('没有发生变动，无需保存！')
+        val = false
       }
       if (val) {
         timeData.curStep = 'D1'
@@ -608,6 +658,7 @@ export default {
               this.$message.success('Add Success! 保存时间要求成功!')
             }, 600)
             this.isFinished = false
+            this.noChanged = true
             this.$emit('func', this.isFinished)
           }).catch(() => {
             this.$message({
@@ -622,6 +673,7 @@ export default {
               this.$message.success('Update Success! 更新时间要求成功!')
             }, 600)
             this.isFinished = false
+            this.noChanged = true
             this.$emit('func', this.isFinished)
           }).catch(() => {
             this.$message({
@@ -631,6 +683,35 @@ export default {
           })
         }
       }
+    },
+    firstStepChange(val) {
+      this.step1Change = !judgeIsEqual(val, this.oldStep1)
+      this.judgeChange()
+    },
+    firstTimeChange(val) {
+      this.time1Change = !judgeIsEqual(GMTToStr(val), this.oldTime1)
+      this.judgeChange()
+    },
+    secStepChange(val) {
+      this.step2Change = !judgeIsEqual(val, this.oldStep2)
+      this.judgeChange()
+    },
+    secTimeChange(val) {
+      this.time2Change = !judgeIsEqual(GMTToStr(val), this.oldTime2)
+      this.judgeChange()
+    },
+    thirdStepChange(val) {
+      this.step3Change = !judgeIsEqual(val, this.oldStep3)
+      this.judgeChange()
+    },
+    thirdTimeChange(val) {
+      this.time3Change = judgeIsEqual(GMTToStr(val), this.oldTime3)
+      this.judgeChange()
+    },
+    // 判断界面输入有无变化
+    judgeChange() {
+      this.noChanged = !(this.step1Change || this.step2Change || this.step3Change ||
+        this.time1Change || this.time2Change || this.time3Change)
     },
     // 填充所属部门数据
     getDepts() {
@@ -744,6 +825,44 @@ export default {
       })
     },
     confirmFinished() {
+      // 如果有变化
+      if (!this.noChanged) {
+        this.$confirm('检测到【时间要求】发生了变化，是否一并保存？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        })
+          .then(() => {
+            this.finishStep()
+          })
+          .catch(() => {
+            // 取消保存时间要求
+            this.timeManagement = {}
+            getByIssueId(this.$props.issueId).then(res => {
+              this.timeManagement = res
+              // 确认D1完成
+              this.timeManagement.curStep = 'D1'
+              this.timeManagement.d1Status = true
+              this.timeManagement.d1Time = new Date()
+              editTimeManage(this.timeManagement).then(res => {
+                this.confirmVisible = false
+                this.isFinished = true
+                this.noChanged = true
+                this.$emit('func', this.isFinished)
+                this.$message({
+                  message: 'Submit Success! D1提交完成!',
+                  type: 'success'
+                })
+              })
+            })
+
+          })
+      } else {
+        this.finishStep()
+      }
+
+    },
+    finishStep(){
       // 确认D1完成
       this.timeManagement.curStep = 'D1'
       this.timeManagement.d1Status = true
@@ -751,6 +870,7 @@ export default {
       editTimeManage(this.timeManagement).then(res => {
         this.confirmVisible = false
         this.isFinished = true
+        this.noChanged = true
         this.$emit('func', this.isFinished)
         this.$message({
           message: 'Submit Success! D1提交完成!',
@@ -776,7 +896,7 @@ export default {
 }
 
 .el-form-item--small.el-form-item {
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
 .header-title {

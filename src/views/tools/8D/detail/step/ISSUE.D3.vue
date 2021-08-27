@@ -92,7 +92,7 @@
                     <div slot="content">
                       需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
                     </div>
-                    <i class="el-icon-question" />
+                    <i class="el-icon-question"/>
                   </el-tooltip>
                 </span>
               </span>
@@ -137,15 +137,15 @@
           :data="conActions"
           style="width: 100%;"
         >
-          <el-table-column prop="title" label="紧急处理产品" width="150" />
-          <el-table-column prop="qtyOk" label="良品数量" width="80" />
-          <el-table-column prop="qtyNo" label="不良品数量" min-width="80" />
-          <el-table-column prop="actionName" label="围堵对策" width="180" />
-          <el-table-column prop="responsibleName" label="负责人" />
-          <el-table-column prop="efficiency" label="有效性(%)" width="100" />
-          <el-table-column prop="partIdentification" label="产品标识" width="100" />
-          <el-table-column prop="plannedTime" label="计划执行时间" min-width="150" />
-          <el-table-column prop="actualTime" label="实际执行时间" min-width="150" />
+          <el-table-column prop="title" label="紧急处理产品" width="150"/>
+          <el-table-column prop="qtyOk" label="良品数量" width="80"/>
+          <el-table-column prop="qtyNo" label="不良品数量" min-width="80"/>
+          <el-table-column prop="actionName" label="围堵对策" width="180"/>
+          <el-table-column prop="responsibleName" label="负责人"/>
+          <el-table-column prop="efficiency" label="有效性(%)" width="100"/>
+          <el-table-column prop="partIdentification" label="产品标识" width="100"/>
+          <el-table-column prop="plannedTime" label="计划执行时间" min-width="150"/>
+          <el-table-column prop="actualTime" label="实际执行时间" min-width="150"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -327,10 +327,10 @@
           :data="otherConActions"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="自定义围堵措施" />
-          <el-table-column prop="responsibleName" label="负责人" />
-          <el-table-column prop="efficiency" label="有效性(%)" />
-          <el-table-column prop="plannedTime" label="计划执行时间" />
+          <el-table-column prop="name" label="自定义围堵措施"/>
+          <el-table-column prop="responsibleName" label="负责人"/>
+          <el-table-column prop="efficiency" label="有效性(%)"/>
+          <el-table-column prop="plannedTime" label="计划执行时间"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"
@@ -415,6 +415,7 @@
               :rows="3"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="descChange"
             />
           </el-form-item>
         </el-form>
@@ -464,7 +465,7 @@
                 slot="reference"
                 v-permission="permission.edit"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
@@ -485,6 +486,7 @@ import { clearConAction, editConAction, getConActionByIssueId } from '@/api/tool
 import { getMembersByIssueId } from '@/api/tools/teamMember'
 import UploadFile from '@/components/UploadFile'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
+import { judgeIsEqual } from '@/utils/validationUtil'
 
 export default {
   name: 'ThirdForm',
@@ -583,7 +585,6 @@ export default {
         { key: '关闭', display_name: '关闭' }
       ],
       timeManagement: {},
-      oldHasTemp: false,
       confirmVisible: false,
       curStep: 'D3',
       curTime: 'd3Time',
@@ -595,7 +596,11 @@ export default {
         isCon: false,
         type: 'D3'
       },
+      oldHasTemp: false,
       oldDesc: null,
+      descChanged: false,
+      hasTempChanged: false,
+      noChanged: true,
       isNeed: true,
       submitLoading: false
     }
@@ -661,9 +666,8 @@ export default {
       })
     },
     hasTempFileChange(val) {
-      if (val !== this.oldHasTemp) {
-        this.isFinished = false
-      }
+      this.hasTempChanged = this.oldHasTemp !== val
+      this.judgeChange()
     },
     // 编辑记录
     editConAction(row) {
@@ -684,12 +688,14 @@ export default {
               message: 'Edit Containment Success! 编辑围堵措施成功!',
               type: 'success'
             })
+            this.addConActionVisible = false
             this.isFinished = false
             this.$emit('func', this.isFinished)
             this.getIssueConActionByIssueId(this.$props.issueId)
+          }).catch(res => {
+
           })
         }
-        this.addConActionVisible = false
       })
     },
     // 删除记录
@@ -739,11 +745,12 @@ export default {
                 message: 'Add Record Success! 新增其他围堵措施记录成功!',
                 type: 'success'
               })
-              this.submitLoading = false
               this.addOtherConActionVisible = false
               this.isFinished = false
               this.$emit('func', this.isFinished)
               this.getConActionByExample(this.$props.issueId)
+            }).catch(res => {
+              this.submitLoading = false
             })
           } else {
             this.submitLoading = true
@@ -757,6 +764,8 @@ export default {
               this.isFinished = false
               this.$emit('func', this.isFinished)
               this.getConActionByExample(this.$props.issueId)
+            }).catch(res => {
+              this.submitLoading = false
             })
           }
         }
@@ -795,8 +804,12 @@ export default {
             type: 'success'
           })
           this.oldDesc = form.riskAssessment
+          this.descChanged = false
+          this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
+        }).catch(res => {
+          this.form.riskAssessment = this.oldDesc
         })
       }
     },
@@ -809,13 +822,52 @@ export default {
         .catch(_ => {
         })
     },
+    // 监控风险评估有无变化
+    descChange(val) {
+      this.descChanged = !judgeIsEqual(val, this.oldDesc)
+      this.judgeChange()
+    },
+    // 判断界面输入有无变化
+    judgeChange() {
+      this.noChanged = !(this.descChanged || this.hasTempChanged)
+    },
     confirmFinished() {
       // 判断是否切换临时文件选项
-      if (this.oldHasTemp !== this.form.hasTempFile) {
-        edit(this.form).then(res => {
-          // 编辑是否存在临时文件
+      if (!this.noChanged) {
+        let msg = ''
+        if (this.descChanged && this.hasTempChanged) {
+          msg = '检测到【风险评估】【临时文件】是否存在发生了变化，是否一并保存?'
+        } else if (this.descChanged && !this.hasTempChanged) {
+          msg = '检测到【风险评估】发生了变化，是否一并保存?'
+        } else if (!this.descChanged && this.hasTempChanged) {
+          msg = '【临时文件是否存在选择项】发生了变化，是否一并保存?'
+        }
+        this.$confirm(msg, '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        }).then(() => {
+          edit(this.form).then(res => {
+            this.oldDesc = this.form.riskAssessment
+            this.oldHasTemp = this.form.hasTempFile
+            this.descChanged = false
+            this.hasTempChanged = false
+          }).catch(res => {
+            this.form.riskAssessment = this.oldDesc
+            this.form.hasTempFile = this.oldHasTemp
+          })
+          this.finishStep()
         })
+          .catch(() => {
+            this.form.riskAssessment = this.oldDesc
+            this.form.hasTempFile = this.oldHasTemp
+            this.finishStep()
+          })
+      } else {
+        this.finishStep()
       }
+    },
+    finishStep() {
       // 确认D3完成
       this.timeManagement.curStep = 'D3'
       this.timeManagement.d3Status = true
@@ -830,6 +882,7 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
+          this.noChanged = true
           this.$emit('func', this.isFinished)
           this.$message({
             message: 'Submit Success! D3提交完成!',

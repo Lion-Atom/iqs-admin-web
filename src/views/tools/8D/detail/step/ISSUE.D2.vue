@@ -82,10 +82,10 @@
           :data="issueNums"
           style="width: 100%;"
         >
-          <el-table-column prop="caPartNum" label="产品料号" min-width="120" />
-          <el-table-column prop="componentDateCode" label="产品生产日期" min-width="120" />
-          <el-table-column prop="componentLotNum" label="产品批号" min-width="120" />
-          <el-table-column prop="defectQuantity" label="不良数量" width="120" />
+          <el-table-column prop="caPartNum" label="产品料号" min-width="120"/>
+          <el-table-column prop="componentDateCode" label="产品生产日期" min-width="120"/>
+          <el-table-column prop="componentLotNum" label="产品批号" min-width="120"/>
+          <el-table-column prop="defectQuantity" label="不良数量" width="120"/>
           <el-table-column label="客户影响">
             <template slot-scope="scope">
               <el-popover
@@ -179,6 +179,7 @@
               :rows="3"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="descChange"
             />
           </el-form-item>
         </el-form>
@@ -204,7 +205,7 @@
               {{ scope.$index + 1 }}
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="标题" width="200" />
+          <el-table-column prop="name" label="标题" width="200"/>
           <el-table-column label="内容">
             <template scope="scope">
               <el-input
@@ -233,10 +234,10 @@
             :data="isNotData"
             :span-method="objectSpanMethod"
           >
-            <el-table-column width="120" property="name" label="问题描述" />
-            <el-table-column width="80" property="description" label="Item 细目" />
-            <el-table-column width="300" property="isContent" label="IS" />
-            <el-table-column width="300" property="notContent" label="IS-NOT" />
+            <el-table-column width="120" property="name" label="问题描述"/>
+            <el-table-column width="80" property="description" label="Item 细目"/>
+            <el-table-column width="300" property="isContent" label="IS"/>
+            <el-table-column width="300" property="notContent" label="IS-NOT"/>
           </el-table>
           <el-button v-if="isNeed" slot="reference" type="text" size="small">参考</el-button>
         </el-popover>
@@ -251,8 +252,8 @@
           :span-method="objectSpanMethod"
           style="width: 100%;"
         >
-          <el-table-column prop="name" label="问题描述" width="120" />
-          <el-table-column width="120" property="description" label="Item 细目" />
+          <el-table-column prop="name" label="问题描述" width="120"/>
+          <el-table-column width="120" property="description" label="Item 细目"/>
           <el-table-column label="IS 是">
             <template scope="scope">
               <el-input
@@ -312,7 +313,7 @@
                 v-permission="permission.edit"
                 :loading="selfLoading"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
@@ -334,6 +335,7 @@ import { addIssueNum, delIssueNum, editIssueNum, getIssueNumByIssueId } from '@/
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
 import UploadFile from '@/components/UploadFile'
+import { judeIsEqual } from '@/utils/validationUtil'
 
 export default {
   name: 'SecondForm',
@@ -435,7 +437,9 @@ export default {
           'isContent': '有多少个零件有这样的缺陷？缺陷的趋势是什么？是在逐渐加重或减轻？每个零件上有多少缺陷？总体缺陷比例如何？',
           'notContent': '多少零件没有缺陷？什么其他趋势？大于或小于某个缺陷比例？'
         }
-      ]
+      ],
+      noChanged: true,
+      descChanged: false
     }
   },
   computed: {
@@ -452,7 +456,8 @@ export default {
     this.getIssueInfoById(this.$props.issueId)
     this.getNumByIssueId(this.$props.issueId)
     this.getTimeManagementByIssueId(this.$props.issueId)
-    this.getQuestionByIssueId(this.$props.issueId)
+    this.getWhByIssueId(this.$props.issueId, this.types[0])
+    this.getIsByIssueId(this.$props.issueId, this.types[1])
   },
   methods: {
     // 监控附件组件相关改动
@@ -486,16 +491,18 @@ export default {
         this.selfLoading = false
       })
     },
-    getQuestionByIssueId(id) {
+    getWhByIssueId(id, type) {
       this.questionLoading = true
       this.questions = []
-      this.isNotLoading = true
-      this.isNots = []
-      getQuestionByIssueId(id, this.types[0]).then(res => {
+      getQuestionByIssueId(id, type).then(res => {
         this.questions = res
         this.questionLoading = false
       })
-      getQuestionByIssueId(id, this.types[1]).then(res => {
+    },
+    getIsByIssueId(id, type) {
+      this.isNotLoading = true
+      this.isNots = []
+      getQuestionByIssueId(id, type).then(res => {
         this.isNots = res
         this.isNotLoading = false
       })
@@ -514,6 +521,7 @@ export default {
           message: 'Save 5W2H Failed! 保存5W2H内容失败!',
           type: 'error'
         })
+        this.getWhByIssueId(this.$props.issueId, this.types[0])
       })
     },
     // 批量保存IS/IS Not数据
@@ -530,6 +538,7 @@ export default {
           message: 'Save 5W2H Failed! 保存IS/IS Not内容失败!',
           type: 'error'
         })
+        this.getIsByIssueId(this.$props.issueId, this.types[1])
       })
     },
     // 编辑记录
@@ -632,7 +641,7 @@ export default {
           this.isFinished = false
           this.$emit('func', this.isFinished)
         }).catch(res => {
-
+          this.form.supplierDescription = this.oldDesc
         })
       }
     },
@@ -644,6 +653,20 @@ export default {
         })
         .catch(_ => {
         })
+    },
+    // 监控D2-描述有无变化
+    descChange(val) {
+      this.descChanged = !judeIsEqual(val, this.oldDesc)
+      this.judgeChange()
+    },
+    // todo 监控5W2H和IS/NOT有无变化
+    // 判断界面输入有无变化
+    judgeChange() {
+      if(this.descChanged){
+        this.noChanged = false
+      }else{
+        this.noChanged = true
+      }
     },
     // 确认完成
     confirmFinished() {
@@ -661,6 +684,7 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
+
           this.$emit('func', this.isFinished)
           this.$message({
             message: 'Submit Success! D2提交完成!',

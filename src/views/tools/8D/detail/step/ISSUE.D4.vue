@@ -343,6 +343,7 @@
               :rows="3"
               style="min-width: 800px;"
               :disabled="!isNeed"
+              @input="rbiChange"
             />
           </el-form-item>
         </el-form>
@@ -560,6 +561,7 @@ import { edit, getIssueById } from '@/api/tools/issue'
 import { addSpecial, delSpecialByIssueId, editSpecial, getSpecialByIssueId } from '@/api/tools/issueSpecail'
 import UploadFile from '@/components/UploadFile'
 import TreeChart from '@/components/Echarts/TreeChart'
+import { judgeIsEqual } from '@/utils/validationUtil'
 
 export default {
   name: 'ForthForm',
@@ -648,6 +650,8 @@ export default {
       causeWhys: [],
       timeManagement: {},
       oldRbi: null,
+      rbiChanged: false,
+      noChanged: true,
       isNeed: true,
       innerVisible: false,
       fishData: null,
@@ -790,6 +794,7 @@ export default {
           message: 'Save Step-Defect Failed! 保存缺陷定位信息失败!',
           type: 'error'
         })
+        this.getStepDefectByIssueId(this.$props.issueId)
       })
     },
     // 获取原因分析列表子集合
@@ -868,6 +873,8 @@ export default {
         this.isFinished = false
         this.delLoading = false
         this.$emit('func', this.isFinished)
+      }).catch(res=>{
+        this.delLoading = false
       })
     },
     handleClose(done) {
@@ -1103,6 +1110,20 @@ export default {
           this.$emit('func', this.isFinished)
         })
       }
+    },
+    // todo 监控缺陷定位有无变化
+
+    // 监控rbi有无变化
+    rbiChange(val){
+      this.rbiChanged = !judgeIsEqual(val,this.oldRbi)
+      this.judgeChange()
+    },
+    // todo 监控特殊事件有无变化
+
+    // 判断界面输入有无变化
+    judgeChange() {
+      // todo 待填充特殊事件和缺陷定位的变化监控结果
+      this.noChanged = !(this.rbiChanged)
     },
     // 确认完成
     confirmFinished() {
