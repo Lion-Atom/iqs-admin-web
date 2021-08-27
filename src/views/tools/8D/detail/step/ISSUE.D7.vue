@@ -18,6 +18,7 @@
           <el-table-column label="更改内容">
             <template scope="scope">
               <el-input
+                v-if="isNeed"
                 v-model="scope.row.description"
                 type="textarea"
                 :rows="3"
@@ -25,6 +26,7 @@
                 :disabled="!isNeed"
                 @input="inputChange(scope.$index,scope.row.description)"
               />
+              <span v-if="!isNeed">{{transNullFormat(scope.row.description)}}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -418,6 +420,7 @@
             prop="supplierDescription"
           >
             <el-input
+              v-if="isNeed"
               v-model="form.commentD7"
               type="textarea"
               :rows="3"
@@ -425,6 +428,7 @@
               :disabled="!isNeed"
               @input="commentChange"
             />
+            <span v-if="!isNeed">{{transNullFormat(form.commentD7)}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -911,6 +915,13 @@ export default {
           type: 'error'
         })
       })
+    },
+    transNullFormat(val){
+      if (val === '' || val === undefined || val === null) {
+        return '--'
+      } else {
+        return val
+      }
     },
     // 关闭弹窗前操作
     handleClose(done) {

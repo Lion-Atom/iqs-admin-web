@@ -203,6 +203,7 @@
             prop="supplierDescription"
           >
             <el-input
+              v-if="isNeed"
               v-model="form.commentD5"
               type="textarea"
               :rows="3"
@@ -210,6 +211,7 @@
               :disabled="!isNeed"
               @input="commentChange"
             />
+            <span v-if="!isNeed">{{transNullFormat(form.commentD5)}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -502,6 +504,13 @@ export default {
           type: 'error'
         })
       })
+    },
+    transNullFormat(val){
+      if (val === '' || val === undefined || val === null) {
+        return '--'
+      } else {
+        return val
+      }
     },
     // 关闭弹窗前操作
     handleClose(done) {

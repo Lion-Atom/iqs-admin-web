@@ -75,6 +75,7 @@
       <div slot="header" class="clearfix">
         <span class="header-title">时间要求
           <el-button
+          v-if="isNeed"
           size="mini"
           type="text"
           icon="el-icon-refresh-left"
@@ -97,6 +98,7 @@
             <el-col :span="12">
               <el-form-item label="预计完成步骤 :" prop="planStep1">
                 <el-select
+                  v-if="isNeed"
                   v-model="timeManagement.planStep1"
                   placeholder="选择预期要完成的步骤"
                   clearable
@@ -110,11 +112,13 @@
                     :value="item.key"
                   />
                 </el-select>
+                <span v-if="!isNeed">{{transNullFormat(timeManagement.planStep1)}}</span>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="预计完成时间 :" prop="planTime1">
                 <el-date-picker
+                  v-if="isNeed"
                   v-model="timeManagement.planTime1"
                   type="datetime"
                   style="width: 200px;"
@@ -123,6 +127,7 @@
                   :disabled="!isNeed"
                   @change="firstTimeChange"
                 />
+                <span v-if="!isNeed">{{transNullFormat(timeManagement.planTime1)}}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -131,6 +136,7 @@
             <el-col :span="12">
               <el-form-item label="预计完成步骤 :" prop="planStep1">
                 <el-select
+                  v-if="isNeed"
                   v-model="timeManagement.planStep2"
                   :disabled="!isNeed"
                   clearable
@@ -145,11 +151,13 @@
                     :disabled="!isNeed"
                   />
                 </el-select>
+                <span v-if="!isNeed">{{transNullFormat(timeManagement.planStep2)}}</span>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="预计完成时间 :" prop="planTime1">
                 <el-date-picker
+                  v-if="isNeed"
                   v-model="timeManagement.planTime2"
                   type="datetime"
                   style="width: 200px;"
@@ -158,6 +166,7 @@
                   :disabled="!isNeed"
                   @change="secTimeChange"
                 />
+                <span v-if="!isNeed">{{transNullFormat(timeManagement.planTime2)}}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -166,6 +175,7 @@
             <el-col :span="12">
               <el-form-item label="预计完成步骤 :" prop="planStep1">
                 <el-select
+                  v-if="isNeed"
                   v-model="timeManagement.planStep3"
                   clearable
                   placeholder="选择预期要完成的步骤"
@@ -180,11 +190,13 @@
                     :disabled="!isNeed"
                   />
                 </el-select>
+                <span v-if="!isNeed">{{transNullFormat(timeManagement.planStep3)}}</span>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="预计完成时间 :" prop="planTime1">
                 <el-date-picker
+                  v-if="isNeed"
                   v-model="timeManagement.planTime3"
                   type="datetime"
                   style="width: 200px;"
@@ -193,6 +205,7 @@
                   :disabled="!isNeed"
                   @change="thirdTimeChange"
                 />
+                <span v-if="!isNeed">{{transNullFormat(timeManagement.planTime3)}}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -877,6 +890,13 @@ export default {
           type: 'success'
         })
       })
+    },
+    transNullFormat(val){
+      if (val === '' || val === undefined || val === null) {
+        return '--'
+      } else {
+        return val
+      }
     }
   }
 }

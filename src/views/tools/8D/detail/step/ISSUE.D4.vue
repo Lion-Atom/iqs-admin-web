@@ -350,6 +350,7 @@
             prop="riskAssessment"
           >
             <el-input
+              v-if="isNeed"
               v-model="issueForm.rbi"
               type="textarea"
               :rows="3"
@@ -357,6 +358,7 @@
               :disabled="!isNeed"
               @input="rbiChange"
             />
+            <span v-if="!isNeed">{{transNullFormat(issueForm.rbi)}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -383,6 +385,7 @@
                 </span>
               </span>
               <el-select
+                v-if="isNeed"
                 v-model="issueForm.specialEvent"
                 placeholder="请选择特殊事件应用场景"
                 style="width: 200px;"
@@ -397,6 +400,7 @@
                   :value="item.key"
                 />
               </el-select>
+              <span v-if="!isNeed">{{transNullFormat(issueForm.specialEvent)}}</span>
             </el-form-item>
           </el-form>
           <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveSpecial">保存</el-button>
@@ -417,12 +421,14 @@
               prop="reason"
             >
               <el-input
+                v-if="isNeed"
                 v-model="specialForm.reason"
                 type="textarea"
                 autosize
                 style="width: 600px;"
                 @input="reasonChange"
               />
+              <span v-if="!isNeed">{{transNullFormat(specialForm.reason)}}</span>
             </el-form-item>
             <el-form-item
               v-if="issueForm.specialEvent === 'NTF不能复制'"
@@ -430,10 +436,12 @@
               prop="validation"
             >
               <el-input
+                v-if="isNeed"
                 v-model="specialForm.validation"
                 style="width: 600px;"
                 @input="validationChange"
               />
+              <span v-if="!isNeed">{{transNullFormat(specialForm.validation)}}</span>
             </el-form-item>
             <el-form-item
               prop="evidence"
@@ -450,24 +458,28 @@
                 </span>
               </span>
               <el-input
+                v-if="isNeed"
                 v-model="specialForm.evidence"
                 type="textarea"
                 autosize
                 style="width: 600px;"
                 @input="evidenceChange"
               />
+              <span v-if="!isNeed">{{transNullFormat(specialForm.evidence)}}</span>
             </el-form-item>
             <el-form-item
               label="其他"
               prop="other"
             >
               <el-input
+                v-if="isNeed"
                 v-model="specialForm.other"
                 type="textarea"
                 autosize
                 style="width: 600px;"
                 @input="otherChange"
               />
+              <span v-if="!isNeed">{{transNullFormat(specialForm.other)}}</span>
             </el-form-item>
           </el-form>
         </div>
@@ -948,6 +960,13 @@ export default {
       }).catch(res => {
         this.delLoading = false
       })
+    },
+    transNullFormat(val){
+      if (val === '' || val === undefined || val === null) {
+        return '--'
+      } else {
+        return val
+      }
     },
     handleClose(done) {
       this.$confirm('确认关闭？')

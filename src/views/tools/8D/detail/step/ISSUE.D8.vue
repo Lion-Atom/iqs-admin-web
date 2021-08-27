@@ -23,6 +23,7 @@
             label="组长意见"
           >
             <el-input
+              v-if="isNeed"
               type="textarea"
               :rows="3"
               v-model="conclusion.leaderConclusion"
@@ -30,12 +31,14 @@
               :disabled="!isNeed"
               @input="leaderInputChange"
             />
+            <span v-if="!isNeed">{{transNullFormat(conclusion.leaderConclusion)}}</span>
           </el-form-item>
           <el-form-item
             prop="managerConclusion"
             label="管理层意见"
           >
             <el-input
+              v-if="isNeed"
               type="textarea"
               :rows="3"
               v-model="conclusion.managerConclusion"
@@ -43,12 +46,14 @@
               :disabled="!isNeed"
               @input="managerInputChange"
             />
+            <span style="display: block;" v-if="!isNeed">{{transNullFormat(conclusion.managerConclusion)}}</span>
           </el-form-item>
           <el-form-item
             prop="otherConclusion"
             label="其他部门意见"
           >
             <el-input
+              v-if="isNeed"
               type="textarea"
               :rows="3"
               v-model="conclusion.otherConclusion"
@@ -56,6 +61,7 @@
               :disabled="!isNeed"
               @input="otherInputChange"
             />
+            <span v-if="!isNeed">{{transNullFormat(conclusion.otherConclusion)}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -65,12 +71,13 @@
     <el-card v-if="this.form.hasScore" class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">关闭</span>
-        <el-button style="float: right; padding: 3px 0" type="text" @click="saveScore(form)">保存</el-button>
+        <el-button v-if="isNeed"  style="float: right; padding: 3px 0" type="text" @click="saveScore(form)">保存</el-button>
       </div>
       <div>
         <div class="demo-input-suffix">
           分数：
           <el-input-number
+            v-if="isNeed"
             v-model="form.score"
             style="width: 200px;"
             :precision="2"
@@ -79,6 +86,7 @@
             :max="100"
             @input="scoreChange"
           ></el-input-number>
+          <span v-if="!isNeed">{{transNullFormat(form.score)}}</span>
         </div>
       </div>
     </el-card>
@@ -248,6 +256,13 @@ export default {
           }
         }
       })
+    },
+    transNullFormat(val){
+      if (val === '' || val === undefined || val === null) {
+        return '--'
+      } else {
+        return val
+      }
     },
     saveScore(form) {
       edit(form).then(res => {

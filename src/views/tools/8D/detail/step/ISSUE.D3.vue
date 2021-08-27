@@ -410,6 +410,7 @@
             prop="riskAssessment"
           >
             <el-input
+              v-if="isNeed"
               v-model="form.riskAssessment"
               type="textarea"
               :rows="3"
@@ -417,6 +418,7 @@
               :disabled="!isNeed"
               @input="descChange"
             />
+            <span v-if="!isNeed">{{transNullFormat(form.riskAssessment)}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -811,6 +813,13 @@ export default {
         }).catch(res => {
           this.form.riskAssessment = this.oldDesc
         })
+      }
+    },
+    transNullFormat(val){
+      if (val === '' || val === undefined || val === null) {
+        return '--'
+      } else {
+        return val
       }
     },
     // 关闭弹窗前操作

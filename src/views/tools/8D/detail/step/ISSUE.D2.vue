@@ -174,6 +174,7 @@
             prop="supplierDescription"
           >
             <el-input
+              v-if="isNeed"
               v-model="form.supplierDescription"
               type="textarea"
               :rows="3"
@@ -181,6 +182,7 @@
               :disabled="!isNeed"
               @input="descChange"
             />
+            <span v-if="!isNeed">{{transNullFormat(form.supplierDescription)}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -209,12 +211,14 @@
           <el-table-column label="内容">
             <template scope="scope">
               <el-input
+                v-if="isNeed"
                 v-model="scope.row.description"
                 type="textarea"
                 autosize
                 style="min-width: 800px;"
                 :disabled="!isNeed"
               />
+              <span v-if="!isNeed">{{transNullFormat(scope.row.description)}}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -257,23 +261,27 @@
           <el-table-column label="IS 是">
             <template scope="scope">
               <el-input
+                v-if="isNeed"
                 v-model="scope.row.isContent"
                 type="textarea"
                 autosize
                 style="min-width: 300px;"
                 :disabled="!isNeed"
               />
+              <span v-if="!isNeed">{{transNullFormat(scope.row.isContent)}}</span>
             </template>
           </el-table-column>
           <el-table-column label="IS-NOT 否">
             <template scope="scope">
               <el-input
+                v-if="isNeed"
                 v-model="scope.row.notContent"
                 type="textarea"
                 autosize
                 style="min-width: 300px;"
                 :disabled="!isNeed"
               />
+              <span v-if="!isNeed">{{transNullFormat(scope.row.notContent)}}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -643,6 +651,13 @@ export default {
         }).catch(res => {
           this.form.supplierDescription = this.oldDesc
         })
+      }
+    },
+    transNullFormat(val){
+      if (val === '' || val === undefined || val === null) {
+        return '--'
+      } else {
+        return val
       }
     },
     // 关闭弹窗前操作
