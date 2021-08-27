@@ -608,6 +608,8 @@ export default {
       oldComment: null,
       commentChanged: false,
       tempCommentChanged: false,
+      docDesc1Changed: false,
+      docDesc2Changed: false,
       docDescChanged: false,
       noChanged: true
     }
@@ -679,9 +681,10 @@ export default {
     },
     inputChange(index,val) {
       if(index === 0){
-        this.docDescChanged = !judgeIsEqual(val, this.oldFirstDesc)
-      } else {
-        this.docDescChanged = !judgeIsEqual(val, this.oldSecDesc)
+        this.docDesc1Changed = !judgeIsEqual(val, this.oldFirstDesc)
+      }
+      if(index === 1){
+        this.docDesc2Changed = !judgeIsEqual(val, this.oldSecDesc)
       }
       this.judgeChange()
     },
@@ -934,6 +937,7 @@ export default {
       this.judgeChange()
     },
     judgeChange() {
+      this.docDescChanged = this.docDesc1Changed || this.docDesc2Changed;
       this.noChanged = !(this.commentChanged || this.tempCommentChanged || this.hasTempChanged || this.docDescChanged)
     },
     confirmFinished() {

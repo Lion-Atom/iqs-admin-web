@@ -684,7 +684,6 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
-
           this.$emit('func', this.isFinished)
           this.$message({
             message: 'Submit Success! D2提交完成!',

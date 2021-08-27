@@ -14,20 +14,32 @@
           :data="stepDefects"
           style="width: 100%;"
         >
-          <el-table-column prop="processStep" label="缺陷在哪个过程步骤中被创建/被检测到/应该被检测到" width="320" />
+          <el-table-column prop="processStep" label="缺陷在哪个过程步骤中被创建/被检测到/应该被检测到" width="320"/>
           <el-table-column label="被创建" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.created" :disabled="!isNeed" />
+              <el-checkbox
+                v-model="scope.row.created"
+                :disabled="!isNeed"
+                @change="createdChange(scope.$index,scope.row.created)"
+              />
             </template>
           </el-table-column>
           <el-table-column label="被检测到" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.detected" :disabled="!isNeed" />
+              <el-checkbox
+                v-model="scope.row.detected"
+                :disabled="!isNeed"
+                @change="detectedChange(scope.$index,scope.row.detected)"
+              />
             </template>
           </el-table-column>
           <el-table-column label="可能已被检测到" show-overflow-tooltip>
             <template scope="scope">
-              <el-checkbox v-model="scope.row.shouldDetected" :disabled="!isNeed" />
+              <el-checkbox
+                v-model="scope.row.shouldDetected"
+                :disabled="!isNeed"
+                @change="shouldDetectedChange(scope.$index,scope.row.shouldDetected)"
+              />
             </template>
           </el-table-column>
         </el-table>
@@ -114,7 +126,7 @@
                 />
                 <el-table-column label="内容" align="center">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.content" type="textarea" autosize style="width: 93%;" />
+                    <el-input v-model="scope.row.content" type="textarea" autosize style="width: 93%;"/>
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" align="center" width="70">
@@ -186,10 +198,10 @@
               </el-select>
             </el-form-item>
             <el-form-item label="确认方法" prop="method" required>
-              <el-input v-model="form.method" style="width: 370px;" />
+              <el-input v-model="form.method" style="width: 370px;"/>
             </el-form-item>
             <el-form-item label="确认结果" prop="result" required>
-              <el-input v-model="form.result" style="width: 370px;" />
+              <el-input v-model="form.result" style="width: 370px;"/>
             </el-form-item>
             <el-form-item label="原因占比" prop="contribution" required>
               <el-input-number
@@ -241,12 +253,12 @@
           :data="causeData"
           row-key="id"
         >
-          <el-table-column type="selection" width="55" />
-          <el-table-column label="原因名称" prop="name" min-width="150" />
-          <el-table-column label="发生/检测 " prop="judgeResult" width="120" />
-          <el-table-column label="确认方法" prop="method" min-width="150" />
-          <el-table-column label="确认结果" prop="result" min-width="150" />
-          <el-table-column label="原因占比" prop="contribution" />
+          <el-table-column type="selection" width="55"/>
+          <el-table-column label="原因名称" prop="name" min-width="150"/>
+          <el-table-column label="发生/检测 " prop="judgeResult" width="120"/>
+          <el-table-column label="确认方法" prop="method" min-width="150"/>
+          <el-table-column label="确认结果" prop="result" min-width="150"/>
+          <el-table-column label="原因占比" prop="contribution"/>
           <el-table-column
             v-if="isNeed"
             label="操作"
@@ -366,7 +378,7 @@
                       应用场景：【NTF不能重复】和【公司外部原因】，执行模式：D1->D2->D3->D4->D8<br>
                       <b style="color: red">*</b>正常8D流程可忽略，并支持正常8D和特殊场景切换但需注意数据备份
                     </div>
-                    <i class="el-icon-question" />
+                    <i class="el-icon-question"/>
                   </el-tooltip>
                 </span>
               </span>
@@ -409,6 +421,7 @@
                 type="textarea"
                 autosize
                 style="width: 600px;"
+                @input="reasonChange"
               />
             </el-form-item>
             <el-form-item
@@ -419,6 +432,7 @@
               <el-input
                 v-model="specialForm.validation"
                 style="width: 600px;"
+                @input="validationChange"
               />
             </el-form-item>
             <el-form-item
@@ -431,7 +445,7 @@
                     <div slot="content">
                       需要上传图片、文档等附件可统一在下方【添加附件】和【附件列表】功能区域上传、管理
                     </div>
-                    <i class="el-icon-question" />
+                    <i class="el-icon-question"/>
                   </el-tooltip>
                 </span>
               </span>
@@ -440,6 +454,7 @@
                 type="textarea"
                 autosize
                 style="width: 600px;"
+                @input="evidenceChange"
               />
             </el-form-item>
             <el-form-item
@@ -451,6 +466,7 @@
                 type="textarea"
                 autosize
                 style="width: 600px;"
+                @input="otherChange"
               />
             </el-form-item>
           </el-form>
@@ -465,7 +481,7 @@
         <!--        <span class="header-title">原因分析图</span>-->
       </div>
       <div>
-        <Jtopo :issue-id="issueId" :fish-data="initFish" />
+        <Jtopo :issue-id="issueId" :fish-data="initFish"/>
         <!--        <TreeChart :issue-id="issueId" :fish-data="fishData"/>-->
       </div>
     </el-card>
@@ -529,7 +545,7 @@
                 v-permission="permission.edit"
                 :loading="selfLoading"
                 type="success"
-                :disabled="isFinished"
+                :disabled="isFinished && noChanged"
                 icon="el-icon-check"
               >确认完成
               </el-button>
@@ -556,12 +572,11 @@ import {
 } from '@/api/tools/issueCause'
 import { editWhys, getWhysByCauseId, getWhysByIssueId } from '@/api/tools/causeWhy'
 import Jtopo from '@/views/components/Jtopo'
-import { validIsNotNull } from '@/utils/validationUtil'
+import { judgeIsEqual, validIsNotNull } from '@/utils/validationUtil'
 import { edit, getIssueById } from '@/api/tools/issue'
 import { addSpecial, delSpecialByIssueId, editSpecial, getSpecialByIssueId } from '@/api/tools/issueSpecail'
 import UploadFile from '@/components/UploadFile'
 import TreeChart from '@/components/Echarts/TreeChart'
-import { judgeIsEqual } from '@/utils/validationUtil'
 
 export default {
   name: 'ForthForm',
@@ -686,7 +701,42 @@ export default {
       oldValidation: null,
       oldOther: null,
       oldSpecialJudge: null,
-      liDivWidth: 400 // 初始化whys-cause宽度：400
+      liDivWidth: 400, // 初始化whys-cause宽度：400
+      oldCreated1: null,
+      oldCreated2: null,
+      oldCreated3: null,
+      oldCreated4: null,
+      created1Changed: false,
+      created2Changed: false,
+      created3Changed: false,
+      created4Changed: false,
+      createdChanged: false,
+      oldDetected1: null,
+      oldDetected2: null,
+      oldDetected3: null,
+      oldDetected4: null,
+      detected1Changed: false,
+      detected2Changed: false,
+      detected3Changed: false,
+      detected4Changed: false,
+      detectedChanged: false,
+      oldShould1: null,
+      oldShould2: null,
+      oldShould3: null,
+      oldShould4: null,
+      should1Changed: false,
+      should2Changed: false,
+      should3Changed: false,
+      should4Changed: false,
+      shouldChanged: false,
+      defectChanged: false,
+      specialChanged: false,
+      reasonChanged: false,
+      evidenceChanged: false,
+      validationChanged: false,
+      otherChanged: false,
+      eventChanged: false,
+      execFinished: false
     }
   },
   created() {
@@ -710,8 +760,23 @@ export default {
     // 保存缺陷定位信息
     getStepDefectByIssueId(id) {
       this.defectLoading = true
+      this.stepDefects = []
       getStepDefectByIssueId(id).then(res => {
         this.stepDefects = res
+        if (res.length > 0) {
+          this.oldCreated1 = res[0].created
+          this.oldCreated2 = res[1].created
+          this.oldCreated3 = res[2].created
+          this.oldCreated4 = res[3].created
+          this.oldDetected1 = res[0].detected
+          this.oldDetected2 = res[1].detected
+          this.oldDetected3 = res[2].detected
+          this.oldDetected4 = res[3].detected
+          this.oldShould1 = res[0].shouldDetected
+          this.oldShould2 = res[1].shouldDetected
+          this.oldShould3 = res[2].shouldDetected
+          this.oldShould4 = res[3].shouldDetected
+        }
         this.defectLoading = false
       })
     },
@@ -739,6 +804,8 @@ export default {
     },
     // 下拉框变更事件
     changeSpecialEvent(val) {
+      this.specialChanged = !judgeIsEqual(val, this.oldSpecialJudge)
+      this.judgeChange()
       this.getSpecialByIssueId(this.$props.issueId, val)
     },
     // 获取特殊事件信息
@@ -787,7 +854,12 @@ export default {
           message: 'Save Step-Defect Record Success! 保存缺陷检测定位成功!',
           type: 'success'
         })
+        this.createdChanged = false
+        this.detectedChanged = false
+        this.shouldChanged = false
+        this.defectChanged = false
         this.isFinished = false
+        this.judgeChange()
         this.$emit('func', this.isFinished)
       }).catch(() => {
         this.$message({
@@ -873,7 +945,7 @@ export default {
         this.isFinished = false
         this.delLoading = false
         this.$emit('func', this.isFinished)
-      }).catch(res=>{
+      }).catch(res => {
         this.delLoading = false
       })
     },
@@ -970,12 +1042,23 @@ export default {
                 type: 'success',
                 message: '切换成功'
               })
+              this.specialChanged = false
+              this.reasonChanged = false
+              this.validationChanged = false
+              this.evidenceChanged = false
+              this.otherChanged = false
+              this.judgeChange()
+              this.isSpecial = false
+              const obj = {}
+              obj.isSpecial = false
+              obj.specialEvent = null
+              this.$emit('funx', obj)
+              if(this.execFinished){
+                setTimeout(() => {
+                  this.finishStep()
+                }, 300)
+              }
             })
-            this.isSpecial = false
-            const obj = {}
-            obj.isSpecial = false
-            obj.specialEvent = null
-            this.$emit('funx', obj)
           })
           .catch(action => {
             this.$message({
@@ -984,6 +1067,11 @@ export default {
                 ? 'Quit Change 放弃切换'
                 : 'Reconsider 暂停留本页面，考虑一下'
             })
+            if(this.execFinished){
+              setTimeout(() => {
+                this.finishStep()
+              }, 300)
+            }
           })
       } else {
         this.$refs.specialForm.validate().then((valid) => {
@@ -1027,13 +1115,23 @@ export default {
                     message: 'Submit Success! 编辑特殊事件信息成功!',
                     type: 'success'
                   })
-
+                  if(this.execFinished){
+                    setTimeout(() => {
+                      this.finishStep()
+                    }, 300)
+                  }
                   this.isSpecial = true
                   const obj = {}
                   obj.isSpecial = true
                   obj.specialEvent = this.specialForm.type
                   this.$emit('funx', obj)
-
+                  this.eventChanged = false
+                  this.specialChanged = false
+                  this.reasonChanged = false
+                  this.validationChanged = false
+                  this.evidenceChanged = false
+                  this.otherChanged = false
+                  this.judgeChange()
                   this.isFinished = false
                   this.$emit('func', this.isFinished)
                 }).catch(res => {
@@ -1047,6 +1145,12 @@ export default {
                     message: 'Submit Success! 新增特殊事件信息成功!',
                     type: 'success'
                   })
+                  this.specialChanged = false
+                  this.reasonChanged = false
+                  this.validationChanged = false
+                  this.evidenceChanged = false
+                  this.otherChanged = false
+                  this.judgeChange()
                   this.isFinished = false
                   this.$emit('func', this.isFinished)
                   this.isSpecial = true
@@ -1054,6 +1158,11 @@ export default {
                   obj.isSpecial = true
                   obj.specialEvent = this.specialForm.type
                   this.$emit('funx', obj)
+                  if(this.execFinished){
+                    setTimeout(() => {
+                      this.finishStep()
+                    }, 300)
+                  }
                 }).catch(res => {
                   this.getIssueInfoById(this.$props.issueId)
                   this.getSpecialByIssueId(this.$props.issueId, this.issueForm.specialEvent)
@@ -1111,22 +1220,149 @@ export default {
         })
       }
     },
-    // todo 监控缺陷定位有无变化
-
-    // 监控rbi有无变化
-    rbiChange(val){
-      this.rbiChanged = !judgeIsEqual(val,this.oldRbi)
+    // 监控缺陷定位有无变化：createdChange、detectedChange 和 shouldDetectedChange
+    createdChange(index, val) {
+      if (index === 0) {
+        this.created1Changed = val !== this.oldCreated1
+      }
+      if (index === 1) {
+        this.created2Changed = val !== this.oldCreated2
+      }
+      if (index === 2) {
+        this.created3Changed = val !== this.oldCreated3
+      }
+      if (index === 3) {
+        this.created4Changed = val !== this.oldCreated4
+      }
       this.judgeChange()
     },
-    // todo 监控特殊事件有无变化
-
+    detectedChange(index, val) {
+      if (index === 0) {
+        this.detected1Changed = val !== this.oldDetected1
+      }
+      if (index === 1) {
+        this.detected2Changed = val !== this.oldDetected2
+      }
+      if (index === 2) {
+        this.detected3Changed = val !== this.oldDetected3
+      }
+      if (index === 3) {
+        this.detected4Changed = val !== this.oldDetected4
+      }
+      this.judgeChange()
+    },
+    shouldDetectedChange(index, val) {
+      if (index === 0) {
+        this.should1Changed = val !== this.oldShould1
+      }
+      if (index === 1) {
+        this.should2Changed = val !== this.oldShould2
+      }
+      if (index === 2) {
+        this.should3Changed = val !== this.oldShould3
+      }
+      if (index === 3) {
+        this.should4Changed = val !== this.oldShould4
+      }
+      this.judgeChange()
+    },
+    // 监控rbi有无变化
+    rbiChange(val) {
+      this.rbiChanged = !judgeIsEqual(val, this.oldRbi)
+      this.judgeChange()
+    },
+    // 监控特殊事件有无变化: reasonChange、validationChange、evidenceChange和otherChange
+    reasonChange(val) {
+      this.reasonChanged = !judgeIsEqual(val, this.oldReason)
+      this.judgeChange()
+    },
+    validationChange(val) {
+      this.validationChanged = !judgeIsEqual(val, this.oldValidation)
+      this.judgeChange()
+    },
+    evidenceChange(val) {
+      this.evidenceChanged = !judgeIsEqual(val, this.oldEvidence)
+      this.judgeChange()
+    },
+    otherChange(val) {
+      this.otherChanged = !judgeIsEqual(val, this.oldOther)
+      this.judgeChange()
+    },
     // 判断界面输入有无变化
     judgeChange() {
-      // todo 待填充特殊事件和缺陷定位的变化监控结果
-      this.noChanged = !(this.rbiChanged)
+      // 缺陷定位的变化监控结果
+      this.createdChanged = this.created1Changed || this.created2Changed || this.created3Changed || this.created4Changed
+      this.detectedChanged = this.detected1Changed || this.detected2Changed || this.detected3Changed || this.detected4Changed
+      this.shouldChanged = this.should1Changed || this.should2Changed || this.should3Changed || this.should4Changed
+      this.defectChanged = this.createdChanged || this.detectedChanged || this.shouldChanged
+      // 特殊事件的变化监控结果
+      if (this.specialChanged) {
+        this.eventChanged = true
+      } else {
+        // 如果没切换特殊事件，但内容更改了
+        this.eventChanged = this.reasonChanged || this.validationChanged || this.evidenceChanged || this.otherChanged
+      }
+      this.noChanged = !(this.rbiChanged || this.defectChanged || this.eventChanged)
     },
     // 确认完成
     confirmFinished() {
+      // 判断是否切换临时文件选项
+      if (!this.noChanged) {
+        let msg = '检测到'
+        if (this.defectChanged) {
+          msg += '【缺陷定位】'
+        }
+        if (this.rbiChanged) {
+          msg += '【D7风险评估】'
+        }
+        if (this.specialChanged) {
+          msg += '【特殊事件模式变更】'
+        }
+        if (this.reasonChanged || this.validationChanged || this.evidenceChanged || this.otherChanged) {
+          msg += '【特殊事件内容】'
+        }
+        msg += '发生了变化，是否一并保存?'
+        this.$confirm(msg, '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        }).then(() => {
+          if (this.rbiChanged) {
+            edit(this.issueForm).then(res => {
+              this.oldRbi = this.issueForm.rbi
+              // 保存特殊事件
+            }).catch(res => {
+              this.issueForm.rbi = this.oldRbi
+              // 刷新缺陷定位列表
+              this.getStepDefectByIssueId(this.$props.issueId)
+              // 刷新特殊事件
+              this.getIssueInfoById(this.$props.issueId)
+            })
+          }
+          if (this.defectChanged) {
+            this.saveDefects(this.stepDefects)
+          }
+          if (this.eventChanged) {
+            this.execFinished = true
+            this.saveSpecial()
+          }else{
+            setTimeout(() => {
+              this.finishStep()
+            }, 600)
+          }
+        }).catch(() => {
+            this.issueForm.rbi = this.oldRbi
+            // 刷新缺陷定位列表
+            this.getStepDefectByIssueId(this.$props.issueId)
+            // 刷新特殊事件
+            this.getIssueInfoById(this.$props.issueId)
+            this.finishStep()
+          })
+      } else {
+        this.finishStep()
+      }
+    },
+    finishStep() {
       // 确认D4完成
       this.timeManagement.curStep = 'D4'
       this.timeManagement.d4Status = true
@@ -1139,15 +1375,50 @@ export default {
       } else {
         // 上一步已完成方可执行
         editTimeManage(this.timeManagement).then(res => {
+
           this.confirmVisible = false
           this.isFinished = true
+
+          // 风险评估
+          this.rbiChanged = false
+
+          // 特殊事件
+          this.specialChanged = false
+          this.reasonChanged = false
+          this.validationChanged = false
+          this.evidenceChanged = false
+          this.otherChanged = false
+
+          // 缺陷定位
+          this.resetDefectChange()
+
+          this.judgeChange()
           this.$emit('func', this.isFinished)
+          this.getStepDefectByIssueId(this.$props.issueId)
+          this.getIssueInfoById(this.$props.issueId)
           this.$message({
             message: 'Submit Success! D4提交完成!',
             type: 'success'
           })
         })
       }
+    },
+    resetDefectChange() {
+      this.created1Changed = false
+      this.created2Changed = false
+      this.created3Changed = false
+      this.created4Changed = false
+      this.detected1Changed = false
+      this.detected2Changed = false
+      this.detected3Changed = false
+      this.detected4Changed = false
+      this.should1Changed = false
+      this.should2Changed = false
+      this.should3Changed = false
+      this.should4Changed = false
+      this.createdChanged = false
+      this.detectedChanged = false
+      this.shouldChanged = false
     }
   }
 }

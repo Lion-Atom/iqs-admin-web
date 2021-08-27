@@ -805,8 +805,8 @@ export default {
           })
           this.oldDesc = form.riskAssessment
           this.descChanged = false
-          this.judgeChange()
           this.isFinished = false
+          this.judgeChange()
           this.$emit('func', this.isFinished)
         }).catch(res => {
           this.form.riskAssessment = this.oldDesc
