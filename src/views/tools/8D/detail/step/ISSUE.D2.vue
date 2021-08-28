@@ -182,7 +182,7 @@
               :disabled="!isNeed"
               @input="descChange"
             />
-            <span v-if="!isNeed">{{transNullFormat(form.supplierDescription)}}</span>
+            <span v-if="!isNeed">{{ transNullFormat(form.supplierDescription) }}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -217,8 +217,9 @@
                 autosize
                 style="min-width: 800px;"
                 :disabled="!isNeed"
+                @input="descriptionChange(scope.$index,scope.row.description)"
               />
-              <span v-if="!isNeed">{{transNullFormat(scope.row.description)}}</span>
+              <span v-if="!isNeed">{{ transNullFormat(scope.row.description) }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -267,8 +268,9 @@
                 autosize
                 style="min-width: 300px;"
                 :disabled="!isNeed"
+                @input="isContentChange(scope.$index,scope.row.isContent)"
               />
-              <span v-if="!isNeed">{{transNullFormat(scope.row.isContent)}}</span>
+              <span v-if="!isNeed">{{ transNullFormat(scope.row.isContent) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="IS-NOT 否">
@@ -280,8 +282,9 @@
                 autosize
                 style="min-width: 300px;"
                 :disabled="!isNeed"
+                @input="notContentChange(scope.$index,scope.row.notContent)"
               />
-              <span v-if="!isNeed">{{transNullFormat(scope.row.notContent)}}</span>
+              <span v-if="!isNeed">{{ transNullFormat(scope.row.notContent) }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -343,7 +346,7 @@ import { addIssueNum, delIssueNum, editIssueNum, getIssueNumByIssueId } from '@/
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
 import UploadFile from '@/components/UploadFile'
-import { judeIsEqual } from '@/utils/validationUtil'
+import { judgeIsEqual } from '@/utils/validationUtil'
 
 export default {
   name: 'SecondForm',
@@ -447,7 +450,54 @@ export default {
         }
       ],
       noChanged: true,
-      descChanged: false
+      descChanged: false,
+      oldWh1: null,
+      oldWh2: null,
+      oldWh3: null,
+      oldWh4: null,
+      oldWh5: null,
+      oldWh6: null,
+      oldWh7: null,
+      wh1Changed: false,
+      wh2Changed: false,
+      wh3Changed: false,
+      wh4Changed: false,
+      wh5Changed: false,
+      wh6Changed: false,
+      wh7Changed: false,
+      whChanged: false,
+
+      oldIs1: null,
+      oldIs2: null,
+      oldIs3: null,
+      oldIs4: null,
+      oldIs5: null,
+      oldIs6: null,
+      oldIs7: null,
+      is1Changed: false,
+      is2Changed: false,
+      is3Changed: false,
+      is4Changed: false,
+      is5Changed: false,
+      is6Changed: false,
+      is7Changed: false,
+      isChanged: false,
+
+      oldNot1: null,
+      oldNot2: null,
+      oldNot3: null,
+      oldNot4: null,
+      oldNot5: null,
+      oldNot6: null,
+      oldNot7: null,
+      not1Changed: false,
+      not2Changed: false,
+      not3Changed: false,
+      not4Changed: false,
+      not5Changed: false,
+      not6Changed: false,
+      not7Changed: false,
+      notChanged: false
     }
   },
   computed: {
@@ -504,6 +554,16 @@ export default {
       this.questions = []
       getQuestionByIssueId(id, type).then(res => {
         this.questions = res
+        // 赋值监控
+        if (res.length > 0) {
+          this.oldWh1 = res[0].description
+          this.oldWh2 = res[1].description
+          this.oldWh3 = res[2].description
+          this.oldWh4 = res[3].description
+          this.oldWh5 = res[4].description
+          this.oldWh6 = res[5].description
+          this.oldWh7 = res[6].description
+        }
         this.questionLoading = false
       })
     },
@@ -512,42 +572,118 @@ export default {
       this.isNots = []
       getQuestionByIssueId(id, type).then(res => {
         this.isNots = res
+        if (res.length > 0) {
+
+          this.oldIs1 = res[0].isContent
+          this.oldIs2 = res[1].isContent
+          this.oldIs3 = res[2].isContent
+          this.oldIs4 = res[3].isContent
+          this.oldIs5 = res[4].isContent
+          this.oldIs6 = res[5].isContent
+          this.oldIs7 = res[6].isContent
+
+          this.oldNot1 = res[0].notContent
+          this.oldNot2 = res[1].notContent
+          this.oldNot3 = res[2].notContent
+          this.oldNot4 = res[3].notContent
+          this.oldNot5 = res[4].notContent
+          this.oldNot6 = res[5].notContent
+          this.oldNot7 = res[6].notContent
+
+        }
         this.isNotLoading = false
       })
     },
     // 批量保存5W2H数据
     saveQuestions(data) {
-      editQuestion(data).then(res => {
+      if (data.length > 0) {
+        let val = true
+        if (judgeIsEqual(data[0].description, this.oldWh1) &&
+          judgeIsEqual(data[1].description, this.oldWh2) &&
+          judgeIsEqual(data[2].description, this.oldWh3) &&
+          judgeIsEqual(data[3].description, this.oldWh4) &&
+          judgeIsEqual(data[4].description, this.oldWh5) &&
+          judgeIsEqual(data[5].description, this.oldWh6) &&
+          judgeIsEqual(data[6].description, this.oldWh7)
+        ) {
+          this.$message({
+            message: 'No changes found, no need to save!未发生改动，无需提交',
+            type: 'warning'
+          })
+          val = false
+        }
+        if (val) {
+          editQuestion(data).then(res => {
+            this.$message({
+              message: 'Save 5W2H Success! 保存5W2H内容成功!',
+              type: 'success'
+            })
+            this.whRest()
+            this.judgeChange()
+
+            this.isFinished = false
+            this.$emit('func', this.isFinished)
+            this.getWhByIssueId(this.$props.issueId, this.types[0])
+          }).catch(() => {
+            this.$message({
+              message: 'Save 5W2H Failed! 保存5W2H内容失败!',
+              type: 'error'
+            })
+            this.getWhByIssueId(this.$props.issueId, this.types[0])
+          })
+        }
+      } else {
         this.$message({
-          message: 'Save 5W2H Success! 保存5W2H内容成功!',
-          type: 'success'
-        })
-        this.isFinished = false
-        this.$emit('func', this.isFinished)
-      }).catch(() => {
-        this.$message({
-          message: 'Save 5W2H Failed! 保存5W2H内容失败!',
+          message: '查无数据!',
           type: 'error'
         })
-        this.getWhByIssueId(this.$props.issueId, this.types[0])
-      })
+      }
     },
     // 批量保存IS/IS Not数据
     saveIsNots(data) {
-      editQuestion(data).then(res => {
+      let val = true
+      if (judgeIsEqual(data[0].isContent, this.oldIs1) &&
+        judgeIsEqual(data[1].isContent, this.oldIs2) &&
+        judgeIsEqual(data[2].isContent, this.oldIs3) &&
+        judgeIsEqual(data[3].isContent, this.oldIs4) &&
+        judgeIsEqual(data[4].isContent, this.oldIs5) &&
+        judgeIsEqual(data[5].isContent, this.oldIs6) &&
+        judgeIsEqual(data[6].isContent, this.oldIs7) &&
+
+        judgeIsEqual(data[0].notContent, this.oldNot1) &&
+        judgeIsEqual(data[1].notContent, this.oldNot2) &&
+        judgeIsEqual(data[2].notContent, this.oldNot3) &&
+        judgeIsEqual(data[3].notContent, this.oldNot4) &&
+        judgeIsEqual(data[4].notContent, this.oldNot5) &&
+        judgeIsEqual(data[5].notContent, this.oldNot6) &&
+        judgeIsEqual(data[6].notContent, this.oldNot7)
+      ) {
         this.$message({
-          message: 'Save 5W2H Success! 保存IS/IS Not内容成功!',
-          type: 'success'
+          message: 'No changes found, no need to save!未发生改动，无需重复提交',
+          type: 'warning'
         })
-        this.isFinished = false
-        this.$emit('func', this.isFinished)
-      }).catch(() => {
-        this.$message({
-          message: 'Save 5W2H Failed! 保存IS/IS Not内容失败!',
-          type: 'error'
+        val = false
+      }
+      if(val){
+        editQuestion(data).then(res => {
+          this.$message({
+            message: 'Save 5W2H Success! 保存IS/IS Not内容成功!',
+            type: 'success'
+          })
+          this.isNotReset()
+          this.judgeChange()
+
+          this.isFinished = false
+          this.$emit('func', this.isFinished)
+          this.getIsByIssueId(this.$props.issueId, this.types[1])
+        }).catch(() => {
+          this.$message({
+            message: 'Save 5W2H Failed! 保存IS/IS Not内容失败!',
+            type: 'error'
+          })
+          this.getIsByIssueId(this.$props.issueId, this.types[1])
         })
-        this.getIsByIssueId(this.$props.issueId, this.types[1])
-      })
+      }
     },
     // 编辑记录
     editNum(row) {
@@ -559,6 +695,34 @@ export default {
       this.issueNumForm = {}
       this.numOperationTitle = '新增数据'
       this.addNumVisible = true
+    },
+    // IS/IS Not的回正操作
+    isNotReset() {
+      this.is1Changed = false
+      this.is2Changed = false
+      this.is3Changed = false
+      this.is4Changed = false
+      this.is5Changed = false
+      this.is6Changed = false
+      this.is7Changed = false
+
+      this.not1Changed = false
+      this.not2Changed = false
+      this.not3Changed = false
+      this.not4Changed = false
+      this.not5Changed = false
+      this.not6Changed = false
+      this.not7Changed = false
+    },
+    // 5W2H的回正操作
+    whRest() {
+      this.wh1Changed = false
+      this.wh2Changed = false
+      this.wh3Changed = false
+      this.wh4Changed = false
+      this.wh5Changed = false
+      this.wh6Changed = false
+      this.wh7Changed = false
     },
     submitNum() {
       this.$refs.form.validate().then((valid) => {
@@ -646,6 +810,8 @@ export default {
             type: 'success'
           })
           this.oldDesc = form.supplierDescription
+          this.descChanged = false
+          this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
         }).catch(res => {
@@ -653,7 +819,7 @@ export default {
         })
       }
     },
-    transNullFormat(val){
+    transNullFormat(val) {
       if (val === '' || val === undefined || val === null) {
         return '--'
       } else {
@@ -671,20 +837,155 @@ export default {
     },
     // 监控D2-描述有无变化
     descChange(val) {
-      this.descChanged = !judeIsEqual(val, this.oldDesc)
+      this.descChanged = !judgeIsEqual(val, this.oldDesc)
       this.judgeChange()
     },
-    // todo 监控5W2H和IS/NOT有无变化
+    // 监控5W2H和IS/NOT有无变化
+    descriptionChange(index, val) {
+      if (index === 0) {
+        // alert('命中第' + index + '行')
+        // alert('新值：' + val)
+        this.wh1Changed = !judgeIsEqual(val.trim(), this.oldWh1)
+        // alert(this.wh1Changed)
+      }
+      if (index === 1) {
+        this.wh2Changed = !judgeIsEqual(val.trim(), this.oldWh2)
+      }
+      if (index === 2) {
+        this.wh3Changed = !judgeIsEqual(val.trim(), this.oldWh3)
+      }
+      if (index === 3) {
+        this.wh4Changed = !judgeIsEqual(val.trim(), this.oldWh4)
+      }
+      if (index === 4) {
+        this.wh5Changed = !judgeIsEqual(val.trim(), this.oldWh5)
+      }
+      if (index === 5) {
+        this.wh6Changed = !judgeIsEqual(val.trim(), this.oldWh6)
+      }
+      if (index === 6) {
+        this.wh7Changed = !judgeIsEqual(val.trim(), this.oldWh7)
+      }
+      this.judgeChange()
+    },
+    isContentChange(index, val) {
+      if (index === 0) {
+        this.is1Changed = !judgeIsEqual(val.trim(), this.oldIs1)
+      }
+      if (index === 1) {
+        this.is2Changed = !judgeIsEqual(val.trim(), this.oldIs2)
+      }
+      if (index === 2) {
+        this.is3Changed = !judgeIsEqual(val.trim(), this.oldIs3)
+      }
+      if (index === 3) {
+        this.is4Changed = !judgeIsEqual(val.trim(), this.oldIs4)
+      }
+      if (index === 4) {
+        this.is5Changed = !judgeIsEqual(val.trim(), this.oldIs5)
+      }
+      if (index === 5) {
+        this.is6Changed = !judgeIsEqual(val.trim(), this.oldIs6)
+      }
+      if (index === 6) {
+        this.is7Changed = !judgeIsEqual(val.trim(), this.oldIs7)
+      }
+      this.judgeChange()
+    },
+    notContentChange(index, val) {
+      if (index === 0) {
+        this.not1Changed = !judgeIsEqual(val.trim(), this.oldNot1)
+      }
+      if (index === 1) {
+        this.not2Changed = !judgeIsEqual(val.trim(), this.oldNot2)
+      }
+      if (index === 2) {
+        this.not3Changed = !judgeIsEqual(val.trim(), this.oldNot3)
+      }
+      if (index === 3) {
+        this.not4Changed = !judgeIsEqual(val.trim(), this.oldNot4)
+      }
+      if (index === 4) {
+        this.not5Changed = !judgeIsEqual(val.trim(), this.oldNot5)
+      }
+      if (index === 5) {
+        this.not6Changed = !judgeIsEqual(val.trim(), this.oldNot6)
+      }
+      if (index === 6) {
+        this.not7Changed = !judgeIsEqual(val.trim(), this.oldNot7)
+      }
+      this.judgeChange()
+    },
     // 判断界面输入有无变化
     judgeChange() {
-      if(this.descChanged){
-        this.noChanged = false
-      }else{
-        this.noChanged = true
-      }
+      this.whChanged = (this.wh1Changed || this.wh2Changed || this.wh3Changed || this.wh4Changed || this.wh5Changed
+        || this.wh6Changed || this.wh7Changed)
+
+      this.isChanged = (this.is1Changed || this.is2Changed || this.is3Changed || this.is4Changed || this.is5Changed
+        || this.is6Changed || this.is7Changed)
+
+      this.notChanged = (this.not1Changed || this.not2Changed || this.not3Changed || this.not4Changed || this.not5Changed
+        || this.not6Changed || this.not7Changed)
+
+      this.noChanged = !(this.descChanged || this.whChanged || this.isChanged || this.notChanged)
     },
     // 确认完成
     confirmFinished() {
+      if (!this.noChanged) {
+        let msg = '检测到'
+        if (this.descChanged) {
+          msg += '【详细问题描述】'
+        }
+        if (this.whChanged) {
+          msg += '【5W2H描述】'
+        }
+        if (this.isChanged || this.notChanged) {
+          msg += '【IS/IS Not描述】'
+        }
+        msg += '发生了变化，是否一并保存?'
+        this.$confirm(msg, '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 是',
+          cancelButtonText: 'No 否'
+        })
+          .then(() => {
+            if (this.descChanged) {
+              edit(this.form).then(res => {
+                // 编辑问题，添加供应商详细描述
+                this.$message({
+                  message: 'Submit Success! 添加描述完成!',
+                  type: 'success'
+                })
+                this.oldDesc = this.form.supplierDescription
+              }).catch(res => {
+                this.form.supplierDescription = this.oldDesc
+              })
+            }
+            if (this.whChanged) {
+              this.saveQuestions(this.questions)
+            }
+            if (this.isChanged || this.notChanged) {
+              this.saveIsNots(this.isNots)
+            }
+            setTimeout(() => {
+              this.finishStep()
+            }, 600)
+
+          }).catch(() => {
+          // 查询详细描述数据
+          this.getIssueInfoById(this.$props.issueId)
+          // 查询5W2H数据
+          this.getWhByIssueId(this.$props.issueId, this.types[0])
+          this.getIsByIssueId(this.$props.issueId, this.types[1])
+          // 查询IS/IS Not描述
+          this.finishStep()
+        })
+
+      } else {
+        this.finishStep()
+      }
+    },
+    finishStep() {
       // 确认D2完成
       this.timeManagement.curStep = 'D2'
       this.timeManagement.d2Status = true
@@ -699,6 +1000,10 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
+          this.descChanged = false
+          this.whRest()
+          this.isNotReset()
+          this.judgeChange()
           this.$emit('func', this.isFinished)
           this.$message({
             message: 'Submit Success! D2提交完成!',

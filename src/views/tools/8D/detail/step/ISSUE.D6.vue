@@ -152,7 +152,11 @@
           style="width: 100%;"
         >
           <el-table-column prop="causeName" label="根本原因"/>
-          <el-table-column prop="judgeResult" label="发生/检测"/>
+          <el-table-column
+            prop="judgeResult"
+            label="发生/检测"
+            v-if="isNeed"
+          />
           <el-table-column prop="name" label="改善行动"/>
           <el-table-column prop="validationMethod" label="确认方法" min-width="140"/>
           <el-table-column prop="validationResult" label="确认结果"/>
@@ -179,7 +183,7 @@
           <el-table-column
             v-if="isNeed"
             label="操作"
-            width="160px"
+            width="120px"
             align="center"
             fixed="right"
           >
@@ -726,6 +730,7 @@ export default {
           this.$emit('func', this.isFinished)
         }).catch(res => {
           this.form.commentD6 = this.oldComment
+          this.getIssueInfoById(this.$props.issueId)
         })
       }
     },
@@ -810,6 +815,10 @@ export default {
   background-color: #ffffff;
   color: #000000;
 }
+
+/* .el-table--scrollable-x .el-table__body-wrapper {
+  overflow-x: hidden !important;
+} */
 
 ::v-deep .box-card {
   margin-bottom: 5px;

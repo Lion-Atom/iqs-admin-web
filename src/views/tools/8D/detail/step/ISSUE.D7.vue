@@ -712,13 +712,15 @@ export default {
             message: 'Save Documentation Success! 保存文档更改内容成功!',
             type: 'success'
           })
-          this.oldFirstDesc = data[0].description
-          this.oldSecDesc = data[1].description
-          this.docDescChanged = false
+          /*this.oldFirstDesc = data[0].description
+          this.oldSecDesc = data[1].description*/
+          this.docDesc1Changed = false
+          this.docDesc2Changed = false
           this.saveSuccess = true
           this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
+          this.getChangeDescByIssueId(this.$props.issueId)
         }).catch(() => {
           this.$message({
             message: 'Save Documentation Failed! 保存文档更改内容失败!',
@@ -763,6 +765,7 @@ export default {
             message: 'Submit D7-Desc Success! 添加D7详细描述完成!',
             type: 'success'
           })
+          this.oldComment = form.commentD7
           this.isFinished = false
           this.commentChanged = false
           this.judgeChange()
@@ -945,6 +948,7 @@ export default {
     // D7-详细描述
     commentChange(val) {
       this.commentChanged = !judgeIsEqual(val.trim(), this.oldComment)
+      // alert(this.commentChanged)
       this.judgeChange()
     },
     judgeChange() {
@@ -1028,6 +1032,12 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
+          this.docDesc1Changed  = false
+          this.docDesc2Changed = false
+          this.commentChanged = false
+          this.tempCommentChanged = false
+          this.hasTempChanged = false
+          this.docDescChanged = false
           this.noChanged = true
           this.$emit('func', this.isFinished)
           this.$message({

@@ -3,19 +3,19 @@
  * @returns {Boolean}
  */
 export function validIsNotNull(str) {
-  return !(str == null || str === '')
+  return !(str === null || str === '' || str === undefined)
 }
 
 export function validTwo(val1, val2) {
-  if ((val1 == null || val1 === '') && (val2 != null && val2 !== '')) {
+  if ((val1 === null || val1 === '' || val1 === undefined) && (val2 !== null && val2 !== '')) {
     return false
   } else {
-    return !((val2 == null || val2 === '') && (val1 != null && val1 !== ''))
+    return !((val2 === null || val2 === '' || val2 === undefined) && (val1 !== null && val1 !== ''))
   }
 }
 
 export function judgeIsEqual(v1, v2) {
-  return ((v1 === null || v1 === '') && (v2 === null || v2 === '')) ||
+  return ((v1 === null || v1 === '' || v1 === undefined) && (v2 === null || v2 === '' || v2 === undefined)) ||
     (v1 === v2)
 }
 

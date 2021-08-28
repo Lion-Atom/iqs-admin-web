@@ -866,13 +866,11 @@ export default {
           message: 'Save Step-Defect Record Success! 保存缺陷检测定位成功!',
           type: 'success'
         })
-        this.createdChanged = false
-        this.detectedChanged = false
-        this.shouldChanged = false
-        this.defectChanged = false
+        this.resetDefectChange()
         this.isFinished = false
         this.judgeChange()
         this.$emit('func', this.isFinished)
+        this.getStepDefectByIssueId(this.$props.issueId)
       }).catch(() => {
         this.$message({
           message: 'Save Step-Defect Failed! 保存缺陷定位信息失败!',
@@ -1234,6 +1232,8 @@ export default {
             type: 'success'
           })
           this.oldRbi = form.rbi
+          this.rbiChanged = false
+          this.judgeChange()
           this.isFinished = false
           this.$emit('func', this.isFinished)
         })

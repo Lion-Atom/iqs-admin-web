@@ -250,6 +250,7 @@ export default {
               this.otherDescChanged = false
               this.judgeChange()
               this.$emit('func', this.isFinished)
+              this.getIssueConclusionByIssueId(this.$props.issueId)
             }).catch(() => {
               this.getIssueConclusionByIssueId(this.$props.issueId)
             })
