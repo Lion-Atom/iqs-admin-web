@@ -718,7 +718,7 @@ export default {
       this.judgeChange()
     },
     thirdTimeChange(val) {
-      this.time3Change = judgeIsEqual(GMTToStr(val), this.oldTime3)
+      this.time3Change = !judgeIsEqual(GMTToStr(val), this.oldTime3)
       this.judgeChange()
     },
     // 判断界面输入有无变化

@@ -959,7 +959,7 @@ export default {
       if(!this.noChanged){
         let msg = '检测到'
         if (this.commentChanged) {
-          msg += '【D7详细描述】'
+          msg += '【D7-详细描述】'
         }
         if (this.hasTempChanged) {
           msg += '【是否回收临时文件选择项】'

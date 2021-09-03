@@ -1332,7 +1332,7 @@ export default {
           msg += '【缺陷定位】'
         }
         if (this.rbiChanged) {
-          msg += '【D7风险评估】'
+          msg += '【D4-风险评估】'
         }
         if (this.specialChanged) {
           msg += '【特殊事件模式变更】'

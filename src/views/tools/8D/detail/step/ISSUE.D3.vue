@@ -845,7 +845,7 @@ export default {
       if (!this.noChanged) {
         let msg = ''
         if (this.descChanged && this.hasTempChanged) {
-          msg = '检测到【风险评估】【临时文件】是否存在发生了变化，是否一并保存?'
+          msg = '检测到【D3-风险评估】【临时文件】是否存在发生了变化，是否一并保存?'
         } else if (this.descChanged && !this.hasTempChanged) {
           msg = '检测到【风险评估】发生了变化，是否一并保存?'
         } else if (!this.descChanged && this.hasTempChanged) {

@@ -934,7 +934,7 @@ export default {
       if (!this.noChanged) {
         let msg = '检测到'
         if (this.descChanged) {
-          msg += '【详细问题描述】'
+          msg += '【D2-详细问题描述】'
         }
         if (this.whChanged) {
           msg += '【5W2H描述】'
