@@ -292,7 +292,7 @@
                 </el-radio>
               </el-radio-group>
             </el-form-item>
-            <!--todo 任命组长-->
+            <!--任命组长-->
             <el-form-item
               v-if="form.hasReport==='系统8D'"
               label="指派组长"

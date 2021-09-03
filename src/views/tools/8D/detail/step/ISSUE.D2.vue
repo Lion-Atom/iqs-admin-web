@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!--问题基本信息-->
+    <!--相关数据信息-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">相关数据</span>

@@ -1,5 +1,120 @@
 <template>
   <div class="crud-opts">
+    <el-dialog
+      append-to-body
+      :close-on-click-modal="false"
+      :before-close="handleClose"
+      :visible.sync="diaVisible"
+      title="编辑问题"
+      width="700px"
+    >
+      <el-form
+        ref="form"
+        :model="form"
+        :rules="rules"
+        size="small"
+        label-width="160px"
+      >
+        <el-form-item
+          label="问题标题"
+          prop="issueTitle"
+        >
+          <el-input
+            v-model="form.issueTitle"
+            style="width: 370px;"
+          />
+        </el-form-item>
+        <el-form-item
+          label="客户名"
+          prop="customerName"
+        >
+          <el-input
+            v-model="form.customerName"
+            style="width: 370px;"
+          />
+        </el-form-item>
+        <el-form-item
+          label="客户追踪码"
+          prop="caNum"
+        >
+          <el-input
+            v-model="form.caNum"
+            style="width: 370px;"
+          />
+        </el-form-item>
+        <el-form-item
+          label="产品料号"
+          prop="partNum"
+        >
+          <el-input
+            v-model="form.partNum"
+            style="width: 370px;"
+          />
+        </el-form-item>
+        <el-form-item
+          label="问题来源"
+          prop="source"
+        >
+          <el-radio
+            v-for="item in dict.d_source"
+            :key="item.value"
+            v-model="form.source"
+            :label="item.value"
+          >
+            {{ item.value }}
+          </el-radio>
+        </el-form-item>
+        <el-form-item
+          label="紧急计划"
+          prop="urgencyPlan"
+        >
+          <el-input
+            v-model="form.urgencyPlan"
+            style="width: 370px;"
+          />
+        </el-form-item>
+        <el-form-item
+          label="创建时间"
+          prop="initTime"
+        >
+          <el-date-picker
+            v-model="form.initTime"
+            style="width: 370px;"
+            type="datetime"
+            placeholder="选择日期时间"
+            default-time="12:00:00"
+          />
+        </el-form-item>
+        <el-form-item
+          label="具体描述"
+          prop="description"
+        >
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="3"
+            style="width: 370px;"
+          />
+        </el-form-item>
+      </el-form>
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          type="text"
+          @click="diaVisible = false"
+        >
+          取消
+        </el-button>
+        <el-button
+          type="primary"
+          @click="submitIssue"
+        >
+          确认
+        </el-button>
+      </div>
+    </el-dialog>
     <span class="crud-opts-left">
       <!--左侧插槽-->
       <slot name="left"/>
@@ -30,7 +145,7 @@
         {{ editTitle }}
       </el-button>
       </el-tooltip>
-      <el-button
+<!--      <el-button
         v-if="crud.optShow.edit"
         v-permission="permission.edit"
         class="filter-item"
@@ -41,6 +156,18 @@
         @click="gotoEdit(crud.selections[0])"
       >
         编辑8D
+      </el-button>-->
+      <el-button
+           v-if="crud.optShow.add"
+           v-permission="permission.add"
+           class="filter-item"
+           size="mini"
+           type="primary"
+           icon="el-icon-edit"
+           :disabled="crud.selections.length !== 1"
+           @click="toEditForm(crud.selections[0])"
+      >
+        编辑问题
       </el-button>
       <el-tooltip class="item" effect="dark" content="打印之前要确定数据都加载完毕哦" placement="top-start">
             <el-button
@@ -135,6 +262,7 @@
 import CRUD, { crud } from '@crud/crud'
 import { getCauseTreeByIssueId } from '@/api/tools/issueCause'
 import { mapGetters } from 'vuex'
+import { edit } from '@/api/tools/issue'
 
 function sortWithRef(src, ref) {
   const result = Object.assign([], ref)
@@ -173,6 +301,7 @@ export default {
       }
     }
   },
+  dicts: ['d_source'],
   data() {
     return {
       editTitle: '审核问题',
@@ -183,7 +312,37 @@ export default {
       // 忽略下次表格列变动
       ignoreNextTableColumnsChange: false,
       viewLoading: false,
-      fishData: {}
+      fishData: {},
+      form: {
+
+      },
+      diaVisible: false,
+      rules: {
+        issueTitle: [
+          { required: true, message: '请输入问题标题', trigger: 'blur' }
+        ],
+        customerName: [
+          { required: true, message: '请输入客户名', trigger: 'blur' }
+        ],
+        caNum: [
+          { required: true, message: '请输入客户追踪码', trigger: 'blur' }
+        ],
+        partNum: [
+          { required: true, message: '请输入产品料号', trigger: 'blur' }
+        ],
+        source: [
+          { required: true, message: '请选择问题来源', trigger: 'blur' }
+        ],
+        urgencyPlan: [
+          { required: true, message: '请输入紧急计划', trigger: 'blur' }
+        ],
+        initTime: [
+          { required: true, message: '请输入创建时间', trigger: 'blur' }
+        ],
+        description: [
+          { required: true, message: '请描述下问题具体信息', trigger: 'blur' }
+        ]
+      },
     }
   },
   watch: {
@@ -296,6 +455,33 @@ export default {
     toggleSearch() {
       this.crud.props.searchToggle = !this.crud.props.searchToggle
     },
+    // 关闭弹窗前操作
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {
+        })
+    },
+    // 提交问题信息
+    submitIssue(){
+      this.$refs.form.validate().then((valid) => {
+        if (!valid) {
+          return false
+        } else {
+          edit(this.form).then(res => {
+            this.$message({
+              message: 'Edit Issue Success! 编辑问题基本信息成功!',
+              type: 'success'
+            })
+            this.diaVisible = false
+          }).catch(res => {
+
+          })
+        }
+      })
+    },
     gotoEdit(data) {
       // 跳转到8D明细中
       this.$router.push(
@@ -305,6 +491,11 @@ export default {
             issueId: data.id
           }
         })
+    },
+    // 编辑问题
+    toEditForm(data){
+      this.diaVisible = true
+      this.form = data
     },
     gotoView(data) {
       this.viewLoading = true
