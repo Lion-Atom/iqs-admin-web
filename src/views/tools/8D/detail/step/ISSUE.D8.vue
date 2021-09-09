@@ -70,7 +70,7 @@
     <!--关闭-->
     <el-card v-if="this.form.hasScore" class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">关闭</span>
+        <span class="header-title">8D评分</span>
         <el-button v-if="isNeed"  style="float: right; padding: 3px 0" type="text" @click="saveScore(form)">保存</el-button>
       </div>
       <div>

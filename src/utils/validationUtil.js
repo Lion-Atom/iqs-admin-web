@@ -62,3 +62,24 @@ export function GMTToStr(time) {
     second
   return Str
 }
+
+/*
+ * 格林时间转化为普通时间
+ */
+export function GMTToDate(time) {
+  let datetime = new Date(time)
+  let year = datetime.getFullYear()
+  let month = datetime.getMonth() + 1//js从0开始取
+  let day = datetime.getDate()
+
+  if (month < 10) {
+    month = '0' + month
+  }
+  if (day < 10) {
+    day = '0' + day
+  }
+
+  return year + '-' +
+    month + '-' +
+    day + ' '
+}

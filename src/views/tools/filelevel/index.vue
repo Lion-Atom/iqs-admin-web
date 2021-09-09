@@ -214,7 +214,7 @@ export default {
     },
     // 提交前的验证
     [CRUD.HOOK.afterValidateCU]() {
-      if (this.form.pid !== null && this.form.pid === this.form.id) {
+      if (this.form.pid !== null && this.form.pid !== this.form.id) {
         this.$message({
           message: '上级文件等级不能为空',
           type: 'warning'

@@ -162,8 +162,8 @@
           <el-table-column prop="validationResult" label="确认结果"/>
           <el-table-column prop="efficiency" label="有效性(%)"/>
           <el-table-column prop="responsibleName" label="负责人"/>
-          <el-table-column prop="plannedTime" label="预定时间" width="140"/>
-          <el-table-column prop="completeTime" label="完成时间" width="140"/>
+          <el-table-column prop="plannedTime" label="预定时间" width="90"/>
+          <el-table-column prop="completeTime" label="完成时间" width="90"/>
           <el-table-column prop="identification" label="标识"/>
           <el-table-column prop="status" label="状态">
             <template slot-scope="scope">
@@ -178,7 +178,7 @@
           </el-table-column>
           <el-table-column prop="correctiveMeasurementMethod" label="测评方法"/>
           <el-table-column prop="correctiveEfficiencyResult" label="测评结果"/>
-          <el-table-column prop="evaluationTime" label="评估日期" width="140"/>
+          <el-table-column prop="evaluationTime" label="评估日期" width="90"/>
           <!--   编辑与删除   -->
           <el-table-column
             v-if="isNeed"

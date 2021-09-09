@@ -26,33 +26,33 @@
             <ul class="user-info">
               <li>
                 <div style="height: 100%">
-                  <svg-icon icon-class="login" />
+                  <svg-icon icon-class="login"/>
                   登录账号
                   <div class="user-right">{{ user.username }}</div>
                 </div>
               </li>
               <li>
-                <svg-icon icon-class="user1" />
+                <svg-icon icon-class="user1"/>
                 用户昵称
                 <div class="user-right">{{ user.nickName }}</div>
               </li>
               <li>
-                <svg-icon icon-class="dept" />
+                <svg-icon icon-class="dept"/>
                 所属部门
                 <div class="user-right"> {{ user.dept.name }}</div>
               </li>
               <li>
-                <svg-icon icon-class="phone" />
+                <svg-icon icon-class="phone"/>
                 手机号码
                 <div class="user-right">{{ user.phone }}</div>
               </li>
               <li>
-                <svg-icon icon-class="email" />
+                <svg-icon icon-class="email"/>
                 用户邮箱
                 <div class="user-right">{{ user.email }}</div>
               </li>
               <li>
-                <svg-icon icon-class="anq" />
+                <svg-icon icon-class="anq"/>
                 安全设置
                 <div class="user-right">
                   <a @click="$refs.pass.dialog = true">修改密码&nbsp;</a>
@@ -77,11 +77,11 @@
                 label-width="65px"
               >
                 <el-form-item label="昵称" prop="nickName">
-                  <el-input v-model="form.nickName" style="width: 35%" />
+                  <el-input v-model="form.nickName" style="width: 35%"/>
                   <span style="color: #C0C0C0;margin-left: 10px;">用户昵称不作为登录使用</span>
                 </el-form-item>
                 <el-form-item label="手机号" prop="phone">
-                  <el-input v-model="form.phone" style="width: 35%;" />
+                  <el-input v-model="form.phone" style="width: 35%;"/>
                   <span style="color: #C0C0C0;margin-left: 10px;">手机号码不能重复</span>
                 </el-form-item>
                 <el-form-item label="性别">
@@ -187,7 +187,7 @@
                       :value="item.key"
                     />
                   </el-select>
-                  <rrOperation />
+                  <rrOperation/>
                 </div>
                 <crudOperation>
                   <el-button
@@ -217,77 +217,77 @@
                     <el-row>
                       <el-col :span="24">
                         <el-form-item label="任务名称">
-                          <el-input v-model="taskForm.changeDesc" disabled />
+                          <el-input v-model="taskForm.changeDesc" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="任务单号">
-                          <el-input v-model="taskForm.preTrailNo" disabled />
+                          <el-input v-model="taskForm.preTrailNo" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="任务发起人">
-                          <el-input v-model="taskForm.ownerName" disabled />
+                          <el-input v-model="taskForm.ownerName" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row>
                       <el-col :span="12">
                         <el-form-item label="审批对象">
-                          <el-input v-model="taskForm.storageName" disabled />
+                          <el-input v-model="taskForm.storageName" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象类型">
-                          <el-input v-model="taskForm.type" disabled />
+                          <el-input v-model="taskForm.type" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row v-if="taskForm.type !== '8D'">
                       <el-col :span="12">
                         <el-form-item label="对象版本">
-                          <el-input v-model="taskForm.version" disabled />
+                          <el-input v-model="taskForm.version" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象大小">
-                          <el-input v-model="taskForm.size" disabled />
+                          <el-input v-model="taskForm.size" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
                     <el-row v-if="taskForm.type !== '8D'">
                       <el-col :span="12">
                         <el-form-item label="最近更新人">
-                          <el-input v-model="taskForm.updateBy" disabled />
+                          <el-input v-model="taskForm.updateBy" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="对象大小">
-                          <el-input v-model="taskForm.size" disabled />
+                          <el-input v-model="taskForm.size" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
-                    <el-row v-if="taskForm.type !== '8D'">
+                    <el-row v-if="taskForm.type === '文件'">
                       <el-col :span="23">
                         <el-form-item label="对象位置">
-                          <el-input v-model="taskForm.tarPath" disabled />
+                          <el-input v-model="taskForm.tarPath" disabled/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="1">
                         <!--文件下载-->
                         <a
-                          :href="baseApi + '/file/' + taskForm.type + '/' + taskForm.realName"
+                          :href="baseApi + '/file/' + taskForm.fileType + '/' + taskForm.realName"
                           class="el-link--primary"
                           style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;"
                         >
-                          <i style="line-height:1.5;font-size: 24px;" class="el-icon-download" />
+                          <i style="line-height:1.5;font-size: 24px;" class="el-icon-download"/>
                         </a>
                       </el-col>
                     </el-row>
                     <el-row>
-                      <el-col v-if="taskForm.type !== '8D'" :span="12">
+                      <el-col v-if="taskForm.type === '文件'" :span="12">
                         <el-form-item label="审批结论" required>
                           <el-select
                             v-model="taskForm.approveResult"
@@ -296,6 +296,7 @@
                             class="filter-item"
                             style="width: 120px"
                             :disabled="isHavResult"
+                            @change="resultHandler"
                           >
                             <el-option
                               v-for="item in approveTypeOptions"
@@ -308,15 +309,15 @@
                       </el-col>
                       <el-col :span="12">
                         <el-form-item v-if="taskForm.isDone" label="完成时间">
-                          <el-input v-model="taskForm.updateTime" disabled />
+                          <el-input v-model="taskForm.updateTime" disabled/>
                         </el-form-item>
                       </el-col>
                     </el-row>
-                    <el-row v-if="taskForm.type !== '8D'">
+                    <el-row v-if="taskForm.type === '文件' && taskForm.approveResult === false ">
                       <el-col :span="24">
-                        <el-form-item label="审批建议">
+                        <el-form-item label="驳回理由" required>
                           <el-input
-                            v-model="taskForm.comment === undefined ?'--无--':taskForm.comment"
+                            v-model="taskForm.comment"
                             placeholder="可填写驳回理由或者修改意见等"
                             :disabled="taskForm.isDone"
                           />
@@ -607,7 +608,7 @@
                   @row-dblclick="dbSelected"
                   @row-click="stepsListRowClick"
                 >
-                  <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55" />
+                  <el-table-column :selectable="checkboxT" :reserve-selection="true" type="selection" width="55"/>
                   <el-table-column prop="storageName" label="对象名称">
                     <template slot-scope="scope">
                       <el-popover
@@ -619,25 +620,27 @@
                         <div>{{ scope.row.changeDesc }}</div>
                         <a
                           slot="reference"
-                          :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                          :href="baseApi + '/file/' + scope.row.fileType + '/' + scope.row.realName"
                           class="el-link--primary"
                           style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                          target="_blank"
+                          :download="scope.row.realName"
                         >
                           {{ scope.row.storageName }}
                         </a>
                       </el-popover>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="preTrailNo" width="180" label="任务单号" />
-                  <el-table-column prop="type" label="类型" />
+                  <el-table-column prop="preTrailNo" width="180" label="任务单号"/>
+                  <el-table-column prop="type" label="类型"/>
                   <!--                                    <el-table-column prop="srcPath" label="原路径" />
                                     <el-table-column prop="tarPath" label="目标路径" />
                                     <el-table-column prop="version" label="目标版本号" />-->
-                  <el-table-column prop="createTime" width="150" label="创建时间" />
-                  <el-table-column prop="createBy" label="创建人" />
-                  <el-table-column label="进度" :formatter="isDoneFormat" />
-                  <el-table-column label="审核结果" :formatter="approveResultFormat" />
-                  <el-table-column v-if="user.isAdmin" width="120" prop="approver" label="审核人" />
+                  <el-table-column prop="createTime" width="150" label="创建时间"/>
+                  <el-table-column prop="createBy" label="创建人"/>
+                  <el-table-column label="进度" :formatter="isDoneFormat"/>
+                  <el-table-column label="审核结果" :formatter="approveResultFormat"/>
+                  <el-table-column v-if="user.isAdmin" width="120" prop="approver" label="审核人"/>
                   <el-table-column
                     label="操作"
                     width="80"
@@ -654,7 +657,7 @@
                   </el-table-column>
                 </el-table>
                 <!--分页组件-->
-                <pagination />
+                <pagination/>
               </div>
             </el-tab-pane>
             <!--    操作日志    -->
@@ -696,8 +699,8 @@
         </el-card>
       </el-col>
     </el-row>
-    <updateEmail ref="email" :email="user.email" />
-    <updatePass ref="pass" />
+    <updateEmail ref="email" :email="user.email"/>
+    <updatePass ref="pass"/>
   </div>
 </template>
 
@@ -736,7 +739,7 @@ export default {
     UploadFile
   },
   cruds() {
-    return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask }})
+    return CRUD({ title: '文件', url: 'api/toolsTask', crudMethod: { ...crudTask } })
   },
   mixins: [presenter(), header(), crud()],
   dicts: ['d_status', 'd_process', 'd_source', 'common_status', 'd_execute'],
@@ -797,7 +800,8 @@ export default {
       ],
       trailTypeOptions: [
         { key: '文件', display_name: '文件' },
-        { key: '8D', display_name: '8D' }
+        { key: '8D', display_name: '8D' },
+        { key: '审核人员批准', display_name: '审核人员批准' }
       ],
       resultTypeOptions: [
         { key: true, display_name: '同意' },
@@ -924,9 +928,7 @@ export default {
         }
         this.getIssueInfoById(msg.data.storageId)
       }
-      this.isHavResult = !(this.oldResult === undefined ||
-        this.oldResult === '' ||
-        this.oldResult === null)
+      this.isHavResult = validIsNotNull(this.oldResult)
     },
     // 获取人员信息
     getAvailableUser() {
@@ -940,7 +942,6 @@ export default {
       // alert(JSON.stringify(this.dict.common_status))
       this.issueForm = {}
       getIssueById(id).then(res => {
-        // alert(JSON.stringify(res))
         this.issueForm = res
         if (validIsNotNull(this.issueForm.isRepeat)) {
           this.issueForm.isRepeat = this.issueForm.isRepeat.toString()
@@ -1016,8 +1017,15 @@ export default {
         })
         return false
       }
-      if (taskForm.approveResult === 'false') {
+      if (taskForm.approveResult === false) {
         // alert("建议填写修改建议")
+        if(!validIsNotNull(taskForm.comment)){
+          this.$message({
+            message: 'Comment must not null when choosing "No" ! \n 请给出驳回理由！',
+            type: 'warning'
+          })
+          return false
+        }
       }
       // alert(JSON.stringify(taskForm))
       submitTask(taskForm).then(res => {
@@ -1111,6 +1119,13 @@ export default {
       // 已审批项不可选中
       if (row.approveResult !== true && row.approveResult !== false) {
         this.$refs.table.toggleRowSelection(row)
+      }
+    },
+    resultHandler(val) {
+      if (val) {
+        this.taskForm.approveResult = val
+      } else {
+        this.taskForm.approveResult = val
       }
     },
     // 双击选中的行列，进入审批主页

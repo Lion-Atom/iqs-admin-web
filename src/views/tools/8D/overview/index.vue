@@ -179,8 +179,8 @@ export default {
         } */
         btn_save_pdf.style.display = 'none'
         setTimeout(() => {
-          // this.getPdf() // 分页导出
-          this.printPdf()  // 不分页导出
+          this.getPdf() // 分页导出
+          // this.printPdf()  // 不分页导出
         }, 200)
       }
     }

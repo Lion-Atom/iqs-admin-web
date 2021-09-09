@@ -756,6 +756,7 @@ export default {
     },
     // 获取可选上级
     getUserSuperior(deptId, b) {
+      this.superiors = []
       if (deptId !== null && deptId !== undefined) {
         crudUser.getUserSuperior({ deptId: deptId, editId: this.form.id }).then(res => {
           // alert(JSON.stringify(res))

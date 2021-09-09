@@ -450,6 +450,30 @@
             </el-radio-group>
           </el-col>
         </el-row>
+<!--        <el-row v-if="form.hasTempFile === true" style="margin-bottom: 20px;">
+          <el-col :span="4">
+            <span>添加临时文件：</span>
+          </el-col>
+          <el-col :span="6">
+            &lt;!&ndash;todo 添加临时文件&ndash;&gt;
+            <el-select
+              v-model="bindFileDatas"
+              style="width: 400px"
+              multiple
+              filterable
+              placeholder="请选择"
+              @remove-tag="deleteTag"
+              @change="changeBindFile"
+            >
+              <el-option
+                v-for="item in bindFiles"
+                :key="item.name"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-col>
+        </el-row>-->
         <el-row>
           <el-col :span="6">
             确认完成当前步骤：

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div @dblclick="back" class="app-container">
     <!--    <pre class="my-code" style="padding: 8px;!important;">8D明细-&#45;&#45;开发中</pre>-->
     <el-card class="box-card">
       <el-page-header @back="goBack" :content="headerContent"></el-page-header>
@@ -117,6 +117,7 @@ import FifthForm from './step/ISSUE.D5'
 import SixthForm from './step/ISSUE.D6'
 import SeventhForm from './step/ISSUE.D7'
 import EighthForm from './step/ISSUE.D8'
+import { getCauseTreeByIssueId } from '@/api/tools/issueCause'
 
 export default {
   name: 'Detail',
@@ -149,7 +150,7 @@ export default {
       isSpecial: false,
 
       headerContent: '系统8D',
-
+      fishData: {},
       initFishData: null
     }
   },
@@ -326,7 +327,31 @@ export default {
         this.isSeventh = false
         this.isEighth = true
       }
-    }
+    },
+    back() {
+      this.$confirm('打印预览？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: 'Yes 前往预览',
+        cancelButtonText: 'Wait 留在本页'
+      })
+        .then(() => {
+          getCauseTreeByIssueId(this.$route.query.issueId).then(res => {
+            this.fishData = {}
+            this.fishData.name = res.issueTitle
+            this.fishData.children = res.content
+            this.viewLoading = false
+            // 跳转到8D预览界面
+            this.$router.push(
+              {
+                path: '/issue/overview',
+                query: {
+                  issueId: this.$route.query.issueId,
+                  initFishData: this.fishData
+                }
+              })
+          })
+        })
+    },
   }
 }
 </script>

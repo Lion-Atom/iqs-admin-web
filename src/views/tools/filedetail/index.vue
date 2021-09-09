@@ -198,12 +198,14 @@
                         width="200"
                         trigger="hover"
                       >
+                        <!--可下载文件-->
                         <a
                           slot="reference"
                           :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
                           class="el-link--primary"
                           style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
                           target="_blank"
+                          :download="scope.row.realName"
                         >
                           {{ scope.row.realName }}
                         </a>
