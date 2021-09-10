@@ -123,4 +123,12 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del }
+export function getFileByExample(data) {
+  return request({
+    url: 'api/localStorage/byExample',
+    method: 'post',
+    data
+  })
+}
+
+export default { add, edit, del, getFileByExample }

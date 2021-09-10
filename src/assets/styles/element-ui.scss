@@ -96,6 +96,12 @@
   color: #000 !important;
 }
 
+// fix check-box disabled-style
+.el-checkbox__input.is-disabled.is-checked .el-checkbox__inner{
+  background-color: #1890ff !important;
+  border-color: #1890ff;
+}
+
 .el-input.is-disabled .el-input__inner {
   background-color: #fff !important;
   color: #000 !important;

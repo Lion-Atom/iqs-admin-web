@@ -418,7 +418,7 @@
               :disabled="!isNeed"
               @input="descChange"
             />
-            <span v-if="!isNeed">{{transNullFormat(form.riskAssessment)}}</span>
+            <span v-if="!isNeed">{{ transNullFormat(form.riskAssessment) }}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -450,30 +450,67 @@
             </el-radio-group>
           </el-col>
         </el-row>
-<!--        <el-row v-if="form.hasTempFile === true" style="margin-bottom: 20px;">
-          <el-col :span="4">
-            <span>添加临时文件：</span>
-          </el-col>
-          <el-col :span="6">
-            &lt;!&ndash;todo 添加临时文件&ndash;&gt;
-            <el-select
-              v-model="bindFileDatas"
-              style="width: 400px"
-              multiple
+        <el-row class="edit_dev" v-if="form.hasTempFile === true" style="margin-bottom: 20px;">
+          <el-divider content-position="left">添加临时文件</el-divider>
+          <div>
+            <el-transfer
+              width="450px"
               filterable
-              placeholder="请选择"
-              @remove-tag="deleteTag"
-              @change="changeBindFile"
+              v-model="chooseValue"
+              :data="tempFiles"
+              :titles="['临时文件源库', '当前临时文件']"
+              @change="tempFileChange"
             >
-              <el-option
-                v-for="item in bindFiles"
-                :key="item.name"
-                :label="item.name"
-                :value="item.id"
-              />
-            </el-select>
-          </el-col>
-        </el-row>-->
+              <el-button class="transfer-footer" slot="right-footer" type="text" size="small" @click="saveTempFiles">保存</el-button>
+            </el-transfer>
+          </div>
+        </el-row>
+        <el-row style="margin-bottom: 15px;">
+          <el-divider content-position="left">添加临时文件</el-divider>
+          <el-table
+            ref="table"
+            v-loading="tempFileLoading"
+            :data="tempFileList"
+            style="width: 100%;"
+          >
+            <el-table-column prop="name" label="附件名称" min-width="200">
+              <template slot-scope="scope">
+                <el-popover
+                  :content="'file/' + scope.row.type + '/' + scope.row.name"
+                  placement="top-start"
+                  title="路径"
+                  width="200"
+                  trigger="hover"
+                >
+                  <!--可下载文件-->
+                  <a
+                    slot="reference"
+                    :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.name"
+                    class="el-link--primary"
+                    style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                    target="_blank"
+                    :download="scope.row.realName"
+                  >
+                    {{ scope.row.name }}
+                  </a>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column prop="size" label="大小" min-width="120" />
+            <el-table-column prop="type" label="附件类型" min-width="120" />
+            <el-table-column prop="createBy" label="创建者" />
+            <el-table-column
+              fixed="right"
+              label="操作"
+              width="100"
+            >
+              <template slot-scope="scope">
+                <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
+        <!--确认完成-->
         <el-row>
           <el-col :span="6">
             确认完成当前步骤：
@@ -501,6 +538,57 @@
       </div>
     </el-card>
 
+    <!--临时文件列表-->
+    <el-card v-if="!isNeed && form.hasTempFile" class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">临时文件列表</span>
+      </div>
+      <div>
+        <el-table
+          ref="table"
+          v-loading="tempFileLoading"
+          :data="tempFileList"
+          style="width: 100%;"
+        >
+          <el-table-column prop="name" label="附件名称" min-width="200">
+            <template slot-scope="scope">
+              <el-popover
+                :content="'file/' + scope.row.type + '/' + scope.row.name"
+                placement="top-start"
+                title="路径"
+                width="200"
+                trigger="hover"
+              >
+                <!--可下载文件-->
+                <a
+                  slot="reference"
+                  :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.name"
+                  class="el-link--primary"
+                  style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                  target="_blank"
+                  :download="scope.row.realName"
+                >
+                  {{ scope.row.name }}
+                </a>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column prop="size" label="大小" min-width="120"/>
+          <el-table-column prop="type" label="附件类型" min-width="120"/>
+          <el-table-column prop="createBy" label="创建者"/>
+          <el-table-column
+            fixed="right"
+            label="操作"
+            width="100"
+          >
+            <template slot-scope="scope">
+              <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-card>
+
   </div>
 </template>
 
@@ -513,6 +601,9 @@ import { getMembersByIssueId } from '@/api/tools/teamMember'
 import UploadFile from '@/components/UploadFile'
 import { addIssueAction, delIssueAction, editIssueAction, getIssueActionByExample } from '@/api/tools/issueAction'
 import { judgeIsEqual } from '@/utils/validationUtil'
+import { getFileByExample } from '@/api/tools/localStorage'
+import { getBindFileByExample, syncTempFile } from '@/api/tools/issueFile'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'ThirdForm',
@@ -628,8 +719,30 @@ export default {
       hasTempChanged: false,
       noChanged: true,
       isNeed: true,
-      submitLoading: false
+      submitLoading: false,
+      queryFileCond: {
+        fileStatus: 'temp'
+      },
+      queryTempFileByStep: {
+        issueId: this.$props.issueId,
+        stepName: 'D3'
+      },
+      tempFileDatas: [], // 绑定的文件集
+      tempFiles: [],
+      tempFileItems: [],
+      oldTemps: [],
+      chooseValue: [],
+      tempFileChanged: false,
+      tempFileList: [],
+      tempFileLoading: false
     }
+  },
+  computed: {
+    ...mapGetters([
+      'user',
+      'baseApi',
+      'appendixUploadApi'
+    ])
   },
   created() {
 
@@ -641,6 +754,8 @@ export default {
     this.getIssueConActionByIssueId(this.$props.issueId)
     this.getTeamMembersByIssueId(this.$props.issueId)
     this.getConActionByExample(this.$props.issueId)
+    this.getTempFileByExample()
+    this.getBindFileByExample(this.queryTempFileByStep)
   },
   methods: {
     // 监控附件相关改动
@@ -680,6 +795,41 @@ export default {
         this.otherConActions = res
       })
     },
+    // 查询临时文件-来自文控
+    getTempFileByExample() {
+      getFileByExample(this.queryFileCond).then(res => {
+        let data = []
+        res.forEach((file, index) => {
+          data.push({
+            label: file.name,
+            //这里的key值一定要是index，否则目标列表无法显示
+            key: file.id
+          })
+        })
+        this.tempFiles = data
+      })
+    },
+    // 查询当前D3步骤下的临时文件
+    getBindFileByExample(cond) {
+      this.tempFileLoading = true
+      this.tempFileList = []
+      getBindFileByExample(cond).then(res => {
+        this.tempFileLoading = false
+        this.tempFileList = res
+        let oldTemps = []
+        let chooseValue = []
+        if (this.tempFileList.length > 0) {
+          this.tempFileList.forEach((file, index)=> {
+            oldTemps.push(file.storageId)
+            chooseValue.push(file.storageId)
+          })
+        }
+        this.oldTemps = oldTemps
+        this.chooseValue = chooseValue
+      }).catch(res=>{
+        _this.tempFileLoading = false
+      })
+    },
     // 获取时间进程
     getTimeManagementByIssueId(id) {
       this.selfLoading = true
@@ -703,6 +853,18 @@ export default {
     doCancelConAct() {
       this.addConActionVisible = false
       this.getIssueConActionByIssueId(this.$props.issueId)
+    },
+    // 跳转搭配文件明细
+    handleClick(row) {
+      this.$router.push(
+        {
+          path: '/fileManagement/filedetail',
+          query: {
+            fileId: row.storageId,
+            name: row.name,
+            realName: row.realName
+          }
+        })
     },
     submitConAct() {
       this.$refs.conActionform.validate().then((valid) => {
@@ -839,7 +1001,7 @@ export default {
         })
       }
     },
-    transNullFormat(val){
+    transNullFormat(val) {
       if (val === '' || val === undefined || val === null) {
         return '--'
       } else {
@@ -855,26 +1017,79 @@ export default {
         .catch(_ => {
         })
     },
+    // 保存临时文件
+    saveTempFiles() {
+      if (this.tempFileChanged) {
+        let data = []
+        const _this = this
+        this.chooseValue.forEach((id, index) => {
+          const fl = { issueId: _this.$props.issueId, storageId: id, stepName: _this.curStep }
+          data.push(fl)
+        })
+        // 保存新的临时文件
+        syncTempFile(data).then(res => {
+          this.$message({
+            message: 'Temp Files Save Success.临时文件保存成功!',
+            type: 'success'
+          })
+          this.tempFileChanged = false
+          this.isFinished = false
+          this.judgeChange()
+          this.$emit('func', this.isFinished)
+          this.getBindFileByExample(this.queryTempFileByStep)
+        })
+      } else {
+        this.$message({
+          message: 'Temp Files No Changed.没有改动，无需重复保存!',
+          type: 'warning'
+        })
+        return false
+      }
+    },
     // 监控风险评估有无变化
     descChange(val) {
       this.descChanged = !judgeIsEqual(val.trim(), this.oldDesc)
       this.judgeChange()
     },
+    // 穿梭框，临时文件变化
+    tempFileChange(value, direction, movedKeys) {
+      this.tempFileChanged = false
+      if (this.oldTemps.length !== this.chooseValue.length) {
+        this.tempFileChanged = true
+      } else if (this.oldTemps.length === 0 && this.chooseValue.length === 0) {
+        this.tempFileChanged = false
+      } else if (this.oldTemps.sort().toString() !== this.chooseValue.sort().toString()) {
+        this.tempFileChanged = true
+      }
+      this.judgeChange()
+    },
     // 判断界面输入有无变化
     judgeChange() {
-      this.noChanged = !(this.descChanged || this.hasTempChanged)
+      this.noChanged = !(this.descChanged || this.hasTempChanged || this.tempFileChanged)
     },
     confirmFinished() {
+      if (this.form.hasTempFile && this.chooseValue.length === 0) {
+        this.$message({
+          message: 'Need Add Temp Files.请务必添加临时文件!',
+          type: 'warning'
+        })
+        return false
+      }
       // 判断是否切换临时文件选项
       if (!this.noChanged) {
-        let msg = ''
-        if (this.descChanged && this.hasTempChanged) {
-          msg = '检测到【D3-风险评估】【临时文件】是否存在发生了变化，是否一并保存?'
-        } else if (this.descChanged && !this.hasTempChanged) {
-          msg = '检测到【风险评估】发生了变化，是否一并保存?'
-        } else if (!this.descChanged && this.hasTempChanged) {
-          msg = '【临时文件是否存在选择项】发生了变化，是否一并保存?'
+
+        let msg = '检测到'
+        if (this.descChanged) {
+          msg += '【D3-风险评估】'
         }
+        if (this.hasTempChanged) {
+          msg += '【是否存在临时文件选项】'
+        }
+        if (this.tempFileChanged) {
+          msg += '【临时文件】'
+        }
+        msg += '发生了变化，是否一并保存?'
+
         this.$confirm(msg, '确认信息', {
           distinguishCancelAndClose: true,
           confirmButtonText: 'Yes 是',
@@ -885,7 +1100,21 @@ export default {
             this.oldHasTemp = this.form.hasTempFile
             this.descChanged = false
             this.hasTempChanged = false
-            this.finishStep()
+            // 同步临时文件
+            if (this.tempFileChanged) {
+              let data = []
+              const _this = this
+              this.chooseValue.forEach((id, index) => {
+                const fl = { issueId: _this.$props.issueId, storageId: id, stepName: _this.curStep }
+                data.push(fl)
+              })
+              // 保存新的临时文件
+              syncTempFile(data).then(res => {
+                this.getBindFileByExample(this.queryTempFileByStep)
+                this.tempFileChanged = false
+                this.finishStep()
+              })
+            }
           }).catch(res => {
             this.form.riskAssessment = this.oldDesc
             this.form.hasTempFile = this.oldHasTemp
@@ -931,6 +1160,10 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .box-card {
   margin-bottom: 5px;
+}
+
+.edit_dev > > > .el-transfer-panel {
+  width: 400px;
 }
 
 .elRow {

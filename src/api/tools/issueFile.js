@@ -16,4 +16,20 @@ export function delIssueFile(ids) {
   })
 }
 
-export default { getIssueFileByExample, delIssueFile }
+export function getBindFileByExample(data) {
+  return request({
+    url: 'api/issueFile/bindFile',
+    method: 'post',
+    data
+  })
+}
+
+export function syncTempFile(data) {
+  return request({
+    url: 'api/issueFile/syncTempFile',
+    method: 'post',
+    data
+  })
+}
+
+export default { getIssueFileByExample, delIssueFile, getBindFileByExample,syncTempFile }
