@@ -26,7 +26,7 @@
                 :disabled="!isNeed"
                 @input="inputChange(scope.$index,scope.row.description)"
               />
-              <span v-if="!isNeed">{{transNullFormat(scope.row.description)}}</span>
+              <span v-if="!isNeed">{{ transNullFormat(scope.row.description) }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -428,20 +428,92 @@
               :disabled="!isNeed"
               @input="commentChange"
             />
-            <span v-if="!isNeed">{{transNullFormat(form.commentD7)}}</span>
+            <span v-if="!isNeed">{{ transNullFormat(form.commentD7) }}</span>
           </el-form-item>
         </el-form>
       </div>
     </el-card>
 
-    <!--添加附件及其列表-->
-    <UploadFile
+    <!--添加附件及其列表 已注释，改用文控文件-->
+<!--    <UploadFile
       :is-need="isNeed"
       :issue-id="this.$props.issueId"
       :permission="permission"
       :step-name="curStep"
       @func="getMsgFormSon"
-    />
+    />-->
+
+    <!--添加附件V2-->
+    <el-card v-if="isNeed" class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">添加附件</span>
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="savePerFiles">保存
+        </el-button>
+      </div>
+      <div class="edit_dev">
+        <el-transfer
+          width="450px"
+          filterable
+          v-model="chooseFiles"
+          :data="perFiles"
+          :titles="['文件源库', '当前附件']"
+          @change="perFilesChange"
+        >
+        </el-transfer>
+      </div>
+    </el-card>
+
+    <!--附件列表V2-->
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span class="header-title">附件列表</span>
+      </div>
+      <div class="edit_dev">
+        <el-table
+          ref="table"
+          v-loading="perFileLoading"
+          :data="perFileList"
+          style="width: 100%;"
+        >
+          <el-table-column prop="name" label="附件名称" min-width="200">
+            <template slot-scope="scope">
+              <el-popover
+                :content="'file/' + scope.row.type + '/' + scope.row.name"
+                placement="top-start"
+                title="路径"
+                width="200"
+                trigger="hover"
+              >
+                <!--可下载文件-->
+                <a
+                  slot="reference"
+                  :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.name"
+                  class="el-link--primary"
+                  style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                  target="_blank"
+                  :download="scope.row.realName"
+                >
+                  {{ scope.row.name }}
+                </a>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column prop="size" label="大小" min-width="120" />
+          <el-table-column prop="type" label="附件类型" min-width="120" />
+          <el-table-column prop="createBy" label="创建者" />
+          <el-table-column
+            fixed="right"
+            label="操作"
+            width="100"
+            v-if="isNeed"
+          >
+            <template slot-scope="scope">
+              <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-card>
 
     <!--确认完成-->
     <el-card v-if="isNeed" class="box-card">
@@ -450,7 +522,7 @@
       </div>
       <div>
         <el-row v-if="form.hasTempFile" style="margin-bottom: 10px;">
-          <el-col :span="4">
+          <el-col :span="6">
             <span>临时文件是否全部回收?</span>
           </el-col>
           <el-col :span="6">
@@ -511,6 +583,9 @@ import { editAnalysis, getAnalysisByIssueId } from '@/api/tools/issueAnalysis'
 import { getMembersByIssueId } from '@/api/tools/teamMember'
 import { judgeIsEqual, validIsNotNull } from '@/utils/validationUtil'
 import UploadFile from '@/components/UploadFile'
+import { getFileByExample } from '@/api/tools/localStorage'
+import { getBindFileByExample, syncTempFile } from '@/api/tools/issueFile'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'SeventhForm',
@@ -615,10 +690,31 @@ export default {
       docDesc1Changed: false,
       docDesc2Changed: false,
       docDescChanged: false,
-      noChanged: true
+      noChanged: true,
+      queryFileCond: {
+        fileStatus: 'release',
+        approvalStatus: 'approved'
+      },
+      queryFileByStep: {
+        issueId: this.$props.issueId,
+        stepName: 'D7'
+      },
+      perFiles: [],
+      oldPerFiles: [],
+      chooseFiles: [], // 绑定的文件集
+      perFileChanged: false,
+      perFileList: [],
+      perFileLoading: false
     }
   },
   watch: {},
+  computed: {
+    ...mapGetters([
+      'user',
+      'baseApi',
+      'appendixUploadApi'
+    ])
+  },
   created() {
 
   },
@@ -631,6 +727,8 @@ export default {
     this.getTempActionByExample(this.$props.issueId)
     this.getAnalysisByIssueId(this.$props.issueId)
     this.getPreActionByExample(this.$props.issueId)
+    this.getPerFileByExample()
+    this.getBindFileByExample(this.queryFileByStep)
   },
   methods: {
     // 监控附件组件相关改动
@@ -683,11 +781,46 @@ export default {
         this.preActions = res
       })
     },
-    inputChange(index,val) {
-      if(index === 0){
+    // 获取已发布、已审批的文件
+    getPerFileByExample() {
+      getFileByExample(this.queryFileCond).then(res => {
+        let data = []
+        res.forEach((file, index) => {
+          data.push({
+            label: file.name,
+            //这里的key值一定要是index，否则目标列表无法显示
+            key: file.id
+          })
+        })
+        this.perFiles = data
+      })
+    },
+    // 查询当前D7步骤下的附件
+    getBindFileByExample(cond) {
+      this.perFileLoading = true
+      this.perFileList = []
+      getBindFileByExample(cond).then(res => {
+        this.perFileLoading = false
+        this.perFileList = res
+        let oldTemps = []
+        let chooseFiles = []
+        if (this.perFileList.length > 0) {
+          this.perFileList.forEach((file, index)=> {
+            oldTemps.push(file.storageId)
+            chooseFiles.push(file.storageId)
+          })
+        }
+        this.oldPerFiles = oldTemps
+        this.chooseFiles = chooseFiles
+      }).catch(res=>{
+        this.perFileLoading = false
+      })
+    },
+    inputChange(index, val) {
+      if (index === 0) {
         this.docDesc1Changed = !judgeIsEqual(val, this.oldFirstDesc)
       }
-      if(index === 1){
+      if (index === 1) {
         this.docDesc2Changed = !judgeIsEqual(val, this.oldSecDesc)
       }
       this.judgeChange()
@@ -748,6 +881,47 @@ export default {
         this.analysisData = res
         this.analysisLoading = false
       })
+    },
+    // 穿梭框，d7附件变化
+    perFilesChange(value, direction, movedKeys) {
+      this.perFileChanged = false
+      if (this.oldPerFiles.length !== this.chooseFiles.length) {
+        this.perFileChanged = true
+      } else if (this.oldPerFiles.length === 0 && this.chooseFiles.length === 0) {
+        this.perFileChanged = false
+      } else if (this.oldPerFiles.sort().toString() !== this.chooseFiles.sort().toString()) {
+        this.perFileChanged = true
+      }
+      this.judgeChange()
+    },
+    // 保存附件
+    savePerFiles() {
+      if (this.perFileChanged) {
+        let data = []
+        const _this = this
+        this.chooseFiles.forEach((id, index) => {
+          const fl = { issueId: _this.$props.issueId, storageId: id, stepName: _this.curStep }
+          data.push(fl)
+        })
+        // 保存新的临时文件
+        syncTempFile(data).then(res => {
+          this.$message({
+            message: 'Temp Files Save Success.临时文件保存成功!',
+            type: 'success'
+          })
+          this.perFileChanged = false
+          this.isFinished = false
+          this.judgeChange()
+          this.$emit('func', this.isFinished)
+          this.getBindFileByExample(this.queryFileByStep)
+        })
+      } else {
+        this.$message({
+          message: 'Temp Files No Changed.没有改动，无需重复保存!',
+          type: 'warning'
+        })
+        return false
+      }
     },
     addSeventhDesc(form) {
       let val = true
@@ -919,7 +1093,20 @@ export default {
         })
       })
     },
-    transNullFormat(val){
+    // 跳转绑定的文件明细
+    handleClick(row) {
+      this.$router.push(
+        {
+          path: '/fileManagement/filedetail',
+          query: {
+            fileId: row.storageId,
+            name: row.name,
+            realName: row.realName
+          }
+        })
+    },
+    // 统一格式化“空”
+    transNullFormat(val) {
       if (val === '' || val === undefined || val === null) {
         return '--'
       } else {
@@ -952,11 +1139,12 @@ export default {
       this.judgeChange()
     },
     judgeChange() {
-      this.docDescChanged = this.docDesc1Changed || this.docDesc2Changed;
-      this.noChanged = !(this.commentChanged || this.tempCommentChanged || this.hasTempChanged || this.docDescChanged)
+      this.docDescChanged = this.docDesc1Changed || this.docDesc2Changed
+      this.noChanged = !(this.commentChanged || this.tempCommentChanged ||
+        this.hasTempChanged || this.docDescChanged || this.perFileChanged)
     },
     confirmFinished() {
-      if(!this.noChanged){
+      if (!this.noChanged) {
         let msg = '检测到'
         if (this.commentChanged) {
           msg += '【D7-详细描述】'
@@ -970,6 +1158,9 @@ export default {
         if (this.docDescChanged) {
           msg += '【文档描述】'
         }
+        if (this.perFileChanged) {
+          msg += '【添加附件】'
+        }
         msg += '发生了变化，是否一并保存?'
         this.$confirm(msg, '确认信息', {
           distinguishCancelAndClose: true,
@@ -979,13 +1170,27 @@ export default {
           let editSuccess = true
           // D7描述和是否回收临时文件
           edit(this.form).then(res => {
-            this.oldComment =  this.form.commentD7
+            this.oldComment = this.form.commentD7
             this.oldRecoverTempFile = this.form.recoverTempFile
             this.oldTempFileComment = this.form.tempFileComment
             this.commentChanged = false
             this.tempCommentChanged = false
             this.hasTempChanged = false
             this.judgeChange()
+            // 同步D7附件
+            if (this.perFileChanged) {
+              let data = []
+              const _this = this
+              this.chooseFiles.forEach((id, index) => {
+                const fl = { issueId: _this.$props.issueId, storageId: id, stepName: _this.curStep }
+                data.push(fl)
+              })
+              // 保存D7附件
+              syncTempFile(data).then(res => {
+                this.getBindFileByExample(this.queryFileByStep)
+                this.tempFileChanged = false
+              })
+            }
             editSuccess = true
           }).catch(res => {
             // 详细描述
@@ -995,11 +1200,11 @@ export default {
             editSuccess = false
           })
           // 文档描述
-          if(this.docDescChanged){
+          if (this.docDescChanged) {
             this.saveChangeDescs(this.changeDescs)
           }
           setTimeout(() => {
-            if(editSuccess && this.saveSuccess){
+            if (editSuccess && this.saveSuccess) {
               this.finishStep()
             }
           }, 600)
@@ -1013,11 +1218,11 @@ export default {
             this.form.tempFileComment = this.oldTempFileComment
             this.finishStep()
           })
-      }else{
+      } else {
         this.finishStep()
       }
     },
-    finishStep(){
+    finishStep() {
       // 确认D7完成
       this.timeManagement.curStep = 'D7'
       this.timeManagement.d7Status = true
@@ -1032,7 +1237,7 @@ export default {
         editTimeManage(this.timeManagement).then(res => {
           this.confirmVisible = false
           this.isFinished = true
-          this.docDesc1Changed  = false
+          this.docDesc1Changed = false
           this.docDesc2Changed = false
           this.commentChanged = false
           this.tempCommentChanged = false
@@ -1058,6 +1263,10 @@ export default {
 
 .elRow {
   border-bottom: 1px solid #808080;
+}
+
+.edit_dev > > > .el-transfer-panel {
+  width: 400px;
 }
 
 .el-form-item--small.el-form-item {

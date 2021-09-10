@@ -465,8 +465,8 @@
             </el-transfer>
           </div>
         </el-row>
-        <el-row style="margin-bottom: 15px;">
-          <el-divider content-position="left">添加临时文件</el-divider>
+        <el-row v-if="form.hasTempFile === true" style="margin-bottom: 15px;">
+          <el-divider content-position="left">临时文件列表</el-divider>
           <el-table
             ref="table"
             v-loading="tempFileLoading"
@@ -576,15 +576,6 @@
           <el-table-column prop="size" label="大小" min-width="120"/>
           <el-table-column prop="type" label="附件类型" min-width="120"/>
           <el-table-column prop="createBy" label="创建者"/>
-          <el-table-column
-            fixed="right"
-            label="操作"
-            width="100"
-          >
-            <template slot-scope="scope">
-              <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-            </template>
-          </el-table-column>
         </el-table>
       </div>
     </el-card>
@@ -727,11 +718,9 @@ export default {
         issueId: this.$props.issueId,
         stepName: 'D3'
       },
-      tempFileDatas: [], // 绑定的文件集
       tempFiles: [],
-      tempFileItems: [],
       oldTemps: [],
-      chooseValue: [],
+      chooseValue: [], // 绑定的文件集
       tempFileChanged: false,
       tempFileList: [],
       tempFileLoading: false
@@ -854,7 +843,7 @@ export default {
       this.addConActionVisible = false
       this.getIssueConActionByIssueId(this.$props.issueId)
     },
-    // 跳转搭配文件明细
+    // 跳转绑定的文件明细
     handleClick(row) {
       this.$router.push(
         {
