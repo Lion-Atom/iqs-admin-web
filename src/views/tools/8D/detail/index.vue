@@ -21,7 +21,7 @@
            <span class="span-box">
                 <i v-if="d1Status" class="el-icon-check"/>
                 <i v-else class="el-icon-edit"/>
-              <span>D1 成立小组</span>
+              <span>D1 成立小组 </span>
            </span>
         </span>
             <FirstForm :issue-id="issueId" :status="d1Status" @func="getMsgFormFirstSon"/>
@@ -41,7 +41,7 @@
            <span class="span-box">
                 <i v-if="d3Status" class="el-icon-check"/>
                 <i v-else class="el-icon-edit"/>
-              <span>D3 围堵措施</span>
+              <span>D3 遏制措施</span>
            </span>
         </span>
             <ThirdForm :issue-id="issueId" :status="d3Status" @func="getMsgFormThirdSon" v-if="isThird"/>

@@ -83,3 +83,41 @@ export function GMTToDate(time) {
     month + '-' +
     day + ' '
 }
+
+/*
+ * 格林时间转化为普通时间
+ */
+export function toDateFormat(time) {
+  let datetime = new Date(time)
+  let year = datetime.getFullYear()
+  let month = datetime.getMonth() + 1//js从0开始取
+  let day = datetime.getDate()
+
+  if (month < 10) {
+    month = '0' + month
+  }
+  if (day < 10) {
+    day = '0' + day
+  }
+
+  return year + month + day
+}
+
+/*
+ * 格林时间转化为普通时间
+ */
+export function getTodayFormat() {
+  let datetime = new Date()
+  let year = datetime.getFullYear()
+  let month = datetime.getMonth() + 1//js从0开始取
+  let day = datetime.getDate()
+
+  if (month < 10) {
+    month = '0' + month
+  }
+  if (day < 10) {
+    day = '0' + day
+  }
+
+  return year + month + day
+}

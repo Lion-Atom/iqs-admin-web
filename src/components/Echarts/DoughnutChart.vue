@@ -109,7 +109,7 @@ export default {
           {
             path: '/fileManagement/file',
             query: {
-              fileType: params.data.name
+              fileType: params.data.otherValue
             }
           }
         )

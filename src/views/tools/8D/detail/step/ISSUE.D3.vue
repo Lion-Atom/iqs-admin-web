@@ -3,7 +3,7 @@
     <!--围堵措施-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">常见围堵措施</span>
+        <span class="header-title">常见遏制措施</span>
       </div>
       <div>
         <el-dialog
@@ -207,7 +207,7 @@
     <!--其他围堵措施-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">自定义围堵措施</span>
+        <span class="header-title">自定义遏制措施</span>
         <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="toAddOtherConAct">增加新措施
         </el-button>
       </div>

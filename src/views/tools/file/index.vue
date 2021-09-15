@@ -634,9 +634,9 @@
               <div>{{ scope.row.fileDept.name }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="fileStatus" label="文件状态" width="100"/>
-          <el-table-column prop="approvalStatus" label="审批状态" width="100"/>
-          <el-table-column prop="fileType" label="文件类型" width="100"/>
+          <el-table-column prop="fileStatus" label="文件状态" width="100" :formatter="fileStatusFormat"/>
+          <el-table-column prop="approvalStatus" label="审批状态" width="100" :formatter="approvalStatusFormat"/>
+          <el-table-column prop="fileType" label="文件用途" width="100" :formatter="fileTypeFormat"/>
           <el-table-column prop="createTime" label="创建日期" width="180" sortable/>
           <el-table-column prop="updateTime" label="最近修改" width="180"/>
           <el-table-column
@@ -663,28 +663,27 @@
 
 <script>
 import crudFile, {
-  getAllFiles,
-  getOtherFiles,
-  getFilesByIds,
   cancelCover,
-  rollbackCover,
+  getAllFiles,
+  getFilesByIds,
+  getLatestAppProcess,
+  getOtherFiles,
   getPreTrailByFileId,
-  getLatestAppProcess
+  rollbackCover
 } from '@/api/tools/localStorage'
 import { getFileLevels, getFileLevelSuperior } from '@/api/tools/filelevel'
 import { getFileCategories, getFileCategorySuperior } from '@/api/tools/filecategory'
 import { getDepts, getDeptSuperior } from '@/api/system/dept'
 import { getApprovers } from '@/api/system/user'
-import CRUD, { presenter, header, form, crud } from '@crud/crud'
+import CRUD, { crud, form, header, presenter } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
-import Treeselect from '@riophae/vue-treeselect'
+import Treeselect, { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { mapGetters } from 'vuex'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { getToken } from '@/utils/auth'
 import { edit } from '@/api/system/toolsTask'
 import { editApprovalProcess } from '@/api/system/approvalProcess'
@@ -915,6 +914,46 @@ export default {
           message: 'No Access!不具备创建一级文件的权限!',
           type: 'warning'
         })
+      }
+    },
+    // 文件状态格式化处理
+    fileStatusFormat(row, column, cellValue) {
+      if (row.fileStatus === 'temp') {
+        return '临时文件'
+      } else if (row.fileStatus === 'draft') {
+        return '草稿'
+      } else if (row.fileStatus === 'obsolete') {
+        return '报废文件'
+      } else if (row.fileStatus === 'release') {
+        return '正式文件'
+      }
+    },
+    // 审核状态格式化处理
+    approvalStatusFormat(row, column, cellValue) {
+      if (row.approvalStatus === 'approved') {
+        return '已审批'
+      } else if (row.approvalStatus === 'waitingfor') {
+        return '待审批'
+      } else if (row.approvalStatus === 'obsoleted') {
+        return '已废止'
+      }
+    },
+    // 文件用途格式化处理
+    fileTypeFormat(row, column, cellValue) {
+      if (row.fileType === 'policy') {
+        return '政策'
+      } else if (row.fileType === 'manual') {
+        return '手册'
+      } else if (row.fileType === 'standard') {
+        return '标准'
+      } else if (row.fileType === 'instructions') {
+        return '说明书'
+      } else if (row.fileType === 'templates') {
+        return '模板'
+      } else if (row.fileType === 'others') {
+        return '其他'
+      } else {
+        return '---'
       }
     },
     // 发起申请，投递邮件
@@ -1421,9 +1460,7 @@ export default {
     },
     // 查询审批数据变化
     getApprovalProcessRecord(id) {
-      // alert(JSON.stringify(id))
       getLatestAppProcess(id).then(res => {
-        // alert(JSON.stringify(res))
         this.approvalProcessList = res.content
         this.waitingTime = res.waitDuration
       })

@@ -800,8 +800,7 @@ export default {
       ],
       trailTypeOptions: [
         { key: '文件', display_name: '文件' },
-        { key: '8D', display_name: '8D' },
-        { key: '审核人员批准', display_name: '审核人员批准' }
+        { key: '8D', display_name: '8D' }
       ],
       resultTypeOptions: [
         { key: true, display_name: '同意' },

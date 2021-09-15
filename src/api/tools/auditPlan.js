@@ -8,15 +8,6 @@ export function getAuditPlans(params) {
   })
 }
 
-export function getAuditPlanSuperior(ids) {
-  const data = ids.length || ids.length === 0 ? ids : Array.of(ids)
-  return request({
-    url: 'api/auditPlan/superior',
-    method: 'post',
-    data
-  })
-}
-
 export function add(data) {
   return request({
     url: 'api/auditPlan',
@@ -52,4 +43,4 @@ export function getAuditPlanById(id) {
   })
 }
 
-export default { add, edit, del, getAuditPlans, getAuditPlanSuperior, getAuditPlanById }
+export default { add, edit, del, getAuditPlans, getAuditPlanById }

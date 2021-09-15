@@ -14,7 +14,7 @@ export default {
         logging: true,
         allowTaint: true,
         useCORS: true,
-        dpi: 120, // 图片清晰度问题
+        dpi: window.devicePixelRatio * 1.2, // 将分辨率提高到特定的DPI
         width: element.clientWidth,
         height: element.clientHeight
       }
@@ -44,8 +44,8 @@ export default {
               height
             pdf.setDisplayMode('fullwidth', 'continuous', 'FullScreen')
 
-            $('.head-content').append($(
-              '<div class="pdfTip">' +
+            $('.app-container').append($(
+              '<div class="pdfTip" style="position:fixed;color: #ff0000;font-size: 20px;bottom:8%;right:10%;z-index: 99;">' +
               '   <div>正在生成第<span class="pdfProgress">1</span>页，共<span class="pdfTotal"></span>页...' +
               '</div>'))
 

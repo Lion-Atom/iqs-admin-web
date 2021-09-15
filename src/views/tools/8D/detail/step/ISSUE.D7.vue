@@ -897,7 +897,7 @@ export default {
     // 保存附件
     savePerFiles() {
       if (this.perFileChanged) {
-        if(this.chooseValue.length === 0) {
+        if(this.chooseFiles.length === 0) {
           this.$message({
             message: 'No File Found.未检测到附件，请添加！',
             type: 'warning'

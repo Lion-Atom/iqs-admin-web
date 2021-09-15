@@ -151,7 +151,7 @@
                       <b style="color: red">*</b>所选部门已有管理者【{{ departMasterName }}】，解除后可再尝试
                     </div>
                     <div v-else-if="departMasterId === form.id" slot="content" style="width:300px;">
-                      <b style="color: red">*</b>【{{ departMasterName }}】作为部门审批管理者，不可随意改动
+                      <b style="color: red">*</b>【{{ departMasterName }}】作为部门审批管理者，建议不要随意改动
                     </div>
                     <i class="el-icon-question"/>
                     <el-radio-group
@@ -336,7 +336,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column :show-overflow-tooltip="true" prop="createTime" width="135" label="创建日期" />
+          <el-table-column :show-overflow-tooltip="true" prop="createTime" width="135" label="创建日期"/>
           <el-table-column
             v-if="checkPer(['admin','user:edit','user:del'])"
             label="操作"
@@ -354,7 +354,7 @@
           </el-table-column>
         </el-table>
         <!--分页组件-->
-        <pagination />
+        <pagination/>
       </el-col>
     </el-row>
   </div>
@@ -366,16 +366,15 @@ import { isvalidPhone } from '@/utils/validate'
 import { getDepts, getDeptSuperior } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
 import { getJobs, getJobSuperior } from '@/api/system/job'
-import CRUD, { presenter, header, form, crud } from '@crud/crud'
+import CRUD, { crud, form, header, presenter } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
-import Treeselect from '@riophae/vue-treeselect'
+import Treeselect, { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { mapGetters } from 'vuex'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 
 let userRoles = []
 let userJobs = []
@@ -432,17 +431,22 @@ export default {
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
         ],
-        nickName: [
+        /*nickName: [
           { required: true, message: '请输入用户昵称', trigger: 'blur' },
           { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-        ],
+        ],*/
         email: [
           { required: true, message: '请输入邮箱地址', trigger: 'blur' },
           { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
         ],
         phone: [
           { required: true, trigger: 'blur', validator: validPhone }
-        ]
+        ],
+        dept: {
+          id: [
+            { required: true, message: '请选择所属部门', trigger: 'blur' }
+          ]
+        },
       },
       superiors: [],
       oldDeptId: null,
@@ -566,6 +570,12 @@ export default {
       } else if (!crud.form.jobs[0].id) {
         this.$message({
           message: '岗位不能为空',
+          type: 'warning'
+        })
+        return false
+      } else if (crud.form.isDepartMaster === 'false' && !crud.form.superiorId) {
+        this.$message({
+          message: '非部门经理，上级不能为空',
           type: 'warning'
         })
         return false

@@ -90,6 +90,20 @@ export const constantRouterMap = [
         meta: { title: '打印预览' }
       }
     ]
+  },
+  {
+    path: '/plan',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'execute',
+        component: (resolve) => require(['@/views/tools/audit/plan/execute/index'], resolve),
+        name: '审批执行',
+        meta: { title: '审批执行' }
+      }
+    ]
   }
 ]
 
