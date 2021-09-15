@@ -215,7 +215,7 @@ export default {
         this.getFiles(this.cond)
       }).catch(() => {
         this.$message({
-          message: 'Del File Failed! 删除附件成功!',
+          message: 'Del File Failed! 删除附件失败!',
           type: 'error'
         })
       })

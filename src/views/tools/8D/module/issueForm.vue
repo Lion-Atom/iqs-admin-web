@@ -391,7 +391,7 @@ const defaultForm = {
   customerTime: null,
   other: null,
   hasReport: null,
-  hasScore: null
+  hasScore: false
 }
 export default {
   mixins: [form(defaultForm)],

@@ -461,7 +461,9 @@
               :titles="['临时文件源库', '当前临时文件']"
               @change="tempFileChange"
             >
-              <el-button class="transfer-footer" slot="right-footer" type="text" size="small" @click="saveTempFiles">保存</el-button>
+              <el-button class="transfer-footer" slot="right-footer" type="text" size="small" @click="saveTempFiles">
+                保存
+              </el-button>
             </el-transfer>
           </div>
         </el-row>
@@ -496,9 +498,9 @@
                 </el-popover>
               </template>
             </el-table-column>
-            <el-table-column prop="size" label="大小" min-width="120" />
-            <el-table-column prop="type" label="附件类型" min-width="120" />
-            <el-table-column prop="createBy" label="创建者" />
+            <el-table-column prop="size" label="大小" min-width="120"/>
+            <el-table-column prop="type" label="附件类型" min-width="120"/>
+            <el-table-column prop="createBy" label="创建者"/>
             <el-table-column
               fixed="right"
               label="操作"
@@ -808,14 +810,14 @@ export default {
         let oldTemps = []
         let chooseValue = []
         if (this.tempFileList.length > 0) {
-          this.tempFileList.forEach((file, index)=> {
+          this.tempFileList.forEach((file, index) => {
             oldTemps.push(file.storageId)
             chooseValue.push(file.storageId)
           })
         }
         this.oldTemps = oldTemps
         this.chooseValue = chooseValue
-      }).catch(res=>{
+      }).catch(res => {
         _this.tempFileLoading = false
       })
     },
@@ -1009,7 +1011,7 @@ export default {
     // 保存临时文件
     saveTempFiles() {
       if (this.tempFileChanged) {
-        if(this.chooseValue.length === 0) {
+        if (this.chooseValue.length === 0) {
           this.$message({
             message: 'No File Found.未检测到临时文件，请添加！',
             type: 'warning'
@@ -1091,36 +1093,47 @@ export default {
           confirmButtonText: 'Yes 是',
           cancelButtonText: 'No 否'
         }).then(() => {
-          edit(this.form).then(res => {
-            this.oldDesc = this.form.riskAssessment
-            this.oldHasTemp = this.form.hasTempFile
-            this.descChanged = false
-            this.hasTempChanged = false
-            // 同步临时文件
-            if (this.tempFileChanged) {
-              let data = []
-              const _this = this
-              this.chooseValue.forEach((id, index) => {
-                const fl = { issueId: _this.$props.issueId, storageId: id, stepName: _this.curStep }
-                data.push(fl)
-              })
-              // 保存新的临时文件
-              syncTempFile(data).then(res => {
-                this.getBindFileByExample(this.queryTempFileByStep)
-                this.tempFileChanged = false
-                this.finishStep()
-              })
+          // alert(1)
+          let saveForm = true
+          let syncTemp = true
+          if (this.descChanged || this.hasTempChanged) {
+            edit(this.form).then(res => {
+              this.oldDesc = this.form.riskAssessment
+              this.oldHasTemp = this.form.hasTempFile
+              this.descChanged = false
+              this.hasTempChanged = false
+            }).catch(res => {
+              saveForm = false
+              this.form.riskAssessment = this.oldDesc
+              this.form.hasTempFile = this.oldHasTemp
+            })
+          }
+          // 同步临时文件
+          if (this.tempFileChanged) {
+            // alert("临时文件："+JSON.stringify(this.chooseValue))
+            let data = []
+            this.chooseValue.forEach((id, index) => {
+              const fl = { issueId: this.$props.issueId, storageId: id, stepName: this.curStep }
+              data.push(fl)
+            })
+            // 保存新的临时文件
+            syncTempFile(data).then(res => {
+              this.getBindFileByExample(this.queryTempFileByStep)
+              this.tempFileChanged = false
+            }).catch(() => {
+              syncTemp = false
+            })
+          }
+          setTimeout(()=> {
+            if(saveForm && syncTemp){
+              this.finishStep()
             }
-          }).catch(res => {
-            this.form.riskAssessment = this.oldDesc
-            this.form.hasTempFile = this.oldHasTemp
-          })
+          },300)
+        }).catch(() => {
+          this.form.riskAssessment = this.oldDesc
+          this.form.hasTempFile = this.oldHasTemp
+          this.finishStep()
         })
-          .catch(() => {
-            this.form.riskAssessment = this.oldDesc
-            this.form.hasTempFile = this.oldHasTemp
-            this.finishStep()
-          })
       } else {
         this.finishStep()
       }

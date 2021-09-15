@@ -6,7 +6,14 @@
       <crudOperation :permission="permission" />
     </div>
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      :data="crud.data"
+      style="width: 100%;"
+      @selection-change="crud.selectionChangeHandler"
+      :row-class-name="tableRowClassName"
+    >
       <el-table-column type="selection" width="55" />
       <el-table-column prop="userName" label="名称" />
       <el-table-column prop="companyName" label="公司" min-width="120" />
@@ -51,7 +58,8 @@ import CRUD, { presenter } from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
-import { GMTToDate } from '@/utils/validationUtil'
+import { GMTToDate, validIsNotNull } from '@/utils/validationUtil'
+
 export default {
   name: 'Auditor',
   components: { eHeader, eForm, crudOperation, pagination, udOperation },
@@ -76,6 +84,20 @@ export default {
     }
   },
   methods: {
+    // 根据有效期设置提醒样式
+    tableRowClassName({ row, rowIndex }) {
+      let type = row.styleType
+      if (validIsNotNull(type)) {
+        if(type === 'alert'){
+          return 'alert-row'
+        } else if (type === 'warn'){
+          return 'warning-row'
+        }
+      } else {
+        return ''
+      }
+    },
+
     // 格式化认证日期
     certTimeFormat(row, column, cellValue) {
       // console.log(row , column , cellValue)
@@ -94,9 +116,22 @@ export default {
   }
 }
 </script>
+<style>
+.el-table .alert-row {
+  background: #ffa4a4;
+}
 
+.el-table .warning-row {
+  background: #ff0;
+}
+
+.el-table .success-row {
+  background: #f0f9eb;
+}
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }
+
 </style>

@@ -1653,6 +1653,10 @@ a.router-link-exact-active {
   color: #fff;
 }
 
+.el-form-item--small.el-form-item {
+  margin-bottom: 12px;
+}
+
 .vue-treeselect__input {
 
 }

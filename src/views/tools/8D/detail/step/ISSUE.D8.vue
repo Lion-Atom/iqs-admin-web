@@ -569,6 +569,8 @@ export default {
         row.qualified = false
         row.additional = false
       }
+      // 检测变化实时更新8D分数，不合格被激活则前数值为“合格”或者“额外加分”，该项直接置为0
+      this.form.score = this.form.score - row.score
       this.judgeIndex(index)
       this.scoreScopeChanged = this.oldQualX !== row.qualified || this.oldAddX !== row.additional || this.oldUnqX !== row.unqualified
       this.judgeChange()
@@ -579,6 +581,24 @@ export default {
         row.unqualified = false
         row.additional = false
       }
+      // 检测变化实时更新8D分数，合格被激活则前数值为“不合格”或者“额外加分”
+      if (row.score === 0 && row.scoreType === 'THREE') {
+        this.form.score = this.form.score + 1
+      } else if (row.score === 0 && row.scoreType === 'FIVE') {
+        this.form.score = this.form.score + 4
+      } else if (row.score === 0 && row.scoreType === 'SEVEN') {
+        this.form.score = this.form.score + 5
+      } else if (row.score === 0 && row.scoreType === 'TEN') {
+        this.form.score = this.form.score + 7
+      } else if (row.score === 3 && row.scoreType === 'THREE') {
+        this.form.score = this.form.score - 2
+      } else if (row.score === 5 && row.scoreType === 'FIVE') {
+        this.form.score = this.form.score - 1
+      } else if (row.score === 7 && row.scoreType === 'SEVEN') {
+        this.form.score = this.form.score - 2
+      } else if (row.score === 10 && row.scoreType === 'TEN') {
+        this.form.score = this.form.score - 3
+      }
       this.judgeIndex(index)
       this.scoreScopeChanged = this.oldQualX !== row.qualified || this.oldAddX !== row.additional || this.oldUnqX !== row.unqualified
       this.judgeChange()
@@ -588,6 +608,24 @@ export default {
       if (row.additional) {
         row.unqualified = false
         row.qualified = false
+      }
+      // 检测变化实时更新8D分数，额外加分被激活则前数值为“不合格”或者“合格”
+      if (row.score === 0 && row.scoreType === 'THREE') {
+        this.form.score = this.form.score + 3
+      } else if (row.score === 0 && row.scoreType === 'FIVE') {
+        this.form.score = this.form.score + 5
+      } else if (row.score === 0 && row.scoreType === 'SEVEN') {
+        this.form.score = this.form.score + 7
+      } else if (row.score === 0 && row.scoreType === 'TEN') {
+        this.form.score = this.form.score + 10
+      } else if (row.score === 1 && row.scoreType === 'THREE') {
+        this.form.score = this.form.score + 2
+      } else if (row.score === 4 && row.scoreType === 'FIVE') {
+        this.form.score = this.form.score + 1
+      } else if (row.score === 5 && row.scoreType === 'SEVEN') {
+        this.form.score = this.form.score + 2
+      } else if (row.score === 7 && row.scoreType === 'TEN') {
+        this.form.score = this.form.score + 3
       }
       this.judgeIndex(index)
       this.scoreScopeChanged = this.oldQualX !== row.qualified || this.oldAddX !== row.additional || this.oldUnqX !== row.unqualified
@@ -740,9 +778,6 @@ export default {
       this.judgeChange()
     },
     judgeChange() {
-      if (this.scoreScopeChanged) {
-        this.form.score = null
-      }
       this.noChanged = !(this.leaderDescChanged || this.manageDescChanged ||
         this.otherDescChanged || this.scoreChanged || this.scoreScopeChanged
       )
@@ -783,7 +818,7 @@ export default {
           .catch(() => {
             this.getIssueInfoById(this.$props.issueId)
             this.getIssueScoreByIssueId(this.$props.issueId)
-            this.form.score = this.oldScore
+            // this.form.score = this.oldScore
             this.conclusion.leaderConclusion = this.oldLeaderDesc
             this.conclusion.managerConclusion = this.oldManageDesc
             this.conclusion.otherConclusion = this.oldOtherDesc

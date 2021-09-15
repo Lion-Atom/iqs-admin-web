@@ -861,23 +861,30 @@ export default {
     },
     // 批量保存缺陷定位数据
     saveDefects(data) {
-      editStepDefect(data).then(res => {
+      if(!this.createdChanged && !this.detectedChanged && !this.shouldChanged){
         this.$message({
-          message: 'Save Step-Defect Record Success! 保存缺陷检测定位成功!',
-          type: 'success'
+          message: 'Nothing changed! 未检测到变化，无需重复保存!',
+          type: 'warning'
         })
-        this.resetDefectChange()
-        this.isFinished = false
-        this.judgeChange()
-        this.$emit('func', this.isFinished)
-        this.getStepDefectByIssueId(this.$props.issueId)
-      }).catch(() => {
-        this.$message({
-          message: 'Save Step-Defect Failed! 保存缺陷定位信息失败!',
-          type: 'error'
+      }else{
+        editStepDefect(data).then(res => {
+          this.$message({
+            message: 'Save Step-Defect Record Success! 保存缺陷检测定位成功!',
+            type: 'success'
+          })
+          this.resetDefectChange()
+          this.isFinished = false
+          this.judgeChange()
+          this.$emit('func', this.isFinished)
+          this.getStepDefectByIssueId(this.$props.issueId)
+        }).catch(() => {
+          this.$message({
+            message: 'Save Step-Defect Failed! 保存缺陷定位信息失败!',
+            type: 'error'
+          })
+          this.getStepDefectByIssueId(this.$props.issueId)
         })
-        this.getStepDefectByIssueId(this.$props.issueId)
-      })
+      }
     },
     // 获取原因分析列表子集合
     getCauseDatas(tree, treeNode, resolve) {

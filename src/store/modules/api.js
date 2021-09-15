@@ -12,6 +12,8 @@ const api = {
     imagesUploadApi: baseUrl + '/api/localStorage/pictures',
     // 8D附件上传
     appendixUploadApi: baseUrl + '/api/issueFile',
+    // 审核人员附件上传
+    auditorUploadApi: baseUrl + '/api/auditorFile',
     // 修改头像
     updateAvatarApi: baseUrl + '/api/users/updateAvatar',
     // 上传文件到七牛云

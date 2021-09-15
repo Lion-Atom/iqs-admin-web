@@ -760,8 +760,7 @@ export default {
 .el-col-left {
   border-right: 1px solid #f00;
 }
-</style>
-<style rel="stylesheet/scss" lang="scss" scoped>
+
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }
