@@ -148,7 +148,7 @@
               type="date"
               style="width: 220px;"
               placeholder="请填写日期时间"
-              @change="lastCaliDateHandler"
+              @input="lastCaliDateHandler"
             />
           </el-form-item>
         </el-col>
@@ -164,7 +164,7 @@
               :min="minCaliPeriod"
               type="number"
               :step="1"
-              @change="caliPeriodChange"
+              @input="caliPeriodChange"
             >
               <el-select v-model="form.periodUnit" slot="append" style="width: 60px;" @change="periodUnitChange"
                          placeholder="请选择">
@@ -186,7 +186,7 @@
               :picker-options="pickerOptions[1]"
               type="date"
               placeholder="请填写日期时间"
-              @change="nextCaliDateChange"
+              @input="nextCaliDateChange"
             />
           </el-form-item>
         </el-col>
@@ -253,7 +253,8 @@
             <template slot="label">
               <span><i style="color: red;">* </i>提前提醒天数</span>
             </template>
-            <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays" v-model="form.remindDays">
+            <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays" v-model="form.remindDays"
+                      @input="remindDaysHandler">
               <template slot="append">天</template>
             </el-input>
           </el-form-item>
@@ -427,7 +428,7 @@ export default {
               return (
                 //禁用小于开始时间和大于开始时间一周后的日期
                 new Date(time).getTime() > dateRegion ||
-                new Date(time).getTime() < Date.now() - 24 * 3600 * 1000
+                new Date(time).getTime() <= Date.now() - 24 * 3600 * 1000
               )
             } else {
               return false
@@ -536,11 +537,16 @@ export default {
     },
     // 监控下次校准时间变化
     nextCaliDateChange(val) {
+      this.$forceUpdate()
+      // alert(val)
       // 根据下次校准日期设置提前设置的时间上限
+      this.getMaxRemindDays(val)
+    },
+    getMaxRemindDays(val) {
       if (validIsNotNull(val)) {
         const end = new Date(val)
-        this.maxRemindDays = Math.ceil((end - Date.now()) / (24 * 3600 * 1000))
-        if (this.maxRemindDays>0 && this.form.isRemind.toString() === 'true') {
+        this.maxRemindDays = Math.ceil((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
+        if (this.maxRemindDays > 0 && this.form.isRemind.toString() === 'true') {
           // 若设置提醒则最大值不可超过今天距离提醒日
           if (this.form.remindDays > this.maxRemindDays) {
             this.form.remindDays = this.maxRemindDays
@@ -554,14 +560,52 @@ export default {
       const date = new Date(val);
       // const dateRegion = date.getTime() + day - 24 * 3600 * 1000
       if (unit === '年') {
-        this.minCaliPeriod = Math.ceil(((Date.now() - date.getTime()) / (365 * 24 * 3600 * 1000)))
+        this.minCaliPeriod = Math.ceil(((new Date(new Date(new Date().toLocaleDateString()).getTime()) - date.getTime()) / (365 * 24 * 3600 * 1000)))
       } else if (unit === '月') {
-        this.minCaliPeriod = Math.ceil((Date.now() - date.getTime()) / (30 * 24 * 3600 * 1000))
+        this.minCaliPeriod = Math.ceil((new Date(new Date(new Date().toLocaleDateString()).getTime()) - date.getTime()) / (30 * 24 * 3600 * 1000))
       } else {
-        this.minCaliPeriod = Math.ceil((Date.now() - date.getTime()) / (24 * 3600 * 1000))
+        this.minCaliPeriod = Math.ceil((new Date(new Date(new Date().toLocaleDateString()).getTime()) - date.getTime()) / (24 * 3600 * 1000))
+      }
+      // alert(this.minCaliPeriod)
+      if (this.minCaliPeriod < 1) {
+        this.minCaliPeriod = 1
       }
       if (this.minCaliPeriod > this.form.caliPeriod) {
         this.form.caliPeriod = this.minCaliPeriod
+      }
+      // 判断现有的下次校准日期是否超出限制
+      this.checkNextCaliDate()
+    },
+    checkNextCaliDate() {
+      if (validIsNotNull(this.form.lastCaliDate)) {
+        const date = new Date(this.form.lastCaliDate);
+        // const dateRegion = date.getTime() + day - 24 * 3600 * 1000
+        let num = this.form.caliPeriod
+        let unit = this.form.periodUnit
+        let day = 24 * 3600 * 1000;
+        if (validIsNotNull(unit)) {
+          if (unit === '年') {
+            day = num * 365 * 24 * 3600 * 1000
+          } else if (unit === '月') {
+            day = num * 30 * 24 * 3600 * 1000
+          } else {
+            day = num * 24 * 3600 * 1000
+          }
+        }
+        const dateRegion = date.getTime() + day
+        // alert(this.form.nextCaliDate)
+        this.form.nextCaliDate = new Date(dateRegion)
+        this.getMaxRemindDays(this.form.nextCaliDate)
+
+      } else {
+        this.form.nextCaliDate = null
+      }
+    },
+    // 限制可输入最大值
+    remindDaysHandler(val) {
+      // alert(val)
+      if (val > this.maxRemindDays) {
+        this.form.remindDays = this.maxRemindDays
       }
     },
     caliPeriodChange(val) {
@@ -569,13 +613,11 @@ export default {
         this.form.nextCaliDate = null
       }*/
       // this.getNextCaliDate()
+      // 判断现有的下次校准日期是否超出限制
+      this.checkNextCaliDate()
     },
     // 监控
     periodUnitChange(val) {
-      /*if (!judgeIsEqual(this.oldPeriodUnit, val)) {
-        this.form.nextCaliDate = null
-      }*/
-      // this.getNextCaliDate()
       this.getMinCaliPeriod(this.form.lastCaliDate, val)
     },
     getNextCaliDate() {
@@ -588,7 +630,6 @@ export default {
       } else {
         this.defaultNextCaliDate = null
       }
-      alert(defaultNextCaliDate)
     },
     // 是否激活下个循环
     isNextActiveChange(val) {
@@ -634,7 +675,16 @@ export default {
       this.oldCaliPeriod = form.caliPeriod
       this.oldPeriodUnit = form.periodUnit
       this.oldFileList = form.fileList
-      this.getMinCaliPeriod(this.form.lastCaliDate, this.form.periodUnit)
+
+      const end = new Date(form.nextCaliDate)
+      this.maxRemindDays = Math.ceil((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
+      if (this.maxRemindDays > 0 && form.isRemind.toString() === 'true') {
+        // 若设置提醒则最大值不可超过今天距离提醒日
+        if (form.remindDays > this.maxRemindDays) {
+          form.remindDays = this.maxRemindDays
+        }
+      }
+      this.getMinCaliPeriod(form.lastCaliDate, form.periodUnit)
     },
     // 取消变更
     cancelToUpdate() {
@@ -670,7 +720,7 @@ export default {
       } else if (new Date(nextDate).getTime() > dateRegion) {
         this.$message.warning("下次校准时间不可晚于校准周期下日期：【" + GMTToDate(dateRegion) + "】！")
         return false
-      } else if (new Date(nextDate).getTime() <= Date.now()) {
+      } else if (new Date(nextDate).getTime() <= new Date(new Date(new Date().toLocaleDateString()).getTime())) {
         this.$message.warning("下次校准时日期设置不合理，不可在今天之前！")
         return false
       }

@@ -69,9 +69,8 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-if="!crud.status.add">
           <el-form-item
-            v-if="!crud.status.add"
             label="状态"
             prop="status"
           >
@@ -97,11 +96,12 @@
           >
             <el-date-picker
               v-model="form.certificationTime"
-              :picker-options="certificationTimeOption"
+              :picker-options="pickerOptions[0]"
               type="date"
               style="width: 200px;"
               placeholder="选择日期"
               :disabled="disEdit"
+              @change="certificationTimeHandler"
             />
           </el-form-item>
         </el-col>
@@ -116,8 +116,9 @@
               :precision="0"
               :step="1"
               :min="1"
-              :max="200"
+              :max="100"
               :disabled="disEdit"
+              @change="validityChange"
             />
           </el-form-item>
         </el-col>
@@ -128,7 +129,7 @@
           >
             <el-date-picker
               v-model="form.nextCertificationTime"
-              :picker-options="nextCertificationTimeOption"
+              :picker-options="pickerOptions[1]"
               type="date"
               style="width: 200px;"
               :disabled="disEdit"
@@ -148,9 +149,8 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-if="!crud.status.add">
           <el-form-item
-            v-if="!crud.status.add"
             label="批准人"
             prop="approvedBy"
           >
@@ -168,9 +168,8 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-if="form.approvedTime !== null">
           <el-form-item
-            v-if="form.approvedTime !== null"
             label="批准时间"
             prop="approvedTime"
           >
@@ -210,7 +209,7 @@
 <script>
 import CRUD, {form} from '@crud/crud'
 import {getAllUser} from '@/api/system/user'
-import {judgeIsEqual} from '@/utils/validationUtil'
+import {judgeIsEqual, validIsNotNull} from '@/utils/validationUtil'
 import {getAuditorByUserId} from "@/api/tools/auditor";
 
 const defaultForm = {
@@ -240,18 +239,33 @@ export default {
   },
   data() {
     return {
-      // 认证时间不可大于现在时间
-      certificationTimeOption: {
-        disabledDate(date) {
-          return Date.now() < date.getTime()
+      pickerOptions: [
+        {
+          disabledDate: time => {
+            return (
+              Date.now() <= time.getTime()
+            )
+          }
+        },
+        {
+          //限制结束时间为开始时间的一周后
+          disabledDate: time => {
+            let day = this.form.validity * 365 * 24 * 3600 * 1000;
+            // 是否限制的判断条件
+            if (validIsNotNull(this.form.certificationTime)) {
+              const date = new Date(this.form.certificationTime);
+              const dateRegion = date.getTime() + day
+              return (
+                //禁用小于开始时间和大于开始时间一周后的日期
+                new Date(time).getTime() > dateRegion ||
+                new Date(time).getTime() <= Date.now()
+              )
+            } else {
+              return false
+            }
+          }
         }
-      },
-      // 限制下次时间不可小于当前时间
-      nextCertificationTimeOption: {
-        disabledDate(date) {
-          return date.getTime() <= Date.now()
-        }
-      },
+      ],
       editFormChanged: 0,
       users: [],
       rules: {
@@ -331,6 +345,28 @@ export default {
       this.nextCertificationTime = form.nextCertificationTime
       this.validity = form.validity
       this.certificationUnit = form.certificationUnit
+    },
+    // 检测认证日期变化
+    certificationTimeHandler(val) {
+      if (validIsNotNull(val)) {
+        const date = new Date(val)
+        let day = this.form.validity * 365 * 24 * 3600 * 1000
+        const dateRegion = date.getTime() + day
+        this.form.nextCertificationTime = new Date(dateRegion)
+      } else {
+        this.form.nextCertificationTime = null
+      }
+    },
+    // 监测校准周期变化
+    validityChange(val) {
+      if (validIsNotNull(this.form.certificationTime)) {
+        const date = new Date(this.form.certificationTime)
+        let day = val * 365 * 24 * 3600 * 1000
+        const dateRegion = date.getTime() + day
+        this.form.nextCertificationTime = new Date(dateRegion)
+      } else {
+        this.form.nextCertificationTime = null
+      }
     },
     // 提交
     submitConfirm() {

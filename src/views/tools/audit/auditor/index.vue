@@ -125,7 +125,6 @@ export default {
         return ''
       }
     },
-
     // 格式化认证日期
     certTimeFormat(row, column, cellValue) {
       // console.log(row , column , cellValue)
@@ -161,17 +160,15 @@ export default {
 </script>
 <style>
 .el-table .alert-row {
-  color: #f00 !important;
+  color: #e6a23c !important;
 }
 
 .el-table .warning-row {
-  color: #e6a23c;
+  color: #ff0;
 }
 
 .el-table .gray-row {
-  /*background: #f56;*/
-  /*color: #808080;*/
-  color: #f56;
+  color: #C0C0C0;
 }
 
 .el-table .success-row {
