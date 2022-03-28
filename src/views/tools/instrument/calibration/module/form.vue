@@ -286,32 +286,72 @@
       <el-row>
         <el-form-item style="width:100%;">
           <template slot="label">
-            <span><i v-if="crud.status.add" style="color: red">* </i>上次校准报告</span>
+            <span><i style="color: red">* </i>上次校准报告</span>
           </template>
-          <el-upload v-if="crud.status.add || toUpdateFile"
-                     ref="caliOrgFileUpload"
-                     class="upload-demo"
-                     drag
-                     :limit="1"
-                     :before-upload="beforeUpload"
-                     :headers="headers"
-                     :before-remove="beforeRemove"
-                     :on-remove="removeFile"
-                     :on-change="fileChange"
-                     :on-success="handleSuccess"
-                     :on-error="handleError"
-                     :file-list="form.fileList"
-                     :action="instruCaliFileUploadApi + '?caliId=' + bindingId + '&isLatest=' + true"
-          >
-            <i class="el-icon-upload"/>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件[限<b style="color: red;">1</b>份]，且不超过100M
-              <el-button v-if="form.status === '已完成' &&toUpdateFile" type="text" @click="cancelToUpdate">取消</el-button>
+          <div v-if="crud.status.add || toUpdateFile">
+            <div>
+              <el-form
+                ref="fileForm"
+                :model="fileForm"
+                :rules="fileRules"
+                size="small"
+                label-width="140px;"
+              >
+                <el-row>
+                  <el-col :span="24">
+                    <el-form-item
+                      label="校准结果"
+                      prop="caliResult"
+                    >
+                      <el-radio v-for="item in caliResults" :key="item.value" v-model="fileForm.caliResult"
+                                :label="item.label">
+                        {{ item.value }}
+                      </el-radio>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="24" v-if="fileForm.caliResult === '不合格'">
+                    <el-form-item
+                      label="不合格原因描述"
+                      prop="failDesc"
+                    >
+                      <el-input
+                        style="max-width: 370px;"
+                        type="textarea"
+                        autosize
+                        placeholder="请输入报废/无法使用说明"
+                        v-model="fileForm.failDesc">
+                      </el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-form>
             </div>
-          </el-upload>
+            <el-upload
+              ref="caliOrgFileUpload"
+              class="upload-demo"
+              drag
+              :limit="1"
+              :before-upload="beforeUpload"
+              :headers="headers"
+              :before-remove="beforeRemove"
+              :on-remove="removeFile"
+              :on-change="fileChange"
+              :on-success="handleSuccess"
+              :on-error="handleError"
+              :file-list="form.fileList"
+              :action="instruCaliFileUploadApi + '?caliId=' + bindingId + '&isLatest=' + true + '&caliResult=' + fileForm.caliResult + '&failDesc=' + fileForm.failDesc"
+            >
+              <i class="el-icon-upload"/>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+              <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件[限<b style="color: red;">1</b>份]，且不超过100M
+                <el-button v-if="form.status === '已完成' &&toUpdateFile" type="text" @click="cancelToUpdate">取消
+                </el-button>
+              </div>
+            </el-upload>
+          </div>
           <div v-else v-for="file in form.fileList" :key="file.id" class="text item">
             <span style="display: inline;">
-              <a :href="baseApi + '/file/' + file.type + '/' + file.name">{{ file.realName }}</a>
+              <a :href="baseApi + '/file/' + file.type + '/' + file.name">{{ file.realName }} - <b style="color: red">{{ file.caliResult }}</b></a>
               <el-button type="text" @click="toUpdateFileBtn">更新报告</el-button>
             </span>
           </div>
@@ -383,6 +423,10 @@ export default {
       required: true
     },
     outCheck: {
+      type: Array,
+      required: true
+    },
+    caliResults: {
       type: Array,
       required: true
     }
@@ -496,7 +540,30 @@ export default {
       isNextActive: false,
       oldFileList: [],
       minCaliPeriod: "1",
-      maxRemindDays: "30"
+      maxRemindDays: "30",
+      fileForm: {
+        isLatest: true,
+        caliResult: '合格',
+        failDesc: null
+      },
+      fileRules: {
+        isLatest: [
+          {required: true, message: '请选择报告类型', trigger: 'blur'}
+        ],
+        caliResult: [
+          {required: true, message: '请选择校准结果', trigger: 'blur'}
+        ],
+        failDesc: [
+          {required: true, message: '请填写不合格原因', trigger: 'blur'}
+        ]
+      },
+      caliResultOptions: [{
+        label: '合格',
+        value: '合格'
+      }, {
+        label: '不合格',
+        value: '不合格'
+      }]
     }
   },
   computed: {
@@ -654,6 +721,9 @@ export default {
     },
     // 新增前操作处理
     [CRUD.HOOK.beforeToAdd]() {
+      if (this.$refs['fileForm'] !== undefined) {
+        this.$refs['fileForm'].resetFields()
+      }
       this.form.fileList = []
       this.toUpdateFile = false
       this.isNeedUpdate = false
@@ -695,6 +765,9 @@ export default {
     toUpdateFileBtn() {
       this.toUpdateFile = true
       this.form.fileList = []
+      if (this.$refs['fileForm'] !== undefined) {
+        this.$refs['fileForm'].resetFields()
+      }
     },
     // 新增/编辑验证后
     [CRUD.HOOK.afterValidateCU]() {

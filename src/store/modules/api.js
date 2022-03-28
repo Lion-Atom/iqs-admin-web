@@ -40,8 +40,10 @@ const api = {
     fileUploadApi: baseUrl + '/api/localStorage',
     // 仪器校验机构附件上传
     caliOrgFileUploadApi: baseUrl + '/api/caliOrgFile',
-    // 仪器校验机构附件上传
+    // 仪器校验报告上传
     instruCaliFileUploadApi: baseUrl + '/api/instruCaliFile',
+    // 台账附件上传
+    gridFileUploadApi: baseUrl + '/api/gridFile',
     // 文件覆盖上传
     // fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
     // 文件覆盖上传

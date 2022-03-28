@@ -23,7 +23,7 @@
             <el-form-item label="仪器名称">
               <span>{{ props.row.instruName }}</span>
             </el-form-item>
-            <!--todo 仪器校准报告-->
+            <!--仪器校准报告-->
             <el-form-item label="仪器校准报告列表">
               <div>
                 <el-table
@@ -78,6 +78,28 @@
                     </template>
                   </el-table-column>
                   <el-table-column label="报告所属" :formatter="isLatestFormat"/>
+                  <el-table-column label="校准结果" min-width="100">
+                    <template slot-scope="scope">
+                      <el-popover
+                        :content="scope.row.failDesc"
+                        placement="top-start"
+                        title="原因"
+                        width="200"
+                        trigger="hover"
+                        v-if="scope.row.caliResult === '不合格'"
+                      >
+                        <a
+                          slot="reference"
+                          style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #ff3b18;font-size: 13px;"
+                        >
+                          {{ scope.row.caliResult }}
+                        </a>
+                      </el-popover>
+                      <span v-else>
+                       {{ scope.row.caliResult }}
+                      </span>
+                    </template>
+                  </el-table-column>
                   <el-table-column prop="size" label="大小" min-width="80"/>
                   <el-table-column prop="type" label="类型" min-width="80"/>
                   <el-table-column prop="createTime" label="上传时间" min-width="120"/>
@@ -205,7 +227,7 @@
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column label="使用状态" :formatter="isDropFormat" />
+      <el-table-column label="使用状态" :formatter="isDropFormat"/>
       <el-table-column prop="status" label="状态"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
@@ -226,21 +248,62 @@
     </el-table>
     <!--分页组件-->
     <pagination/>
-    <el-button type="text" @click="gridDiaVisible = true">打开仪器参考</el-button>
+    <el-button type="text" @click="openCaliFileUploadDialog">打开仪器参考</el-button>
     <!--表单渲染-->
-    <eForm :out-check="outCheckOptions" :cali-status="dict.common_status"/>
+    <eForm :cali-results="caliResultOptions" :out-check="outCheckOptions" :cali-status="dict.common_status"/>
     <!--报告上传-->
     <el-dialog
-      title="上传附件"
+      title="上传报告"
       :visible.sync="caliFileUploadVisible"
-      width="28%"
+      width="32%"
     >
       <div>
-        <i style="color:red;">* </i>上传最新上次校准报告：
-        <el-radio v-for="item in dict.common_status" :key="item.id" v-model="isLatest"
-                  :label="item.value === 'true'">
-          {{ item.label }}
-        </el-radio>
+        <el-form
+          ref="fileForm"
+          :model="fileForm"
+          :rules="fileRules"
+          size="small"
+          label-width="140px;"
+        >
+          <el-row>
+            <el-col :span="24">
+              <el-form-item
+                label="是否是最新上次校准报告"
+                prop="isLatest"
+              >
+                <el-radio v-for="item in dict.common_status" :key="item.id" v-model="fileForm.isLatest"
+                          :label="item.value === 'true'">
+                  {{ item.label }}
+                </el-radio>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item
+                label="校准结果"
+                prop="caliResult"
+              >
+                <el-radio v-for="item in caliResultOptions" :key="item.value" v-model="fileForm.caliResult"
+                          :label="item.label">
+                  {{ item.value }}
+                </el-radio>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24" v-if="fileForm.caliResult === '不合格'">
+              <el-form-item
+                label="不合格原因描述"
+                prop="failDesc"
+              >
+                <el-input
+                  type="textarea"
+                  style="max-width: 300px;"
+                  autosize
+                  placeholder="请输入报废/无法使用说明"
+                  v-model="fileForm.failDesc">
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </div>
       <div>
         <el-upload
@@ -252,7 +315,7 @@
           :headers="headers"
           :on-success="handleCaliFileSuccess"
           :on-error="handleError"
-          :action="instruCaliFileUploadApi + '?caliId=' + caliId + '&isLatest=' + isLatest"
+          :action="instruCaliFileUploadApi + '?caliId=' + caliId + '&isLatest=' + fileForm.isLatest + '&caliResult=' + fileForm.caliResult + '&failDesc=' + fileForm.failDesc"
         >
           <i class="el-icon-upload"/>
           <div class="el-upload__text">将<b style="color: red;">仪器校准</b>相关报告拖到此处，或<em>选取上传</em></div>
@@ -261,22 +324,19 @@
         <el-button size="small" style="margin-top:8px;" type="success" @click="submitCaliFileUpload">上传到服务器</el-button>
       </div>
     </el-dialog>
-    <!--todo 台账管理-->
+    <!--台账管理-->
     <el-drawer
       title="台账管理"
       :visible.sync="gridDiaVisible"
-      direction="rtl"
-      size="50%">
-      <el-table :data="gridData">
-        <el-table-column property="date" label="日期" width="150"></el-table-column>
-        <el-table-column property="name" label="姓名" width="200"></el-table-column>
-        <el-table-column property="address" label="地址"></el-table-column>
-      </el-table>
+      direction="ttb"
+      size="100%">
+      <grid-file :permission="permission" :file-type="fileType"/>
     </el-drawer>
   </div>
 </template>
 
-<script>var gridDiaVisible;
+<script>
+
 
 import crudInstruCali from '@/api/tools/instruCali'
 import eHeader from './module/header'
@@ -289,11 +349,12 @@ import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {delCaliFile, getCaliFileByExample} from "@/api/tools/instruCaliFile";
 import {getToken} from "@/utils/auth";
-
+import GridFile from "@/components/GridFile";
+import {update} from "@/api/tools/email";
 
 export default {
   name: 'Calibration',
-  components: {eHeader, eForm, crudOperation, pagination, udOperation},
+  components: {eHeader, eForm, crudOperation, pagination, udOperation, GridFile},
   cruds() {
     return CRUD({
       title: '仪器校准',
@@ -326,17 +387,42 @@ export default {
       caliFilesLoading: false,
       caliFiles: [],
       caliFileUploadVisible: false,
-      isLatest: false,
+      fileForm: {
+        isLatest: false,
+        caliResult: '合格',
+        failDesc: null
+      },
+      fileRules: {
+        isLatest: [
+          {required: true, message: '请选择报告类型', trigger: 'blur'}
+        ],
+        caliResult: [
+          {required: true, message: '请选择校准结果', trigger: 'blur'}
+        ],
+        failDesc: [
+          {required: true, message: '请填写不合格原因', trigger: 'blur'}
+        ]
+      },
+      caliResultOptions: [{
+        label: '合格',
+        value: '合格'
+      }, {
+        label: '不合格',
+        value: '不合格'
+      }],
       caliId: null,
-      gridData: [],
-      gridDiaVisible: false
+      gridFiles: [],
+      gridFilesLoading: false,
+      gridDiaVisible: false,
+      fileType: '仪器/仪表'
     }
   },
   computed: {
     ...mapGetters([
       'user',
       'baseApi',
-      'instruCaliFileUploadApi'
+      'instruCaliFileUploadApi',
+      'gridFileUploadApi'
     ])
   },
   mounted() {
@@ -360,7 +446,7 @@ export default {
       }
     },
     // 是否已废弃
-    isDropFormat(row,col) {
+    isDropFormat(row, col) {
       if (row.isDroped.toString() === 'true') {
         return '已废弃'
       } else {
@@ -420,6 +506,10 @@ export default {
         }
       }
     },
+    openCaliFileUploadDialog() {
+      this.gridDiaVisible = true
+    },
+    // 双击跳转
     dbSelected(row) {
       // alert(JSON.stringify(row))
       // 跳转到供应商编辑界面中
@@ -431,7 +521,7 @@ export default {
           }
         })
     },
-    // 展开
+    // 展开行数据
     expendCaliSelected(row, expandedRows) {
       const _this = this
       if (expandedRows.length > 1) {
@@ -458,11 +548,20 @@ export default {
     },
     // 上传仪校报告弹窗触发
     toUploadCaliFile() {
+      if (this.$refs['fileForm'] !== undefined) {
+        this.$refs['fileForm'].resetFields()
+      }
       this.caliFileUploadVisible = true
     },
     // 上传问题对应的附件
     submitCaliFileUpload() {
-      this.$refs.uploadCaliFile.submit()
+      this.$refs['fileForm'].validate((valid) => {
+        if (valid) {
+          this.$refs.uploadCaliFile.submit()
+        } else {
+          return false
+        }
+      })
     },
     beforeUpload: function (file) {
       // alert(JSON.stringify(file))
@@ -474,6 +573,11 @@ export default {
       return isLt2M
     },
     // 监听上传成功
+    handleSuccess(response, file, fileList) {
+      this.crud.notify('Upload Success! 上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+      // this.$refs.upload.clearFiles()
+    },
+    // 监听仪器校准报告上传成功
     handleCaliFileSuccess(response, file, fileList) {
       this.crud.notify('Upload Success! 上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       this.$refs.uploadCaliFile.clearFiles()
@@ -489,6 +593,7 @@ export default {
       })
       this.loading = false
     },
+    // 校准报告类型判断格式化
     isLatestFormat(row, col) {
       if (row.isLatest) {
         return '上次校准报告'
@@ -496,7 +601,7 @@ export default {
         return '以往校准报告'
       }
     },
-    // 删除附件
+    // 删除仪器校准报告
     deleteCaliFile(row) {
       // alert(row)
       const data = []

@@ -80,6 +80,28 @@
             </template>
           </el-table-column>
           <el-table-column label="报告所属" :formatter="isLatestFormat" />
+          <el-table-column label="校准结果" min-width="100">
+            <template slot-scope="scope">
+              <el-popover
+                :content="scope.row.failDesc"
+                placement="top-start"
+                title="原因"
+                width="200"
+                trigger="hover"
+                v-if="scope.row.caliResult === '不合格'"
+              >
+                <a
+                  slot="reference"
+                  style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #ff3b18;font-size: 13px;"
+                >
+                  {{ scope.row.caliResult }}
+                </a>
+              </el-popover>
+              <span v-else>
+                       {{ scope.row.caliResult }}
+                      </span>
+            </template>
+          </el-table-column>
           <el-table-column prop="size" label="大小" min-width="80"/>
           <el-table-column prop="type" label="类型" min-width="80"/>
           <el-table-column prop="createBy" label="创建者" min-width="80"/>
@@ -147,7 +169,6 @@
         </el-button>
       </div>
     </div>
-    <excel-view :datas="excelData"/>
     <!--操作日志-->
     <div class="xItem">
       <el-descriptions title="OperaLog 操作日志"></el-descriptions>
@@ -253,16 +274,57 @@
     </div>
     <!--上传仪器校准报告-->
     <el-dialog
-      title="上传附件"
+      title="上传报告"
       :visible.sync="caliFileUploadVisible"
-      width="28%"
+      width="32%"
     >
       <div>
-        <i style="color:red;">* </i>上传最新上次校准报告：
-        <el-radio v-for="item in dict.common_status" :key="item.id" v-model="isLatest"
-                  :label="item.value === 'true'">
-          {{ item.label }}
-        </el-radio>
+        <el-form
+          ref="fileForm"
+          :model="fileForm"
+          :rules="fileRules"
+          size="small"
+          label-width="140px;"
+        >
+          <el-row>
+            <el-col :span="24">
+              <el-form-item
+                label="是否是最新上次校准报告"
+                prop="isLatest"
+              >
+                <el-radio v-for="item in dict.common_status" :key="item.id" v-model="fileForm.isLatest"
+                          :label="item.value === 'true'">
+                  {{ item.label }}
+                </el-radio>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item
+                label="校准结果"
+                prop="caliResult"
+              >
+                <el-radio v-for="item in caliResultOptions" :key="item.value" v-model="fileForm.caliResult"
+                          :label="item.label">
+                  {{ item.value }}
+                </el-radio>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24" v-if="fileForm.caliResult === '不合格'">
+              <el-form-item
+                label="不合格原因描述"
+                prop="failDesc"
+              >
+                <el-input
+                  type="textarea"
+                  style="max-width: 300px;"
+                  autosize
+                  placeholder="请输入报废/无法使用说明"
+                  v-model="fileForm.failDesc">
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </div>
       <div>
         <el-upload
@@ -274,7 +336,7 @@
           :headers="headers"
           :on-success="handleCaliFileSuccess"
           :on-error="handleError"
-          :action="instruCaliFileUploadApi + '?caliId=' + cond.bindingId + '&isLatest=' + isLatest"
+          :action="instruCaliFileUploadApi + '?caliId=' + cond.bindingId + '&isLatest=' + fileForm.isLatest + '&caliResult=' + fileForm.caliResult + '&failDesc=' + fileForm.failDesc"
         >
           <i class="el-icon-upload"/>
           <div class="el-upload__text">将<b style="color: red;">仪器校准</b>相关报告拖到此处，或<em>选取上传</em></div>
@@ -332,7 +394,29 @@ export default {
       caliFilesLoading: false,
       caliFiles: [],
       caliFileUploadVisible: false,
-      isLatest: false
+      fileForm: {
+        isLatest: false,
+        caliResult: '合格',
+        failDesc: null
+      },
+      fileRules: {
+        isLatest: [
+          {required: true, message: '请选择报告类型', trigger: 'blur'}
+        ],
+        caliResult: [
+          {required: true, message: '请选择校准结果', trigger: 'blur'}
+        ],
+        failDesc: [
+          {required: true, message: '请填写不合格原因', trigger: 'blur'}
+        ]
+      },
+      caliResultOptions: [{
+        label: '合格',
+        value: '合格'
+      }, {
+        label: '不合格',
+        value: '不合格'
+      }]
     }
   },
   computed: {
@@ -362,8 +446,11 @@ export default {
     }
   },
   methods: {
-    yulan(v) {
-      window.open('https://view.officeapps.live.com/op/view.aspx?src='+v,'_target')
+    yulan(url) {
+      // 直接使用第三方官网需要url有外部域名，而不是本地地址
+      // window.open('https://view.officeapps.live.com/op/view.aspx?src='+v,'_target')
+      // 本地加载第三方，可直接读取本地文件
+      window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(Base64.encode(url)))
     },
     // 监控日志查询输入变化，强制刷新
     inputChange() {
