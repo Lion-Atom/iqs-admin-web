@@ -11,7 +11,7 @@
       <crudOperation :permission="permission">
         <template slot="right">
           <el-button
-            v-permission="['admin','deploy:add']"
+            v-permission="['admin','deploy:management']"
             :disabled="!selectIndex"
             class="filter-item"
             size="mini"
@@ -21,7 +21,7 @@
           >系统还原
           </el-button>
           <el-button
-            v-permission="['admin','deploy:add']"
+            v-permission="['admin','deploy:management']"
             :disabled="!selectIndex"
             class="filter-item"
             size="mini"
@@ -31,7 +31,7 @@
           >状态查询
           </el-button>
           <el-button
-            v-permission="['admin','deploy:add']"
+            v-permission="['admin','deploy:management']"
             :disabled="!selectIndex"
             class="filter-item"
             size="mini"
@@ -41,7 +41,7 @@
           >启动
           </el-button>
           <el-button
-            v-permission="['admin','deploy:add']"
+            v-permission="['admin','deploy:management']"
             :disabled="!selectIndex"
             class="filter-item"
             size="mini"
@@ -51,7 +51,7 @@
           >停止
           </el-button>
           <el-button
-            v-permission="['admin','deploy:add']"
+            v-permission="['admin','deploy:management']"
             :disabled="!selectIndex"
             class="filter-item"
             size="mini"
@@ -129,7 +129,7 @@ export default {
       currentRow: {}, selectIndex: '', appName: '', urlHistory: '',
       times: 0, appId: '', deployId: '', apps: [], servers: [],
       permission: {
-        add: ['admin', 'deploy:add'],
+        add: ['admin', 'deploy:management'],
         edit: ['admin', 'deploy:edit'],
         del: ['admin', 'deploy:del']
       },

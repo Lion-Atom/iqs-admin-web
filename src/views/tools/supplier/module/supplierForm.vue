@@ -3303,7 +3303,7 @@ export default {
       supplierId: null,
       headers: {'Authorization': getToken()},
       permission: {
-        add: ['admin', 'supplier:add'],
+        add: ['admin', 'supplier:management'],
         edit: ['admin', 'supplier:edit']
       },
       supplierRules: {
@@ -4739,7 +4739,7 @@ export default {
       // 跳转到供应商编辑明细中
       this.$router.push(
         {
-          path: '/supplier/supplier-contact-add',
+          path: '/supplier/supplier-contact-management',
           query: {
             supplierId: this.$props.supplierForm.id
           }

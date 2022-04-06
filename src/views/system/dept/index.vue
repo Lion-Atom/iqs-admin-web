@@ -143,7 +143,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'dept:add'],
+        add: ['admin', 'dept:management'],
         edit: ['admin', 'dept:edit'],
         del: ['admin', 'dept:del']
       },

@@ -338,7 +338,7 @@ export default {
       // 跳转到供应商编辑明细中
       this.$router.push(
         {
-          path: '/supplier/supplier-contact-add',
+          path: '/supplier/supplier-contact-management',
           query: {
           }
         })

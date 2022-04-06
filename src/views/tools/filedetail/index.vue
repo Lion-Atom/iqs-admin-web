@@ -512,7 +512,7 @@ export default {
       activeNames: ['1'],
       headers: { 'Authorization': getToken() },
       permission: {
-        // add: ['admin', 'storage:add'],
+        // management: ['admin', 'storage:management'],
         // edit: ['admin', 'storage:edit'],
         // del: ['admin', 'storage:del']
         approve: ['admin', 'storage:edit']

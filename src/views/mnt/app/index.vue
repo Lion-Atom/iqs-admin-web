@@ -11,7 +11,7 @@
       <crudOperation :permission="permission">
         <el-button
           slot="left"
-          v-permission="['admin','app:add']"
+          v-permission="['admin','app:management']"
           :disabled="!currentRow"
           class="filter-item"
           size="mini"
@@ -95,7 +95,7 @@ export default {
     return {
       currentRow: null,
       permission: {
-        add: ['admin', 'app:add'],
+        add: ['admin', 'app:management'],
         edit: ['admin', 'app:edit'],
         del: ['admin', 'app:del']
       },

@@ -12,7 +12,7 @@
         <!-- 新增 -->
         <el-button
           slot="left"
-          v-permission="['admin','storage:add']"
+          v-permission="['admin','storage:management']"
           class="filter-item"
           size="mini"
           type="primary"

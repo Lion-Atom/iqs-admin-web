@@ -7,7 +7,7 @@
         <el-button size="mini" type="text" @click="doCancel">取消</el-button>
         <el-button :loading="crud.dataStatus[crud.getDataId(data)].delete === 2" type="primary" size="mini" @click="crud.doDelete(data)">确定</el-button>
       </div>
-      <el-button slot="reference" :disabled="disabledDle" type="danger" icon="el-icon-delete" size="mini" @click="toDelete" />
+      <el-button v-if="showDel" slot="reference" :disabled="disabledDle" type="danger" icon="el-icon-delete" size="mini" @click="toDelete" />
     </el-popover>
   </div>
 </template>
@@ -35,6 +35,10 @@ export default {
     msg: {
       type: String,
       default: '确定删除本条数据吗？'
+    },
+    showDel: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

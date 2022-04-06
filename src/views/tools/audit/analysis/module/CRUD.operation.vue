@@ -4,8 +4,8 @@
       <!--左侧插槽-->
       <slot name="left" />
 <!--      <el-button
-        v-if="crud.optShow.add"
-        v-permission="permission.add"
+        v-if="crud.optShow.management"
+        v-permission="permission.management"
         class="filter-item"
         size="mini"
         type="primary"

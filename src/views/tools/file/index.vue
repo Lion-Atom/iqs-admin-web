@@ -141,10 +141,10 @@
               <el-input v-model="form.name" style="width: 400px;" />
             </el-form-item>
             <!-- 编辑文件 -->
-            <!--            <el-form-item v-if="!crud.status.add" label="真实名称">
+            <!--            <el-form-item v-if="!crud.status.management" label="真实名称">
                           <el-input v-model="form.realName" style="width: 400px;" />
                         </el-form-item>-->
-            <!--            <el-form-item v-if="!crud.status.add" label="文件版本">-->
+            <!--            <el-form-item v-if="!crud.status.management" label="文件版本">-->
 
             <el-form-item v-if="!crud.status.add" label="文件版本">
               <el-input
@@ -666,7 +666,7 @@
                       <el-input v-model="form.name" style="width: 400px;" disabled :class="diffName" />
                     </el-form-item>
                     <!-- 编辑文件 -->
-                    <!--            <el-form-item v-if="!crud.status.add" label="真实名称">
+                    <!--            <el-form-item v-if="!crud.status.management" label="真实名称">
                                   <el-input v-model="form.realName" style="width: 400px;" />
                                 </el-form-item>-->
                     <el-form-item v-if="!crud.status.add" label="文件版本">
@@ -1544,7 +1544,7 @@ export default {
       defaultProps: { children: 'children', label: 'name', isLeaf: 'leaf' },
       headers: { 'Authorization': getToken() },
       permission: {
-        add: ['admin', 'storage:add'],
+        add: ['admin', 'storage:management'],
         edit: ['admin', 'storage:edit'],
         del: ['admin', 'storage:del']
       },
@@ -1838,7 +1838,7 @@ export default {
       } else {
         if (!validIsNotNull(this.form.changeDesc)) {
           this.$message({
-            message: 'Some changes found, must add ChangeDesc! 内容发生变化，请据实填写变更说明',
+            message: 'Some changes found, must management ChangeDesc! 内容发生变化，请据实填写变更说明',
             type: 'warning'
           })
           return false

@@ -52,7 +52,7 @@
           <div slot="header" class="clearfix">
             <span>字典详情</span>
             <el-button
-              v-if="checkPer(['admin','dict:add']) && this.$refs.dictDetail && this.$refs.dictDetail.query.dictName"
+              v-if="checkPer(['admin','dict:management']) && this.$refs.dictDetail && this.$refs.dictDetail.query.dictName"
               class="filter-item"
               size="mini"
               style="float: right;padding: 4px 10px"
@@ -100,7 +100,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'dict:add'],
+        add: ['admin', 'dict:management'],
         edit: ['admin', 'dict:edit'],
         del: ['admin', 'dict:del']
       }

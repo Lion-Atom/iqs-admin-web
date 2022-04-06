@@ -4170,7 +4170,7 @@ export default {
     return {
       headers: {'Authorization': getToken()},
       permission: {
-        add: ['admin', 'supplier:add'],
+        add: ['admin', 'supplier:management'],
         edit: ['admin', 'supplier:edit']
       },
       isIdentityButtonGray: true,

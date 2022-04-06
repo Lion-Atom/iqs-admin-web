@@ -11,7 +11,7 @@
       <crudOperation :permission="permission">
         <el-button
           slot="right"
-          v-permission="['admin','database:add']"
+          v-permission="['admin','database:management']"
           :disabled="!selectIndex"
           class="filter-item"
           size="mini"
@@ -92,7 +92,7 @@ export default {
       databaseInfo: '',
       loading: false,
       permission: {
-        add: ['admin', 'database:add'],
+        add: ['admin', 'database:management'],
         edit: ['admin', 'database:edit'],
         del: ['admin', 'database:del']
       },

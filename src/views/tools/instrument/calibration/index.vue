@@ -24,7 +24,7 @@
               <span>{{ props.row.instruName }}</span>
             </el-form-item>
             <!--仪器校准报告-->
-            <el-form-item label="仪器校准报告列表">
+            <el-form-item label="仪校报告列表">
               <div>
                 <el-table
                   ref="table"
@@ -242,6 +242,7 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
+            :show-del="showDel"
           />
         </template>
       </el-table-column>
@@ -371,10 +372,11 @@ export default {
     return {
       headers: {'Authorization': getToken()},
       permission: {
-        add: ['admin', 'calibration:add'],
+        add: ['admin', 'calibration:management'],
         edit: ['admin', 'calibration:edit'],
         del: ['admin', 'calibration:del']
       },
+      showDel: false,
       outCheckOptions: [
         {
           value: 'true',
@@ -424,6 +426,15 @@ export default {
       'instruCaliFileUploadApi',
       'gridFileUploadApi'
     ])
+  },
+  created() {
+    this.crud.optShow = {
+      add: true,
+      edit: true,
+      del: false,
+      download: true,
+      reset: true
+    }
   },
   mounted() {
     this.crud.toQuery()

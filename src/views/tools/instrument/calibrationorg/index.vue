@@ -17,7 +17,7 @@
       <el-table-column type="expand">
         <template slot-scope="props">
           <!--也可启用下面注释部分的el-descriptions代替el-form-->
-          <el-form label-position="left" class="demo-table-expand">
+          <el-form label-position="left" class="demo-table-expand" label-width="120px">
             <el-form-item label="机构名称">
               <span>{{ props.row.caliOrgName }}</span>
             </el-form-item>
@@ -371,7 +371,7 @@ export default {
     return {
       headers: {'Authorization': getToken()},
       permission: {
-        add: ['admin', 'caliorg:add'],
+        add: ['admin', 'caliorg:management'],
         edit: ['admin', 'caliorg:edit'],
         del: ['admin', 'caliorg:del']
       },

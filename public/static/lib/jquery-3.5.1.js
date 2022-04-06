@@ -3461,7 +3461,7 @@
       // Queue of execution data for repeatable lists
       queue = [],
 
-      // Index of currently firing callback (modified by add/remove as needed)
+      // Index of currently firing callback (modified by management/remove as needed)
       firingIndex = -1,
 
       // Fire callbacks
@@ -3481,7 +3481,7 @@
             if (list[firingIndex].apply(memory[0], memory[1]) === false &&
               options.stopOnFalse) {
 
-              // Jump to end and forget the data so .add doesn't re-fire
+              // Jump to end and forget the data so .management doesn't re-fire
               firingIndex = list.length
               memory = false
             }
@@ -3498,7 +3498,7 @@
         // Clean up if we're done firing for good
         if (locked) {
 
-          // Keep an empty list if we have data for future add calls
+          // Keep an empty list if we have data for future management calls
           if (memory) {
             list = []
 
@@ -3575,7 +3575,7 @@
           return this
         },
 
-        // Disable .fire and .add
+        // Disable .fire and .management
         // Abort any current/pending executions
         // Clear all callbacks and values
         disable: function() {
@@ -3588,7 +3588,7 @@
         },
 
         // Disable .fire
-        // Also disable .add unless we have memory (since it would have no effect)
+        // Also disable .management unless we have memory (since it would have no effect)
         // Abort any pending executions
         lock: function() {
           locked = queue = []
@@ -3675,7 +3675,7 @@
     Deferred: function(func) {
       var tuples = [
 
-          // action, add listener, callbacks,
+          // action, management listener, callbacks,
           // ... .then handlers, argument index, [final state]
           ['notify', 'progress', jQuery.Callbacks('memory'),
             jQuery.Callbacks('memory'), 2],
@@ -3858,7 +3858,7 @@
 
             return jQuery.Deferred(function(newDefer) {
 
-              // progress_handlers.add( ... )
+              // progress_handlers.management( ... )
               tuples[0][3].add(
                 resolve(
                   0,
@@ -3870,7 +3870,7 @@
                 )
               )
 
-              // fulfilled_handlers.add( ... )
+              // fulfilled_handlers.management( ... )
               tuples[1][3].add(
                 resolve(
                   0,
@@ -3881,7 +3881,7 @@
                 )
               )
 
-              // rejected_handlers.add( ... )
+              // rejected_handlers.management( ... )
               tuples[2][3].add(
                 resolve(
                   0,
@@ -3907,9 +3907,9 @@
         var list = tuple[2],
           stateString = tuple[5]
 
-        // promise.progress = list.add
-        // promise.done = list.add
-        // promise.fail = list.add
+        // promise.progress = list.management
+        // promise.done = list.management
+        // promise.fail = list.management
         promise[tuple[1]] = list.add
 
         // Handle state
@@ -5570,7 +5570,7 @@
 // already occurred before other listeners are invoked.
   function leverageNative(el, type, expectSync) {
 
-    // Missing expectSync indicates a trigger call, which must force setup through jQuery.event.add
+    // Missing expectSync indicates a trigger call, which must force setup through jQuery.event.management
     if (!expectSync) {
       if (dataPriv.get(el, type) === undefined) {
         jQuery.event.add(el, type, returnTrue)
@@ -6674,7 +6674,7 @@
         // Add padding
         delta += jQuery.css(elem, 'padding' + cssExpand[i], true, styles)
 
-        // For "border" or "margin", add border
+        // For "border" or "margin", management border
         if (box !== 'padding') {
           delta += jQuery.css(elem, 'border' + cssExpand[i] + 'Width', true, styles)
 
@@ -6811,7 +6811,7 @@
       }
     },
 
-    // Don't automatically add "px" to these possibly-unitless properties
+    // Don't automatically management "px" to these possibly-unitless properties
     cssNumber: {
       'animationIterationCount': true,
       'columnCount': true,
@@ -6880,7 +6880,7 @@
           return
         }
 
-        // If a number was passed in, add the unit (except for certain CSS properties)
+        // If a number was passed in, management the unit (except for certain CSS properties)
         // The isCustomProp check can be removed in jQuery 4.0 when we only auto-append
         // "px" to a few hardcoded values.
         if (type === 'number' && !isCustomProp) {
@@ -8622,7 +8622,7 @@
           tmp = cur
         }
 
-        // Only add window if we got to document (e.g., not plain obj or detached DOM)
+        // Only management window if we got to document (e.g., not plain obj or detached DOM)
         if (tmp === (elem.ownerDocument || document)) {
           eventPath.push(tmp.defaultView || tmp.parentWindow || window)
         }
@@ -8894,7 +8894,7 @@
     serializeArray: function() {
       return this.map(function() {
 
-        // Can add propHook for "elements" to filter or add form elements
+        // Can management propHook for "elements" to filter or management form elements
         var elements = jQuery.prop(this, 'elements')
         return elements ? jQuery.makeArray(elements) : this
       })
@@ -9089,7 +9089,7 @@
     }
 
     // If we found a dataType
-    // We add the dataType to the list if needed
+    // We management the dataType to the list if needed
     // and return the corresponding response
     if (finalDataType) {
       if (finalDataType !== dataTypes[0]) {
@@ -9266,7 +9266,7 @@
       },
 
       // For options that shouldn't be deep extended:
-      // you can add your own custom options here if
+      // you can management your own custom options here if
       // and when you create one that shouldn't be
       // deep extended (see ajaxExtend)
       flatOptions: {
@@ -9410,7 +9410,7 @@
                 jqXHR.always(map[jqXHR.status])
               } else {
 
-                // Lazy-add the new callbacks in a way that preserves old ones
+                // Lazy-management the new callbacks in a way that preserves old ones
                 for (code in map) {
                   statusCode[code] = [statusCode[code], map[code]]
                 }

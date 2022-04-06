@@ -1509,7 +1509,7 @@ export default {
   data() {
     return {
       permission: {
-        add: ['admin', 'change:add'],
+        add: ['admin', 'change:management'],
         edit: ['admin', 'change:edit'],
         del: ['admin', 'change:del']
       },

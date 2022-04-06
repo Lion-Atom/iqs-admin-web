@@ -4,7 +4,7 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.blurry" clearable size="small" placeholder="输入检索条件" style="width: 200px;"
+        <el-input v-model="query.blurry" clearable size="small" placeholder="输入检索条件" style="width: 160px;"
                   class="filter-item" @keyup.enter.native="crud.toQuery"
         />
         <date-range-picker v-model="query.createTime" class="date-item" @change="crud.toQuery" />
@@ -647,7 +647,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'plan:add'],
+        add: ['admin', 'plan:management'],
         edit: ['admin', 'plan:edit'],
         del: ['admin', 'plan:del']
       },

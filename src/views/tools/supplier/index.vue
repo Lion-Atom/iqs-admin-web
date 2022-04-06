@@ -74,7 +74,7 @@ export default {
   data() {
     return {
       permission: {
-        add: ['admin', 'supplier:add'],
+        add: ['admin', 'supplier:management'],
         edit: ['admin', 'supplier:edit'],
         del: ['admin', 'supplier:del']
       }

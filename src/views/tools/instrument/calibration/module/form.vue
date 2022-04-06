@@ -270,7 +270,7 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <!--        <el-col :span="12" v-if="!crud.status.add">
+        <!--        <el-col :span="12" v-if="!crud.status.management">
                   <el-form-item
                     label="校准状态"
                     prop="status"
@@ -472,7 +472,7 @@ export default {
               return (
                 //禁用小于开始时间和大于开始时间一周后的日期
                 new Date(time).getTime() > dateRegion ||
-                new Date(time).getTime() <= Date.now() - 24 * 3600 * 1000
+                new Date(time).getTime() < Date.now()
               )
             } else {
               return false
@@ -721,8 +721,13 @@ export default {
     },
     // 新增前操作处理
     [CRUD.HOOK.beforeToAdd]() {
-      if (this.$refs['fileForm'] !== undefined) {
+      /*if (this.$refs['fileForm'] !== undefined) {
         this.$refs['fileForm'].resetFields()
+      }*/
+      this.fileForm= {
+        isLatest: true,
+          caliResult: '合格',
+          failDesc: null
       }
       this.form.fileList = []
       this.toUpdateFile = false
@@ -793,12 +798,13 @@ export default {
       } else if (new Date(nextDate).getTime() > dateRegion) {
         this.$message.warning("下次校准时间不可晚于校准周期下日期：【" + GMTToDate(dateRegion) + "】！")
         return false
-      } else if (new Date(nextDate).getTime() <= new Date(new Date(new Date().toLocaleDateString()).getTime())) {
+      }
+      /*else if (new Date(nextDate).getTime() < new Date(new Date(new Date().toLocaleDateString()).getTime())) {
         this.$message.warning("下次校准时日期设置不合理，不可在今天之前！")
         return false
-      }
+      }*/
 
-      if (this.form.isRemind.toString() === 'true' && !validIsNotNull(this.form.remindDays)) {
+      if (this.form.isDroped.toString() === 'false' && this.form.isRemind.toString() === 'true' && !validIsNotNull(this.form.remindDays)) {
         this.$message.warning("请设置提前提醒天数！")
         return false
       }

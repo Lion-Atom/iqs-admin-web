@@ -136,7 +136,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'level:add'],
+        add: ['admin', 'level:management'],
         edit: ['admin', 'level:edit'],
         del: ['admin', 'level:del']
       },
