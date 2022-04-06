@@ -292,7 +292,7 @@ export default {
       // 跳转到变更新增明细中
       this.$router.push(
         {
-          path: '/change/change-management',
+          path: '/change/change-add',
           query: {
           }
         })
