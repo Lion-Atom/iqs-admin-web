@@ -372,6 +372,7 @@
                       <el-steps :active="taskCount" finish-status="success">
                         <el-step
                           v-for="item in approvalProcessList"
+                          :key="item"
                           :title="item.approver"
                           :description="item.approvedResult === undefined ? '待审批':item.approvedResult"
                         />
@@ -847,6 +848,7 @@
                               <el-steps :active="taskCount" finish-status="success">
                                 <el-step
                                   v-for="item in approvalProcessList"
+                                  :key="item"
                                   :title="item.approver"
                                   :description="item.approvedResult === undefined ? '待审批':item.approvedResult"
                                 />
@@ -1134,6 +1136,7 @@
                               <el-steps :active="taskTempCount" finish-status="success">
                                 <el-step
                                   v-for="item in approvalProcessTempList"
+                                  :key="item"
                                   :title="item.approver"
                                   :description="item.approvedResult === undefined ? '待审批':item.approvedResult"
                                 />
@@ -2773,7 +2776,7 @@ export default {
 
 //修改disabled的样式
 
-.dialog > > > .is-disabled .el-input__inner {
+.dialog >>> .is-disabled .el-input__inner {
   background-color: #ffffff;
   color: #606266;
 }
