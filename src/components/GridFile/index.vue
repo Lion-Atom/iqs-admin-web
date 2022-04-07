@@ -241,5 +241,11 @@ export default {
 </script>
 
 <style scoped>
+.app-container {
+  padding: 8px;
+}
 
+.box-card {
+  margin-bottom: 10px;
+}
 </style>

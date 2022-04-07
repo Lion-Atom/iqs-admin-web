@@ -326,13 +326,13 @@
       </div>
     </el-dialog>
     <!--台账管理-->
-    <el-drawer
-      title="台账管理"
-      :visible.sync="gridDiaVisible"
-      direction="ttb"
-      size="100%">
+    <el-dialog title="收货地址" 
+    :visible.sync="gridDiaVisible"
+    height="80%"
+    top="3vh"
+    >
       <grid-file :permission="permission" :file-type="fileType"/>
-    </el-drawer>
+    </el-dialog>
   </div>
 </template>
 
@@ -648,5 +648,8 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
+}
+::v-deep .el-dialog .el-dialog__body {
+  padding: 8px;
 }
 </style>
