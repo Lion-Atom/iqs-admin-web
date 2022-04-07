@@ -259,7 +259,7 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="isNeedUpdate && form.status === '已完成'">
+        <el-col :span="12" v-if="isNeedUpdate && (form.status === '已完成' || form.status === '超时未校准')">
           <el-form-item
             label="激活下个周期"
             prop="isNextActive"
