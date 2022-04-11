@@ -174,7 +174,6 @@
               <el-descriptions :column="2">
                 <el-descriptions-item label="内部ID">{{ transToNullFormat(scope.row.innerId) }}</el-descriptions-item>
                 <el-descriptions-item label="出厂型号">{{ transToNullFormat(scope.row.instruNum) }}</el-descriptions-item>
-                <el-descriptions-item label="出厂型号">{{ transToNullFormat(scope.row.instruNum) }}</el-descriptions-item>
                 <el-descriptions-item label="出厂日期">{{ dateToNullFormat(scope.row.purDate) }}</el-descriptions-item>
                 <el-descriptions-item label="测量范围">{{ transToNullFormat(scope.row.caliScope) }}</el-descriptions-item>
                 <el-descriptions-item label="精度要求">{{ transToNullFormat(scope.row.precise) }}</el-descriptions-item>
@@ -326,7 +325,7 @@
       </div>
     </el-dialog>
     <!--台账管理-->
-    <el-dialog title="收货地址" 
+    <el-dialog title="收货地址"
     :visible.sync="gridDiaVisible"
     height="80%"
     top="3vh"

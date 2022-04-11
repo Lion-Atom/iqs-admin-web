@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    设备维修
+    设备保养
   </div>
 </template>
 

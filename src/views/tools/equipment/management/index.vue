@@ -86,6 +86,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
+            <el-form-item label="资产号" prop="assetNum">
+              <el-input v-model="form.assetNum" style="width: 220px"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="设备厂家" prop="equipProvider">
               <el-input v-model="form.equipProvider" style="width: 220px"/>
             </el-form-item>
@@ -318,6 +323,12 @@ export default {
         ],
         equipType: [
           {required: true, message: '请输入选填设备类别', trigger: 'blur'}
+        ],
+        assetNum: [
+          {required: true, message: '请输入设备资产号', trigger: 'blur'}
+        ],
+        factoryNum: [
+          {required: true, message: '请输入设备出厂编号', trigger: 'blur'}
         ],
         equipLevel: [
           {required: true, message: '请输入选填设备级别', trigger: 'blur'}

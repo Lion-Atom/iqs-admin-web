@@ -178,12 +178,23 @@
         <!--下次校准日期约束-->
         <el-col :span="12" v-if="form.lastCaliDate && form.caliPeriod">
           <el-form-item
-            label="下次校准日期"
             prop="nextCaliDate"
           >
+            <template slot="label">
+              <span v-if="form.status !=='超时未校准'">下次校准日期</span>
+              <span v-else><i style="color: red;">已超时，</i>下次校准顺延日期</span>
+            </template>
             <el-date-picker
+              v-if="form.status !=='超时未校准'"
               v-model="form.nextCaliDate"
               :picker-options="pickerOptions[1]"
+              type="date"
+              placeholder="请填写日期时间"
+              @input="nextCaliDateChange"
+            />
+            <el-date-picker
+              v-else
+              v-model="form.nextCaliDate"
               type="date"
               placeholder="请填写日期时间"
               @input="nextCaliDateChange"
@@ -261,9 +272,12 @@
         </el-col>
         <el-col :span="12" v-if="isNeedUpdate && (form.status === '已完成' || form.status === '超时未校准')">
           <el-form-item
-            label="激活下个周期"
             prop="isNextActive"
           >
+            <template slot="label">
+              <span v-if="form.status === '超时未校准'"><i style="color: red;">已超时</i>,重新激活</span>
+              <span v-else>激活下个周期</span>
+            </template>
             <el-radio v-for="item in caliStatus" :key="item.id" v-model="isNextActive" @change="isNextActiveChange"
                       :label="item.value === 'true'">
               {{ item.label }}
@@ -472,7 +486,7 @@ export default {
               return (
                 //禁用小于开始时间和大于开始时间一周后的日期
                 new Date(time).getTime() > dateRegion ||
-                new Date(time).getTime() < Date.now()
+                new Date(time).getTime() < new Date(new Date().setHours(0,0,0,0))-1
               )
             } else {
               return false
@@ -744,12 +758,13 @@ export default {
     // 编辑前操作处理
     [CRUD.HOOK.beforeToEdit](crud, form) {
       this.bindingId = form.id
-      this.toUpdateFile = form.status !== '已完成';
+      this.toUpdateFile = form.status !== '已完成' &&  form.status !== '超时未校准';
       this.isNeedUpdate = false
       this.oldLastCaliDate = form.lastCaliDate
       this.oldCaliPeriod = form.caliPeriod
       this.oldPeriodUnit = form.periodUnit
       this.oldFileList = form.fileList
+      this.isNextActive = false
 
       const end = new Date(form.nextCaliDate)
       this.maxRemindDays = Math.ceil((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
@@ -826,6 +841,8 @@ export default {
         // 编辑时候判断是否上传校准报告，未上传则状态变更为提示状态
         if (this.isNextActive && this.form.fileList.length === 0) {
           this.form.status = '报告待传'
+        } else if (this.form.fileList.length > 0) {
+          this.form.status = '已完成'
         }
       }
     },

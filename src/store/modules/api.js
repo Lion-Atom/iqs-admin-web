@@ -42,6 +42,8 @@ const api = {
     caliOrgFileUploadApi: baseUrl + '/api/caliOrgFile',
     // 仪器校验报告上传
     instruCaliFileUploadApi: baseUrl + '/api/instruCaliFile',
+    // 设备维修确认单上传
+    repairFileUploadApi: baseUrl + '/api/repairFile',
     // 台账附件上传
     gridFileUploadApi: baseUrl + '/api/gridFile',
     // 文件覆盖上传
