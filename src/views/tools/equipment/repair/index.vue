@@ -14,15 +14,15 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="repairNum" label="维修单号"/>
+      <el-table-column prop="repairNum" label="维修单号" min-width="120" />
       <el-table-column prop="equipName" label="设备名称"/>
-      <el-table-column prop="shutTime" label="停机时间"/>
+      <el-table-column prop="shutTime" label="停机时间" min-width="140" />
       <el-table-column prop="shutBy" label="停机人员"/>
       <el-table-column label="故障判定" :formatter="isFaultFormat"/>
       <el-table-column prop="judgeReason" label="停机原因"/>
       <el-table-column prop="repairBy" label="维修负责人"/>
-      <el-table-column prop="repairTime" label="开始维修时间"/>
-      <el-table-column prop="resolveTime" label="结束维修时间"/>
+      <el-table-column prop="repairTime" label="开始维修时间" min-width="140" />
+      <el-table-column prop="resolveTime" label="结束维修时间" min-width="140" />
       <el-table-column label="是否完成" :formatter="isFinishFormat"/>
       <el-table-column label="相关附件">
         <template slot-scope="scope">
@@ -30,8 +30,8 @@
         </template>
       </el-table-column>
       <el-table-column prop="confirmBy" label="确认人"/>
-      <el-table-column prop="confirmTime" label="确认时间"/>
-      <el-table-column prop="createTime" label="创建日期"/>
+      <el-table-column prop="confirmTime" label="确认时间" min-width="140" />
+      <el-table-column prop="createTime" label="创建日期" min-width="140" />
       <!--   编辑与删除   -->
       <el-table-column
         v-if="checkPer(['admin','repair:edit','repair:del'])"

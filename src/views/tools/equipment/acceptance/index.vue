@@ -105,8 +105,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="设备级别" prop="equipLevel">
-              <el-input v-model="equipForm.equipLevel" disabled style="width: 220px"/>
+            <el-form-item label="运行状态" prop="equipStatus">
+              <el-input v-model="equipForm.equipStatus" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -321,17 +321,17 @@
       >
         <el-row>
           <el-col :span="8">
-            <el-form-item label="待验收设备名称">
+            <el-form-item label="设备名称">
               <el-input v-model="equipForm.equipName" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="待验收设备编号">
+            <el-form-item label="设备编号">
               <el-input v-model="equipForm.equipNum" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="待验收设备厂家">
+            <el-form-item label="设备厂家">
               <el-input v-model="equipForm.equipProvider" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
@@ -396,15 +396,22 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-form-item label="参与人员" prop="acceptParticipant">
-            <el-tag
-              v-for="tag in acceptForm.participantTags"
-              :key="tag"
-              class="new-part-tag"
-            >
-              {{ tag }}
-            </el-tag>
-          </el-form-item>
+          <el-col :span="8">
+            <el-form-item label="运行状态" prop="equipStatus">
+              <el-input v-model="equipForm.equipStatus" disabled style="width: 220px"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="16">
+            <el-form-item label="参与人员" prop="acceptParticipant">
+              <el-tag
+                v-for="tag in acceptForm.participantTags"
+                :key="tag"
+                class="new-part-tag"
+              >
+                {{ tag }}
+              </el-tag>
+            </el-form-item>
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
@@ -540,15 +547,22 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-form-item label="参与人员" prop="acceptParticipant">
-            <el-tag
-              v-for="tag in approveForm.participantTags"
-              :key="tag"
-              class="new-part-tag"
-            >
-              {{ tag }}
-            </el-tag>
-          </el-form-item>
+          <el-col :span="8">
+            <el-form-item label="运行状态" prop="equipStatus">
+              <el-input v-model="equipForm.equipStatus" disabled style="width: 220px"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="16">
+            <el-form-item label="参与人员" prop="acceptParticipant">
+              <el-tag
+                v-for="tag in approveForm.participantTags"
+                :key="tag"
+                class="new-part-tag"
+              >
+                {{ tag }}
+              </el-tag>
+            </el-form-item>
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">

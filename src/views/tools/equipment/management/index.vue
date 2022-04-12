@@ -120,7 +120,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+<!--          <el-col :span="8">
             <el-form-item label="设备级别" prop="equipLevel">
               <el-select
                 v-model="form.equipLevel"
@@ -138,6 +138,25 @@
                 </el-option>
               </el-select>
             </el-form-item>
+          </el-col>-->
+          <el-col :span="8">
+            <el-form-item label="运行状态" prop="equipStatus">
+              <el-select
+                v-model="form.equipStatus"
+                filterable
+                clearable
+                allow-create
+                placeholder="请选择设备运行状态"
+                style="width: 220px;"
+              >
+                <el-option
+                  v-for="item in equipStatusOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.label">
+                </el-option>
+              </el-select>
+            </el-form-item>
           </el-col>
 
           <el-col :span="8">
@@ -151,7 +170,6 @@
             </el-form-item>
           </el-col>
 
-
           <el-col :span="8">
             <el-form-item label="设备尺寸" prop="equipSize">
               <el-input v-model="form.equipSize" style="width: 220px"/>
@@ -162,7 +180,6 @@
               <el-input v-model="form.netValue" style="width: 220px"/>
             </el-form-item>
           </el-col>
-
 
           <el-col :span="8">
             <el-form-item label="出厂日期" prop="saleDate">
@@ -187,18 +204,16 @@
             </el-form-item>
           </el-col>
 
-
           <el-col :span="8">
-            <el-form-item label="电" prop="equipOltage">
+            <el-form-item label="电压" prop="equipOltage">
               <el-input v-model="form.equipOltage" style="width: 220px"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="气" prop="equipAir">
+            <el-form-item label="压缩空气" prop="equipAir">
               <el-input v-model="form.equipAir" style="width: 220px"/>
             </el-form-item>
           </el-col>
-
 
           <el-col :span="8">
             <el-form-item label="水" prop="equipWater">
@@ -210,7 +225,6 @@
               <el-input v-model="form.equipOther" style="width: 220px"/>
             </el-form-item>
           </el-col>
-
 
           <el-col :span="8">
             <el-form-item label="设备位置" prop="useArea">
@@ -273,7 +287,8 @@ const defaultForm = {
   useArea: null,
   useBy: null,
   equipType: null,
-  equipLevel: null,
+  // equipLevel: null,
+  equipStatus: null,
   status: null,
   equipOltage: null,
   equipAir: null,
@@ -330,8 +345,8 @@ export default {
         factoryNum: [
           {required: true, message: '请输入设备出厂编号', trigger: 'blur'}
         ],
-        equipLevel: [
-          {required: true, message: '请输入选填设备级别', trigger: 'blur'}
+        equipStatus: [
+          {required: true, message: '请输入设备运行状态', trigger: 'blur'}
         ],
         equipSpec: [
           {required: true, message: '请输入设备规格', trigger: 'blur'}
@@ -355,7 +370,7 @@ export default {
           {required: true, message: '请输入收到日期', trigger: 'blur'}
         ],
         netValue: [
-          {required: true, message: '请输入设备原值', trigger: 'blur'}
+          {required: false, message: '请输入设备原值', trigger: 'blur'}
         ],
         acceptBy: [
           {required: true, message: '请输入验收人员', trigger: 'blur'}
@@ -404,6 +419,16 @@ export default {
           label:'C类',
           value:'一般设备'
         },
+      ],
+      equipStatusOptions: [
+        {
+          label:'良好',
+          value:'良好'
+        },
+        {
+          label:'停用',
+          value:'停用'
+        }
       ],
       equipTypeOptions: [
         {
