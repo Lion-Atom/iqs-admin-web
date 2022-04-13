@@ -200,7 +200,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'plan:management'],
+        add: ['admin', 'plan:add'],
         edit: ['admin', 'plan:edit'],
         del: ['admin', 'plan:del']
       }

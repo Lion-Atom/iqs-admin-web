@@ -99,7 +99,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'dict:management'],
+        add: ['admin', 'dict:add'],
         edit: ['admin', 'dict:edit'],
         del: ['admin', 'dict:del']
       }

@@ -134,7 +134,7 @@ export default {
     return {
       delLoading: false,
       permission: {
-        add: ['admin', 'timing:management'],
+        add: ['admin', 'timing:add'],
         edit: ['admin', 'timing:edit'],
         del: ['admin', 'timing:del']
       },

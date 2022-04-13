@@ -92,7 +92,7 @@ export default {
       databaseInfo: '',
       loading: false,
       permission: {
-        add: ['admin', 'database:management'],
+        add: ['admin', 'database:add'],
         edit: ['admin', 'database:edit'],
         del: ['admin', 'database:del']
       },

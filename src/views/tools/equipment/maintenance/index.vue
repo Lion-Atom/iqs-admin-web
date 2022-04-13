@@ -14,27 +14,23 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="repairNum" label="维修单号" min-width="120" />
+      <el-table-column prop="equipNum" label="设备编号"/>
       <el-table-column prop="equipName" label="设备名称"/>
-      <el-table-column prop="shutTime" label="停机时间" min-width="140" />
-      <el-table-column prop="shutBy" label="停机人员"/>
-      <el-table-column label="故障判定" :formatter="isFaultFormat"/>
-      <el-table-column prop="judgeReason" label="停机原因"/>
-      <el-table-column prop="repairBy" label="维修负责人"/>
-      <el-table-column prop="repairTime" label="开始维修时间" min-width="140" />
-      <el-table-column prop="resolveTime" label="结束维修时间" min-width="140" />
-      <el-table-column label="是否完成" :formatter="isFinishFormat"/>
-      <el-table-column label="相关附件">
-        <template slot-scope="scope">
-          <el-button type="text" @click="toOpenFileView(scope.row)">文件查看</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column prop="confirmBy" label="确认人"/>
-      <el-table-column prop="confirmTime" label="确认时间" min-width="140" />
-      <el-table-column prop="createTime" label="创建日期" min-width="140" />
+      <el-table-column prop="equipModel" label="设备型号" min-width="150" />
+      <el-table-column prop="assetNum" label="资产号" min-width="120" />
+      <el-table-column prop="equipProvider" label="设备厂家"/>
+      <el-table-column prop="useDepartName" label="使用部门"/>
+      <el-table-column prop="useArea" label="设备位置"/>
+      <el-table-column prop="equipLevel" label="设备级别"/>
+      <el-table-column prop="status" label="设备状态"></el-table-column>
+      <el-table-column prop="maintainLevel" label="保养级别"/>
+      <el-table-column label="上次保养日期" :formatter="lastMaintainDateFormat" min-width="100"/>
+      <el-table-column label="保养周期" :formatter="maintainPeriodFormat"/>
+      <el-table-column label="保养到期日期" :formatter="maintainDueDateFormat" min-width="100"/>
+      <el-table-column prop="createTime" label="创建日期" min-width="150px"/>
       <!--   编辑与删除   -->
       <el-table-column
-        v-if="checkPer(['admin','repair:edit','repair:del'])"
+        v-if="checkPer(['admin','equip:edit'])"
         label="操作"
         width="130px"
         align="center"
@@ -118,14 +114,15 @@
 </template>
 
 <script>
-import crudEquipRepair from '@/api/tools/equipRepair'
+import crudEquipment from '@/api/tools/equipment'
 import eHeader from './module/header'
 import eForm from './module/form'
 import CRUD, {presenter} from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
-import udOperation from '@crud/UD.operation'
+import udOperation from './module/UD.operation'
 import {mapGetters} from "vuex";
+import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
 
 export default {
   name: 'Maintenance',
@@ -133,9 +130,10 @@ export default {
   cruds() {
     return CRUD({
       title: '设备保养',
-      url: 'api/equipRepair',
+      url: 'api/equipment',
+      query: { status: '已验收' },
       // sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: {...crudEquipRepair}
+      crudMethod: {...crudEquipment}
     })
   },
   mixins: [presenter()],
@@ -144,9 +142,7 @@ export default {
   data() {
     return {
       permission: {
-        add: ['admin', 'repair:add'],
-        edit: ['admin', 'repair:edit'],
-        del: ['admin', 'repair:del']
+        edit: ['admin', 'equip:edit']
       },
       fileList: [],
       fileDialogTitle: '',
@@ -160,29 +156,39 @@ export default {
       'repairFileUploadApi'
     ])
   },
+  created() {
+      this.crud.optShow = {
+        add: false,
+        edit: true,
+        del: false,
+        download: true,
+        reset: true
+      }
+  },
   methods: {
-    // 是否是故障判定
-    isFaultFormat(row, col) {
-      // alert(JSON.stringify(row))
-      if (row.isFault) {
-        return '故障'
+    // 上次保养日期格式化
+    lastMaintainDateFormat(row, col) {
+      if (validIsNotNull(row.lastMaintainDate)) {
+        return GMTToDate(row.lastMaintainDate)
       } else {
-        return '非故障'
+        return null
       }
     },
-    isFinishFormat(row, col) {
-      if (row.isFinished) {
-        return '已完成'
+    // 上次保养日期格式化
+    maintainPeriodFormat(row, col) {
+      if (validIsNotNull(row.maintainPeriod) && validIsNotNull(row.maintainPeriodUnit)) {
+        return row.maintainPeriod + row.maintainPeriodUnit
       } else {
-        return '未完成'
+        return null
       }
     },
-    // 查看文档
-    toOpenFileView(data) {
-      // alert(JSON.stringify(data.fileList))
-      this.fileList = data.fileList
-      this.fileDialogTitle = data.equipName + ' - ' + data.repairNum
-      this.fileDialogVisible = true
+    // 上次保养日期格式化
+    maintainDueDateFormat(row, col) {
+      if (validIsNotNull(row.maintainDueDate)) {
+        return GMTToDate(row.maintainDueDate)
+      } else {
+        return null
+      }
     }
   }
 }

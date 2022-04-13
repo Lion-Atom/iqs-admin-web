@@ -83,7 +83,7 @@ export default {
       accountMap: {},
       loading: false,
       permission: {
-        add: ['admin', 'serverDeploy:management'],
+        add: ['admin', 'serverDeploy:add'],
         edit: ['admin', 'serverDeploy:edit'],
         del: ['admin', 'serverDeploy:del']
       },

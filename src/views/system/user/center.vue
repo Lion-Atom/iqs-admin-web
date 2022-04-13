@@ -921,7 +921,7 @@ export default {
       },
       permission: {
         approve: ['admin', 'storage:edit'],
-        add: ['admin', 'd:management'],
+        add: ['admin', 'd:add'],
         edit: ['admin', 'd:edit'],
         del: ['admin', 'd:del']
       },

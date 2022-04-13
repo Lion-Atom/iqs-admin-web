@@ -411,7 +411,7 @@ export default {
   data() {
     return {
       permission: {
-        add: ['admin', 'd:management'],
+        add: ['admin', 'd:add'],
         edit: ['admin', 'd:edit'],
         del: ['admin', 'd:del']
       },

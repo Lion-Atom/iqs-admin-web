@@ -154,7 +154,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'category:management'],
+        add: ['admin', 'category:add'],
         edit: ['admin', 'category:edit'],
         del: ['admin', 'category:del']
       },

@@ -382,7 +382,7 @@ export default {
     return {
       headers: {'Authorization': getToken()},
       permission: {
-        add: ['admin', 'calibration:management'],
+        add: ['admin', 'calibration:add'],
         edit: ['admin', 'calibration:edit'],
         del: ['admin', 'calibration:del']
       },

@@ -81,7 +81,7 @@
                 v-for="item in users"
                 :key="item.id"
                 :label="item.dept.name + ' - '+ item.username"
-                :value="item.username">
+                :value="item.dept.name + ' - '+ item.username">
               </el-option>
             </el-select>
           </el-form-item>
@@ -132,7 +132,9 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="维修费用" prop="repairCost">
-            <el-input v-model="form.repairCost" placeholder="请填写维修费用" style="width: 220px"/>
+            <el-input type="text" v-model="form.repairCost" placeholder="请填写维修费用" @input="(v)=>(form.repairCost = v.replace(/[^0-9.]/g,''))" style="width: 220px">
+              <template slot="append">元</template>
+            </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -177,7 +179,7 @@
               </el-table-column>
               <el-table-column prop="partQuantity" label="备件数量">
                 <template slot-scope="scope">
-                  <el-input  type="number" :min=1 :step="1" v-model="scope.row.partQuantity" v-show="scope.row.isEditor" />
+                  <el-input  type="text" :min=1 :step="1" v-model="scope.row.partQuantity" v-show="scope.row.isEditor" @input="(v)=>(scope.row.partQuantity = v.replace(/[^0-9.]/g,''))" />
                   <span v-show="!scope.row.isEditor">{{scope.row.partQuantity}}</span>
                 </template>
               </el-table-column>

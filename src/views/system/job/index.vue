@@ -140,7 +140,7 @@ export default {
         ]
       },
       permission: {
-        add: ['admin', 'job:management'],
+        add: ['admin', 'job:add'],
         edit: ['admin', 'job:edit'],
         del: ['admin', 'job:del']
       }

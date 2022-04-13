@@ -129,7 +129,7 @@ export default {
       currentRow: {}, selectIndex: '', appName: '', urlHistory: '',
       times: 0, appId: '', deployId: '', apps: [], servers: [],
       permission: {
-        add: ['admin', 'deploy:management'],
+        add: ['admin', 'deploy:add'],
         edit: ['admin', 'deploy:edit'],
         del: ['admin', 'deploy:del']
       },

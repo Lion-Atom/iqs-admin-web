@@ -103,7 +103,7 @@ export default {
   data() {
     return {
       permission: {
-        add: ['admin', 'auditor:management'],
+        add: ['admin', 'auditor:add'],
         edit: ['admin', 'auditor:edit'],
         del: ['admin', 'auditor:del']
       }

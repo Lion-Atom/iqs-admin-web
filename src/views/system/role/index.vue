@@ -142,7 +142,7 @@ export default {
       currentId: 0, menuLoading: false, showButton: false,
       menus: [], menuIds: [], depts: [], deptDatas: [], // 多选时使用
       permission: {
-        add: ['admin', 'roles:management'],
+        add: ['admin', 'roles:add'],
         edit: ['admin', 'roles:edit'],
         del: ['admin', 'roles:del']
       },

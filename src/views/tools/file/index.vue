@@ -177,20 +177,6 @@
                     :value="item.value"
                   />
                 </el-select>
-                <!--                <el-autocomplete
-                  popper-class="my-autocomplete"
-                  v-model="verPrefix"
-                  :fetch-suggestions="querySearch"
-                  placeholder="请输入内容"
-                  style="width: 80px">
-                  <i
-                    class="el-icon-edit el-input__icon"
-                    slot="suffix">
-                  </i>
-                  <template slot-scope="{ item }">
-                    <div class="name">{{ item.value }}</div>
-                  </template>
-                </el-autocomplete>-->
                 /
                 <el-input-number
                   v-model="verNo"
@@ -1547,7 +1533,7 @@ export default {
       defaultProps: { children: 'children', label: 'name', isLeaf: 'leaf' },
       headers: { 'Authorization': getToken() },
       permission: {
-        add: ['admin', 'storage:management'],
+        add: ['admin', 'storage:add'],
         edit: ['admin', 'storage:edit'],
         del: ['admin', 'storage:del']
       },
@@ -1677,20 +1663,6 @@ export default {
     }
   },
   methods: {
-    querySearch(queryString, cb) {
-      let restaurants = this.refFileVersions
-      let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
-      // 调用 callback 返回建议列表的数据
-      cb(results)
-    },
-    createFilter(queryString) {
-      return (restaurant) => {
-        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
-      }
-    },
-    loadAll() {
-      return this.dict.file_version
-    },
     // 展开添加自定义版本号
     showInput() {
       this.selectVisible = true

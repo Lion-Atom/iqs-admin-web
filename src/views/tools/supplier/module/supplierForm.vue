@@ -3303,7 +3303,7 @@ export default {
       supplierId: null,
       headers: {'Authorization': getToken()},
       permission: {
-        add: ['admin', 'supplier:management'],
+        add: ['admin', 'supplier:add'],
         edit: ['admin', 'supplier:edit']
       },
       supplierRules: {

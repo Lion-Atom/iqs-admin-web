@@ -371,7 +371,7 @@ export default {
     return {
       headers: {'Authorization': getToken()},
       permission: {
-        add: ['admin', 'caliorg:management'],
+        add: ['admin', 'caliorg:add'],
         edit: ['admin', 'caliorg:edit'],
         del: ['admin', 'caliorg:del']
       },

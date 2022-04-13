@@ -193,6 +193,20 @@ export const constantRouterMap = [
       }
     ]
   },
+  {
+    path: '/maintenance',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'detail',
+        component: (resolve) => require(['@/views/tools/equipment/maintenance/detail/index'], resolve),
+        name: '保养明细',
+        meta: { title: '保养明细' }
+      }
+    ]
+  },
 ]
 
 export default new Router({
