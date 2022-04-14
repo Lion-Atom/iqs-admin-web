@@ -100,9 +100,10 @@
               :min="1"
               type="number"
               :step="1"
+              @input="maintainPeriodChange"
             >
               <el-select v-model="form.maintainPeriodUnit" slot="append" style="width: 60px;"
-                         placeholder="请选择">
+                         @change="maintainUnitChange" placeholder="请选择">
                 <el-option label="年" value="年"></el-option>
                 <el-option label="季" value="季"></el-option>
                 <el-option label="月" value="月"></el-option>
@@ -160,7 +161,9 @@
             <template slot="label">
               <span><i style="color: red;">* </i>提前提醒天数</span>
             </template>
-            <el-input placeholder="请输入提醒天数" type="number" :min="1" v-model="form.remindDays" style="width: 220px">
+            <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays" v-model="form.remindDays"
+                      @input="remindDaysMaxValue"
+                      style="width: 220px">
               <template slot="append">天</template>
             </el-input>
           </el-form-item>
@@ -179,6 +182,7 @@ import CRUD, {form} from '@crud/crud'
 import {mapGetters} from "vuex";
 import {getToken} from "@/utils/auth";
 import {getAllUser} from "@/api/system/user";
+import {validIsNotNull} from "@/utils/validationUtil";
 
 const defaultForm = {
   id: null,
@@ -344,6 +348,7 @@ export default {
           value: '三级保养'
         },
       ],
+      maxRemindDays: 100
     }
   },
   created: function () {
@@ -371,7 +376,7 @@ export default {
     },
     // 编辑前操作
     [CRUD.HOOK.beforeToEdit](crud, form) {
-
+      this.getMaxRemindDays(form.maintainPeriod, form.maintainPeriodUnit)
     },
     // 提交前做的操作
     [CRUD.HOOK.beforeSubmit]() {
@@ -380,6 +385,37 @@ export default {
     // todo 监控上次保养日期变化
     lastMaintainDateHandler(v) {
       // alert(v)
+    },
+    // 监控保养周期单位变化
+    maintainUnitChange(val) {
+      this.getMaxRemindDays(this.form.maintainPeriod, val)
+    },
+    // 监控保养周期变化
+    maintainPeriodChange(val) {
+      this.getMaxRemindDays(val, this.form.maintainPeriodUnit)
+    },
+    getMaxRemindDays(period, unit) {
+      let days = 1
+      if (unit === '年') {
+        days = 360
+      } else if (unit === '季') {
+        days = 90
+      } else if (unit === '月') {
+        days = 30
+      } else if (unit === '周') {
+        days = 7
+      }
+      if (validIsNotNull(period)) {
+        this.maxRemindDays = period * days
+        if (validIsNotNull(this.remindDays)) {
+          if (this.remindDays > this.maxRemindDays) {
+            this.remindDays = this.maxRemindDays
+          }
+        }
+      }
+    },
+    remindDaysMaxValue(v) {
+      this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v
     }
   }
 }
