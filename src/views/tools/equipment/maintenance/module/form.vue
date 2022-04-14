@@ -17,13 +17,16 @@
       <!--设备信息-->
       <el-row>
         <el-col :span="8">
-          <el-form-item label="设备名称" prop="equipmentId">
-            <el-input v-model="form.equipName" disabled style="width: 220px"/>
+          <el-form-item label="设备编号" prop="equipNum">
+            <el-input v-model="form.equipNum" disabled style="width: 220px"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="设备编号" prop="equipNum">
-            <el-input v-model="form.equipNum" disabled style="width: 220px"/>
+          <el-form-item prop="equipmentId">
+            <template slot="label">
+              <span><i style="color: red">* </i>设备名称</span>
+            </template>
+            <el-input v-model="form.equipName" disabled style="width: 220px"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -46,9 +49,7 @@
             <el-input v-model="form.useDepartName" disabled style="width: 220px"/>
           </el-form-item>
         </el-col>
-      </el-row>
-      <!--设备保养信息-->
-      <el-row>
+        <!--设备保养信息-->
         <el-col :span="8">
           <el-form-item label="设备级别" prop="equipLevel">
             <el-select
@@ -111,7 +112,9 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-show="form.lastMaintainDate">
+      </el-row>
+      <el-row>
+        <el-col :span="8" v-if="form.lastMaintainDate">
           <el-form-item
             label="上次保养日期"
             prop="lastMaintainDate"
@@ -126,7 +129,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-show="form.lastMaintainDate && form.maintainPeriod && form.maintainPeriodUnit">
+        <el-col :span="8" v-if="form.lastMaintainDate && form.maintainPeriod && form.maintainPeriodUnit">
           <el-form-item
             label="保养到期日期"
             prop="lastMaintainDate"
@@ -186,7 +189,7 @@ const defaultForm = {
   equipSpec: null,
   equipWeight: null,
   equipSize: null,
-  factoryNum:null,
+  factoryNum: null,
   assetNum: null,
   saleDate: null,
   receiveDate: null,
@@ -306,34 +309,39 @@ export default {
         maintainPeriod: [
           {required: true, message: '请输入保养等级', trigger: 'blur'}
         ],
-        maintainPeriodUnit: null,
+        maintainPeriodUnit: [
+          {required: true, message: '请输入保养周期单位', trigger: 'blur'}
+        ],
+        isRemind: [
+          {required: true, message: '请选择是否保养提前提醒', trigger: 'blur'}
+        ]
       },
       equipLevelOptions: [
         {
-          label:'A类',
-          value:'关键设备'
+          label: 'A类',
+          value: '关键设备'
         },
         {
-          label:'B类',
-          value:'主要设备'
+          label: 'B类',
+          value: '主要设备'
         },
         {
-          label:'C类',
-          value:'一般设备'
+          label: 'C类',
+          value: '一般设备'
         },
       ],
       maintainLevelOptions: [
         {
-          label:'一级保养',
-          value:'一级保养'
+          label: '一级保养',
+          value: '一级保养'
         },
         {
-          label:'二级保养',
-          value:'二级保养'
+          label: '二级保养',
+          value: '二级保养'
         },
         {
-          label:'三级保养',
-          value:'三级保养'
+          label: '三级保养',
+          value: '三级保养'
         },
       ],
     }
@@ -351,7 +359,7 @@ export default {
     this.getAllUser()
   },
   methods: {
-    getAllUser(){
+    getAllUser() {
       this.users = []
       getAllUser().then(res => {
         this.users = res.content
