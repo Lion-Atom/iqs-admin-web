@@ -120,25 +120,25 @@
               </el-select>
             </el-form-item>
           </el-col>
-<!--          <el-col :span="8">
-            <el-form-item label="设备级别" prop="equipLevel">
-              <el-select
-                v-model="form.equipLevel"
-                filterable
-                clearable
-                allow-create
-                placeholder="请选择设备级别"
-                style="width: 220px;"
-              >
-                <el-option
-                  v-for="item in equipLevelOptions"
-                  :key="item.value"
-                  :label="item.label + ' - ' +item.value "
-                  :value="item.label">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>-->
+          <!--          <el-col :span="8">
+                      <el-form-item label="设备级别" prop="equipLevel">
+                        <el-select
+                          v-model="form.equipLevel"
+                          filterable
+                          clearable
+                          allow-create
+                          placeholder="请选择设备级别"
+                          style="width: 220px;"
+                        >
+                          <el-option
+                            v-for="item in equipLevelOptions"
+                            :key="item.value"
+                            :label="item.label + ' - ' +item.value "
+                            :value="item.label">
+                          </el-option>
+                        </el-select>
+                      </el-form-item>
+                    </el-col>-->
           <el-col :span="8">
             <el-form-item label="运行状态" prop="equipStatus">
               <el-select
@@ -250,6 +250,22 @@
         <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
       </div>
     </el-dialog>
+    <!--保养记录查看-->
+    <el-dialog title="保养记录" :visible.sync="maintenanceVisible" width="50%">
+      <el-table
+        ref="maintenanceTable"
+        v-loading="maintenanceLoading"
+        :data="maintenanceList"
+        style="width: 100%;margin-top: -20px;">
+        <el-table-column label="保养日期" :formatter="maintainDateFormat"/>
+        <el-table-column prop="maintainBy" label="保养人"/>
+        <el-table-column prop="maintainDuration" label="保养时长"/>
+        <el-table-column prop="confirmBy" label="确认人"/>
+        <el-table-column prop="maintainStatus" label="状态"/>
+        <el-table-column prop="maintainDesc" label="描述"/>
+        <el-table-column prop="createTime" label="创建日期" min-width="140"/>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -266,6 +282,7 @@ import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
 import {getDepts, getDeptTree} from "@/api/system/dept";
 import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import {getMaintenanceByEquipId} from "@/api/tools/equipMaintenance";
 
 const defaultForm = {
   id: null,
@@ -276,7 +293,7 @@ const defaultForm = {
   equipSpec: null,
   equipWeight: null,
   equipSize: null,
-  factoryNum:null,
+  factoryNum: null,
   assetNum: null,
   saleDate: null,
   receiveDate: null,
@@ -408,70 +425,73 @@ export default {
       ],
       equipLevelOptions: [
         {
-          label:'A类',
-          value:'关键设备'
+          label: 'A类',
+          value: '关键设备'
         },
         {
-          label:'B类',
-          value:'主要设备'
+          label: 'B类',
+          value: '主要设备'
         },
         {
-          label:'C类',
-          value:'一般设备'
+          label: 'C类',
+          value: '一般设备'
         },
       ],
       equipStatusOptions: [
         {
-          label:'良好',
-          value:'良好'
+          label: '良好',
+          value: '良好'
         },
         {
-          label:'停用',
-          value:'停用'
+          label: '停用',
+          value: '停用'
         }
       ],
       equipTypeOptions: [
         {
-          label:'包装设备',
-          value:'包装设备'
+          label: '包装设备',
+          value: '包装设备'
         },
         {
-          label:'焊接设备',
-          value:'焊接设备'
+          label: '焊接设备',
+          value: '焊接设备'
         },
         {
-          label:'通用设备',
-          value:'通用设备'
+          label: '通用设备',
+          value: '通用设备'
         },
         {
-          label:'铸造设备',
-          value:'铸造设备'
+          label: '铸造设备',
+          value: '铸造设备'
         },
         {
-          label:'输送设备',
-          value:'输送设备'
+          label: '输送设备',
+          value: '输送设备'
         },
         {
-          label:'金属加工设备',
-          value:'金属加工设备'
+          label: '金属加工设备',
+          value: '金属加工设备'
         },
         {
-          label:'动力设备',
-          value:'动力设备'
+          label: '动力设备',
+          value: '动力设备'
         },
         {
-          label:'起重设备',
-          value:'起重设备'
+          label: '起重设备',
+          value: '起重设备'
         },
         {
-          label:'冷冻设备',
-          value:'冷冻设备'
+          label: '冷冻设备',
+          value: '冷冻设备'
         },
         {
-          label:'分离设备',
-          value:'分离设备'
+          label: '分离设备',
+          value: '分离设备'
         }
       ],
+      maintenanceList: [],
+      maintenanceLoading: false,
+      maintenanceVisible: false
     }
   },
   computed: {
@@ -549,9 +569,30 @@ export default {
         return null
       }
     },
-    // todo 查看设备相关的保养记录
+    // 查看设备相关的保养记录
     checkMainRecord(row) {
-      alert(JSON.stringify(row))
+      this.getMaintainInfoByEquipId(row.id)
+      this.$nextTick(()=>{
+        this.maintenanceVisible = true
+      },500)
+    },
+    // 获取设备保养记录列表
+    getMaintainInfoByEquipId(id) {
+      this.maintenanceList = []
+      this.maintenanceLoading = true
+      getMaintenanceByEquipId(id).then(res => {
+        this.maintenanceList = res
+        this.maintenanceLoading = false
+        // alert(JSON.stringify(this.maintenanceList))
+      })
+    },
+    // 保养日期格式化
+    maintainDateFormat(row, col) {
+      if (validIsNotNull(row.maintainDate)) {
+        return GMTToDate(row.maintainDate)
+      } else {
+        return '--'
+      }
     }
   }
 }

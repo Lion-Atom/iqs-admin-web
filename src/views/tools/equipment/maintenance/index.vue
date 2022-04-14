@@ -2,7 +2,7 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <eHeader :dict="dict" :permission="permission"/>
+      <eHeader :permission="permission"/>
       <crudOperation :permission="permission"/>
     </div>
     <!--表格渲染-->
@@ -11,18 +11,19 @@
       v-loading="crud.loading"
       :data="crud.data"
       style="width: 100%;"
+      :row-class-name="maintainTableRowClassName"
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="equipNum" label="设备编号"/>
       <el-table-column prop="equipName" label="设备名称"/>
-      <el-table-column prop="equipModel" label="设备型号" min-width="150" />
-      <el-table-column prop="assetNum" label="资产号" min-width="120" />
+      <el-table-column prop="equipModel" label="设备型号" min-width="150"/>
+      <el-table-column prop="assetNum" label="资产号" min-width="120"/>
       <el-table-column prop="equipProvider" label="设备厂家"/>
       <el-table-column prop="useDepartName" label="使用部门"/>
       <el-table-column prop="useArea" label="设备位置"/>
-      <el-table-column prop="equipLevel" label="设备级别"/>
       <el-table-column prop="status" label="设备状态"></el-table-column>
+      <el-table-column prop="equipLevel" label="设备级别"/>
       <el-table-column prop="maintainLevel" label="保养级别"/>
       <el-table-column label="上次保养日期" :formatter="lastMaintainDateFormat" min-width="100"/>
       <el-table-column label="保养周期" :formatter="maintainPeriodFormat"/>
@@ -131,7 +132,7 @@ export default {
     return CRUD({
       title: '设备保养',
       url: 'api/equipment',
-      query: { status: '已验收' },
+      query: {status: '已验收'},
       // sort: ['jobSort,asc', 'id,desc'],
       crudMethod: {...crudEquipment}
     })
@@ -157,13 +158,13 @@ export default {
     ])
   },
   created() {
-      this.crud.optShow = {
-        add: false,
-        edit: true,
-        del: false,
-        download: true,
-        reset: true
-      }
+    this.crud.optShow = {
+      add: false,
+      edit: true,
+      del: false,
+      download: true,
+      reset: true
+    }
   },
   methods: {
     // 上次保养日期格式化
@@ -189,11 +190,24 @@ export default {
       } else {
         return null
       }
+    },
+    // 根据设备保养级别等有无设置提醒样式
+    maintainTableRowClassName({row, rowIndex}) {
+      if (!validIsNotNull(row.maintainLevel)) {
+        return 'warning-row'
+      } else {
+        return ''
+      }
     }
   }
 }
 </script>
 
+<style>
+.el-table .warning-row {
+  color: #ffb700 !important;
+}
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;

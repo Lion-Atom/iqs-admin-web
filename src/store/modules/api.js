@@ -44,6 +44,8 @@ const api = {
     instruCaliFileUploadApi: baseUrl + '/api/instruCaliFile',
     // 设备维修确认单上传
     repairFileUploadApi: baseUrl + '/api/repairFile',
+    // 设备维修确认单上传
+    maintainFileUploadApi: baseUrl + '/api/maintainFile',
     // 台账附件上传
     gridFileUploadApi: baseUrl + '/api/gridFile',
     // 文件覆盖上传

@@ -17,7 +17,7 @@
       <el-table-column prop="repairNum" label="维修单号" min-width="120" />
       <el-table-column prop="equipName" label="设备名称"/>
       <el-table-column prop="shutTime" label="停机时间" min-width="140" />
-      <el-table-column prop="shutBy" label="停机人员"/>
+      <el-table-column prop="shutBy" label="停机人员" min-width="120"/>
       <el-table-column label="故障判定" :formatter="isFaultFormat"/>
       <el-table-column prop="judgeReason" label="停机原因"/>
       <el-table-column prop="repairBy" label="维修负责人"/>

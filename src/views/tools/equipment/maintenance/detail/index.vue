@@ -20,42 +20,42 @@
               </li>
               <li>
                 <svg-icon icon-class="user1"/>
-                 设备名称
+                设备名称
                 <div class="user-right">{{ equipForm.equipName }}</div>
               </li>
               <li>
                 <svg-icon icon-class="dept"/>
-                 设备型号
+                设备型号
                 <div class="user-right"> {{ equipForm.equipSpec }}</div>
               </li>
               <li>
                 <svg-icon icon-class="phone"/>
-                 资产号
+                资产号
                 <div class="user-right">{{ equipForm.assetNum }}</div>
               </li>
               <li>
                 <svg-icon icon-class="anq"/>
-                 厂家
+                厂家
                 <div class="user-right">{{ equipForm.equipProvider }}</div>
               </li>
               <li>
                 <svg-icon icon-class="email"/>
-                 使用部门
+                使用部门
                 <div class="user-right">{{ equipForm.useDepartName }}</div>
               </li>
               <li>
                 <svg-icon icon-class="icon"/>
-                 所在位置
+                所在位置
                 <div class="user-right">{{ equipForm.useArea }}</div>
               </li>
               <li>
                 <svg-icon icon-class="icon"/>
-                 保养等级
+                保养等级
                 <div class="user-right">{{ equipForm.maintainLevel }}</div>
               </li>
               <li>
                 <svg-icon icon-class="icon"/>
-                 保养周期
+                保养周期
                 <div class="user-right">{{ equipForm.maintainPeriod }}{{ equipForm.maintainPeriodUnit }}</div>
               </li>
             </ul>
@@ -69,6 +69,10 @@
             <span class="header-title">保养计划</span>
           </div>
           <div>
+            <div class="head-container">
+              <eHeader :equip-id="equipId" :maintain-status="maintainStatusOptions" :permission="permission"/>
+              <crudOperation :permission="permission"/>
+            </div>
             <!--表格渲染-->
             <el-table
               ref="table"
@@ -78,14 +82,14 @@
               @selection-change="crud.selectionChangeHandler"
               @row-dblclick="crud.toEdit">
               <el-table-column type="selection" width="55"/>
-<!--              <el-table-column prop="repairNum" label="维修单号" min-width="120" />-->
-              <el-table-column prop="maintainDate" label="保养日期"/>
-              <el-table-column prop="maintainBy" label="保养日期" min-width="140" />
+              <!--              <el-table-column prop="repairNum" label="维修单号" min-width="120" />-->
+              <el-table-column label="保养日期" :formatter="maintainDateFormat"/>
+              <el-table-column prop="maintainBy" label="保养人"/>
               <el-table-column prop="maintainDuration" label="保养时长"/>
-              <el-table-column prop="confirmBy" label="确认人" />
-              <el-table-column prop="maintainStatus" label="状态" />
+              <el-table-column prop="confirmBy" label="确认人"/>
+              <el-table-column prop="maintainStatus" label="状态"/>
               <el-table-column prop="maintainDesc" label="描述"/>
-              <el-table-column prop="createTime" label="创建日期" min-width="140" />
+              <el-table-column prop="createTime" label="创建日期" min-width="140"/>
               <!--   编辑与删除   -->
               <el-table-column
                 v-if="checkPer(['admin','maintain:edit','maintain:del'])"
@@ -104,6 +108,8 @@
             </el-table>
             <!--分页组件-->
             <pagination/>
+            <!--表单渲染-->
+            <eForm :equip-form="equipForm"/>
           </div>
         </el-card>
       </el-col>
@@ -118,20 +124,22 @@ import {mapGetters} from 'vuex'
 import {getToken} from '@/utils/auth'
 import {getEquipmentById} from "@/api/tools/equipment";
 import CRUD, {presenter} from "@crud/crud";
-// import crudOperation from '@crud/CRUD.operation'
+import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
-// import eHeader from "@/views/tools/equipment/repair/module/header";
-// import eForm from "@/views/tools/equipment/repair/module/form";
+import eHeader from "./module/header";
+import eForm from "./module/form";
+import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
 
 export default {
   name: 'MaintainDetail',
   components: {
-    // eHeader,
-    // crudOperation,
+    eHeader,
+    crudOperation,
     pagination,
-    // eForm,
-    udOperation},
+    eForm,
+    udOperation
+  },
   cruds() {
     return CRUD({
       title: '设备保养',
@@ -154,18 +162,19 @@ export default {
         add: ['admin', 'maintain:add'],
         edit: ['admin', 'maintain:edit'],
         del: ['admin', 'maintain:del']
-      }
+      },
+      maintainStatusOptions: []
     }
   },
   computed: {
     ...mapGetters([
       'user',
       'baseApi',
-      'equipFormUploadApi'
     ])
   },
   created: function () {
     if (this.$route.query.equipId !== undefined) {
+      this.equipId = this.$route.query.equipId
       this.getInfoByEquipId(this.equipId)
       this.getMaintainInfoByEquipId(this.equipId)
     }
@@ -215,19 +224,16 @@ export default {
       })
       this.loading = false
     },
+    // 保养日期格式化
+    maintainDateFormat(row, col) {
+      if (validIsNotNull(row.maintainDate)) {
+        return GMTToDate(row.maintainDate)
+      } else {
+        return '--'
+      }
+    },
     // 返回列表
     back() {
-      this.$confirm('返回列表？', '确认信息', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: 'Yes 返回列表',
-        cancelButtonText: 'Wait 留在本页'
-      })
-        .then(() => {
-          this.$router.push(
-            {
-              path: '/equipment/maintenance'
-            })
-        })
     }
   }
 }

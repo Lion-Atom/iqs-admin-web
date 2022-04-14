@@ -111,7 +111,7 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-show="form.lastMaintainDate">
           <el-form-item
             label="上次保养日期"
             prop="lastMaintainDate"
@@ -122,12 +122,12 @@
               style="width: 220px;"
               placeholder="请填写日期时间"
               @input="lastMaintainDateHandler"
+              disabled
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-show="form.lastMaintainDate && form.maintainPeriod && form.maintainPeriodUnit">
           <el-form-item
-            v-if="form.lastMaintainDate && form.maintainPeriod && form.maintainPeriodUnit"
             label="保养到期日期"
             prop="lastMaintainDate"
           >
@@ -140,7 +140,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.lastMaintainDate">
+        <el-col :span="8">
           <el-form-item
             label="下次校准提醒"
             prop="isRemind"
@@ -150,7 +150,7 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.lastMaintainDate && form.isRemind">
+        <el-col :span="8" v-if="form.isRemind">
           <el-form-item
             prop="remindDays"
           >

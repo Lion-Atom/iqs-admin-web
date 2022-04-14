@@ -462,7 +462,7 @@ export default {
         }
       ],
       rules: {
-        equipmentId: [
+        equipName: [
           {required: true, message: '请输入设备名称', trigger: 'blur'}
         ],
         repairNum: [
