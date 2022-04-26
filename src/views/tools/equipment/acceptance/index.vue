@@ -14,7 +14,8 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="equipName" label="设备名称"/>
+      <el-table-column prop="equipNum" label="设备编号" min-width="100"/>
+      <el-table-column prop="equipName" label="设备名称" min-width="100"/>
       <el-table-column prop="acceptParticipant" label="参与人员"/>
       <el-table-column prop="acceptDepartName" label="验收部门"/>
       <el-table-column label="验收状态">
@@ -63,12 +64,103 @@
       :title="crud.status.title"
       width="80%"
     >
+      <el-dialog title="设备验收明细" append-to-body :visible.sync="detailVisible" width="60%">
+        <el-table
+          ref="detailTable"
+          v-loading="detailsLoading"
+          :data="wgAndRjs"
+          height="350"
+          :span-method="wgAndRjSpanMethod"
+          :header-cell-style="rowClass"
+          style="width: 100%;margin-top: -20px;">
+          <el-table-column label="明细内容">
+            <el-table-column prop="detailCategory" width="40"/>
+            <el-table-column prop="detailTitle" width="200"/>
+          </el-table-column>
+          <el-table-column prop="detailContent" label="有/无/不适用" width="200">
+            <template scope="scope">
+              <el-radio v-model="scope.row.detailContent" label="有" @change="detailContentChange(scope.row)">有
+              </el-radio>
+              <el-radio v-model="scope.row.detailContent" label="无" @change="detailContentChange(scope.row)">无
+              </el-radio>
+              <el-radio v-model="scope.row.detailContent" label="不适用" @change="detailContentChange(scope.row)">不适用
+              </el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="detailDesc" label="附注">
+            <template scope="scope">
+              <el-input
+                v-model="scope.row.detailDesc"
+                size="mini"
+                type="textarea"
+                maxlength="500"
+                show-word-limit
+                autosize
+                placeholder="请输入附注"
+                suffix-icon="el-icon-edit"
+              >{{ scope.row.detailDesc }}
+              </el-input>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-table
+          ref="otDetailTable"
+          v-loading="detailsLoading"
+          :data="otDetails"
+          :span-method="otSpanMethod"
+          :header-cell-style="rowClass"
+          style="width: 100%;margin-top: 0;">
+          <el-table-column label="明细内容">
+            <el-table-column prop="detailCategory" width="40"/>
+            <el-table-column width="200">
+              <template scope="scope">
+                <span>
+                  {{ scope.row.detailTitle }}
+                  <el-button v-if="needFileItems.indexOf(scope.row.detailTitle)>-1 && scope.row.detailContent==='有'" type="text"
+                             @click="toAddAcceptanceDetailFile(scope.row)">上传附件</el-button>
+                </span>
+              </template>
+            </el-table-column>
+          </el-table-column>
+          <el-table-column prop="detailContent" label="有/无" width="200">
+            <template scope="scope">
+              <el-radio v-model="scope.row.detailContent" label="有">有</el-radio>
+              <el-radio v-model="scope.row.detailContent" label="无">无</el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="isNormal" label="是否正常" width="140">
+            <template scope="scope">
+              <el-radio v-if="scope.row.detailContent==='有'" v-model="scope.row.isNormal" label="是">是</el-radio>
+              <el-radio v-if="scope.row.detailContent==='有'" v-model="scope.row.isNormal" label="否">否</el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="faultContent" label="故障内容">
+            <template scope="scope">
+              <el-input
+                v-model="scope.row.detailDesc"
+                size="mini"
+                type="textarea"
+                maxlength="500"
+                show-word-limit
+                autosize
+                placeholder="请输入附注"
+                suffix-icon="el-icon-edit"
+              >{{ scope.row.detailDesc }}
+              </el-input>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+         <el-button @click="detailVisible = false">取 消</el-button>
+         <el-button type="primary" @click="submitAcceptanceDetail(wgAndRjs,otDetails)">提 交</el-button>
+        </span>
+      </el-dialog>
       <el-form
         ref="form"
         :model="form"
         :rules="rules"
         size="small"
-        label-width="80px"
+        label-width="120px"
       >
         <el-row>
           <el-col :span="24">
@@ -252,6 +344,7 @@
                 <el-select
                   v-model="form.acceptBy"
                   placeholder="请选择验收人"
+                  style="width:220px !important;"
                 >
                   <el-option
                     v-for="item in acceptBys"
@@ -263,13 +356,23 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="提交人" prop="submitBy">
-                <el-input v-model="form.submitBy" disabled/>
+              <el-form-item label="验收时间" prop="acceptTime">
+                <el-date-picker
+                  v-model="form.acceptTime"
+                  type="datetime"
+                  placeholder="请填写验收日期"
+                  style="width:220px !important;"
+                />
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row v-if="form.acceptStatus === '已验收'">
-            <el-col :span="8">
+          <el-row>
+            <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+              <el-form-item label="提交人" prop="submitBy">
+                <el-input v-model="form.submitBy" style="width:220px !important;" disabled/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8" v-if="form.acceptStatus === '已验收'">
               <el-form-item label="批准部门" prop="approveDepart">
                 <TreeSelect
                   v-model="form.approveDepart"
@@ -281,11 +384,12 @@
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="8" v-if="form.acceptStatus === '已验收'">
               <el-form-item label="批准人" prop="approveBy">
                 <el-select
                   v-model="form.approveBy"
                   placeholder="请选择批准人"
+                  style="width:220px !important;"
                 >
                   <el-option
                     v-for="item in approveBys"
@@ -294,6 +398,13 @@
                     :value="item.username"
                   />
                 </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="设备验收明细">
+                <el-button type="primary" @click="openDetailDialog(form.id)">打开验收明细单</el-button>
               </el-form-item>
             </el-col>
           </el-row>
@@ -311,6 +422,95 @@
       title="验收设备"
       width="80%"
     >
+      <!--todo 设备验收明细表格信息-->
+      <el-dialog title="设备验收明细" append-to-body :visible.sync="detailVisible" width="60%">
+        <el-table
+          ref="detailTable"
+          v-loading="detailsLoading"
+          :data="wgAndRjs"
+          height="350"
+          :span-method="wgAndRjSpanMethod"
+          :header-cell-style="rowClass"
+          style="width: 100%;margin-top: -20px;">
+          <el-table-column label="明细内容">
+            <el-table-column prop="detailCategory" width="40"/>
+            <el-table-column prop="detailTitle" width="200"/>
+          </el-table-column>
+          <el-table-column prop="detailContent" label="有/无/不适用" width="200">
+            <template scope="scope">
+              <el-radio v-model="scope.row.detailContent" label="有">有</el-radio>
+              <el-radio v-model="scope.row.detailContent" label="无">无</el-radio>
+              <el-radio v-model="scope.row.detailContent" label="不适用">不适用</el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="detailDesc" label="附注">
+            <template scope="scope">
+              <el-input
+                v-model="scope.row.detailDesc"
+                size="mini"
+                type="textarea"
+                maxlength="500"
+                show-word-limit
+                autosize
+                placeholder="请输入附注"
+                suffix-icon="el-icon-edit"
+              >{{ scope.row.detailDesc }}
+              </el-input>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-table
+          ref="otDetailTable"
+          v-loading="detailsLoading"
+          :data="otDetails"
+          :span-method="otSpanMethod"
+          :header-cell-style="rowClass"
+          style="width: 100%;margin-top: 0;">
+          <el-table-column label="明细内容">
+            <el-table-column prop="detailCategory" width="40"/>
+            <el-table-column width="200">
+              <template scope="scope">
+                <span>
+                  {{ scope.row.detailTitle }}
+                  <el-button v-if="needFileItems.indexOf(scope.row.detailTitle)>-1" type="text"
+                             @click="toAddAcceptanceDetailFile(scope.row)">上传附件</el-button>
+                </span>
+              </template>
+            </el-table-column>
+          </el-table-column>
+          <el-table-column prop="detailContent" label="有/无" width="200">
+            <template scope="scope">
+              <el-radio v-model="scope.row.detailContent" label="有">有</el-radio>
+              <el-radio v-model="scope.row.detailContent" label="无">无</el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="isNormal" label="是否正常" width="140">
+            <template scope="scope">
+              <el-radio v-model="scope.row.isNormal" label="是">是</el-radio>
+              <el-radio v-model="scope.row.isNormal" label="否">否</el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="faultContent" label="故障内容">
+            <template scope="scope">
+              <el-input
+                v-model="scope.row.detailDesc"
+                size="mini"
+                type="textarea"
+                maxlength="500"
+                show-word-limit
+                autosize
+                placeholder="请输入附注"
+                suffix-icon="el-icon-edit"
+              >{{ scope.row.detailDesc }}
+              </el-input>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+         <el-button @click="detailVisible = false">取 消</el-button>
+         <el-button type="primary" @click="submitAcceptanceDetail">提 交</el-button>
+        </span>
+      </el-dialog>
       <el-form
         ref="acceptForm"
         :model="acceptForm"
@@ -415,7 +615,7 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="设备验收明细">
-              <span style="color:red;">---todo附图---</span>
+              <el-button type="primary" @click="openDetailDialog(acceptForm.id)">打开验收明细单</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -573,7 +773,7 @@
           <!--验收明细-->
           <el-col :span="24">
             <el-form-item label="设备验收明细">
-              <span style="color:red;">---todo附图---</span>
+              <el-button type="primary" @click="openDetailDialog(acceptForm.id)">查看验收明细单</el-button>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -664,7 +864,7 @@
 
 <script>
 import crudEquipAcceptance from '@/api/tools/equipAcceptance'
-import eHeader from '../management/module/header'
+import eHeader from './module/header'
 import CRUD, {crud, form, header, presenter} from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
@@ -677,6 +877,7 @@ import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getEquipmentByExample, getEquipmentById} from "@/api/tools/equipment";
 import {getUserByDeptId} from "@/api/system/user";
+import {editEquipAcceptanceDetails, getDetailsByAcceptanceId} from "@/api/tools/equipAcceptanceDetail";
 
 const defaultForm = {
   id: null,
@@ -723,6 +924,7 @@ export default {
         participantTags: [],
         acceptDepart: null,
         acceptBy: null,
+        acceptTime: null,
         approveDepart: null,
         submitBy: null,
         approveBy: null
@@ -735,6 +937,7 @@ export default {
         participantTags: [],
         acceptDepart: null,
         acceptBy: null,
+        acceptTime: null,
         approveDepart: null,
         submitBy: null,
         approveBy: null
@@ -798,7 +1001,17 @@ export default {
       acceptBys: [],
       approveBys: [],
       acceptEquipmentVisible: false,
-      approveEquipmentVisible: false
+      approveEquipmentVisible: false,
+      detailVisible: false,
+      detailsLoading: false,
+      details: [],
+      otCategory: '运转测试',
+      otDetails: [],
+      wgAndRjs: [],
+      spanOtArr: [],
+      spanWRArr: [],
+      wrPos: 0,
+      needFileItems: ['CMK', 'MSA', 'UPH']
     }
   },
   watch: {
@@ -826,7 +1039,7 @@ export default {
     }
   },
   methods: {
-    // 获取所有的设备信息
+    // 获取所有符合条件的设备信息
     getAllEquipments(cond) {
       this.equipments = []
       getEquipmentByExample(cond).then(res => {
@@ -932,6 +1145,118 @@ export default {
         this.acceptEquipmentVisible = true
       }, 500)
     },
+    openDetailDialog(acceptanceId) {
+      this.detailsLoading = true
+      this.details = []
+      this.otDetails = []
+      this.wgAndRjs = []
+      this.spanWRArr = []
+      this.spanOtArr = []
+      getDetailsByAcceptanceId(acceptanceId).then(res => {
+        this.details = res
+        if (this.details.length > 0) {
+          this.details.forEach((data, index) => {
+            if (data.detailCategory === this.otCategory) {
+              this.otDetails.push(data)
+            } else {
+              this.wgAndRjs.push(data)
+            }
+          })
+          this.initRowSpan()
+          // alert(JSON.stringify(this.spanOtArr))
+        }
+        this.detailsLoading = false
+        // alert(JSON.stringify(this.details))
+      })
+      this.$nextTick(() => {
+        this.detailVisible = true
+      }, 300)
+    },
+    // 初始表格合并
+    initRowSpan() {
+      let wrPos = 0
+      for (let i = 0; i < this.wgAndRjs.length; i++) {
+        if (i === 0) {
+          this.spanWRArr.push(1);
+          wrPos = 0;
+        } else {
+          // 判断当前对象的指定属性值与上一个对象的指定属性值是否相等
+          if (this.wgAndRjs[i].detailCategory === this.wgAndRjs[i - 1].detailCategory) {
+            this.spanWRArr[wrPos] += 1;
+            this.spanWRArr.push(0);
+          } else {
+            this.spanWRArr.push(1);
+            wrPos = i;
+          }
+        }
+      }
+      let otPos = 0
+      for (let i = 0; i < this.otDetails.length; i++) {
+        if (i === 0) {
+          this.spanOtArr.push(1);
+          otPos = 0;
+        } else {
+          // 判断当前对象的指定属性值与上一个对象的指定属性值是否相等
+          if (this.otDetails[i].detailCategory === this.otDetails[i - 1].detailCategory) {
+            this.spanOtArr[otPos] += 1;
+            this.spanOtArr.push(0);
+          } else {
+            this.spanOtArr.push(1);
+            otPos = i;
+          }
+        }
+      }
+    },
+    // 合并表头
+    rowClass({row, column, rowIndex, columnIndex}) {
+      if (rowIndex === 0 && columnIndex === 0) {
+        this.$nextTick(() => {
+          if (document.getElementsByClassName(column.id).length !== 0) {
+            document.getElementsByClassName(column.id)[0].setAttribute('rowSpan', 2)
+            return false
+          }
+        })
+      }
+      if (rowIndex === 1 && (columnIndex === 0 || columnIndex === 1)) {
+        return {display: 'none'}
+      }
+    },
+    // 合并单元格
+    wgAndRjSpanMethod({row, column, rowIndex, columnIndex}) {
+      if (columnIndex === 0) {
+        const _row = this.spanWRArr[rowIndex];
+        const _col = _row > 0 ? 1 : 0;
+        console.log(`rowspan:${_row} colspan:${_col}`);
+        return {
+          // [0,0] 表示这一行不显示， [2,1]表示行的合并数
+          rowspan: _row,
+          colspan: _col
+        };
+      }
+    },
+    detailContentChange(row) {
+      // alert(JSON.stringify(row))
+    },
+    // todo 添加设备验收明细CMK/MSA/UPH文件
+    toAddAcceptanceDetailFile(row) {
+      // row.detailTitle 作为文件类型
+      // row.id 作为文件绑定ID
+      // alert(JSON.stringify(row))
+    },
+    // 合并单元格
+    otSpanMethod({row, column, rowIndex, columnIndex}) {
+      if (columnIndex === 0) {
+        const _row = this.spanOtArr[rowIndex];
+        const _col = _row > 0 ? 1 : 0;
+        console.log(`rowspan:${_row} colspan:${_col}`);
+        return {
+          // [0,0] 表示这一行不显示， [2,1]表示行的合并数
+          rowspan: _row,
+          colspan: _col
+        };
+      }
+    },
+    // 上传设备验收明细
     // 提交验收信息
     submitAcceptance() {
       // alert(JSON.stringify(this.acceptForm))
@@ -941,10 +1266,29 @@ export default {
           crudEquipAcceptance.edit(this.acceptForm).then(res => {
             this.crud.notify('验收信息提交成功!', CRUD.NOTIFICATION_TYPE.SUCCESS)
             this.acceptEquipmentVisible = false
+            this.crud.toQuery()
           }).catch(() => {
 
           })
         }
+      })
+    },
+    // 提交验收明细信息
+    submitAcceptanceDetail() {
+      // alert(JSON.stringify(wgAndRjs))
+      // alert(JSON.stringify(otDetails))
+      let totalArr = []
+      this.wgAndRjs.forEach((data, index) => {
+        totalArr.push(data)
+      })
+      this.otDetails.forEach((data, index) => {
+        totalArr.push(data)
+      })
+      editEquipAcceptanceDetails(totalArr).then(res => {
+        this.$message.success("验收明细提交成功")
+        this.detailVisible = false
+      }).catch(() => {
+
       })
     },
     // 添加批准信息
@@ -966,6 +1310,7 @@ export default {
           crudEquipAcceptance.edit(this.approveForm).then(res => {
             this.crud.notify('验收批准信息提交成功!', CRUD.NOTIFICATION_TYPE.SUCCESS)
             this.approveEquipmentVisible = false
+            this.crud.toQuery()
           }).catch(() => {
 
           })
@@ -1123,5 +1468,9 @@ export default {
 
 ::v-deep .el-tag--small {
   line-height: 18px !important;
+}
+
+::v-deep .el-radio {
+  margin-right: 10px !important;
 }
 </style>

@@ -78,7 +78,7 @@
                 v-for="item in users"
                 :key="item.id"
                 :label="item.dept.name + ' - '+ item.username"
-                :value="item.dept.name + ' - '+ item.username">
+                :value="item.username">
               </el-option>
             </el-select>
           </el-form-item>

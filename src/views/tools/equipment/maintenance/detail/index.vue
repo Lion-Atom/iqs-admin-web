@@ -87,8 +87,8 @@
               <el-table-column prop="maintainBy" label="保养人"/>
               <el-table-column prop="maintainDuration" label="保养时长"/>
               <el-table-column prop="confirmBy" label="确认人"/>
-              <el-table-column prop="maintainStatus" label="状态"/>
-              <el-table-column prop="maintainDesc" label="描述"/>
+<!--              <el-table-column prop="maintainStatus" label="状态"/>-->
+              <el-table-column prop="maintainDesc" label="保养反馈"/>
               <el-table-column prop="createTime" label="创建日期" min-width="140"/>
               <!--   编辑与删除   -->
               <el-table-column

@@ -64,7 +64,7 @@
               @input="crud.toQuery"
             />
             <!-- 审批状态筛选 -->
-            <el-select
+<!--            <el-select
               v-model="query.approvalStatus"
               clearable
               size="small"
@@ -82,7 +82,7 @@
                 <span style="float: left">{{ item.label }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
               </el-option>
-            </el-select>
+            </el-select>-->
             <!-- 文件类型筛选 -->
             <el-select
               v-model="query.fileType"
@@ -103,7 +103,7 @@
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
               </el-option>
             </el-select>
-            <el-select
+<!--            <el-select
               v-model="query.fileStatus"
               clearable
               size="small"
@@ -121,7 +121,7 @@
                 <span style="float: left">{{ item.label }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
               </el-option>
-            </el-select>
+            </el-select>-->
             <rrOperation />
           </div>
           <crudOperation show="" :permission="permission" />

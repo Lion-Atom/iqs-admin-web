@@ -35,8 +35,9 @@ import htmlToPdf from '@/components/utils/htmlToPdf'
 import Print from 'vue-print-nb'
 import vueToPdf from 'vue-to-pdf';
 import VueEasyPrinter from 'vue-easy-printer';
+import AFTableColumn from 'af-table-column'
 
-
+Vue.use(AFTableColumn)
 Vue.use(vueToPdf);
 Vue.use(VueEasyPrinter);
 Vue.use(Print)

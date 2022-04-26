@@ -14,7 +14,7 @@
       style="width:160px !important;"
       @input="crud.toQuery"
     />
-    <date-range-picker v-model="query.createTime" class="date-item" />
+    <date-range-picker v-model="query.createTime" @input="dateTimeChange()" class="date-item" />
     <el-select v-model="query.status" clearable size="small" placeholder="设备状态" class="filter-item" style="width: 120px" @change="crud.toQuery">
       <el-option v-for="item in dict.dict.equip_status" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
@@ -56,6 +56,11 @@ export default {
       getDeptTree().then(res => {
         this.useDeparts = res.content
       })
+    },
+    // 监控时间输入框变化，强制刷新
+    dateTimeChange() {
+      this.$forceUpdate()
+      this.crud.toQuery()
     },
     // 获取弹窗内使用部门数据
     loadFileDepts({ action, parentNode, callback }) {

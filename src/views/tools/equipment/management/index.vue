@@ -14,8 +14,8 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="equipNum" label="设备编号"/>
-      <el-table-column prop="equipName" label="设备名称"/>
+      <el-table-column prop="equipNum" label="设备编号" fit/>
+      <el-table-column prop="equipName" label="设备名称" min-width="100"/>
       <el-table-column prop="equipModel" label="设备型号"/>
       <el-table-column prop="assetNum" label="资产号"/>
       <el-table-column prop="equipProvider" label="设备厂家"/>
@@ -24,20 +24,19 @@
       <el-table-column prop="equipLevel" label="设备级别"/>
       <el-table-column prop="status" label="设备状态"></el-table-column>
       <el-table-column prop="maintainLevel" label="保养级别"/>
-      <el-table-column label="上次保养日期" :formatter="lastMaintainDateFormat" min-width="100"/>
+      <el-table-column label="上次保养日期" :formatter="lastMaintainDateFormat" width="130"/>
       <el-table-column label="保养周期" :formatter="maintainPeriodFormat"/>
-      <el-table-column label="保养到期日期" :formatter="maintainDueDateFormat" min-width="100"/>
+      <el-table-column label="保养到期日期" :formatter="maintainDueDateFormat"  width="130" />
       <el-table-column label="保养记录">
         <template slot-scope="scope">
           <el-button type="text" @click="checkMainRecord(scope.row)">查看记录</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建日期" min-width="150px"/>
+      <el-table-column prop="createTime" label="创建日期"  width="150" />
       <!--   编辑与删除   -->
       <el-table-column
         v-if="checkPer(['admin','equip:edit','equip:del'])"
         label="操作"
-        width="130px"
         align="center"
         fixed="right"
       >
@@ -49,7 +48,6 @@
           />
         </template>
       </el-table-column>
-
     </el-table>
     <!--分页组件-->
     <pagination/>
@@ -177,10 +175,14 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="设备原值" prop="netValue">
-              <el-input v-model="form.netValue" style="width: 220px"/>
+              <el-input v-model="form.netValue" placeholder="请输入设备价格" style="width: 220px"/>
             </el-form-item>
           </el-col>
-
+          <el-col :span="8" v-if="form.status === '已验收'">
+            <el-form-item label="ROI" prop="roi">
+              <el-input v-model="form.roi" placeholder="请输入投资回报率" style="width: 220px"/>
+            </el-form-item>
+          </el-col>
           <el-col :span="8">
             <el-form-item label="出厂日期" prop="saleDate">
               <el-date-picker
@@ -253,6 +255,7 @@
     <!--保养记录查看-->
     <el-dialog title="保养记录" :visible.sync="maintenanceVisible" width="50%">
       <el-table
+        v-fit-columns
         ref="maintenanceTable"
         v-loading="maintenanceLoading"
         :data="maintenanceList"
@@ -388,6 +391,9 @@ export default {
         ],
         netValue: [
           {required: false, message: '请输入设备原值', trigger: 'blur'}
+        ],
+        roi: [
+          {required: false, message: '请输入设备ROI', trigger: 'blur'}
         ],
         acceptBy: [
           {required: true, message: '请输入验收人员', trigger: 'blur'}
@@ -572,9 +578,9 @@ export default {
     // 查看设备相关的保养记录
     checkMainRecord(row) {
       this.getMaintainInfoByEquipId(row.id)
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.maintenanceVisible = true
-      },500)
+      }, 500)
     },
     // 获取设备保养记录列表
     getMaintainInfoByEquipId(id) {
