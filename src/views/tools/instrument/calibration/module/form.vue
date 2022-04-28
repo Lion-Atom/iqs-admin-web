@@ -5,7 +5,7 @@
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
-    width="700px"
+    width="80%"
   >
     <el-form
       ref="form"
@@ -15,18 +15,18 @@
       label-width="110px"
     >
       <el-row>
-        <el-col :span="24">
+        <el-col :span="8">
           <el-form-item
             label="仪器名称"
             prop="instruName"
           >
             <el-input
               v-model="form.instruName"
-              style="width: 550px"
+              style="width: 220px"
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="出厂型号"
             prop="instruNum"
@@ -37,7 +37,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="出厂日期"
             prop="purDate"
@@ -51,7 +51,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="内部ID"
             prop="innerId"
@@ -62,7 +62,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="资产号"
             prop="assetNum"
@@ -73,7 +73,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="测量范围"
             prop="caliScope"
@@ -84,7 +84,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="精度要求"
             prop="precise"
@@ -95,7 +95,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="允许误差"
             prop="errorRange"
@@ -106,7 +106,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="使用区域"
             prop="useArea"
@@ -117,7 +117,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="使用人"
             prop="useBy"
@@ -137,7 +137,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="上次校准日期"
             prop="lastCaliDate"
@@ -152,7 +152,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="校准周期"
             prop="caliPeriod"
@@ -176,7 +176,7 @@
           </el-form-item>
         </el-col>
         <!--下次校准日期约束-->
-        <el-col :span="12" v-if="form.lastCaliDate && form.caliPeriod">
+        <el-col :span="8" v-if="form.lastCaliDate && form.caliPeriod">
           <el-form-item
             prop="nextCaliDate"
           >
@@ -201,7 +201,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="内部校准"
             prop="innerChecked"
@@ -212,7 +212,7 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="form.innerChecked.toString()==='false'">
+        <el-col :span="8" v-if="form.innerChecked.toString()==='false'">
           <el-form-item
             label="外部校准选择"
             prop="isDoor"
@@ -222,7 +222,7 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item
             label="是否报废"
             prop="isDroped"
@@ -233,7 +233,7 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="form.isDroped.toString() === 'true'">
+        <el-col :span="8" v-if="form.isDroped.toString() === 'true'">
           <el-form-item
             prop="dropRemark"
             label="报废说明"
@@ -246,7 +246,7 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="form.isDroped.toString() === 'false'">
+        <el-col :span="8" v-if="form.isDroped.toString() === 'false'">
           <el-form-item
             label="下次校准提醒"
             prop="isRemind"
@@ -257,20 +257,20 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="form.isDroped.toString() === 'false' && form.isRemind.toString() === 'true'">
+        <el-col :span="8" v-if="form.isDroped.toString() === 'false' && form.isRemind.toString() === 'true'">
           <el-form-item
             prop="remindDays"
           >
             <template slot="label">
               <span><i style="color: red;">* </i>提前提醒天数</span>
             </template>
-            <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays" v-model="form.remindDays"
+            <el-input placeholder="请输入提醒天数" type="number" style="width: 220px !important;" :min="1" :max="maxRemindDays" v-model="form.remindDays"
                       @input="remindDaysHandler">
               <template slot="append">天</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="isNeedUpdate && (form.status === '已完成' || form.status === '超时未校准')">
+        <el-col :span="8" v-if="isNeedUpdate && (form.status === '已完成' || form.status === '超时未校准')">
           <el-form-item
             prop="isNextActive"
           >
@@ -284,7 +284,7 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <!--        <el-col :span="12" v-if="!crud.status.management">
+        <!--        <el-col :span="8" v-if="!crud.status.management">
                   <el-form-item
                     label="校准状态"
                     prop="status"
@@ -312,7 +312,7 @@
                 label-width="140px;"
               >
                 <el-row>
-                  <el-col :span="24">
+                  <el-col :span="8">
                     <el-form-item
                       label="校准结果"
                       prop="caliResult"
@@ -323,7 +323,7 @@
                       </el-radio>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="24" v-if="fileForm.caliResult === '不合格'">
+                  <el-col :span="12" v-if="fileForm.caliResult === '不合格'">
                     <el-form-item
                       label="不合格原因描述"
                       prop="failDesc"

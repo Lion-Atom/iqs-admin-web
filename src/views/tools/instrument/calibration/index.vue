@@ -325,12 +325,12 @@
       </div>
     </el-dialog>
     <!--台账管理-->
-    <el-dialog title="收货地址"
-    :visible.sync="gridDiaVisible"
-    height="80%"
-    top="3vh"
+    <el-dialog
+      :title="gridDivTitle"
+      :visible.sync="gridDiaVisible" width="80%"
+      top="3vh"
     >
-      <grid-file :permission="permission" :file-type="fileType"/>
+      <grid-file :permission="permission" :file-type="fileType" :grid-title="gridDivTitle"/>
     </el-dialog>
   </div>
 </template>
@@ -385,6 +385,7 @@ export default {
           label: '送出校准'
         }
       ],
+      gridDivTitle: '仪器仪表台账',
       caliFilesLoading: false,
       caliFiles: [],
       caliFileUploadVisible: false,
@@ -648,6 +649,7 @@ export default {
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }
+
 ::v-deep .el-dialog .el-dialog__body {
   padding: 8px;
 }

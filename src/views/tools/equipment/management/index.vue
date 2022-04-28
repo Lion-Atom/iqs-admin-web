@@ -15,7 +15,7 @@
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="equipNum" label="设备编号" fit/>
-      <el-table-column prop="equipName" label="设备名称" min-width="100"/>
+      <el-table-column prop="equipName" label="设备名称" min-width="100" sortable />
       <el-table-column prop="equipModel" label="设备型号"/>
       <el-table-column prop="assetNum" label="资产号"/>
       <el-table-column prop="equipProvider" label="设备厂家"/>
@@ -421,10 +421,12 @@ export default {
             if (validIsNotNull(this.form.saleDate)) {
               const date = new Date(this.form.saleDate);
               return (
-                new Date(time).getTime() <= date
+                new Date(time).getTime() < date || Date.now() <= time.getTime()
               )
             } else {
-              return false
+              return (
+                Date.now() <= time.getTime()
+              )
             }
           }
         }

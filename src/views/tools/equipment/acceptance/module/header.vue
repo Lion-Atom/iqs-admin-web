@@ -33,7 +33,7 @@
     <date-range-picker v-model="query.acceptTime" @input="dateTimeChange()" start-placeholder="验收开始日期"
                        end-placeholder="验收结束日期" class="date-item" />
     <el-select v-model="query.acceptStatus" clearable size="small" placeholder="验收状态" class="filter-item" style="width: 120px" @change="crud.toQuery">
-      <el-option v-for="item in acceptStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
+      <el-option v-for="item in dict.dict.equip_status" :key="item.id" :label="item.value" :value="item.value" />
     </el-select>
     <rrOperation />
   </div>

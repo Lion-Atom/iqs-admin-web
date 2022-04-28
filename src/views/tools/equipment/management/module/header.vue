@@ -16,7 +16,7 @@
     />
     <date-range-picker v-model="query.createTime" @input="dateTimeChange()" class="date-item" />
     <el-select v-model="query.status" clearable size="small" placeholder="设备状态" class="filter-item" style="width: 120px" @change="crud.toQuery">
-      <el-option v-for="item in dict.dict.equip_status" :key="item.value" :label="item.label" :value="item.value" />
+      <el-option v-for="item in dict.dict.equip_status" :key="item.id" :label="item.value" :value="item.value" />
     </el-select>
     <rrOperation />
   </div>
