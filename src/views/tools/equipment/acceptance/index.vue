@@ -26,8 +26,17 @@
           <div v-if="scope.row.acceptStatus === '验收中'">
             <el-button type="text" @click="toApproveEquipment(scope.row)">{{ scope.row.acceptStatus }}</el-button>
           </div>
-          <div v-if="scope.row.acceptStatus === '已验收' || scope.row.acceptStatus === '已拒收'">
-            <span>{{ scope.row.acceptStatus }}</span>
+          <div v-if="scope.row.acceptStatus === '已验收'">
+            <el-tag type="success">{{ scope.row.acceptStatus }}</el-tag>
+          </div>
+          <div v-if="scope.row.acceptStatus === '已拒收'">
+            <el-popover trigger="hover" placement="top">
+              <p>验收结果: {{ scope.row.approveResult }}</p>
+              <p>拒收原因: <i style="color: red;">{{ scope.row.refuseReason }}</i></p>
+              <div slot="reference" class="name-wrapper">
+                <el-tag type="danger">{{ scope.row.acceptStatus }}</el-tag>
+              </div>
+            </el-popover>
           </div>
         </template>
       </el-table-column>

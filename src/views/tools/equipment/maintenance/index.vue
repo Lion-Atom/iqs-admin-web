@@ -22,7 +22,25 @@
       <el-table-column prop="equipProvider" label="设备厂家"/>
       <el-table-column prop="useDepartName" label="使用部门"/>
       <el-table-column prop="useArea" label="设备位置"/>
-      <el-table-column prop="status" label="设备状态"></el-table-column>
+      <el-table-column label="设备状态" min-width="150">
+        <template slot-scope="scope">
+          <el-popover v-if="scope.row.maintainLevel && scope.row.lastMaintainDate" trigger="hover" placement="top">
+            <p>1.设备定级：设备等级、保养等级、保养周期等设定 <i class="el-icon-check"></i></p>
+            <p>2.设备保养：对已定级设备进行周期性保养 <i class="el-icon-check"></i></p>
+            <el-tag  slot="reference" type="success">已保养</el-tag>
+          </el-popover>
+          <el-popover v-else-if="scope.row.maintainLevel && !scope.row.lastMaintainDate" trigger="hover" placement="top">
+            <p>1.设备定级：设备等级、保养等级、保养周期等设定 <i class="el-icon-check"></i></p>
+            <p>2.设备保养：对已定级设备进行周期性保养 <i class="el-icon-close"></i></p>
+            <el-tag slot="reference" type="warning">已定级，未保养</el-tag>
+          </el-popover>
+          <el-popover v-else trigger="hover" placement="top">
+            <p>1.设备定级：设备等级、保养等级、保养周期等设定 <i class="el-icon-close"></i></p>
+            <p>2.设备保养：对已定级设备进行周期性保养 <i class="el-icon-close"></i></p>
+            <el-tag  slot="reference" class="name-wrapper" type="danger">未定级，未保养</el-tag>
+          </el-popover>
+        </template>
+      </el-table-column>
       <el-table-column prop="equipLevel" label="设备级别"/>
       <el-table-column prop="maintainLevel" label="保养级别"/>
       <el-table-column label="上次保养日期" :formatter="lastMaintainDateFormat" min-width="100"/>

@@ -6,16 +6,17 @@
       :loading="crud.status.cu === 2"
       :disabled="disabledEdit"
       size="mini"
-      type="warning"
+      :type="data.lastMaintainDate ?'success':'warning'"
       @click="checkDetails(data)"
     >
-      保养
+      {{ data.lastMaintainDate ? '查看' : '保养' }}
     </el-button>
-    <el-button v-permission="permission.edit" :loading="crud.status.cu === 2" :disabled="disabledEdit" size="mini" type="primary" icon="el-icon-edit" style="text-align: right; margin: 0" @click="crud.toEdit(data)" />
+    <el-button v-permission="permission.edit" :loading="crud.status.cu === 2" :disabled="disabledEdit" size="mini"
+               type="primary" icon="el-icon-edit" style="text-align: right; margin: 0" @click="crud.toEdit(data)"/>
   </div>
 </template>
 <script>
-import CRUD, { crud } from '@crud/crud'
+import CRUD, {crud} from '@crud/crud'
 
 export default {
   mixins: [crud()],

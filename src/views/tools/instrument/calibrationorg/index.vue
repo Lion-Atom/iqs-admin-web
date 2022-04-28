@@ -22,7 +22,7 @@
               <span>{{ props.row.caliOrgName }}</span>
             </el-form-item>
             <el-form-item label="启用状态">
-              <span>{{ props.row.status }}</span>
+              <span>{{ boolToNullFormat(props.row.enabled) }}</span>
             </el-form-item>
             <el-form-item label="仪校机构附件列表">
               <el-table
@@ -430,6 +430,14 @@ export default {
         this.$message.error('上传文件大小不能超过 100MB!')
       }
       return isLt2M
+    },
+    // 时间判空转换
+    boolToNullFormat(b) {
+      if (b !== true && b !== false) {
+        return '--'
+      } else {
+        return b === true ? '启用' : '停用'
+      }
     },
     // 监听上传成功
     handleSuccess(response, file, fileList) {
