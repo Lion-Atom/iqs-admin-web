@@ -43,7 +43,7 @@
       <el-table-column prop="acceptBy" label="验收人"/>
       <el-table-column prop="approveDepartName" label="批准部门"/>
       <el-table-column prop="approveBy" label="批准人"/>
-      <el-table-column prop="approveTime" label="验收时间"/>
+      <el-table-column prop="acceptTime" label="验收时间" min-width="150px" />
       <el-table-column prop="createTime" label="创建日期" min-width="150px"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -1605,6 +1605,13 @@ export default {
       // alert(JSON.stringify(form))
       // 初始化设备信息
       this.changeEquip(form.equipmentId)
+      if (form.approveResult === '不通过') {
+        this.refuseReasonRules = this.rules.refuseReason
+      } else {
+        this.refuseReasonRules = [
+          {required: false}
+        ]
+      }
     },
     // 提交前做的操作
     [CRUD.HOOK.beforeSubmit]() {

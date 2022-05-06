@@ -207,6 +207,50 @@ export const constantRouterMap = [
       }
     ]
   },
+  {
+    path: '/training',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'train-schedule',
+        component: (resolve) => require(['@/views/tools/training/management/schedule/index'], resolve),
+        name: '培训安排',
+        meta: { title: '培训安排' }
+      },
+      {
+        path: 'new-staff',
+        component: (resolve) => require(['@/views/tools/training/management/newstaff/index'], resolve),
+        name: '新员工',
+        meta: { title: '新员工' }
+      },
+      {
+        path: 'certificate',
+        component: (resolve) => require(['@/views/tools/training/management/certificate/index'], resolve),
+        name: '证书',
+        meta: { title: '证书' }
+      },
+      {
+        path: 'skill-matrix',
+        component: (resolve) => require(['@/views/tools/training/management/skillmatrix/index'], resolve),
+        name: '员工能力矩阵',
+        meta: { title: '员工能力矩阵' }
+      },
+      {
+        path: 'train-material',
+        component: (resolve) => require(['@/views/tools/training/management/trainmaterial/index'], resolve),
+        name: '培训材料',
+        meta: { title: '培训材料' }
+      },
+      {
+        path: 'train-exam',
+        component: (resolve) => require(['@/views/tools/training/management/trainexam/index'], resolve),
+        name: '培训考试',
+        meta: { title: '培训考试' }
+      }
+    ]
+  }
 ]
 
 export default new Router({

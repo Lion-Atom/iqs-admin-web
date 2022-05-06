@@ -14,7 +14,7 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="equipNum" label="设备编号" fit/>
+      <el-table-column prop="equipNum" label="设备编号"  fixed />
       <el-table-column prop="equipName" label="设备名称" min-width="100" sortable />
       <el-table-column prop="equipModel" label="设备型号"/>
       <el-table-column prop="assetNum" label="资产号"/>
@@ -29,7 +29,8 @@
       <el-table-column label="保养到期日期" :formatter="maintainDueDateFormat"  width="130" />
       <el-table-column label="保养记录">
         <template slot-scope="scope">
-          <el-button type="text" @click="checkMainRecord(scope.row)">查看记录</el-button>
+          <el-button v-if="scope.row.lastMaintainDate" type="text" @click="checkMainRecord(scope.row)">查看记录</el-button>
+          <el-button v-else type="text" disabled>尚未保养</el-button>
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建日期"  width="150" />
@@ -263,9 +264,9 @@
         <el-table-column label="保养日期" :formatter="maintainDateFormat"/>
         <el-table-column prop="maintainBy" label="保养人"/>
         <el-table-column prop="maintainDuration" label="保养时长"/>
+        <el-table-column prop="maintainStatus" label="保养结果"/>
         <el-table-column prop="confirmBy" label="确认人"/>
-        <el-table-column prop="maintainStatus" label="状态"/>
-        <el-table-column prop="maintainDesc" label="描述"/>
+        <el-table-column prop="maintainDesc" label="保养反馈" :show-overflow-tooltip='true' />
         <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       </el-table>
     </el-dialog>

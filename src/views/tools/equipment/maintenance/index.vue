@@ -15,7 +15,7 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="equipNum" label="设备编号"/>
+      <el-table-column prop="equipNum" label="设备编号" fixed />
       <el-table-column prop="equipName" label="设备名称"/>
       <el-table-column prop="equipModel" label="设备型号" min-width="150"/>
       <el-table-column prop="assetNum" label="资产号" min-width="120"/>

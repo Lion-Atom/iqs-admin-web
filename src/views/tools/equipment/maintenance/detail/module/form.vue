@@ -42,6 +42,11 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
+          <el-form-item label="运行状态" prop="equipStatus">
+            <el-input v-model="equipForm.equipStatus" disabled style="width: 220px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
           <el-form-item label="设备等级" prop="equipLevel">
             <el-input v-model="equipForm.equipLevel" disabled style="width: 220px"/>
           </el-form-item>
@@ -65,6 +70,7 @@
           <el-form-item label="保养日期" prop="maintainDate">
             <el-date-picker
               v-model="form.maintainDate"
+              :picker-options="maintainDatePickOption"
               type="date"
               placeholder="请填写保养日期"
               style="width: 220px"
@@ -86,6 +92,14 @@
         <el-col :span="8">
           <el-form-item label="保养时长" prop="maintainDuration">
             <el-input v-model="form.maintainDuration" placeholder="请填写保养时长" style="width: 220px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="保养结果" prop="maintainStatus">
+            <el-select style="width: 220px !important;" v-model="form.maintainStatus" placeholder="请填写保养结果">
+              <el-option label="良好" value="良好"></el-option>
+              <el-option label="不好" value="不好"></el-option>
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -242,6 +256,7 @@ const defaultForm = {
   equipmentId: null,
   maintainDate: null,
   maintainBy: null,
+  maintainStatus: null,
   maintainDuration: null,
   maintainDesc: null,
   confirmBy: null,
@@ -276,6 +291,9 @@ export default {
         maintainDate: [
           {required: true, message: '请输入保养日期', trigger: 'blur'}
         ],
+        maintainStatus: [
+          {required: true, message: '请确认本次保养结果', trigger: 'blur'}
+        ],
         maintainBy: [
           {required: true, message: '请输入本次保养人员', trigger: 'blur'}
         ],
@@ -286,8 +304,15 @@ export default {
           {required: true, message: '请输入本次保养时长', trigger: 'blur'}
         ],
         maintainDesc: [
-          {required: false, message: '可追加保养相关补充', trigger: 'blur'}
+          {required: true, message: '可追加保养相关补充', trigger: 'blur'}
         ]
+      },
+      maintainDatePickOption: {
+        disabledDate: time => {
+          return (
+            Date.now() < time.getTime()
+          )
+        }
       },
       bindingId: null,
       maintainFilesLoading: false,

@@ -26,7 +26,7 @@
               <li>
                 <svg-icon icon-class="dept"/>
                 设备型号
-                <div class="user-right"> {{ equipForm.equipSpec }}</div>
+                <div class="user-right"> {{ equipForm.equipModel }}</div>
               </li>
               <li>
                 <svg-icon icon-class="phone"/>
@@ -87,8 +87,8 @@
               <el-table-column prop="maintainBy" label="保养人"/>
               <el-table-column prop="maintainDuration" label="保养时长"/>
               <el-table-column prop="confirmBy" label="确认人"/>
-<!--              <el-table-column prop="maintainStatus" label="状态"/>-->
-              <el-table-column prop="maintainDesc" label="保养反馈"/>
+              <el-table-column prop="maintainStatus" label="保养结果"/>
+              <el-table-column prop="maintainDesc" label="保养反馈" :show-overflow-tooltip='true' />
               <el-table-column prop="createTime" label="创建日期" min-width="140"/>
               <!--   编辑与删除   -->
               <el-table-column

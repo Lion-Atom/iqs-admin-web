@@ -33,7 +33,7 @@
               <el-option
                 v-for="item in equipments"
                 :key="item.id"
-                :label="item.equipName"
+                :label="item.equipNum+'-'+item.equipName"
                 :value="item.id"
               />
             </el-select>
@@ -132,7 +132,8 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="维修费用" prop="repairCost">
-            <el-input type="text" v-model="form.repairCost" placeholder="请填写维修费用" @input="(v)=>(form.repairCost = v.replace(/[^0-9.]/g,''))" style="width: 220px">
+            <el-input type="text" v-model="form.repairCost" placeholder="请填写维修费用"
+                      @input="(v)=>(form.repairCost = v.replace(/[^0-9.]/g,''))" style="width: 220px">
               <template slot="append">元</template>
             </el-input>
           </el-form-item>
@@ -152,7 +153,7 @@
       <el-row style="margin: 5px 0;">
         <el-col :span="24">
           <el-form-item label="更换备件">
-            <el-button type="primary" @click="addPart(form.partList)" >新增</el-button>
+            <el-button type="primary" @click="addPart(form.partList)">新增</el-button>
             <el-table
               :data="form.partList"
               border
@@ -161,44 +162,46 @@
             >
               <el-table-column prop="partNum" label="备件编号" width="180">
                 <template slot-scope="scope">
-                  <el-input type="text" v-model="scope.row.partNum" v-show="scope.row.isEditor" />
-                  <span v-show="!scope.row.isEditor">{{scope.row.partNum}}</span>
+                  <el-input type="text" v-model="scope.row.partNum" v-show="scope.row.isEditor"/>
+                  <span v-show="!scope.row.isEditor">{{ scope.row.partNum }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="partName" label="备件名称" width="180">
                 <template slot-scope="scope">
-                  <el-input type="text" v-model="scope.row.partName" v-show="scope.row.isEditor" />
-                  <span v-show="!scope.row.isEditor">{{scope.row.partName}}</span>
+                  <el-input type="text" v-model="scope.row.partName" v-show="scope.row.isEditor"/>
+                  <span v-show="!scope.row.isEditor">{{ scope.row.partName }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="partSpec" label="备件规格" min-width="150px">
                 <template slot-scope="scope">
-                  <el-input type="text" v-model="scope.row.partSpec" v-show="scope.row.isEditor" />
-                  <span v-show="!scope.row.isEditor">{{scope.row.partSpec}}</span>
+                  <el-input type="text" v-model="scope.row.partSpec" v-show="scope.row.isEditor"/>
+                  <span v-show="!scope.row.isEditor">{{ scope.row.partSpec }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="partQuantity" label="备件数量">
                 <template slot-scope="scope">
-                  <el-input  type="text" :min=1 :step="1" v-model="scope.row.partQuantity" v-show="scope.row.isEditor" @input="(v)=>(scope.row.partQuantity = v.replace(/[^0-9.]/g,''))" />
-                  <span v-show="!scope.row.isEditor">{{scope.row.partQuantity}}</span>
+                  <el-input type="text" :min=1 :step="1" v-model="scope.row.partQuantity" v-show="scope.row.isEditor"
+                            @input="(v)=>(scope.row.partQuantity = v.replace(/[^0-9.]/g,''))"/>
+                  <span v-show="!scope.row.isEditor">{{ scope.row.partQuantity }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="partProperty" label="备件属性">
                 <template slot-scope="scope">
-                  <el-input type="text" v-model="scope.row.partProperty" v-show="scope.row.isEditor" />
-                  <span v-show="!scope.row.isEditor">{{scope.row.partProperty}}</span>
+                  <el-input type="text" v-model="scope.row.partProperty" v-show="scope.row.isEditor"/>
+                  <span v-show="!scope.row.isEditor">{{ scope.row.partProperty }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="partCost" label="备件单价(元)">
                 <template slot-scope="scope">
-                  <el-input type="text" v-model="scope.row.partCost" @input="(v)=>(scope.row.partCost = v.replace(/[^0-9.]/g,''))" v-show="scope.row.isEditor" />
-                  <span v-show="!scope.row.isEditor">{{scope.row.partCost}}</span>
+                  <el-input type="text" v-model="scope.row.partCost"
+                            @input="(v)=>(scope.row.partCost = v.replace(/[^0-9.]/g,''))" v-show="scope.row.isEditor"/>
+                  <span v-show="!scope.row.isEditor">{{ scope.row.partCost }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="操作" width="100">
                 <template slot-scope="scope">
-<!--                  <el-button type="warning" @click="edit(scope.row, scope)">编辑</el-button>-->
-<!--                  <el-button type="success" @click="savePart(scope.row)">保存</el-button>-->
+                  <!--                  <el-button type="warning" @click="edit(scope.row, scope)">编辑</el-button>-->
+                  <!--                  <el-button type="success" @click="savePart(scope.row)">保存</el-button>-->
                   <el-button type="success" @click="deletePart(scope.$index,form.partList)">移除</el-button>
                 </template>
               </el-table-column>
@@ -226,7 +229,7 @@
         </el-col>
         <el-col v-if="form.isFinished" :span="8">
           <el-form-item label="确认人" prop="confirmBy">
-<!--            <el-input v-model="form.confirmBy" placeholder="请填写维修确认人员"/>-->
+            <!--            <el-input v-model="form.confirmBy" placeholder="请填写维修确认人员"/>-->
             <el-select v-model="form.confirmBy" filterable allow-create style="width: 220px;">
               <el-option
                 v-for="item in users"
@@ -250,7 +253,10 @@
         </el-col>
         <!--上传确认信息-->
         <el-col v-if="form.isFinished" :span="24">
-          <el-form-item label="确认单列表">
+          <el-form-item>
+            <template slot="label">
+              <span><i style="color: red">* </i>确认单列表</span>
+            </template>
             <el-table
               ref="table"
               border
@@ -462,8 +468,8 @@ export default {
         }
       ],
       rules: {
-        equipName: [
-          {required: true, message: '请输入设备名称', trigger: 'blur'}
+        equipmentId: [
+          {required: true, message: '请选择需要维修的设备', trigger: 'blur'}
         ],
         repairNum: [
           {required: true, message: '请输入设备维修单号', trigger: 'blur'}
@@ -504,7 +510,7 @@ export default {
       },
       bindingId: null,
       repairFilesLoading: false,
-      part:{
+      part: {
         partId: null,
         repairId: null,
         partNum: null,
@@ -531,7 +537,7 @@ export default {
     this.getAllUser()
   },
   methods: {
-    getAllUser(){
+    getAllUser() {
       this.users = []
       getAllUser().then(res => {
         this.users = res.content
@@ -641,7 +647,7 @@ export default {
         duration: 2500
       })
     },
-    dbSelectedRow(row,index){
+    dbSelectedRow(row, index) {
       row.isEditor = !row.isEditor
       /*if(row.isEditor) {
 
@@ -649,7 +655,7 @@ export default {
       }*/
     },
     // 新增备件信息
-    addPart(tableData,e) {
+    addPart(tableData, e) {
       // todo 新增前判断是否通过校验
       tableData.push({
         partId: null,
@@ -663,8 +669,8 @@ export default {
       })
     },
     // 移除备件信息
-    deletePart(index,rows) {
-      rows.splice(index,1)
+    deletePart(index, rows) {
+      rows.splice(index, 1)
     }
   }
 }
