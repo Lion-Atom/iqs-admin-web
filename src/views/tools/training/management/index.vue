@@ -5,38 +5,38 @@
       <el-header>
         <el-row :gutter="12">
           <el-col :span="4">
-            <el-card shadow="hover">
+            <el-card shadow="hover" @dblclick.native="routerTarget('/training/train-schedule')">
               <el-button type="text" size="medium" icon="el-icon-date" @click="catalogueType = 'schedule'">培训安排
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover">
+            <el-card shadow="hover" @dblclick.native="routerTarget('/training/new-staff')">
               <el-button type="text" size="medium" icon="el-icon-s-custom" @click="catalogueType = 'newStaff'">新员工
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover">
+            <el-card shadow="hover" @dblclick.native="routerTarget('/training/certificate')">
               <el-button type="text" size="medium" icon="el-icon-tickets" @click="catalogueType = 'certificate'">证书
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover">
+            <el-card shadow="hover" @dblclick.native="routerTarget('/training/skill-matrix')">
               <el-button type="text" size="medium" icon="el-icon-s-grid" @click="catalogueType = 'skillMatrix'">员工能力矩阵
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover">
+            <el-card shadow="hover" @dblclick.native="routerTarget('/training/train-material')">
               <el-button type="text" size="medium" icon="el-icon-document" @click="catalogueType = 'trainMaterial'">
                 培训材料
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover">
+            <el-card shadow="hover" @dblclick.native="routerTarget('/training/train-exam')">
               <el-button type="text" size="medium" icon="el-icon-edit" @click="catalogueType = 'trainExam'">培训考试
               </el-button>
             </el-card>

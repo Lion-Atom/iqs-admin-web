@@ -2,32 +2,28 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <eHeader :dict="dict" :permission="permission" />
-      <crudOperation :permission="permission" />
+      <eHeader :finish-status="dict.common_status" :type-options="typeOptions" :permission="permission"/>
+      <crudOperation :permission="permission"/>
     </div>
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="name" label="名称" />
-      <el-table-column prop="jobSort" label="排序">
-        <template slot-scope="scope">
-          {{ scope.row.jobSort }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="状态" align="center">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.enabled"
-            active-color="#409EFF"
-            inactive-color="#F56C6C"
-            @change="changeEnabled(scope.row, scope.row.enabled)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column prop="createTime" label="创建日期" />
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
+              @selection-change="crud.selectionChangeHandler">
+      <el-table-column type="selection" width="55"/>
+      <el-table-column prop="staffName" label="员工姓名" fixed/>
+      <el-table-column prop="jobNum" label="员工工号"/>
+      <el-table-column prop="jobName" label="岗位"/>
+      <el-table-column prop="departName" label="所属部门"/>
+      <el-table-column prop="superior" label="上级主管"/>
+      <el-table-column prop="workshop" label="车间"/>
+      <el-table-column prop="team" label="班组"/>
+      <el-table-column prop="staffType" label="员工分类"/>
+      <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
+      <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
+      <el-table-column prop="reason" label="未完成原因" :show-overflow-tooltip="true"/>
+      <el-table-column prop="createTime" label="创建日期" width="140" />
       <!--   编辑与删除   -->
       <el-table-column
-        v-if="checkPer(['admin','job:edit','job:del'])"
+        v-if="checkPer(['admin','newStaff:edit','newStaff:del'])"
         label="操作"
         width="130px"
         align="center"
@@ -42,62 +38,62 @@
       </el-table-column>
     </el-table>
     <!--分页组件-->
-    <pagination />
+    <pagination/>
     <!--表单渲染-->
-    <eForm :job-status="dict.job_status" />
+    <eForm :finish-status="dict.common_status" :type-options="typeOptions" />
   </div>
 </template>
 
 <script>
-import crudJob from '@/api/system/job'
+import crudNewStaff from '@/api/tools/train/newStaff'
 import eHeader from './module/header'
 import eForm from './module/form'
-import CRUD, { presenter } from '@crud/crud'
+import CRUD, {presenter} from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
+
 export default {
   name: 'Schedule',
-  components: { eHeader, eForm, crudOperation, pagination, udOperation },
+  components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({
       title: '新员工培训',
-      url: 'api/job',
-      sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: { ...crudJob }
+      url: 'api//train/newStaff',
+      // sort: ['jobSort,asc', 'id,desc'],
+      crudMethod: {...crudNewStaff}
     })
   },
   mixins: [presenter()],
   // 数据字典
-  dicts: ['job_status'],
+  dicts: ['common_status'],
   data() {
     return {
       permission: {
-        add: ['admin', 'job:add'],
-        edit: ['admin', 'job:edit'],
-        del: ['admin', 'job:del']
-      }
+        add: ['admin', 'newStaff:add'],
+        edit: ['admin', 'newStaff:edit'],
+        del: ['admin', 'newStaff:del']
+      },
+      typeOptions: [
+        {
+          label: 'DL',
+          value: '直接员工'
+        },
+        {
+          label: 'IDL',
+          value: '间接员工'
+        }
+      ]
     }
   },
   methods: {
     // 改变状态
-    changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.name + '岗位, 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // eslint-disable-next-line no-undef
-        crudJob.edit(data).then(() => {
-          // eslint-disable-next-line no-undef
-          this.crud.notify(this.dict.label.job_status[val] + '成功', 'success')
-        }).catch(err => {
-          data.enabled = !data.enabled
-          console.log(err.data.message)
-        })
-      }).catch(() => {
-        data.enabled = !data.enabled
-      })
+    isFinishedFormat(row, col) {
+      if (row.isFinished) {
+        return '是'
+      } else {
+        return '否'
+      }
     }
   }
 }
