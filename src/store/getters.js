@@ -30,6 +30,7 @@ const getters = {
   repairFileUploadApi: state => state.api.repairFileUploadApi,
   maintainFileUploadApi: state => state.api.maintainFileUploadApi,
   gridFileUploadApi: state => state.api.gridFileUploadApi,
+  trNewStaffFileUploadApi: state => state.api.trNewStaffFileUploadApi,
   updateAvatarApi: state => state.api.updateAvatarApi,
   updateContactAvatarApi: state => state.api.updateContactAvatarApi,
   qiNiuUploadApi: state => state.api.qiNiuUploadApi,

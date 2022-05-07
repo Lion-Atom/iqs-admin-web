@@ -1,5 +1,12 @@
 <template>
   <div class="app-container" @dblclick="back">
+    <!--快速导航-->
+    <div class="head-container">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item :to="{ path: '/equipment/maintenance' }">保养录入</el-breadcrumb-item>
+        <el-breadcrumb-item><b>保养明细</b></el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="8" :lg="6" :xl="5">
         <el-card class="box-card">

@@ -95,12 +95,12 @@
       </el-row>
       <el-row v-if="form.staffType === typeOptions[0].value">
         <el-col :span="8">
-          <el-form-item label="车间" prop="workshop">
+          <el-form-item label="所属车间" prop="workshop">
             <el-input v-model="form.workshop" style="width:220px"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="班组" prop="team">
+          <el-form-item label="所属班组" prop="team">
             <el-input v-model="form.team" style="width:220px"/>
           </el-form-item>
         </el-col>
@@ -129,6 +129,119 @@
             <el-input type="textarea" :row="3" v-model="form.reason" placeholder="请填写未完成培训原因"></el-input>
           </el-form-item>
         </el-col>
+        <el-col :span="24" v-if="form.staffType && form.isFinished.toString() === 'true'">
+          <el-form-item>
+            <template slot="label">
+              <span><i style="color: red">* </i>确认单列表</span>
+            </template>
+            <el-table
+              ref="table"
+              border
+              v-loading="filesLoading"
+              :data="form.fileList"
+              style="width: 100%;margin-bottom: 10px;"
+              highlight-current-row
+            >
+              <el-table-column
+                type="index"
+                width="50"
+                label="序号"
+              />
+              <el-table-column prop="name" label="附件名称" min-width="200">
+                <template slot-scope="scope">
+                  <el-popover
+                    :content="'file/' + scope.row.type + '/' + scope.row.name"
+                    placement="top-start"
+                    title="路径"
+                    width="200"
+                    trigger="hover"
+                  >
+                    <!--可下载文件-->
+                    <a
+                      slot="reference"
+                      :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.name"
+                      class="el-link--primary"
+                      style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                      target="_blank"
+                      :download="scope.row.realName"
+                    >
+                      {{ scope.row.realName }}
+                    </a>
+                  </el-popover>
+                </template>
+              </el-table-column>
+              <el-table-column prop="path" label="预览图">
+                <template slot-scope="{row}">
+                  <el-image
+                    :src=" baseApi + '/file/' + row.type + '/' + row.name"
+                    :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.name]"
+                    fit="contain"
+                    lazy
+                    class="el-avatar"
+                  >
+                    <div slot="error">
+                      <i class="el-icon-document"/>
+                    </div>
+                  </el-image>
+                </template>
+              </el-table-column>
+              <el-table-column prop="size" label="大小" min-width="80"/>
+              <el-table-column prop="type" label="类型" min-width="80"/>
+              <el-table-column prop="createBy" label="创建者" min-width="80"/>
+              <!--   附件删除   -->
+              <el-table-column
+                label="操作"
+                width="80"
+                align="center"
+              >
+                <template slot-scope="scope">
+                  <el-popover
+                    :ref="`delStaffFile-popover-${scope.$index}`"
+                    v-permission="permission.edit"
+                    placement="top"
+                    width="180"
+                  >
+                    <p>确定删除这个附件吗？</p>
+                    <div style="text-align: right; margin: 0">
+                      <el-button
+                        size="mini"
+                        type="text"
+                        @click="scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                      >取消
+                      </el-button>
+                      <el-button
+                        type="primary"
+                        size="mini"
+                        @click="deleteTrNewStaffFile(scope.row), scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                      >确定
+                      </el-button>
+                    </div>
+                    <el-button
+                      slot="reference"
+                      v-permission="permission.edit"
+                      type="danger"
+                      icon="el-icon-delete"
+                      size="mini"
+                      :disabled="form.fileList.length < 2"
+                    />
+                  </el-popover>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-upload
+              class="upload-demo"
+              ref="upload"
+              :headers="headers"
+              :multiple="true"
+              :before-upload="beforeUpload"
+              :on-success="handleSuccess"
+              :action="trNewStaffFileUploadApi + '?trNewStaffId=' + bindingId "
+              :on-error="handleError">
+              <el-button slot="trigger" size="small" type="primary">上传文件</el-button>
+              <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件，且单文件不超过100M</div>
+            </el-upload>
+          </el-form-item>
+        </el-col>
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -139,13 +252,17 @@
 </template>
 
 <script>
-import {form} from '@crud/crud'
+import CRUD, {form} from '@crud/crud'
 import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getDepts, getDeptTree} from "@/api/system/dept";
 import {getUserByDeptId} from "@/api/system/user";
 import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
+import {getUid} from "@/api/tools/supplier";
+import {delRepairFile, getFilesByRepairId} from "@/api/tools/repairFile";
+import {getToken} from "@/utils/auth";
+import {delTrNewStaffFile, getFilesByTrNewStaffId} from "@/api/tools/train/trNewStaffFile";
 
 const defaultForm = {
   id: null,
@@ -160,7 +277,9 @@ const defaultForm = {
   jobNum: null,
   trainContent: null,
   isFinished: true,
-  reason: null
+  reason: null,
+  uid: null,
+  fileList: []
 }
 export default {
   mixins: [form(defaultForm)],
@@ -173,10 +292,15 @@ export default {
     typeOptions: {
       type: Array,
       required: true
-    }
+    },
+    permission: {
+      type: Object,
+      required: true
+    },
   },
   data() {
     return {
+      headers: {'Authorization': getToken()},
       rules: {
         staffName: [
           {required: true, message: '请输入新员工姓名', trigger: 'blur'}
@@ -226,7 +350,9 @@ export default {
             Date.now() <= time.getTime()
           )
         }
-      }
+      },
+      bindingId: null,
+      filesLoading: false
     }
   },
   watch: {
@@ -236,7 +362,8 @@ export default {
   computed: {
     ...mapGetters([
       'user',
-      'baseApi'
+      'baseApi',
+      'trNewStaffFileUploadApi'
     ])
   },
   created: function () {
@@ -264,6 +391,43 @@ export default {
           }, 200)
         })
       }
+    },
+    // 新增前操作
+    [CRUD.HOOK.beforeToAdd]() {
+      this.bindingId = null
+      this.form.uid = null
+      getUid().then(res => {
+        this.form.uid = res
+        // alert(JSON.stringify(this.form))
+        this.bindingId = res
+        // alert(this.bindingId)
+      })
+    },
+    // 编辑前操作
+    [CRUD.HOOK.beforeToEdit](crud, form) {
+      // alert(JSON.stringify(form))
+      this.bindingId = form.id
+      // 获取设备维修确认单信息列表
+      this.getTrNewStaffFilesById(form.id)
+    },
+    // 提交前做的操作
+    [CRUD.HOOK.beforeSubmit]() {
+      // alert(JSON.stringify(this.form.fileList))
+      // 判断是否确认完成，若确认完成则必须上传确认单
+      if (this.form.isFinished && this.form.fileList.length === 0) {
+        this.$message.warning("请务必上传确认单等附件！")
+        return false
+      }
+    },
+    // 获取维修相关确认单信息
+    getTrNewStaffFilesById(id) {
+      this.form.fileList = []
+      this.filesLoading = true
+      getFilesByTrNewStaffId(id).then(res => {
+        // alert(JSON.stringify(res))
+        this.form.fileList = res
+        this.filesLoading = false
+      })
     },
     // 监控数据变化
     currDeptChange(deptId) {
@@ -293,6 +457,7 @@ export default {
         // alert(JSON.stringify(this.users))
       })
     },
+    // 监控培训结果变化
     trainResultChanged(val) {
       if (val.toString() === 'false') {
         this.reasonRules = this.rules.reason
@@ -301,7 +466,48 @@ export default {
           {required: false}
         ]
       }
-    }
+    },
+    // ------------上传附件管理--------------
+    // 上传前的校验
+    beforeUpload: function (file) {
+      let isLt2M = true
+      isLt2M = file.size / 1024 / 1024 < 100
+      if (!isLt2M) {
+        this.$message.error('上传文件大小不能超过 100MB!')
+      }
+      return isLt2M
+    },
+    // 监听上传成功
+    handleSuccess(response, file, fileList) {
+      this.getTrNewStaffFilesById(this.bindingId)
+      setTimeout(() => {
+        this.$message.success('上传文件成功!')
+      }, 300)
+      this.$refs.upload.clearFiles()
+    },
+    // 删除附件
+    deleteTrNewStaffFile(row) {
+      // alert(row)
+      const data = []
+      data.push(row.id)
+      delTrNewStaffFile(data).then(res => {
+        this.$message({
+          message: 'Del File Success! 删除附件成功!',
+          type: 'success'
+        })
+        this.getTrNewStaffFilesById(row.trNewStaffId)
+      })
+    },
+    // 监听上传失败
+    handleError(e, file, fileList) {
+      this.form.name = ''
+      const msg = JSON.parse(e.message)
+      this.$notify({
+        title: msg.message,
+        type: 'error',
+        duration: 2500
+      })
+    },
   }
 }
 </script>

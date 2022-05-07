@@ -1,5 +1,12 @@
 <template>
   <div class="app-container">
+    <!--快速导航-->
+    <div class="head-container">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
+        <el-breadcrumb-item><b>新员工</b></el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
     <!--工具栏-->
     <div class="head-container">
       <eHeader :finish-status="dict.common_status" :type-options="typeOptions" :permission="permission"/>
@@ -20,7 +27,7 @@
       <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
       <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
       <el-table-column prop="reason" label="未完成原因" :show-overflow-tooltip="true"/>
-      <el-table-column prop="createTime" label="创建日期" width="140" />
+      <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
         v-if="checkPer(['admin','newStaff:edit','newStaff:del'])"
@@ -40,7 +47,7 @@
     <!--分页组件-->
     <pagination/>
     <!--表单渲染-->
-    <eForm :finish-status="dict.common_status" :type-options="typeOptions" />
+    <eForm :finish-status="dict.common_status" :type-options="typeOptions" :permission="permission"/>
   </div>
 </template>
 

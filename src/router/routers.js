@@ -226,8 +226,8 @@ export const constantRouterMap = [
         meta: { title: '新员工' }
       },
       {
-        path: 'certificate',
-        component: (resolve) => require(['@/views/tools/training/management/certificate/index'], resolve),
+        path: 'certification',
+        component: (resolve) => require(['@/views/tools/training/management/certification/index'], resolve),
         name: '证书',
         meta: { title: '证书' }
       },

@@ -16,8 +16,9 @@
               </el-button>
             </el-card>
           </el-col>
+
           <el-col :span="4">
-            <el-card shadow="hover"  @click.native="catalogueType = 'certificate'" @dblclick.native="routerTarget('/training/certificate')">
+            <el-card shadow="hover"  @click.native="catalogueType = 'certificate'" @dblclick.native="routerTarget('/training/certification')">
               <el-button type="text" size="medium" icon="el-icon-tickets">证书
               </el-button>
             </el-card>
@@ -79,16 +80,16 @@
   # 间接工人：不直接参与生产加工的人员；如车间主任、库管、工艺、统计（不包括管理部门的）、叉车驾驶员、维修工等
   # 直接工人入职培训地点多为车间现场，对于操作要求极为严格和慎重，因此需要通过一系列的教育训练、鉴定管理、考核管理、
     津贴管理、品质管理、签约管理等系统化培训使员工的工作质量、工作态度达到企业的要求，并为企业创造更多的价值和利益
-  # 新员工入职培训分为两步：1.开启新员工培训；2.是否完成入职培训的确认
-  # 完成新员工入职培训依据：须上传确认完成签字页或者现场培训认可证明等
+  # 新员工入职培训分为两部分：1.新员工培训基础信息；2.入职培训的确认单、完成证明等附件上传
+  # 完成新员工入职培训依据：须上传确认完成签字页或者现场培训认可证明等文件
         </pre>
           </div>
         </el-card>
         <el-card v-if="catalogueType === 'certificate'">
-          <div @dblclick="routerTarget('/training/certificate')">
+          <div @dblclick="routerTarget('/training/certification')">
             <blockquote class="my-blockquote">
               <el-link>
-                <router-link to="/training/certificate">
+                <router-link to="/training/certification">
                   <i class="el-icon-tickets"></i>证书
                 </router-link>
               </el-link>

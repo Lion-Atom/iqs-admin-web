@@ -48,6 +48,8 @@ const api = {
     maintainFileUploadApi: baseUrl + '/api/maintainFile',
     // 台账附件上传
     gridFileUploadApi: baseUrl + '/api/gridFile',
+    // 新员工培训附件上传
+    trNewStaffFileUploadApi: baseUrl + '/api/trNewStaffFile',
     // 文件覆盖上传
     // fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
     // 文件覆盖上传

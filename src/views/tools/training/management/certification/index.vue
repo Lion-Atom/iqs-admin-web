@@ -1,5 +1,12 @@
 <template>
   <div class="app-container">
+    <!--快速导航-->
+    <div class="head-container">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
+        <el-breadcrumb-item><b>认证证书</b></el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
     <!--工具栏-->
     <div class="head-container">
       <eHeader :dict="dict" :permission="permission" />
@@ -57,11 +64,11 @@ import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 export default {
-  name: 'Material',
+  name: 'Certification',
   components: { eHeader, eForm, crudOperation, pagination, udOperation },
   cruds() {
     return CRUD({
-      title: '培训材料',
+      title: '培训认证',
       url: 'api/job',
       sort: ['jobSort,asc', 'id,desc'],
       crudMethod: { ...crudJob }
