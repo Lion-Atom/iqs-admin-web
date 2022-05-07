@@ -66,7 +66,7 @@ export default {
   cruds() {
     return CRUD({
       title: '新员工培训',
-      url: 'api//train/newStaff',
+      url: 'api/train/newStaff',
       // sort: ['jobSort,asc', 'id,desc'],
       crudMethod: {...crudNewStaff}
     })

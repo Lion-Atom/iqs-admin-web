@@ -12,7 +12,7 @@
       :options="departs"
       :load-options="loadDeparts"
       class="newTree-item"
-      placeholder="选择验收部门"
+      placeholder="选择新员工所在部门"
       style="width:160px !important;"
       @input="crud.toQuery"
     />

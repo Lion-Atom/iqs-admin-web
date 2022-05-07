@@ -4,37 +4,31 @@
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item><b>认证证书</b></el-breadcrumb-item>
+        <el-breadcrumb-item><b>认证</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <!--工具栏-->
     <div class="head-container">
-      <eHeader :dict="dict" :permission="permission" />
-      <crudOperation :permission="permission" />
+      <eHeader :finish-status="dict.common_status" :type-options="typeOptions" :permission="permission"/>
+      <crudOperation :permission="permission"/>
     </div>
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="name" label="名称" />
-      <el-table-column prop="jobSort" label="排序">
-        <template slot-scope="scope">
-          {{ scope.row.jobSort }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="状态" align="center">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.enabled"
-            active-color="#409EFF"
-            inactive-color="#F56C6C"
-            @change="changeEnabled(scope.row, scope.row.enabled)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column prop="createTime" label="创建日期" />
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
+              @selection-change="crud.selectionChangeHandler">
+      <el-table-column type="selection" width="55"/>
+      <el-table-column prop="staffName" label="员工姓名" fixed/>
+      <el-table-column prop="jobNum" label="员工工号"/>
+      <el-table-column prop="departName" label="所属部门"/>
+      <el-table-column prop="superior" label="上级主管"/>
+      <el-table-column prop="jobName" label="岗位"/>
+      <el-table-column prop="certificationType" label="认证种类"/>
+      <el-table-column prop="jobType" label="工种种类"/>
+      <el-table-column label="证书到期日期" :formatter="dueDateFormat"/>
+      <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
+      <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
-        v-if="checkPer(['admin','material:edit','material:del'])"
+        v-if="checkPer(['admin','certification:edit','certification:del'])"
         label="操作"
         width="130px"
         align="center"
@@ -49,62 +43,63 @@
       </el-table-column>
     </el-table>
     <!--分页组件-->
-    <pagination />
+    <pagination/>
     <!--表单渲染-->
-    <eForm :job-status="dict.job_status" />
+    <eForm :finish-status="dict.common_status" :type-options="typeOptions" :permission="permission"/>
   </div>
 </template>
 
 <script>
-import crudJob from '@/api/system/job'
+import crudCertification from '@/api/tools/train/certification'
 import eHeader from './module/header'
 import eForm from './module/form'
-import CRUD, { presenter } from '@crud/crud'
+import CRUD, {presenter} from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
+import {GMTToDate} from "@/utils/validationUtil";
+
 export default {
-  name: 'Certification',
-  components: { eHeader, eForm, crudOperation, pagination, udOperation },
+  name: 'Schedule',
+  components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({
       title: '培训认证',
-      url: 'api/job',
-      sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: { ...crudJob }
+      url: 'api/train/certification',
+      // sort: ['jobSort,asc', 'id,desc'],
+      crudMethod: {...crudCertification}
     })
   },
   mixins: [presenter()],
   // 数据字典
-  dicts: ['job_status'],
+  dicts: ['common_status'],
   data() {
     return {
       permission: {
-        add: ['admin', 'material:add'],
-        edit: ['admin', 'material:edit'],
-        del: ['admin', 'material:del']
-      }
+        add: ['admin', 'certification:add'],
+        edit: ['admin', 'certification:edit'],
+        del: ['admin', 'certification:del']
+      },
+      typeOptions: [
+        {
+          label: '特殊工种证明',
+          value: '特殊工种证明'
+        },
+        {
+          label: '三方机构证明',
+          value: '三方机构证明'
+        },
+        {
+          label: '在职上岗证',
+          value: '在职上岗证'
+        }
+      ]
     }
   },
   methods: {
     // 改变状态
-    changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.name + '岗位, 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // eslint-disable-next-line no-undef
-        crudJob.edit(data).then(() => {
-          // eslint-disable-next-line no-undef
-          this.crud.notify(this.dict.label.job_status[val] + '成功', 'success')
-        }).catch(err => {
-          data.enabled = !data.enabled
-          console.log(err.data.message)
-        })
-      }).catch(() => {
-        data.enabled = !data.enabled
-      })
+    dueDateFormat(row, col) {
+      return GMTToDate(row.dueDate)
     }
   }
 }
