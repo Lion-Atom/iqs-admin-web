@@ -1,15 +1,339 @@
 <template>
   <div class="app-container">
-    ----培训考试----
+    <!--快速导航-->
+    <div class="head-container">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训考试</b></el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <!--    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
+                  @selection-change="crud.selectionChangeHandler">
+          <el-table-column prop="departName" label="部门名称"/>
+          <el-table-column label="状态" align="center">
+            <template slot-scope="scope">
+              <el-switch
+                v-model="scope.row.enabled"
+                active-color="#409EFF"
+                inactive-color="#F56C6C"
+                @change="changeEnabled(scope.row, scope.row.enabled)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column prop="createBy" label="创建者" align="center"/>
+          <el-table-column prop="createTime" label="创建日期"/>
+        </el-table>-->
+    <el-row :gutter="40" class="row-box">  <!--分栏间隔-->
+      <el-col id="realExamDp" :xs="12" :sm="12" :md="12" :lg="6" class="card-col"
+              v-for="(examDepart, index) in examDeparts">
+        <!--共24份，xs超小型设备，sm小屏设备，md中屏，lg大屏-->
+        <el-card class="el-card" @dblclick.native="routeToTarget(examDepart)">
+          <div style="padding: 14px;">
+            <el-descriptions :column="1" border>
+              <template slot="title">
+                {{ examDepart.departName }}
+              </template>
+              <el-descriptions-item label-class-name="exam-depart-item" label="创建者">
+                {{ examDepart.createBy }}
+              </el-descriptions-item>
+              <el-descriptions-item label-class-name="exam-depart-item" label="创建时间">
+                {{ examDepart.createTime }}
+              </el-descriptions-item>
+              <el-descriptions-item label-class-name="exam-depart-item" label="状态">
+                <el-switch
+                  v-model="examDepart.enabled"
+                  active-color="#409EFF"
+                  inactive-color="#F56C6C"
+                  @change="changeEnabled(examDepart, examDepart.enabled)"
+                />
+              </el-descriptions-item>
+            </el-descriptions>
+            <div class="bottom clearfix">
+              <!--              <el-button class="button" type="text">查看</el-button>-->
+              <!--todo 是否需要删除？-->
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="12" :sm="12" :md="12" :lg="6" class="card-col">
+        <el-card class="el-card" v-if="toAddExamDepartVisible === true" @click.native="addRealExamDepartHandle">
+          <div style="padding: 14px;" class="add-btn">
+            <div style="opacity:0.2;font-size: 70px;margin-top: 25px;">
+              <i class="el-icon-plus avatar-uploader-icon"></i>
+            </div>
+            <div>添加部门</div>
+          </div>
+        </el-card>
+        <el-card class="el-card" v-else>
+          <div style="padding: 14px;">
+            <el-descriptions title="新增培训考试关联部门" :column="1" :colon="false">
+              <el-descriptions-item>
+                <el-form
+                  ref="form"
+                  :model="form"
+                  :rules="rules"
+                  size="small"
+                  label-width="50px"
+                >
+                  <el-form-item
+                    label="部门"
+                    prop="departId"
+                  >
+                    <TreeSelect
+                      v-model="form.departId"
+                      :options="departs"
+                      :load-options="loadDeparts"
+                      class="newTree-item"
+                      placeholder="选择新员工所在部门"
+                      style="width:90% !important;"
+                    />
+                  </el-form-item>
+                  <!--新增默认状态为：启用-->
+                  <el-form-item
+                    label="状态"
+                    prop="enabled"
+                    style="margin-bottom: 0 !important;"
+                  >
+                    <el-radio
+                      v-for="item in dict.dict.job_status"
+                      :key="item.id"
+                      v-model="form.enabled"
+                      :label="item.value === 'true'"
+                    >
+                      {{ item.label }}
+                    </el-radio>
+                  </el-form-item>
+                </el-form>
+                <div class="button">
+                  <el-button size="mini" type="text" @click="toCancelAdd">取消</el-button>
+                  <el-button size="mini" :loading="crud.status.cu === 2" type="primary" @click="submitExamDepart">确认</el-button>
+                </div>
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
+import crudExamDepart from '@/api/tools/train/examDepart'
+import CRUD, {presenter, form} from '@crud/crud'
+import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import {getDepts, getDeptTree} from "@/api/system/dept";
+
+const defaultForm = {
+  id: null,
+  departId: null,
+  enabled: true
+}
 export default {
-  name: "trainExam"
+  name: 'TrainExam',
+  components: {TreeSelect},
+  cruds() {
+    return CRUD({
+      title: '培训考试部门',
+      url: 'api/train/examDepart',
+      crudMethod: {...crudExamDepart},
+      queryOnPresenterCreated: false
+    })
+  },
+  mixins: [form(defaultForm), presenter()],
+  // 数据字典
+  dicts: ['job_status'],
+  data() {
+    return {
+      permission: {
+        add: ['admin', 'exam:add'],
+        edit: ['admin', 'exam:edit'],
+        del: ['admin', 'exam:del']
+      },
+      examDeparts: [],
+      toAddExamDepartVisible: true,
+      departs: [],
+      rules: {
+        departId: [
+          {required: true, message: '请选择要添加的部门', trigger: 'blur'}
+        ],
+        enabled: [
+          {required: true, message: '请确认培训关联部门状态', trigger: 'blur'}
+        ]
+      },
+      pop: false
+    }
+  },
+  created() {
+    this.getTopDept()
+    this.getExamDepart()
+  },
+  methods: {
+    // 查询部门数据
+    getTopDept() {
+      // alert(JSON.stringify(this.user))
+      getDeptTree().then(res => {
+        this.departs = res.content
+      })
+    },
+    // 查询培训考试关联部门数据
+    getExamDepart() {
+      crudExamDepart.get().then(res => {
+        this.examDeparts = res
+      })
+    },
+    // 添加培训考试部门
+    addRealExamDepartHandle() {
+      this.toAddExamDepartVisible = false
+      this.form = {...defaultForm}
+    },
+    // 改变状态
+    changeEnabled(data, val) {
+      // alert(JSON.stringify(data))
+      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.departName + '该部门参与培训考试, 是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // eslint-disable-next-line no-undef
+        crudExamDepart.edit(data).then(() => {
+          // eslint-disable-next-line no-undef
+          this.crud.notify(this.dict.label.job_status[val] + '成功', 'success')
+        }).catch(err => {
+          data.enabled = !data.enabled
+          console.log(err.data.message)
+        })
+      }).catch(() => {
+        console.log("取消操作！")
+        data.enabled = !data.enabled
+      })
+    },
+    // 获取弹窗内使用部门数据
+    loadDeparts({action, parentNode, callback}) {
+      if (action === LOAD_CHILDREN_OPTIONS) {
+        getDepts({enabled: true, pid: parentNode.id}).then(res => {
+          parentNode.children = res.content.map(function (obj) {
+            if (obj.hasChildren) {
+              obj.children = null
+            }
+            return obj
+          })
+          setTimeout(() => {
+            callback()
+          }, 200)
+        })
+      }
+    },
+    // 撤销操作
+    toCancelAdd() {
+      this.toAddExamDepartVisible = true
+    },
+    // 提交保存按钮
+    submitExamDepart() {
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          this.loading = true
+          crudExamDepart.add(this.form).then(res => {
+            this.$notify({
+              title: '添加成功',
+              type: 'success',
+              duration: 1000
+            })
+            this.loading = false
+            this.getExamDepart()
+            this.toAddExamDepartVisible = true
+          }).catch(err => {
+            this.loading = false
+            console.log(err.response.data.message)
+          })
+        } else {
+          return false
+        }
+      })
+    },
+    // 跳转到目标路径
+    routeToTarget(examDept) {
+      this.$router.push(
+        {
+          path: '/training/train-exam/detail',
+          query: {
+            departId: examDept.departId
+          }
+        })
+    }
+  }
 }
 </script>
 
-<style scoped>
+<style rel="stylesheet/scss" lang="scss" scoped>
+::v-deep .el-input-number .el-input__inner {
+  text-align: left;
+}
 
+.el-form-item--small.el-form-item {
+  margin-bottom: 8px !important;
+
+  > > > .el-form-item__label {
+    line-height: 28px !important;
+    color: #909399;
+    font-weight: normal;
+    font-size: 12px !important;
+  }
+}
+
+::v-deep .vue-treeselect__single-value {
+  font-size: 12px !important;
+  color: #909399;
+}
+
+::v-deep .el-radio__label {
+  font-size: 12px !important;
+}
+
+.time {
+  font-size: 13px;
+  color: #999;
+}
+
+.bottom {
+  margin-top: 13px;
+  line-height: 12px;
+}
+
+.button {
+  padding: 0;
+  float: right;
+}
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+
+.clearfix:after {
+  clear: both
+}
+
+.card-col {
+  margin-top: 30px;
+}
+
+.add-btn {
+  text-align: center;
+}
+</style>
+
+<style>
+.row-box {
+  display: flex;
+  flex-flow: wrap;
+}
+
+.row-box .el-card {
+  min-width: 100%;
+  height: 100%;
+  /*margin-right: 20px;*/
+  border: 0;
+}
 </style>

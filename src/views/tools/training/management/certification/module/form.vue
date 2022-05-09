@@ -113,7 +113,7 @@
       <el-row v-if="form.certificationType === typeOptions[2].value">
         <el-col :span="8">
           <el-form-item label="岗位名称" prop="jobName">
-            <el-input v-model="form.jobName" style="width:220px"/>
+            <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -136,6 +136,11 @@
               placeholder="请填写培训时间"
               :picker-options="pickerOption[0]"
             />
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="考试结果" prop="trainResult">
+            <el-input v-model="form.trainResult" style="width:220px" placeholder="请填写培训考试结果" />
           </el-form-item>
         </el-col>
         <el-col :span="24">

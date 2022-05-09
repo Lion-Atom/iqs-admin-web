@@ -250,7 +250,21 @@ export const constantRouterMap = [
         meta: { title: '培训考试' }
       }
     ]
-  }
+  },
+  {
+    path: '/training/train-exam',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'detail',
+        component: (resolve) => require(['@/views/tools/training/management/trainexam/detail/index'], resolve),
+        name: '培训考试明细',
+        meta: { title: '培训考试明细' }
+      }
+    ]
+  },
 ]
 
 export default new Router({
