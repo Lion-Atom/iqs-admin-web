@@ -142,9 +142,6 @@
             <el-form-item label="运行状态" prop="equipStatus">
               <el-select
                 v-model="form.equipStatus"
-                filterable
-                clearable
-                allow-create
                 placeholder="请选择设备运行状态"
                 style="width: 220px;"
               >

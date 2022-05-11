@@ -97,7 +97,7 @@
         <el-col :span="8">
           <el-form-item label="保养结果" prop="maintainStatus">
             <el-select style="width: 220px !important;" v-model="form.maintainStatus" placeholder="请填写保养结果">
-              <el-option label="良好" value="良好"></el-option>
+              <el-option label="好" value="好"></el-option>
               <el-option label="不好" value="不好"></el-option>
             </el-select>
           </el-form-item>

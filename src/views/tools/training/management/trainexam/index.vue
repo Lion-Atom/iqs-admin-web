@@ -55,7 +55,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :xs="12" :sm="12" :md="12" :lg="6" class="card-col">
+      <el-col v-permission="permission.edit" :xs="12" :sm="12" :md="12" :lg="6" class="card-col">
         <el-card class="el-card" v-if="toAddExamDepartVisible === true" @click.native="addRealExamDepartHandle">
           <div style="padding: 14px;" class="add-btn">
             <div style="opacity:0.2;font-size: 70px;margin-top: 25px;">
@@ -83,10 +83,18 @@
                       v-model="form.departId"
                       :options="departs"
                       :load-options="loadDeparts"
-                      class="newTree-item"
+                      :appendToBody="true"
+                      class="treePopup"
                       placeholder="选择新员工所在部门"
                       style="width:90% !important;"
-                    />
+                    >
+                      <label slot="option-label"
+                             slot-scope="{node}"
+                             class="treeLabelClass"
+                      >
+                        <span :title="node.label">{{ node.label }}</span>
+                      </label>
+                    </TreeSelect>
                   </el-form-item>
                   <!--新增默认状态为：启用-->
                   <el-form-item
@@ -106,7 +114,8 @@
                 </el-form>
                 <div class="button">
                   <el-button size="mini" type="text" @click="toCancelAdd">取消</el-button>
-                  <el-button size="mini" :loading="crud.status.cu === 2" type="primary" @click="submitExamDepart">确认</el-button>
+                  <el-button size="mini" :loading="crud.status.cu === 2" type="primary" @click="submitExamDepart">确认
+                  </el-button>
                 </div>
               </el-descriptions-item>
             </el-descriptions>
@@ -257,7 +266,8 @@ export default {
         {
           path: '/training/train-exam/detail',
           query: {
-            departId: examDept.departId
+            departId: examDept.departId,
+            departName: examDept.departName
           }
         })
     }
@@ -280,6 +290,18 @@ export default {
     font-size: 12px !important;
   }
 }
+
+.treePopup {
+  ::v-deep.vue-treeselect__menu {
+    overflow-x: auto !important;
+  }
+
+  ::v-deep .vue-treeselect__label {
+    overflow: unset;
+    text-overflow: unset;
+  }
+}
+
 
 ::v-deep .vue-treeselect__single-value {
   font-size: 12px !important;
@@ -328,6 +350,11 @@ export default {
 .row-box {
   display: flex;
   flex-flow: wrap;
+}
+
+.treeLabelClass {
+  font-size: 12px !important;
+  color: #909399;
 }
 
 .row-box .el-card {

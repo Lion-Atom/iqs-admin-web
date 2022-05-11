@@ -32,6 +32,7 @@ const getters = {
   gridFileUploadApi: state => state.api.gridFileUploadApi,
   trNewStaffFileUploadApi: state => state.api.trNewStaffFileUploadApi,
   trCertificationFileUploadApi: state => state.api.trCertificationFileUploadApi,
+  trExamDepartFileUploadApi: state => state.api.trExamDepartFileUploadApi,
   updateAvatarApi: state => state.api.updateAvatarApi,
   updateContactAvatarApi: state => state.api.updateContactAvatarApi,
   qiNiuUploadApi: state => state.api.qiNiuUploadApi,

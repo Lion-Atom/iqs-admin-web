@@ -43,7 +43,7 @@
       <el-table-column prop="acceptBy" label="验收人"/>
       <el-table-column prop="approveDepartName" label="批准部门"/>
       <el-table-column prop="approveBy" label="批准人"/>
-      <el-table-column prop="acceptTime" label="验收时间" min-width="150px" />
+      <el-table-column prop="acceptTime" label="验收时间" min-width="150px"/>
       <el-table-column prop="createTime" label="创建日期" min-width="150px"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -299,152 +299,176 @@
               />
             </el-form-item>
           </el-col>
+          <el-col :span="24">
+            <el-divider content-position="left">设备验收参与信息</el-divider>
+            <el-form-item label="参与人员" prop="acceptParticipant">
+              <div>
+                <el-tag
+                  v-for="tag in form.participantTags"
+                  :key="tag"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleParticipantClose(tag)"
+                  class="new-part-tag"
+                >
+                  {{ tag }}
+                </el-tag>
+                <el-input
+                  v-if="inputParticipantVisible"
+                  ref="participantTagInput"
+                  v-model="inputParticipantValue"
+                  style="width: 30%"
+                  size="small"
+                  placeholder="涉及到的相关部门"
+                  @keyup.enter.native="handleInputParticipantConfirm"
+                  @blur="handleInputParticipantConfirm"
+                />
+                <el-button v-else size="small" style="height: 29px;" @click="showInputDepart">+参与人员
+                </el-button>
+              </div>
+            </el-form-item>
+          </el-col>
         </el-row>
         <!--验收信息-->
-        <el-row>
-          <el-row>
-            <el-col :span="24">
-              <el-divider content-position="left">设备验收参与信息</el-divider>
-              <el-form-item label="参与人员" prop="acceptParticipant">
-                <div>
-                  <el-tag
-                    v-for="tag in form.participantTags"
-                    :key="tag"
-                    closable
-                    :disable-transitions="false"
-                    @close="handleParticipantClose(tag)"
-                    class="new-part-tag"
-                  >
-                    {{ tag }}
-                  </el-tag>
-                  <el-input
-                    v-if="inputParticipantVisible"
-                    ref="participantTagInput"
-                    v-model="inputParticipantValue"
-                    style="width: 30%"
-                    size="small"
-                    placeholder="涉及到的相关部门"
-                    @keyup.enter.native="handleInputParticipantConfirm"
-                    @blur="handleInputParticipantConfirm"
-                  />
-                  <el-button v-else size="small" style="height: 29px;" @click="showInputDepart">+参与人员
-                  </el-button>
-                </div>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row v-if="form.acceptStatus !== '待验收'">
-            <el-col :span="24">
-              <el-divider content-position="left">设备验收明细</el-divider>
-            </el-col>
-            <el-row>
-              <el-col :span="8">
-                <el-form-item label="设备验收明细">
-                  <el-button type="primary" style="width: 220px!important;" @click="openDetailDialog(form.id)">打开验收明细单
-                  </el-button>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="验收结果" prop="approveResult">
-                  <el-select
-                    v-model="form.approveResult"
-                    placeholder="请选择验收结果"
-                    @change="approveResultChanged"
-                    style="width: 220px"
-                  >
-                    <el-option
-                      v-for="item in approveResultOptions"
-                      :key="item.label"
-                      :label="item.label "
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="验收补充" prop="refuseReason" :rules="refuseReasonRules">
-                  <el-input v-model="form.refuseReason" placeholder="可填写拒收理由或者其他补充" style="width: 220px"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="8">
-                <el-form-item label="验收部门" prop="acceptDepart">
-                  <TreeSelect
-                    v-model="form.acceptDepart"
-                    :options="useDeparts"
-                    :load-options="loadFileDepts"
-                    class="newTree-item"
-                    placeholder="选择验收人所在部门"
-                    style="width:220px !important;"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="验收人" prop="acceptBy">
-                  <el-select
-                    v-model="form.acceptBy"
-                    placeholder="请选择验收人"
-                    style="width:220px !important;"
-                    @input="changeApproveBy($event)"
-                  >
-                    <el-option
-                      v-for="item in acceptBys"
-                      :key="item.id"
-                      :label="item.jobs[0].name + '-'+ item.username "
-                      :value="item.username"
-                    />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="验收时间" prop="acceptTime">
-                  <el-date-picker
-                    v-model="form.acceptTime"
-                    type="datetime"
-                    placeholder="请填写验收日期"
-                    style="width:220px !important;"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-row>
-          <el-row>
-            <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
-              <el-form-item label="提交人" prop="submitBy">
-                <el-input v-model="form.submitBy" style="width:220px !important;" disabled/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8" v-if="form.acceptStatus === '已验收' || form.acceptStatus === '已拒收'">
-              <el-form-item label="批准部门" prop="approveDepart">
-                <TreeSelect
-                  v-model="form.approveDepart"
-                  :options="useDeparts"
-                  :load-options="loadFileDepts"
-                  class="newTree-item"
-                  placeholder="选择批准验收部门"
-                  style="width:220px !important;"
+
+        <el-row v-if="form.acceptStatus !== '待验收'" class="el-row-inline">
+          <el-col :span="24">
+            <el-divider content-position="left">设备验收明细</el-divider>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="设备验收明细">
+              <el-button type="primary" style="width: 220px!important;" @click="openDetailDialog(form.id)">打开验收明细单
+              </el-button>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="验收结果" prop="approveResult">
+              <el-select
+                v-model="form.approveResult"
+                placeholder="请选择验收结果"
+                @change="approveResultChanged"
+                style="width: 220px"
+              >
+                <el-option
+                  v-for="item in approveResultOptions"
+                  :key="item.label"
+                  :label="item.label "
+                  :value="item.value"
                 />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8" v-if="form.acceptStatus === '已验收' || form.acceptStatus === '已拒收'">
-              <el-form-item label="批准人" prop="approveBy">
-                <el-select
-                  v-model="form.approveBy"
-                  placeholder="请选择批准人"
-                  style="width:220px !important;"
-                  @input="changeApproveBy($event)"
-                >
-                  <el-option
-                    v-for="item in approveBys"
-                    :key="item.id"
-                    :label="item.jobs[0].name + '-'+ item.username "
-                    :value="item.username"
-                  />
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="验收补充" prop="refuseReason" :rules="refuseReasonRules">
+              <el-input v-model="form.refuseReason" placeholder="可填写拒收理由或者其他补充" style="width: 220px"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="验收部门" prop="acceptDepart">
+              <TreeSelect
+                v-model="form.acceptDepart"
+                :options="useDeparts"
+                :load-options="loadFileDepts"
+                class="newTree-item"
+                placeholder="选择验收人所在部门"
+                style="width:220px !important;"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="验收人" prop="acceptBy">
+              <el-select
+                v-model="form.acceptBy"
+                placeholder="请选择验收人"
+                style="width:220px !important;"
+                @input="changeApproveBy($event)"
+              >
+                <el-option
+                  v-for="item in acceptBys"
+                  :key="item.id"
+                  :label="item.jobs[0].name + '-'+ item.username "
+                  :value="item.username"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="验收时间" prop="acceptTime">
+              <el-date-picker
+                v-model="form.acceptTime"
+                type="datetime"
+                placeholder="请填写验收日期"
+                style="width:220px !important;"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="验收提交人" prop="submitBy">
+              <!--                <el-input v-model="form.submitBy" style="width:220px !important;" disabled/>-->
+              <el-select
+                v-model="form.submitBy"
+                placeholder="请选择验收提交人"
+                style="width:220px !important;"
+                @input="changeApproveBy($event)"
+              >
+                <el-option
+                  v-for="item in users"
+                  :key="item.id"
+                  :label="item.jobs[0].name + '-'+ item.username "
+                  :value="item.username"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
+            <el-form-item label="提交时间" prop="submitTime">
+              <el-date-picker
+                v-model="form.submitTime"
+                type="datetime"
+                placeholder="请填写提交日期"
+                style="width:220px !important;"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus === '已验收' || form.acceptStatus === '已拒收'">
+            <el-form-item label="批准部门" prop="approveDepart">
+              <TreeSelect
+                v-model="form.approveDepart"
+                :options="useDeparts"
+                :load-options="loadFileDepts"
+                class="newTree-item"
+                placeholder="选择批准验收部门"
+                style="width:220px !important;"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus === '已验收' || form.acceptStatus === '已拒收'">
+            <el-form-item label="批准人" prop="approveBy">
+              <el-select
+                v-model="form.approveBy"
+                placeholder="请选择批准人"
+                style="width:220px !important;"
+                @input="changeApproveBy($event)"
+              >
+                <el-option
+                  v-for="item in approveBys"
+                  :key="item.id"
+                  :label="item.jobs[0].name + '-'+ item.username "
+                  :value="item.username"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="form.acceptStatus === '已验收' || form.acceptStatus === '已拒收'">
+            <el-form-item label="批准时间" prop="approveTime">
+              <el-date-picker
+                v-model="form.approveTime"
+                type="datetime"
+                placeholder="请填写批准日期"
+                style="width:220px !important;"
+              />
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -559,7 +583,7 @@
         size="small"
         label-width="120px"
       >
-        <el-row>
+        <el-row class="el-row-inline">
           <el-col :span="8">
             <el-form-item label="设备名称">
               <el-input v-model="equipForm.equipName" disabled style="width: 220px"/>
@@ -575,8 +599,6 @@
               <el-input v-model="equipForm.equipProvider" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="8">
             <el-form-item label="设备类别" prop="equipType">
               <el-input v-model="equipForm.equipType" disabled style="width: 220px"/>
@@ -634,8 +656,6 @@
               <el-input v-model="equipForm.netValue" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="8">
             <el-form-item label="运行状态" prop="equipStatus">
               <el-input v-model="equipForm.equipStatus" disabled style="width: 220px"/>
@@ -652,8 +672,9 @@
               </el-tag>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
+          <el-col :span="24">
+            <el-divider content-position="left">设备验收明细</el-divider>
+          </el-col>
           <el-col :span="8">
             <el-form-item label="设备验收明细">
               <el-button type="primary" style="width: 220px !important;" @click="openDetailDialog(acceptForm.id)">
@@ -667,6 +688,7 @@
                 v-model="acceptForm.approveResult"
                 placeholder="请选择验收结果"
                 @change="approveResultChanged"
+                style="width:220px !important;"
               >
                 <el-option
                   v-for="item in approveResultOptions"
@@ -682,8 +704,6 @@
               <el-input v-model="acceptForm.refuseReason" placeholder="可填写拒收理由或者其他补充" style="width: 220px"/>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="8">
             <el-form-item label="设备验收部门" prop="acceptDepart">
               <TreeSelect
@@ -702,6 +722,7 @@
                 v-model="acceptForm.acceptBy"
                 placeholder="请选择验收人"
                 @change="acceptByChanged"
+                style="width:220px !important;"
               >
                 <el-option
                   v-for="item in acceptBys"
@@ -719,6 +740,34 @@
                 type="datetime"
                 placeholder="请填写验收日期"
                 style="width: 220px"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="验收提交人" prop="submitBy">
+              <!--                <el-input v-model="form.submitBy" style="width:220px !important;" disabled/>-->
+              <el-select
+                v-model="acceptForm.submitBy"
+                placeholder="请选择验收提交人"
+                style="width:220px !important;"
+                @input="changeApproveBy($event)"
+              >
+                <el-option
+                  v-for="item in users"
+                  :key="item.id"
+                  :label="item.jobs[0].name + '-'+ item.username "
+                  :value="item.username"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="提交时间" prop="submitTime">
+              <el-date-picker
+                v-model="acceptForm.submitTime"
+                type="datetime"
+                placeholder="请填写提交日期"
+                style="width:220px !important;"
               />
             </el-form-item>
           </el-col>
@@ -922,7 +971,10 @@
           </el-col>
         </el-row>
         <!--验收明细-->
-        <el-row>
+        <el-row class="el-row-inline">
+          <el-col :span="24">
+            <el-divider content-position="left">设备验收明细</el-divider>
+          </el-col>
           <el-col :span="8">
             <el-form-item label="设备验收明细">
               <el-button type="primary" style="width: 220px !important;" @click="openDetailDialog(approveForm.id)">
@@ -951,8 +1003,6 @@
               <el-input v-model="approveForm.refuseReason" disabled placeholder="可填写拒收理由或者其他补充" style="width: 220px"/>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="8">
             <el-form-item label="设备验收部门" prop="acceptDepart">
               <TreeSelect
@@ -994,11 +1044,20 @@
               />
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="8">
-            <el-form-item label="设备提交人" prop="submitBy">
+            <el-form-item label="提交验收人" prop="submitBy">
               <el-input v-model="approveForm.submitBy" disabled style="width: 220px"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="提交时间" prop="submitTime">
+              <el-date-picker
+                v-model="approveForm.submitTime"
+                type="datetime"
+                placeholder="请填写验收日期"
+                style="width: 220px"
+                disabled
+              />
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -1030,6 +1089,16 @@
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col :span="8">
+            <el-form-item label="批准时间" prop="approveTime">
+              <el-date-picker
+                v-model="approveForm.approveTime"
+                type="datetime"
+                placeholder="请填写批准日期"
+                style="width:220px !important;"
+              />
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -1054,7 +1123,7 @@ import {getDepts, getDeptTree} from "@/api/system/dept";
 import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getEquipmentByExample, getEquipmentById} from "@/api/tools/equipment";
-import {getUserByDeptId} from "@/api/system/user";
+import {getAllUser, getUserByDeptId} from "@/api/system/user";
 import {editEquipAcceptanceDetails, getDetailsByAcceptanceId} from "@/api/tools/equipAcceptanceDetail";
 
 const defaultForm = {
@@ -1070,7 +1139,9 @@ const defaultForm = {
   acceptTime: null,
   approveDepart: null,
   submitBy: null,
-  approveBy: null
+  submitTime: null,
+  approveBy: null,
+  approveTime: null
 }
 export default {
   name: 'Acceptance',
@@ -1109,7 +1180,9 @@ export default {
         refuseReason: null,
         approveDepart: null,
         submitBy: null,
-        approveBy: null
+        submitTime: null,
+        approveBy: null,
+        approveTime: null
       },
       approveForm: {
         id: null,
@@ -1124,7 +1197,9 @@ export default {
         refuseReason: null,
         approveDepart: null,
         submitBy: null,
-        approveBy: null
+        submitTime: null,
+        approveBy: null,
+        approveTime: null
       },
       rules: {
         equipmentId: [
@@ -1149,13 +1224,19 @@ export default {
           {required: true, message: '验收时间不可为空', trigger: 'blur'}
         ],
         submitBy: [
-          {required: true, message: '提交人员不可为空', trigger: 'blur'}
+          {required: true, message: '验收提交人员不可为空', trigger: 'blur'}
+        ],
+        submitTime: [
+          {required: true, message: '请填写提交时间', trigger: 'blur'}
         ],
         approveDepart: [
           {required: true, message: '批准人员所在部门不可为空', trigger: 'blur'}
         ],
         approveBy: [
           {required: true, message: '批准人员不可为空', trigger: 'blur'}
+        ],
+        approveTime: [
+          {required: true, message: '请填写提交批准时间', trigger: 'blur'}
         ]
       },
       refuseReasonRules: [
@@ -1202,6 +1283,7 @@ export default {
       inputParticipantVisible: false,
       inputParticipantValue: null,
       acceptBys: [],
+      users: [],
       approveBys: [],
       acceptEquipmentVisible: false,
       approveEquipmentVisible: false,
@@ -1232,6 +1314,7 @@ export default {
   },
   created: function () {
     this.getTopDept()
+    this.getAllUsers()
     this.getAllEquipments(this.cond)
     this.crud.optShow = {
       add: true,
@@ -1242,6 +1325,12 @@ export default {
     }
   },
   methods: {
+    // 查询所有人员
+    getAllUsers() {
+      getAllUser().then(res => {
+        this.users = res.content
+      })
+    },
     // 获取所有符合条件的设备信息
     getAllEquipments(cond) {
       this.equipments = []
@@ -1355,7 +1444,7 @@ export default {
     toAcceptEquipment(row) {
       // 采用深拷贝方式防止直接“引用”
       this.acceptForm = {...row}
-      this.acceptForm.submitBy = this.user.dept.name + '-' + this.user.username
+      // this.acceptForm.submitBy = this.user.dept.name + '-' + this.user.username
       // alert(JSON.stringify(row))
       // 初始化设备信息
       this.changeEquip(row.equipmentId)
@@ -1708,5 +1797,11 @@ export default {
 
 ::v-deep .el-radio {
   margin-right: 10px !important;
+}
+</style>
+<style scoped>
+.el-row-inline {
+  display: flex;
+  flex-wrap: wrap;
 }
 </style>
