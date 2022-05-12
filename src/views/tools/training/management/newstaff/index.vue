@@ -14,16 +14,17 @@
     </div>
     <!--表格渲染-->
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
-              @selection-change="crud.selectionChangeHandler">
+              @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="staffName" label="员工姓名" fixed/>
       <el-table-column prop="jobNum" label="员工工号"/>
       <el-table-column prop="jobName" label="岗位"/>
       <el-table-column prop="departName" label="所属部门"/>
       <el-table-column prop="superior" label="上级主管"/>
+      <el-table-column prop="staffType" label="员工分类"/>
+      <el-table-column prop="jobType" label="工种"/>
       <el-table-column prop="workshop" label="车间"/>
       <el-table-column prop="team" label="班组"/>
-      <el-table-column prop="staffType" label="员工分类"/>
       <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
       <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
       <el-table-column prop="reason" label="未完成原因" :show-overflow-tooltip="true"/>
@@ -61,7 +62,7 @@ import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 
 export default {
-  name: 'Schedule',
+  name: 'TrainNewStaff',
   components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({

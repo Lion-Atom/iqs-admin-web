@@ -17,4 +17,12 @@ export function get(params) {
   })
 }
 
-export default {del, get}
+export function edit(data) {
+  return request({
+    url: 'api/trExamDepartFile',
+    method: 'put',
+    data
+  })
+}
+
+export default {del, get, edit}

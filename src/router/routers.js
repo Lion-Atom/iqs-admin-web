@@ -265,6 +265,20 @@ export const constantRouterMap = [
       }
     ]
   },
+  {
+    path: '/training/train-material',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'detail',
+        component: (resolve) => require(['@/views/tools/training/management/trainmaterial/detail/index'], resolve),
+        name: '培训材料明细',
+        meta: { title: '培训材料明细' }
+      }
+    ]
+  }
 ]
 
 export default new Router({

@@ -4,21 +4,21 @@
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/training/train-exam' }">培训考试</el-breadcrumb-item>
-        <el-breadcrumb-item><b>{{ departName }}-培训考试资源</b></el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/training/train-exam' }">考试部门-{{ departName }}</el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训考试资源</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <el-container>
       <el-header style="padding: 0 !important;text-align: left;height:auto; font-size: 12px">
         <el-radio-group v-model="defaultRadio">
           <el-radio-button label="考试题库"></el-radio-button>
-          <el-radio-button label="考生管理"></el-radio-button>
+          <el-radio-button label="考试信息"></el-radio-button>
         </el-radio-group>
       </el-header>
       <el-main v-if="defaultRadio==='考试题库'">
         <exam-bank :depart-id="departId"/>
       </el-main>
-      <el-main v-if="defaultRadio==='考生管理'">
+      <el-main v-if="defaultRadio==='考试信息'">
         <exam-staff :depart-id="departId"/>
       </el-main>
     </el-container>

@@ -1,5 +1,13 @@
 <template>
-  <div class="app-container" style="padding: 8px;">
+  <div class="app-container">
+    <!--快速导航-->
+    <div class="head-container">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/training/train-material' }">培训部门-{{ departName }}</el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训资源</b></el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
     <!--工具栏-->
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
@@ -155,11 +163,11 @@ import {validIsNotNull} from "@/utils/validationUtil";
 
 const defaultForm = {id: null, name: '', departId: null, fileDesc: null}
 export default {
-  props: ['departId'],
+  props: [],
   components: {pagination, crudOperation, udOperation, DateRangePicker},
   cruds() {
     return CRUD({
-      title: '培训考试题库',
+      title: '培训资料',
       url: 'api/trExamDepartFile',
       crudMethod: {...crudFile},
       queryOnPresenterCreated: false
@@ -186,7 +194,11 @@ export default {
   },
   created() {
     this.crud.optShow.add = false
-    this.query.departId = this.$props.departId
+    if (this.$route.query.departId !== undefined) {
+      this.departId = this.$route.query.departId
+      this.query.departId  = this.$route.query.departId
+      this.departName = this.$route.query.departName
+    }
   },
   mounted() {
     this.crud.toQuery()
@@ -231,7 +243,7 @@ export default {
     },
     resetNewQuery() {
       this.crud.resetQuery(false)
-      this.query.departId = this.$props.departId
+      this.query.departId = this.$route.query.departId
       this.crud.toQuery()
     }
   }

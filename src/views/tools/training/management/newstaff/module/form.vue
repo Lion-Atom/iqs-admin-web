@@ -104,6 +104,11 @@
             <el-input v-model="form.team" style="width:220px"/>
           </el-form-item>
         </el-col>
+        <el-col :span="8">
+          <el-form-item label="工种" prop="jobType">
+            <el-input v-model="form.jobType" style="width:220px"/>
+          </el-form-item>
+        </el-col>
       </el-row>
       <el-row>
         <el-col :span="24" v-if="form.staffType">
@@ -275,6 +280,7 @@ const defaultForm = {
   superior: null,
   jobName: null,
   jobNum: null,
+  jobType: null,
   trainContent: null,
   isFinished: true,
   reason: null,
@@ -322,6 +328,9 @@ export default {
         ],
         jobName: [
           {required: true, message: '请填写新员工岗位', trigger: 'blur'}
+        ],
+        jobType: [
+          {required: true, message: '请填写新员工工种', trigger: 'blur'}
         ],
         workshop: [
           {required: true, message: '请填写培训车间', trigger: 'blur'}

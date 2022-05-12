@@ -4,7 +4,7 @@
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item><b>培训考试</b></el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训部门</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <!--    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"

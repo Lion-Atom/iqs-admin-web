@@ -14,7 +14,7 @@
     </div>
     <!--表格渲染-->
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
-              @selection-change="crud.selectionChangeHandler">
+              @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="staffName" label="员工姓名" fixed/>
       <el-table-column prop="jobNum" label="员工工号"/>
@@ -60,7 +60,7 @@ import udOperation from '@crud/UD.operation'
 import {GMTToDate} from "@/utils/validationUtil";
 
 export default {
-  name: 'Schedule',
+  name: 'TrainCertification',
   components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({
