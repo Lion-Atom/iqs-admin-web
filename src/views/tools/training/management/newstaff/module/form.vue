@@ -69,6 +69,7 @@
             <el-select
               v-model="form.superior"
               placeholder="请先选择所在部门"
+              filterable
               style="width:220px"
             >
               <el-option

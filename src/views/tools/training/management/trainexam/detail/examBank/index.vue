@@ -30,7 +30,7 @@
     </div>
     <!--表单组件-->
     <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU"
-               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '文件上传' : '编辑文件'" width="500px">
+               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '文件上传' : '编辑文件'" width="570px">
       <el-form ref="form" :model="form" size="small" label-width="80px">
         <el-form-item label="试卷名">
           <el-input v-model="form.name" style="width: 360px;"/>
@@ -50,7 +50,6 @@
             :on-success="handleSuccess"
             :on-error="handleError"
             :action="trExamDepartFileUploadApi + '?name=' + form.name +'&departId=' + departId +'&fileDesc=' + form.fileDesc"
-            class="upload-demo"
           >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -77,7 +76,7 @@
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
               @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="name" label="文件名" min-width="180">
+      <el-table-column prop="name" label="试卷名" min-width="180">
         <template slot-scope="scope">
           <el-popover
             v-if="scope.row.hasDownloadAuthority"
@@ -115,7 +114,7 @@
           </el-image>
         </template>
       </el-table-column>
-      <el-table-column prop="fileDesc" label="文件描述" :show-overflow-tooltip="true"/>
+      <el-table-column prop="fileDesc" label="试卷描述" :show-overflow-tooltip="true"/>
       <el-table-column prop="suffix" label="文件类型"/>
       <el-table-column prop="type" label="类别"/>
       <el-table-column prop="size" label="大小"/>
@@ -246,4 +245,16 @@ export default {
 ::v-deep .el-image-viewer__wrapper {
   top: 55px;
 }
+
+/*::v-deep .el-upload-dragger {
+  height: 140px !important;
+}
+
+.el-icon-upload {
+  margin: 20px 0 16px;
+}
+::v-deep .el-form-item--small.el-form-item {
+  margin-bottom: 12px !important;
+}*/
+
 </style>
