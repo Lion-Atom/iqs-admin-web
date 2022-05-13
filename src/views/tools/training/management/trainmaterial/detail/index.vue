@@ -16,6 +16,38 @@
                   class="filter-item" @keyup.enter.native="crud.toQuery"/>
         <el-input v-model="query.departId" v-show="false"/>
         <date-range-picker v-model="query.createTime" class="date-item" @input="dateChange"/>
+        <el-select
+          v-model="query.isInternal"
+          clearable
+          size="small"
+          placeholder="出处类型"
+          class="filter-item"
+          @change="isInternalChange"
+        >
+          <el-option
+            v-for="item in sourceTypeOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <el-select
+          v-model="query.toolType"
+          filterable
+          allow-create
+          clearable
+          size="small"
+          placeholder="专业工具"
+          class="filter-item"
+          @change="crud.toQuery"
+        >
+          <el-option
+            v-for="item in toolTypeOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索
         </el-button>
         <el-button v-if="crud.optShow.reset" class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left"
@@ -67,17 +99,6 @@
                     <el-radio label="true">是</el-radio>
                     <el-radio label="false">否</el-radio>
                   </el-radio-group>
-                  <!--                  <el-select
-                                      v-model="form.isInternal"
-                                      style="width: 100%;"
-                                    >
-                                      <el-option
-                                        v-for="item in dict.dict.common_status"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                      </el-option>
-                                    </el-select>-->
                 </el-form-item>
               </el-col>
               <!--根据内部/外部选择对应的专业工具-->
@@ -87,10 +108,12 @@
                     v-model="form.toolType"
                     filterable
                     allow-create
+                    clearable
+                    placeholder="可自定义标准认证工具"
                     style="width: 100%;"
                   >
                     <el-option
-                      v-for="item in toolTypeOption"
+                      v-for="item in toolTypeOptions"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value">
@@ -126,8 +149,8 @@
               </el-col>
             </el-row>
           </el-col>
+          <!--   上传文件   -->
           <el-col :span="11">
-            <!--   上传文件   -->
             <el-form-item v-if="crud.status.add">
               <template slot="label">
                 <span><i style="color: red">* </i>上传</span>
@@ -139,6 +162,8 @@
                 :before-upload="beforeUpload"
                 :auto-upload="false"
                 :headers="headers"
+                :on-change="handleFileChange"
+                :file-list="fileList"
                 :on-success="handleSuccess"
                 :on-error="handleError"
                 :action="trainMaterialFileUploadApi + '?name=' + form.name +'&departId=' + departId +'&author=' + form.author
@@ -162,8 +187,8 @@
                 :auto-upload="false"
                 :headers="headers"
                 :on-success="handleCoverSuccess"
-                :on-change="handleFileChange"
-                :file-list="fileList"
+                :on-change="handleCoverFileChange"
+                :file-list="coverFileList"
                 :on-error="handleError"
                 :action="trainMaterialFileCoverApi + '?id=' + form.id + '&name=' + form.name +'&departId=' + departId +'&author=' + form.author
              +'&version=' + form.version + '&isInternal=' + form.isInternal + '&toolType=' + form.toolType + '&fileDesc=' + form.fileDesc + '&enabled=' + form.enabled"
@@ -179,7 +204,10 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="text" @click="crud.cancelCU">取消</el-button>
-        <el-button v-if="fileList.length > 0" :loading="loading" type="primary" @click="coverUpload">确认</el-button>
+        <el-button v-if="crud.status.add" :loading="loading" type="primary" @click="upload">确认</el-button>
+        <el-button v-else-if="crud.status.edit && coverFileList.length > 0" :loading="loading" type="primary"
+                   @click="coverUpload">确认
+        </el-button>
         <el-button v-else :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
         <!--        <el-button v-if="crud.status.add" :loading="loading" type="primary" @click="upload">确认</el-button>
                 <el-button v-else :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>-->
@@ -228,6 +256,16 @@
       <el-table-column prop="author" label="作者"/>
       <el-table-column label="出处" :formatter="isInternalFormat"/>
       <el-table-column prop="toolType" label="专业工具"/>
+      <el-table-column label="生效状态" align="center">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.enabled"
+            active-color="#409EFF"
+            inactive-color="#F56C6C"
+            @change="changeEnabled(scope.row, scope.row.enabled)"
+          />
+        </template>
+      </el-table-column>
       <el-table-column prop="fileDesc" label="文件描述" :show-overflow-tooltip="true"/>
       <el-table-column prop="suffix" label="文件类型"/>
       <el-table-column prop="type" label="类别"/>
@@ -266,6 +304,7 @@ import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
 
+
 const defaultForm = {
   id: null,
   departId: null,
@@ -276,7 +315,7 @@ const defaultForm = {
   revision: '0',
   toolType: null,
   enabled: true,
-  fileDesc: null
+  fileDesc: ''
 }
 export default {
   props: [],
@@ -321,8 +360,28 @@ export default {
           {required: true, message: '请确认试题状态', trigger: 'blur'}
         ]
       },
-      toolTypeOption: [],
-      fileList: []
+      toolTypeOptions: [
+        {
+          label: 'OPL',
+          value: 'OPL'
+        },
+        {
+          label: 'L&L',
+          value: 'L&L'
+        }
+      ],
+      sourceTypeOptions: [
+        {
+          label: '内部',
+          value: true
+        },
+        {
+          label: '外部',
+          value: false
+        }
+      ],
+      fileList: [],
+      coverFileList: []
     }
   },
   watch: {
@@ -350,18 +409,60 @@ export default {
   methods: {
     // 上传文件
     upload() {
-      this.$refs.upload.submit()
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          if (this.fileList.length > 0) {
+            this.$refs.upload.submit()
+          } else {
+            this.crud.notify('请上传材料', CRUD.NOTIFICATION_TYPE.WARNING)
+          }
+        }
+      })
     },
     // 新版提交
     coverUpload() {
-      this.$refs.coverUpload.submit()
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          this.$refs.coverUpload.submit()
+        }
+      })
     },
-    handleCoverSuccess(response, file, fileList) {
+    // 新增前将多选的值设置为空
+    [CRUD.HOOK.beforeToAdd]() {
+      this.fileList = []
+    },
+    // 初始化编辑时候的关联文件并初始化版本升级操作计数
+    [CRUD.HOOK.beforeToEdit](crud, form) {
+      this.coverFileList = []
+    },
+    // 改变状态
+    changeEnabled(data, val) {
+      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.name + '此材料, 是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // eslint-disable-next-line no-undef
+        crudFile.edit(data).then(() => {
+          // eslint-disable-next-line no-undef
+          this.crud.notify(this.dict.label.job_status[val] + '成功', 'success')
+        }).catch(err => {
+          data.enabled = !data.enabled
+          console.log(err.data.message)
+        })
+      }).catch(() => {
+        data.enabled = !data.enabled
+      })
+    },
+    handleCoverSuccess(response, file, coverFileList) {
       this.crud.notify('替换材料成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       this.$refs.coverUpload.clearFiles()
       this.crud.status.edit = CRUD.STATUS.NORMAL
       this.crud.resetForm()
       this.crud.toQuery()
+    },
+    handleCoverFileChange(file, coverFileList) {
+      this.coverFileList = coverFileList;
     },
     handleFileChange(file, fileList) {
       this.fileList = fileList;
@@ -379,7 +480,7 @@ export default {
       }
       return isLt2M
     },
-    handleSuccess(response, file, fileList) {
+    handleSuccess(response, file, coverFileList) {
       this.crud.notify('上传成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
       this.$refs.upload.clearFiles()
       this.crud.status.add = CRUD.STATUS.NORMAL
@@ -387,7 +488,7 @@ export default {
       this.crud.toQuery()
     },
     // 监听上传失败
-    handleError(e, file, fileList) {
+    handleError(e, file, coverFileList) {
       const msg = JSON.parse(e.message)
       this.$notify({
         title: msg.message,
@@ -409,7 +510,7 @@ export default {
     currIsInternalChange(val) {
       this.form.toolType = null
       if (val.toString() === 'true') {
-        this.toolTypeOption = [
+        this.toolTypeOptions = [
           {
             label: 'OPL',
             value: 'OPL'
@@ -419,14 +520,38 @@ export default {
             value: 'L&L'
           }
         ]
-      } else {
-        this.toolTypeOption = [
+      } else if (val.toString() === 'false') {
+        this.toolTypeOptions = [
           {
             label: 'GB/ISO',
             value: 'GB/ISO'
           }
         ]
       }
+    },
+    isInternalChange(val) {
+      if (val.toString() === 'false') {
+        this.toolTypeOptions = [
+          {
+            label: 'GB/ISO',
+            value: 'GB/ISO'
+          }
+        ]
+        this.query.toolType = this.toolTypeOptions[0].value
+      } else if (val.toString() === 'true') {
+        this.toolTypeOptions = [
+          {
+            label: 'OPL',
+            value: 'OPL'
+          },
+          {
+            label: 'L&L',
+            value: 'L&L'
+          }
+        ]
+        this.query.toolType = this.toolTypeOptions[0].value
+      }
+      this.crud.toQuery()
     },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
