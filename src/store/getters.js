@@ -34,6 +34,7 @@ const getters = {
   trCertificationFileUploadApi: state => state.api.trCertificationFileUploadApi,
   trExamDepartFileUploadApi: state => state.api.trExamDepartFileUploadApi,
   trainMaterialFileUploadApi: state => state.api.trainMaterialFileUploadApi,
+  trainMaterialFileCoverApi: state => state.api.trainMaterialFileCoverApi,
   updateAvatarApi: state => state.api.updateAvatarApi,
   updateContactAvatarApi: state => state.api.updateContactAvatarApi,
   qiNiuUploadApi: state => state.api.qiNiuUploadApi,

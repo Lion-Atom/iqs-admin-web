@@ -80,7 +80,7 @@
                                     </el-select>-->
                 </el-form-item>
               </el-col>
-              <!--todo 根据内部/外部选择对应的专业工具-->
+              <!--根据内部/外部选择对应的专业工具-->
               <el-col :span="12">
                 <el-form-item label="专业工具" prop="toolType">
                   <el-select
@@ -150,65 +150,39 @@
                 <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
               </el-upload>
             </el-form-item>
-            <div v-if="crud.status.edit">
-              <el-form-item label="更新文件">
-                <el-radio-group v-model="form.revision" style="width: 140px">
-                  <el-radio label="1">是</el-radio>
-                  <el-radio label="0">否</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item v-if="form.revision==='1'">
-                <template slot="label">
-                  <span><i style="color: red">* </i>新版</span>
-                </template>
-                <el-upload
-                  ref="upload"
-                  :limit="1"
-                  drag
-                  :before-upload="beforeUpload"
-                  :auto-upload="false"
-                  :headers="headers"
-                  :on-success="handleSuccess"
-                  :on-error="handleError"
-                  :action="trainMaterialFileUploadApi + '?id=' + form.id + '&name=' + form.name +'&departId=' + departId +'&author=' + form.author
+            <el-form-item v-if="crud.status.edit">
+              <template slot="label">
+                <span>新版</span>
+              </template>
+              <el-upload
+                ref="coverUpload"
+                :limit="1"
+                drag
+                :before-upload="beforeUpload"
+                :auto-upload="false"
+                :headers="headers"
+                :on-success="handleCoverSuccess"
+                :on-change="handleFileChange"
+                :file-list="fileList"
+                :on-error="handleError"
+                :action="trainMaterialFileCoverApi + '?id=' + form.id + '&name=' + form.name +'&departId=' + departId +'&author=' + form.author
              +'&version=' + form.version + '&isInternal=' + form.isInternal + '&toolType=' + form.toolType + '&fileDesc=' + form.fileDesc + '&enabled=' + form.enabled"
-                  class="upload-demo"
-                >
-                  <i class="el-icon-upload"></i>
-                  <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                  <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
-                </el-upload>
-              </el-form-item>
-            </div>
-            <!--            <el-form-item v-if="crud.status.edit">
-                          <template slot="label">
-                            <span><i style="color: red">* </i>新版</span>
-                          </template>
-                          <el-upload
-                            ref="upload"
-                            :limit="1"
-                            drag
-                            :before-upload="beforeUpload"
-                            :auto-upload="false"
-                            :headers="headers"
-                            :on-success="handleSuccess"
-                            :on-error="handleError"
-                            :action="trainMaterialFileUploadApi + '?id=' + form.id + '&name=' + form.name +'&departId=' + departId +'&author=' + form.author
-                         +'&version=' + form.version + '&isInternal=' + form.isInternal + '&toolType=' + form.toolType + '&fileDesc=' + form.fileDesc + '&enabled=' + form.enabled"
-                            class="upload-demo"
-                          >
-                            <i class="el-icon-upload"></i>
-                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                            <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
-                          </el-upload>
-                        </el-form-item>-->
+                class="upload-demo"
+              >
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将新版本文件拖到此处，或<em>点击上传</em></div>
+                <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M<i style="color: red">【若文件无改动，无须再上传】</i></div>
+              </el-upload>
+            </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="text" @click="crud.cancelCU">取消</el-button>
-        <el-button v-if="crud.status.add" :loading="loading" type="primary" @click="upload">确认</el-button>
+        <el-button v-if="fileList.length > 0" :loading="loading" type="primary" @click="coverUpload">确认</el-button>
         <el-button v-else :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
+        <!--        <el-button v-if="crud.status.add" :loading="loading" type="primary" @click="upload">确认</el-button>
+                <el-button v-else :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>-->
       </div>
     </el-dialog>
     <!--表格渲染-->
@@ -218,7 +192,6 @@
       <el-table-column prop="name" label="文件名" min-width="180">
         <template slot-scope="scope">
           <el-popover
-            v-if="scope.row.hasDownloadAuthority"
             :content="'file/' + scope.row.type + '/' + scope.row.realName"
             placement="top-start"
             title="路径"
@@ -235,7 +208,6 @@
               {{ scope.row.name }}
             </a>
           </el-popover>
-          <span v-else>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="path" label="预览图">
@@ -349,7 +321,8 @@ export default {
           {required: true, message: '请确认试题状态', trigger: 'blur'}
         ]
       },
-      toolTypeOption: []
+      toolTypeOption: [],
+      fileList: []
     }
   },
   watch: {
@@ -359,7 +332,8 @@ export default {
   computed: {
     ...mapGetters([
       'baseApi',
-      'trainMaterialFileUploadApi'
+      'trainMaterialFileUploadApi',
+      'trainMaterialFileCoverApi'
     ])
   },
   created() {
@@ -377,6 +351,20 @@ export default {
     // 上传文件
     upload() {
       this.$refs.upload.submit()
+    },
+    // 新版提交
+    coverUpload() {
+      this.$refs.coverUpload.submit()
+    },
+    handleCoverSuccess(response, file, fileList) {
+      this.crud.notify('替换材料成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+      this.$refs.coverUpload.clearFiles()
+      this.crud.status.edit = CRUD.STATUS.NORMAL
+      this.crud.resetForm()
+      this.crud.toQuery()
+    },
+    handleFileChange(file, fileList) {
+      this.fileList = fileList;
     },
     // 上传之前设置
     beforeUpload(file) {

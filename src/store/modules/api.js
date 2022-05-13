@@ -56,6 +56,8 @@ const api = {
     trExamDepartFileUploadApi: baseUrl + '/api/trExamDepartFile',
     // 培训材料上传
     trainMaterialFileUploadApi: baseUrl + '/api/trainMaterialFile',
+    // 培训材料覆盖上传
+    trainMaterialFileCoverApi: baseUrl + '/api/trainMaterialFile/updateFile',
     // 文件覆盖上传
     // fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
     // 文件覆盖上传
