@@ -38,42 +38,172 @@
     </div>
     <!--表单组件-->
     <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU"
-               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '文件上传' : '编辑文件'" width="500px">
-      <el-form ref="form" :model="form" size="small" label-width="80px">
-        <el-form-item label="试卷名">
-          <el-input v-model="form.name" style="width: 360px;"/>
-        </el-form-item>
-        <!--   上传文件   -->
-        <el-form-item v-if="crud.status.add">
-          <template slot="label">
-            <span><i style="color: red">* </i>上传</span>
-          </template>
-          <el-upload
-            ref="upload"
-            :limit="1"
-            drag
-            :before-upload="beforeUpload"
-            :auto-upload="false"
-            :headers="headers"
-            :on-success="handleSuccess"
-            :on-error="handleError"
-            :action="trExamDepartFileUploadApi + '?name=' + form.name +'&departId=' + departId +'&fileDesc=' + form.fileDesc"
-            class="upload-demo"
-          >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="试卷描述" prop="fileDesc">
-          <el-input
-            v-model="form.fileDesc"
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 5}"
-            placeholder="请输入文件内容描述"
-            style="width: 360px;"
-          />
-        </el-form-item>
+               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '培训资料上传' : '编辑培训资料'" width="75%">
+      <el-form ref="form" :rules="rules" :model="form" size="small" label-width="80px">
+        <el-row :gutter="40" class="row-box">
+          <el-col :span="13">
+            <el-row :gutter="40" class="row-box">
+              <el-col :span="12">
+                <el-form-item label="名称" prop="name">
+                  <el-input v-model="form.name" placeholder="请填写材料名称" style="width: 100%;"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item
+                  label="版本"
+                  prop="version"
+                >
+                  <el-input v-model="form.version" placeholder="请填写材料版本" style="width: 100%;"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="作者" prop="author">
+                  <el-input v-model="form.author" style="width: 100%;"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="来自内部" prop="isInternal">
+                  <el-radio-group v-model="form.isInternal" style="width: 140px" @change="currIsInternalChange">
+                    <el-radio label="true">是</el-radio>
+                    <el-radio label="false">否</el-radio>
+                  </el-radio-group>
+                  <!--                  <el-select
+                                      v-model="form.isInternal"
+                                      style="width: 100%;"
+                                    >
+                                      <el-option
+                                        v-for="item in dict.dict.common_status"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                      </el-option>
+                                    </el-select>-->
+                </el-form-item>
+              </el-col>
+              <!--todo 根据内部/外部选择对应的专业工具-->
+              <el-col :span="12">
+                <el-form-item label="专业工具" prop="toolType">
+                  <el-select
+                    v-model="form.toolType"
+                    filterable
+                    allow-create
+                    style="width: 100%;"
+                  >
+                    <el-option
+                      v-for="item in toolTypeOption"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item
+                  label="状态"
+                  prop="enabled"
+                >
+                  <el-radio
+                    v-for="item in dict.dict.job_status"
+                    :key="item.id"
+                    v-model="form.enabled"
+                    :label="item.value === 'true'"
+                  >
+                    {{ item.label }}
+                  </el-radio>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="材料描述" prop="fileDesc">
+                  <el-input
+                    v-model="form.fileDesc"
+                    type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 5}"
+                    placeholder="请输入材料内容描述"
+                    style="width: 100%;"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="11">
+            <!--   上传文件   -->
+            <el-form-item v-if="crud.status.add">
+              <template slot="label">
+                <span><i style="color: red">* </i>上传</span>
+              </template>
+              <el-upload
+                ref="upload"
+                :limit="1"
+                drag
+                :before-upload="beforeUpload"
+                :auto-upload="false"
+                :headers="headers"
+                :on-success="handleSuccess"
+                :on-error="handleError"
+                :action="trainMaterialFileUploadApi + '?name=' + form.name +'&departId=' + departId +'&author=' + form.author
+             +'&version=' + form.version + '&isInternal=' + form.isInternal + '&toolType=' + form.toolType + '&fileDesc=' + form.fileDesc + '&enabled=' + form.enabled"
+                class="upload-demo"
+              >
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+              </el-upload>
+            </el-form-item>
+            <div v-if="crud.status.edit">
+              <el-form-item label="更新文件">
+                <el-radio-group v-model="form.revision" style="width: 140px">
+                  <el-radio label="1">是</el-radio>
+                  <el-radio label="0">否</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item v-if="form.revision==='1'">
+                <template slot="label">
+                  <span><i style="color: red">* </i>新版</span>
+                </template>
+                <el-upload
+                  ref="upload"
+                  :limit="1"
+                  drag
+                  :before-upload="beforeUpload"
+                  :auto-upload="false"
+                  :headers="headers"
+                  :on-success="handleSuccess"
+                  :on-error="handleError"
+                  :action="trainMaterialFileUploadApi + '?id=' + form.id + '&name=' + form.name +'&departId=' + departId +'&author=' + form.author
+             +'&version=' + form.version + '&isInternal=' + form.isInternal + '&toolType=' + form.toolType + '&fileDesc=' + form.fileDesc + '&enabled=' + form.enabled"
+                  class="upload-demo"
+                >
+                  <i class="el-icon-upload"></i>
+                  <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                  <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                </el-upload>
+              </el-form-item>
+            </div>
+            <!--            <el-form-item v-if="crud.status.edit">
+                          <template slot="label">
+                            <span><i style="color: red">* </i>新版</span>
+                          </template>
+                          <el-upload
+                            ref="upload"
+                            :limit="1"
+                            drag
+                            :before-upload="beforeUpload"
+                            :auto-upload="false"
+                            :headers="headers"
+                            :on-success="handleSuccess"
+                            :on-error="handleError"
+                            :action="trainMaterialFileUploadApi + '?id=' + form.id + '&name=' + form.name +'&departId=' + departId +'&author=' + form.author
+                         +'&version=' + form.version + '&isInternal=' + form.isInternal + '&toolType=' + form.toolType + '&fileDesc=' + form.fileDesc + '&enabled=' + form.enabled"
+                            class="upload-demo"
+                          >
+                            <i class="el-icon-upload"></i>
+                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                            <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                          </el-upload>
+                        </el-form-item>-->
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -123,6 +253,9 @@
           </el-image>
         </template>
       </el-table-column>
+      <el-table-column prop="author" label="作者"/>
+      <el-table-column label="出处" :formatter="isInternalFormat"/>
+      <el-table-column prop="toolType" label="专业工具"/>
       <el-table-column prop="fileDesc" label="文件描述" :show-overflow-tooltip="true"/>
       <el-table-column prop="suffix" label="文件类型"/>
       <el-table-column prop="type" label="类别"/>
@@ -153,7 +286,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import {getToken} from '@/utils/auth'
-import crudFile from '@/api/tools/train/trExamDepartFile'
+import crudFile from '@/api/tools/train/trainMaterialFile'
 import CRUD, {presenter, header, form, crud} from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
@@ -161,19 +294,31 @@ import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
 
-const defaultForm = {id: null, name: '', departId: null, fileDesc: null}
+const defaultForm = {
+  id: null,
+  departId: null,
+  name: '',
+  author: '',
+  version: '',
+  isInternal: true,
+  revision: '0',
+  toolType: null,
+  enabled: true,
+  fileDesc: null
+}
 export default {
   props: [],
   components: {pagination, crudOperation, udOperation, DateRangePicker},
   cruds() {
     return CRUD({
       title: '培训资料',
-      url: 'api/trExamDepartFile',
+      url: 'api/trainMaterialFile',
       crudMethod: {...crudFile},
       queryOnPresenterCreated: false
     })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
+  dicts: ['job_status', 'common_status'],
   data() {
     return {
       delAllLoading: false,
@@ -183,20 +328,45 @@ export default {
         add: ['admin', 'exam:add'],
         edit: ['admin', 'exam:edit'],
         del: ['admin', 'exam:del']
-      }
+      },
+      rules: {
+        name: [
+          {required: true, message: '请填写材料名称', trigger: 'blur'}
+        ],
+        author: [
+          {required: true, message: '请填写作者名字', trigger: 'blur'}
+        ],
+        version: [
+          {required: true, message: '请填写版本号', trigger: 'blur'}
+        ],
+        isInternal: [
+          {required: true, message: '请选择材料出处', trigger: 'blur'}
+        ],
+        toolType: [
+          {required: true, message: '请选择专业工具标准', trigger: 'blur'}
+        ],
+        enabled: [
+          {required: true, message: '请确认试题状态', trigger: 'blur'}
+        ]
+      },
+      toolTypeOption: []
     }
+  },
+  watch: {
+    // 监听deptId
+    // 'form.isInternal': 'currIsInternalChange'
   },
   computed: {
     ...mapGetters([
       'baseApi',
-      'trExamDepartFileUploadApi'
+      'trainMaterialFileUploadApi'
     ])
   },
   created() {
     this.crud.optShow.add = false
     if (this.$route.query.departId !== undefined) {
       this.departId = this.$route.query.departId
-      this.query.departId  = this.$route.query.departId
+      this.query.departId = this.$route.query.departId
       this.departName = this.$route.query.departName
     }
   },
@@ -208,6 +378,7 @@ export default {
     upload() {
       this.$refs.upload.submit()
     },
+    // 上传之前设置
     beforeUpload(file) {
       let isLt2M = true
       isLt2M = file.size / 1024 / 1024 < 100
@@ -245,6 +416,41 @@ export default {
       this.crud.resetQuery(false)
       this.query.departId = this.$route.query.departId
       this.crud.toQuery()
+    },
+    // 监控是否内外部变化
+    currIsInternalChange(val) {
+      this.form.toolType = null
+      if (val.toString() === 'true') {
+        this.toolTypeOption = [
+          {
+            label: 'OPL',
+            value: 'OPL'
+          },
+          {
+            label: 'L&L',
+            value: 'L&L'
+          }
+        ]
+      } else {
+        this.toolTypeOption = [
+          {
+            label: 'GB/ISO',
+            value: 'GB/ISO'
+          }
+        ]
+      }
+    },
+    // 新增与编辑前做的操作
+    [CRUD.HOOK.afterToCU](crud, form) {
+      form.isInternal = `${form.isInternal}`
+    },
+    // 是否来自内部格式化
+    isInternalFormat(row, col) {
+      if (row.isInternal) {
+        return '内部'
+      } else {
+        return '外部'
+      }
     }
   }
 }

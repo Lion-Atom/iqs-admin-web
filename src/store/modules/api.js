@@ -54,6 +54,8 @@ const api = {
     trCertificationFileUploadApi: baseUrl + '/api/trCertificationFile',
     // 培训考试题库上传
     trExamDepartFileUploadApi: baseUrl + '/api/trExamDepartFile',
+    // 培训材料上传
+    trainMaterialFileUploadApi: baseUrl + '/api/trainMaterialFile',
     // 文件覆盖上传
     // fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
     // 文件覆盖上传

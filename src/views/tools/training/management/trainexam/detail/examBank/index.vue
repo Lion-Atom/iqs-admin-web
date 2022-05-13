@@ -30,8 +30,8 @@
     </div>
     <!--表单组件-->
     <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU"
-               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '文件上传' : '编辑文件'" width="570px">
-      <el-form ref="form" :model="form" size="small" label-width="80px">
+               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '题库试卷上传' : '编辑题库试卷'" width="570px">
+      <el-form ref="form" :rules="rules" :model="form" size="small" label-width="80px">
         <el-form-item label="试卷名">
           <el-input v-model="form.name" style="width: 360px;"/>
         </el-form-item>
@@ -49,7 +49,7 @@
             :headers="headers"
             :on-success="handleSuccess"
             :on-error="handleError"
-            :action="trExamDepartFileUploadApi + '?name=' + form.name +'&departId=' + departId +'&fileDesc=' + form.fileDesc"
+            :action="trExamDepartFileUploadApi + '?name=' + form.name +'&departId=' + departId +'&fileDesc=' + form.fileDesc +'&enabled=' + form.enabled"
           >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -64,6 +64,19 @@
             placeholder="请输入文件内容描述"
             style="width: 360px;"
           />
+        </el-form-item>
+        <el-form-item
+          label="状态"
+          prop="enabled"
+        >
+          <el-radio
+            v-for="item in dict.dict.job_status"
+            :key="item.id"
+            v-model="form.enabled"
+            :label="item.value === 'true'"
+          >
+            {{ item.label }}
+          </el-radio>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -114,6 +127,16 @@
           </el-image>
         </template>
       </el-table-column>
+      <el-table-column label="生效状态" align="center">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.enabled"
+            active-color="#409EFF"
+            inactive-color="#F56C6C"
+            @change="changeEnabled(scope.row, scope.row.enabled)"
+          />
+        </template>
+      </el-table-column>
       <el-table-column prop="fileDesc" label="试卷描述" :show-overflow-tooltip="true"/>
       <el-table-column prop="suffix" label="文件类型"/>
       <el-table-column prop="type" label="类别"/>
@@ -152,7 +175,7 @@ import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
 
-const defaultForm = {id: null, name: '', departId: null, fileDesc: null}
+const defaultForm = {id: null, name: '', departId: null, enabled: true, fileDesc: ''}
 export default {
   props: ['departId'],
   components: {pagination, crudOperation, udOperation, DateRangePicker},
@@ -165,6 +188,8 @@ export default {
     })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
+  // 数据字典
+  dicts: ['job_status'],
   data() {
     return {
       delAllLoading: false,
@@ -174,6 +199,11 @@ export default {
         add: ['admin', 'exam:add'],
         edit: ['admin', 'exam:edit'],
         del: ['admin', 'exam:del']
+      },
+      rules: {
+        enabled: [
+          { required: true, message: '请确认试题状态', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -232,6 +262,25 @@ export default {
       this.crud.resetQuery(false)
       this.query.departId = this.$props.departId
       this.crud.toQuery()
+    },
+    // 改变状态
+    changeEnabled(data, val) {
+      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.name + '此题库试卷, 是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // eslint-disable-next-line no-undef
+        crudFile.edit(data).then(() => {
+          // eslint-disable-next-line no-undef
+          this.crud.notify(this.dict.label.job_status[val] + '成功', 'success')
+        }).catch(err => {
+          data.enabled = !data.enabled
+          console.log(err.data.message)
+        })
+      }).catch(() => {
+        data.enabled = !data.enabled
+      })
     }
   }
 }
