@@ -22,6 +22,7 @@
           size="small"
           placeholder="出处类型"
           class="filter-item"
+          @clear="isInternalClear"
           @change="isInternalChange"
         >
           <el-option
@@ -551,6 +552,11 @@ export default {
         ]
         this.query.toolType = this.toolTypeOptions[0].value
       }
+      this.crud.toQuery()
+    },
+    // 内/外部清空监控
+    isInternalClear() {
+      this.query.toolType = null
       this.crud.toQuery()
     },
     // 新增与编辑前做的操作
