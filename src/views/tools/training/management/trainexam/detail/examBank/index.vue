@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" style="padding: 8px;">
+  <div>
     <!--工具栏-->
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
@@ -177,7 +177,12 @@ import {validIsNotNull} from "@/utils/validationUtil";
 
 const defaultForm = {id: null, name: '', departId: null, enabled: true, fileDesc: ''}
 export default {
-  props: ['departId'],
+  props: {
+    departId: {
+      type: Number,
+      required: true
+    }
+  },
   components: {pagination, crudOperation, udOperation, DateRangePicker},
   cruds() {
     return CRUD({

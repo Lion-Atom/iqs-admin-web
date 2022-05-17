@@ -1,59 +1,138 @@
 <template>
   <div>
-    <el-tabs tab-position="left" style="height: 200px;">
-      <el-tab-pane v-for="(item,index) in staffList" :key="item.id">
-        <template slot="label">
-          {{ item.staffName }}
+    <!--工具栏-->
+    <div class="head-container">
+      <div
+        v-if="crud.props.searchToggle"
+      >
+        <el-input v-model="query.blurry" clearable size="small" placeholder="输入新员工名称搜索" style="width: 200px;"
+                  class="filter-item" @keyup.enter.native="crud.toQuery"/>
+        <el-input v-model="query.departId" v-show="false"/>
+        <date-range-picker v-model="query.createTime" class="date-item" @input="dateTimeChange()"
+                           start-placeholder="录入开始日期"
+                           end-placeholder="录入结束日期"/>
+        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索
+        </el-button>
+        <el-button v-if="crud.optShow.reset" class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left"
+                   @click="resetNewQuery">重置
+        </el-button>
+      </div>
+      <crudOperation :permission="permission"/>
+    </div>
+    <!--表格渲染-->
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
+              @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
+      <el-table-column type="selection" width="55"/>
+      <el-table-column prop="staffName" label="员工姓名" fixed/>
+      <el-table-column prop="jobName" label="岗位"/>
+      <el-table-column prop="superior" label="上级主管"/>
+      <el-table-column prop="jobType" label="工种"/>
+      <el-table-column prop="workshop" label="车间"/>
+      <el-table-column prop="lastExamDate" label="考试日期" min-width="110" />
+      <el-table-column prop="lastScore" label="考试分数" min-width="60" />
+      <el-table-column label="是否通过">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.isPassed.toString() === 'true'" type="success">通过</el-tag>
+          <el-tag v-else type="danger">未通过</el-tag>
         </template>
-
-      </el-tab-pane>
-    </el-tabs>
+      </el-table-column>
+      <el-table-column label="下次考试日期" :formatter="nextExamDateFormat" min-width="110"/>
+      <el-table-column prop="createTime" label="创建日期" width="140"/>
+      <!--   编辑与删除   -->
+      <el-table-column
+        v-if="checkPer(['admin','exam:edit','exam:del'])"
+        label="操作"
+        width="130px"
+        align="center"
+        fixed="right"
+      >
+        <template slot-scope="scope">
+          <udOperation
+            :data="scope.row"
+            :permission="permission"
+          />
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页组件-->
+    <pagination/>
+    <!--表单渲染-->
+    <eForm :depart-id="departId" :exam-status="dict.common_status" :permission="permission"/>
   </div>
 </template>
 
 <script>
-import crudNewStaff from '@/api/tools/train/newStaff'
-import {getToken} from "@/utils/auth";
-import {mapGetters} from "vuex";
+import crudExamStaff from '@/api/tools/train/examStaff'
+import eForm from './module/form'
+import CRUD, {presenter, header} from '@crud/crud'
+import crudOperation from '@crud/CRUD.operation'
+import pagination from '@crud/Pagination'
+import udOperation from '@crud/UD.operation'
+import DateRangePicker from '@/components/DateRangePicker'
+import {validIsNotNull} from "@/utils/validationUtil";
 
 export default {
-  name: "ExamStaff",
-  props: ['departId'],
+  props: {
+    departId: {
+      type: Number,
+      required: true
+    }
+  },
+  name: 'TrainExamStaff',
+  components: {eForm, crudOperation, pagination, udOperation, DateRangePicker},
+  cruds() {
+    return CRUD({
+      title: '培训考试',
+      url: 'api/train/examStaff',
+      // sort: ['jobSort,asc', 'id,desc'],
+      crudMethod: {...crudExamStaff},
+      queryOnPresenterCreated: false
+    })
+  },
+  mixins: [header(), presenter()],
+  // 数据字典
+  dicts: ['common_status'],
   data() {
     return {
-      headers: {'Authorization': getToken()},
       permission: {
         add: ['admin', 'exam:add'],
         edit: ['admin', 'exam:edit'],
         del: ['admin', 'exam:del']
-      },
-      cond: {
-        departId: null,
-        staffType: null
-      },
-      staffList: []
+      }
     }
-  },
-  computed: {
-    ...mapGetters([
-      'baseApi',
-      'trExamDepartFileUploadApi'
-    ])
   },
   created() {
-    this.getDlStaff()
+    this.query.departId = this.$props.departId
+  },
+  mounted() {
+    this.crud.toQuery()
   },
   methods: {
-    getDlStaff() {
-      crudNewStaff.get({departId: this.$props.departId, staffType: '直接员工'}).then(res => {
-        // alert(JSON.stringify(res))
-        this.staffList = res.content
-      })
-    }
+    // 监控时间输入框变化，强制刷新
+    dateTimeChange() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
+    // 重置查询
+    resetNewQuery() {
+      this.crud.resetQuery(false)
+      this.query.departId = this.$props.departId
+      this.crud.toQuery()
+    },
+    // 下次考试日期格式化
+    nextExamDateFormat(row, col) {
+      if (validIsNotNull(row.nextExamDate)) {
+        return row.nextExamDate
+      } else {
+        return '--'
+      }
+    },
   }
 }
 </script>
 
-<style scoped>
-
+<style rel="stylesheet/scss" lang="scss" scoped>
+::v-deep .el-input-number .el-input__inner {
+  text-align: left;
+}
 </style>

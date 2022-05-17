@@ -15,10 +15,10 @@
           <el-radio-button label="考试信息"></el-radio-button>
         </el-radio-group>
       </el-header>
-      <el-main v-if="defaultRadio==='考试题库'">
+      <el-main class="el-main-body" v-if="defaultRadio==='考试题库'">
         <exam-bank :depart-id="departId"/>
       </el-main>
-      <el-main v-if="defaultRadio==='考试信息'">
+      <el-main class="el-main-body" v-if="defaultRadio==='考试信息'">
         <exam-staff :depart-id="departId"/>
       </el-main>
     </el-container>
@@ -35,7 +35,7 @@ import ExamStaff from './examStaff/index'
 
 export default {
   name: "ExamDetail",
-  components: { ExamBank, ExamStaff },
+  components: {ExamBank, ExamStaff},
   data() {
     return {
       headers: {'Authorization': getToken()},
@@ -60,25 +60,19 @@ export default {
     if (this.$route.query.departId !== undefined) {
       this.departId = this.$route.query.departId
       this.departName = this.$route.query.departName
-      this.getExamDeptFiles(this.departId)
     }
   },
   mounted() {
 
   },
   methods: {
-    // 查询关联部门下的题库信息
-    getExamDeptFiles(departId) {
 
-    },
-    // 改变状态
-    examDateFormat(row, col) {
-      return GMTToDate(row.dueDate)
-    }
   }
 }
 </script>
 
 <style scoped>
-
+.el-main-body {
+  padding: 20px 0 !important;
+}
 </style>
