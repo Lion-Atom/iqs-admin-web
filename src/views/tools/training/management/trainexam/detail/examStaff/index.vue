@@ -5,7 +5,7 @@
       <div
         v-if="crud.props.searchToggle"
       >
-        <el-input v-model="query.blurry" clearable size="small" placeholder="输入新员工名称搜索" style="width: 200px;"
+        <el-input v-model="query.blurry" clearable size="small" placeholder="输入名字、车间、工种等搜索" style="width: 220px;"
                   class="filter-item" @keyup.enter.native="crud.toQuery"/>
         <el-input v-model="query.departId" v-show="false"/>
         <date-range-picker v-model="query.createTime" class="date-item" @input="dateTimeChange()"
@@ -27,17 +27,19 @@
       <el-table-column prop="jobName" label="岗位"/>
       <el-table-column prop="superior" label="上级主管"/>
       <el-table-column prop="jobType" label="工种"/>
-      <el-table-column prop="workshop" label="车间"/>
-      <el-table-column prop="lastExamDate" label="考试日期" min-width="110" />
-      <el-table-column prop="lastScore" label="考试分数" min-width="60" />
-      <el-table-column label="是否通过">
+      <el-table-column prop="workshop" label="车间" min-width="100" />
+      <el-table-column prop="lastExamDate" label="考试日期" min-width="140" />
+      <el-table-column prop="lastExamContent" label="考试内容" :show-overflow-tooltip="true" />
+      <el-table-column prop="lastScore" label="考试分数" min-width="70" />
+      <el-table-column label="考试结果">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.isPassed.toString() === 'true'" type="success">通过</el-tag>
           <el-tag v-else type="danger">未通过</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="下次考试日期" :formatter="nextExamDateFormat" min-width="110"/>
-      <el-table-column prop="createTime" label="创建日期" width="140"/>
+      <el-table-column label="下次考试日期" :formatter="nextExamDateFormat" min-width="140"/>
+      <el-table-column prop="lastExamDesc" label="备注" :show-overflow-tooltip="true" />
+      <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
         v-if="checkPer(['admin','exam:edit','exam:del'])"

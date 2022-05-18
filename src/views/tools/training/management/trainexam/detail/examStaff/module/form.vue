@@ -102,7 +102,7 @@
               <el-table-column label="考试类型" :formatter="examTypeFormat"/>
               <el-table-column prop="examScore" label="考试分数" min-width="60"/>
               <el-table-column label="是否通过" :formatter="examPassedFormat"/>
-              <el-table-column label="下次补考日期" :formatter="nextDateFormat" min-width="110" />
+              <el-table-column label="下次补考日期" :formatter="nextDateFormat" min-width="110"/>
               <el-table-column prop="examDesc" label="备注" :show-overflow-tooltip="true"/>
               <!--   附件删除   -->
               <el-table-column
@@ -182,7 +182,8 @@
                       </el-col>
                       <el-col :span="12">
                         <el-form-item label="考试内容" prop="examContent">
-                          <el-input v-model="examForm.examContent" style="width: 100%;" placeholder="请填写考试内容"/>
+                          <el-input v-model="examForm.examContent" :disabled="form.transcriptList.length>0"
+                                    style="width: 100%;" placeholder="请填写考试内容"/>
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
@@ -572,12 +573,13 @@ export default {
         // 初始化补考时间
         // alert(JSON.stringify(this.form.transcriptList[sort - 1]))
         this.examForm.examDate = this.form.transcriptList[sort - 1].nextDate
+        this.examForm.examContent = this.form.transcriptList[0].examContent
       }
       this.fileList = []
       this.transDialogVisible = true
     },
     scoreMaxValue(v) {
-      this.examForm.examScore = v.replace(/[^0-9.]/g,'')
+      this.examForm.examScore = v.replace(/[^0-9.]/g, '')
       this.examForm.examScore = v > 100 ? 100 : v
     },
     // todo 是否通过判断
