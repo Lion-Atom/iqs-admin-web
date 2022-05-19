@@ -581,7 +581,7 @@ export default {
       let end = new Date(val)
       // Math.floor()向下取整，Math.ceil()向上取整
       this.maxRemindDays = Math.floor((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
-      // alert(this.maxRemindDays)
+      // 监控现有数据的大小是否超出上限
       if(validIsNotNull(this.form.remindDays)) {
         this.remindDaysMaxValue(this.form.remindDays)
       }
