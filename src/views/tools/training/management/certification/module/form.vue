@@ -481,6 +481,7 @@ export default {
     // 新增前操作
     [CRUD.HOOK.beforeToAdd]() {
       this.bindingId = null
+      this.form.remindDays = null
       this.form.uid = null
       getUid().then(res => {
         this.form.uid = res
@@ -567,7 +568,7 @@ export default {
     // 提前提醒最大时间设计
     remindDaysMaxValue(v) {
       if(validIsNotNull(v)) {
-        v = v.replace(/[^0-9.]/g, '')
+        v = v.toString().replace(/[^0-9.]/g, '')
         this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v
       }
     },
