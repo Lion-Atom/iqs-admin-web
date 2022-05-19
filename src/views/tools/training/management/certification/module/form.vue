@@ -106,14 +106,14 @@
         </el-col>
         <el-col :span="8" v-if="form.certificationType === typeOptions[1].value">
           <el-form-item label="签发机构" prop="orgName">
-            <el-input v-model="form.orgName"  placeholder="请填写签发机构"  />
+            <el-input v-model="form.orgName" placeholder="请填写签发机构" style="width:220px"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row v-if="form.certificationType === typeOptions[2].value">
         <el-col :span="8">
           <el-form-item label="岗位名称" prop="jobName">
-            <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位" />
+            <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -140,7 +140,7 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="考试结果" prop="trainResult">
-            <el-input v-model="form.trainResult" style="width:220px" placeholder="请填写培训考试结果" />
+            <el-input v-model="form.trainResult" style="width:220px" placeholder="请填写培训考试结果"/>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -158,6 +158,7 @@
               style="width: 220px;"
               placeholder="请填写到期时间"
               :picker-options="pickerOption[1]"
+              @input="dueDateChange"
             />
           </el-form-item>
         </el-col>
@@ -333,7 +334,7 @@ const defaultForm = {
   issueDate: null,
   trainResult: null,
   isRemind: true,
-  remindDays: 1,
+  remindDays: null,
   dueDate: null,
   uid: null,
   fileList: []
@@ -435,7 +436,7 @@ export default {
         {value: '危险品作业'},
         {value: '金属焊接/切割'}
       ],
-      maxRemindDays: 6,
+      maxRemindDays: 90,
       bindingId: null,
       filesLoading: false
     }
@@ -494,6 +495,7 @@ export default {
       this.bindingId = form.id
       // 获取设备维修确认单信息列表
       this.getTrCerFilesById(form.id)
+      this.getMaxTrRemindDays(form.dueDate)
     },
     // 提交前做的操作
     [CRUD.HOOK.beforeSubmit]() {
@@ -562,9 +564,27 @@ export default {
         ]
       }
     },
-    // 监控提前提醒天数辩护
+    // 提前提醒最大时间设计
     remindDaysMaxValue(v) {
-      // this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v
+      if(validIsNotNull(v)) {
+        v = v.replace(/[^0-9.]/g, '')
+        this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v
+      }
+    },
+    // 监控培训时间变化
+    dueDateChange(val) {
+      this.$forceUpdate()
+      this.getMaxTrRemindDays(val)
+    },
+    // 获取最大提醒时间
+    getMaxTrRemindDays(val) {
+      let end = new Date(val)
+      // Math.floor()向下取整，Math.ceil()向上取整
+      this.maxRemindDays = Math.floor((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
+      // alert(this.maxRemindDays)
+      if(validIsNotNull(this.form.remindDays)) {
+        this.remindDaysMaxValue(this.form.remindDays)
+      }
     },
     // ------------上传附件管理--------------
     // 上传前的校验

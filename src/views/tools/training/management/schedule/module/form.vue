@@ -565,7 +565,10 @@ export default {
     },
     // 提前提醒最大时间设计
     remindDaysMaxValue(v) {
-      this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v.replace(/[^0-9.]/g, '')
+      if (validIsNotNull(v)) {
+        v = v.replace(/[^0-9.]/g, '')
+        this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v
+      }
     },
     // 监控培训时间变化
     trainTimeChange(val) {
@@ -574,11 +577,11 @@ export default {
     },
     // 获取最大提醒时间
     getMaxTrRemindDays(val) {
-      const end = new Date(val)
+      let end = new Date(val)
       // Math.floor()向下取整，Math.ceil()向上取整
       this.maxRemindDays = Math.floor((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
       // alert(this.maxRemindDays)
-      if(validIsNotNull(this.form.remindDays)) {
+      if (validIsNotNull(this.form.remindDays)) {
         this.remindDaysMaxValue(this.form.remindDays)
       }
     },
