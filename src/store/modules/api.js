@@ -52,6 +52,8 @@ const api = {
     trNewStaffFileUploadApi: baseUrl + '/api/trNewStaffFile',
     // 员工培训考试试卷上传
     trExamStaffTranscriptUploadApi: baseUrl + '/api/trExamStaffTranscript',
+    // 培训日程安排附件上传
+    trScheduleUploadApi: baseUrl + '/api/trScheduleFile',
     // 培训-认证附件上传
     trCertificationFileUploadApi: baseUrl + '/api/trCertificationFile',
     // 培训考试题库上传
