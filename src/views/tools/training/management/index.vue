@@ -1,6 +1,6 @@
 <template>
   <el-container class="app-container">
-    <el-aside style="overflow: no-display !important;">
+    <el-aside>
       <div class="head-container">
         <div>
           <date-range-picker v-model="query.deadline" class="date-item" @input="dateTimeChange()"
@@ -281,7 +281,7 @@ export default {
 
 </script>
 
-<style scoped>
+<style rel="stylesheet/scss" lang="scss" scoped>
  ::v-deep .el-aside {
   overflow: no-display !important;
 }
