@@ -336,6 +336,7 @@ const defaultForm = {
   isRemind: true,
   remindDays: null,
   dueDate: null,
+  certificationStatus: null, // 证书状态后台走查判断
   uid: null,
   fileList: []
 }
@@ -567,7 +568,7 @@ export default {
     },
     // 提前提醒最大时间设计
     remindDaysMaxValue(v) {
-      if(validIsNotNull(v)) {
+      if (validIsNotNull(v)) {
         v = v.toString().replace(/[^0-9.]/g, '')
         this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v
       }
@@ -583,7 +584,7 @@ export default {
       // Math.floor()向下取整，Math.ceil()向上取整
       this.maxRemindDays = Math.floor((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
       // 监控现有数据的大小是否超出上限
-      if(validIsNotNull(this.form.remindDays)) {
+      if (validIsNotNull(this.form.remindDays)) {
         this.remindDaysMaxValue(this.form.remindDays)
       }
     },

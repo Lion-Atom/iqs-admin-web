@@ -378,6 +378,7 @@ const defaultForm = {
   isDelay: false,
   newTrainTime: null,
   delayDesc: null,
+  scheduleStatus: null, // 证书状态后台走查判断
   uid: null,
   fileList: []
 }

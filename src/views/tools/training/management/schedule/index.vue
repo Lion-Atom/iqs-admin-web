@@ -26,8 +26,14 @@
       <crudOperation :permission="permission"/>
     </div>
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
-              @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      :data="crud.data"
+      style="width: 100%;"
+      @selection-change="crud.selectionChangeHandler"
+      :row-class-name="tableRowClassName"
+      @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="trainTitle" label="培训标题" min-width="120" fixed/>
       <el-table-column prop="trainTime" label="培训时间" min-width="140"/>
@@ -37,10 +43,11 @@
       <el-table-column prop="regDeadline" label="报名截止时间" min-width="140"/>
       <el-table-column prop="trainLocation" label="培训地点" :show-overflow-tooltip="true"/>
       <el-table-column label="培训费用" :formatter="costFormat"/>
-      <el-table-column prop="trainIns" label="培训机构" />
+      <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true" />
       <el-table-column prop="department" label="涉及部门" :show-overflow-tooltip="true" />
       <el-table-column prop="totalNum" label="人数限制" />
       <el-table-column prop="curNum" label="现与会人数" />
+      <el-table-column prop="scheduleStatus" label="日程状态" />
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -124,11 +131,28 @@ export default {
       } else {
         return '--'
       }
+    },
+    // 根据有效期设置提醒样式
+    tableRowClassName({row, rowIndex}) {
+      const type = row.scheduleStatus
+      if (validIsNotNull(type)) {
+        if (type === '已关闭') {
+          return 'alert-row'
+        } else if (type === '开放中') {
+          return null
+        }
+      } else {
+        return ''
+      }
     }
   }
 }
 </script>
-
+<style>
+.el-table .alert-row {
+  color: #C0C0C0;
+}
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
