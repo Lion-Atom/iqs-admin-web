@@ -1,6 +1,51 @@
 <template>
   <el-container class="app-container">
-    <el-aside>Aside</el-aside>
+    <el-aside style="overflow: no-display !important;">
+      <div class="head-container">
+        <div>
+          <date-range-picker v-model="query.deadline" class="date-item" @input="dateTimeChange()"
+                             start-placeholder="截止开始日期"
+                             end-placeholder="截止结束日期"/>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索
+          </el-button>
+          <el-button v-if="crud.optShow.reset" class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left"
+                     @click="crud.resetQuery()">重置
+          </el-button>
+          <el-button  class="filter-item" size="mini" type="danger" icon="el-icon-upload"
+                     @click="flushTrainTip">刷新
+          </el-button>
+        </div>
+      </div>
+      <!--表格渲染-->
+      <el-table
+        ref="table"
+        v-loading="crud.loading"
+        :data="crud.data"
+        style="width: 100%;"
+        @selection-change="crud.selectionChangeHandler"
+        >
+        <el-table-column label="事件名称" min-width="120">
+          <template slot-scope="scope">
+            <el-tooltip class="item" effect="light" placement="right-start">
+              <div slot="content">
+                <el-descriptions border :column="1">
+                  <template slot="title">
+                    {{scope.row.bindingName}}
+                  </template>
+                  <el-descriptions-item label="类型">{{scope.row.trainType}}</el-descriptions-item>
+                  <el-descriptions-item label="截止日期">{{scope.row.deadline}}</el-descriptions-item>
+                  <el-descriptions-item label="剩余天数">{{scope.row.remainDays}}</el-descriptions-item>
+                  <el-descriptions-item label="状态">{{scope.row.status}}</el-descriptions-item>
+                </el-descriptions>
+              </div>
+              <el-button type="text" @dblclick.native="goToTarget(scope.row)">{{scope.row.bindingName}} - {{scope.row.status}}</el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!--分页组件-->
+      <pagination/>
+    </el-aside>
     <el-container>
       <el-header>
         <el-row :gutter="12">
@@ -163,8 +208,25 @@
 </template>
 
 <script>
+import crudTip from '@/api/tools/train/tip'
+import eForm from "@/views/tools/training/management/schedule/module/form";
+import pagination from "@crud/Pagination";
+import udOperation from "@crud/UD.operation";
+import DateRangePicker from "@/components/DateRangePicker";
+import CRUD, {header, presenter} from "@crud/crud";
+
 export default {
   name: 'TrainManagement',
+  components: {eForm, pagination, udOperation, DateRangePicker},
+  cruds() {
+    return CRUD({
+      title: '培训日程安排',
+      url: 'api/train/tip',
+      // sort: ['jobSort,asc', 'id,desc'],
+      crudMethod: {...crudTip}
+    })
+  },
+  mixins: [header(), presenter()],
   data() {
     return {
       catalogueTypes: [
@@ -175,7 +237,10 @@ export default {
         'trainMaterial',
         'trainExam'
       ],
-      catalogueType: 'schedule'
+      catalogueType: 'schedule',
+      permission: {
+
+      }
     }
   },
   methods: {
@@ -186,6 +251,30 @@ export default {
         {
           path: tar
         })
+    },
+    // 监控时间输入框变化，强制刷新
+    dateTimeChange() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
+    goToTarget(row) {
+      if(row.trainType === '日程安排'){
+        this.$router.push(
+          {
+            path: '/training/train-schedule',
+            query: {}
+          })
+      } else if(row.trainType ==='证书') {
+        this.$router.push(
+          {
+            path: '/training/certification',
+            query: {}
+          })
+      }
+    },
+    // todo 调用同步-重新拉取走查培训提示信息
+    flushTrainTip() {
+
     }
   }
 }
@@ -193,5 +282,7 @@ export default {
 </script>
 
 <style scoped>
-
+ ::v-deep .el-aside {
+  overflow: no-display !important;
+}
 </style>
