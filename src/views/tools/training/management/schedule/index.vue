@@ -37,17 +37,23 @@
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="trainTitle" label="培训标题" min-width="120" fixed/>
       <el-table-column prop="trainTime" label="培训时间" min-width="140"/>
-      <el-table-column prop="trainer" label="培训员" />
-      <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true" />
-      <el-table-column prop="trainType" label="培训类型" />
+      <el-table-column prop="trainer" label="培训员"/>
+      <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
+      <el-table-column prop="trainType" label="培训类型"/>
       <el-table-column prop="regDeadline" label="报名截止时间" min-width="140"/>
       <el-table-column prop="trainLocation" label="培训地点" :show-overflow-tooltip="true"/>
       <el-table-column label="培训费用" :formatter="costFormat"/>
-      <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true" />
-      <el-table-column prop="department" label="涉及部门" :show-overflow-tooltip="true" />
-      <el-table-column prop="totalNum" label="人数限制" />
-      <el-table-column prop="curNum" label="现与会人数" />
-      <el-table-column prop="scheduleStatus" label="日程状态" />
+      <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true"/>
+      <el-table-column prop="department" label="涉及部门" :show-overflow-tooltip="true"/>
+      <el-table-column prop="totalNum" label="人数限制"/>
+      <!--todo 现与会人数，支持点击参与培训-->
+      <el-table-column label="现与会人数">
+        <template slot-scope="scope">
+          <el-button type="success" size="small" plain @click="openPartDialog(scope.row)">{{ scope.row.curNum }}
+          </el-button>
+        </template>
+      </el-table-column>
+      <el-table-column prop="scheduleStatus" label="日程状态"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -69,6 +75,59 @@
     <pagination/>
     <!--表单渲染-->
     <eForm :common-status="dict.common_status" :permission="permission"/>
+    <el-dialog
+      title="报名参会"
+      :visible.sync="partDialogVisible"
+      width="50%">
+      <el-form
+        ref="partForm"
+        :model="partForm"
+        :rules="partRules"
+        size="small"
+        label-width="110px"
+      >
+        <!--培训日程安排信息-->
+        <el-row :gutter="20" type="flex" class="el-row">
+          <el-col :span="8">
+            <el-form-item label="所在部门" prop="participantDepart">
+             <el-select
+               filterable
+               allow-create
+               v-model="partForm.participantDepart">
+               <el-option
+               v-for="item of availableDeparts"
+               :key="item"
+               :label="item"
+               :value="item"
+               >
+               </el-option>
+             </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="参与人员" prop="participantName">
+              <el-input v-model="partForm.participantName" placeholder="请填写培训人" style="width:100%"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="确认参与" prop="isValid">
+              <el-radio
+                v-for="item in dict.dict.common_status"
+                :key="item.id"
+                v-model="partForm.isValid"
+                :label="item.value === 'true'"
+              >
+                {{ item.label }}
+              </el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="cancelSubmitPart">取 消</el-button>
+    <el-button type="primary" @click="partDialogVisible = false">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -102,7 +161,25 @@ export default {
         add: ['admin', 'schedule:add'],
         edit: ['admin', 'schedule:edit'],
         del: ['admin', 'schedule:del']
-      }
+      },
+      partDialogVisible: false,
+      partForm: {
+        participantDepart: null,
+        participantName: null,
+        isValid: true
+      },
+      partRules: {
+        participantDepart: [
+          {required: true, message: '请选/输参与者所在部门', trigger: 'blur'}
+        ],
+        participantName: [
+          {required: true, message: '请输入参与者名称', trigger: 'blur'}
+        ],
+        isValid: [
+          {required: true, message: '请确定是否参与', trigger: 'blur'}
+        ]
+      },
+      availableDeparts: []
     }
   },
   created() {
@@ -144,6 +221,20 @@ export default {
       } else {
         return ''
       }
+    },
+    // 打开参与会议人员界面
+    openPartDialog(data) {
+      // alert(JSON.stringify(data))
+      this.availableDeparts = []
+      this.partDialogVisible = true
+      this.availableDeparts = data.departTags
+    },
+    // 取消参与本次培训
+    cancelSubmitPart() {
+      if (this.$refs['partForm'] !== undefined) {
+        this.$refs['partForm'].resetFields()
+      }
+      this.partDialogVisible = false
     }
   }
 }

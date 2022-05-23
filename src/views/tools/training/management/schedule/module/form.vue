@@ -33,6 +33,7 @@
               placeholder="请填写培训时间"
               :picker-options="timOptions[0]"
               @input="trainTimeChange"
+              :disabled="form.isDelay.toString() === 'true'"
             />
           </el-form-item>
         </el-col>
@@ -77,7 +78,31 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="涉及部门" prop="department">
-            <el-input v-model="form.department" placeholder="请填写培训部门" style="width:100%"/>
+            <!--            <el-input v-model="form.department" placeholder="请填写培训部门" style="width:100%"/>-->
+            <div>
+              <el-tag
+                v-for="tag in form.departTags"
+                :key="tag"
+                closable
+                :disable-transitions="false"
+                @close="handleDepartClose(tag)"
+                class="new-el-tag"
+              >
+                {{ tag }}
+              </el-tag>
+              <el-input
+                v-if="inputDepartVisible"
+                ref="departTagInput"
+                v-model="inputDepartValue"
+                class="input-new-tag"
+                size="small"
+                placeholder="涉及到的相关部门"
+                @keyup.enter.native="handleInputDepartConfirm"
+                @blur="handleInputDepartConfirm"
+              />
+              <el-button v-else size="small" class="button-new-tag" @click="showInputDepart">+涉及部门
+              </el-button>
+            </div>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -152,8 +177,20 @@
               format="yyyy-MM-dd HH:mm:ss"
               style="width: 100%;"
               default-time="10:00:00"
-              placeholder="请填写培训时间"
+              placeholder="请填写新的培训时间"
               :picker-options="timOptions[2]"
+              @input="trainTimeChange"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="8" v-if="form.isDelay.toString() === 'true'">
+          <el-form-item label="改期原因" prop="delayDesc">
+            <el-input
+              v-model="form.delayDesc"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 5}"
+              placeholder="请输入延期原因"
+              style="width: 100%;"
             />
           </el-form-item>
         </el-col>
@@ -353,7 +390,7 @@
 
 <script>
 import CRUD, {form} from '@crud/crud'
-import {validIsNotNull} from "@/utils/validationUtil";
+import {judgeIsEqual, validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
 import {getToken} from "@/utils/auth";
@@ -370,6 +407,7 @@ const defaultForm = {
   trainer: null,
   trainIns: null,
   department: null,
+  departTags: [],
   trainType: null,
   totalNum: 200,
   curNum: 0,
@@ -482,7 +520,8 @@ export default {
         }, {
           disabledDate: time => {
             return (
-              time.getTime() <= new Date(this.form.trainTime).getTime()
+              // time.getTime() <= new Date(this.form.trainTime).getTime()
+              time.getTime() <= new Date(this.form.regDeadline).getTime()
             )
           }
         }
@@ -510,7 +549,10 @@ export default {
           value: '问卷调查'
         }
       ],
-      maxRemindDays: 30
+      maxRemindDays: 30,
+      // 涉及部门
+      inputDepartVisible: false,
+      inputDepartValue: '',
     }
   },
   watch: {},
@@ -551,6 +593,10 @@ export default {
       // 判断是否确认完成，若确认完成则必须上传确认单
       if (this.form.fileList.length === 0) {
         this.$message.warning("请务必上传试卷信息！")
+        return false
+      }
+      if(this.form.trainTime.toString() === this.form.newTrainTime.toString()) {
+        this.$message.warning("新培训时间与原培训时间一样，请重新设定！")
         return false
       }
     },
@@ -659,6 +705,27 @@ export default {
       }
       this.transDialogVisible = false
     },
+    // 涉及部门相关
+    showInputDepart() {
+      this.inputDepartVisible = true
+      this.$nextTick(_ => {
+        this.$refs.departTagInput.$refs.input.focus()
+      })
+    },
+    // 删除部门tag
+    handleDepartClose(tag) {
+      this.form.departTags.splice(this.form.departTags.indexOf(tag), 1)
+      this.form.department = this.form.departTags.join(',')
+    },
+    handleInputDepartConfirm() {
+      const inputValue = this.inputDepartValue
+      if (inputValue) {
+        this.form.departTags.push(inputValue)
+      }
+      this.form.department = this.form.departTags.join(',')
+      this.inputDepartVisible = false
+      this.inputDepartValue = ''
+    },
     // 上传文件
     uploadScheduleFile() {
       this.$refs['fileForm'].validate((valid) => {
@@ -680,6 +747,21 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
+}
+
+::v-deep .new-el-tag {
+  font-size: 14px;
+  margin-right: 5px;
+  padding: 5px;
+  height: 32px;
+}
+
+.button-new-tag {
+  margin-left: 5px;
+  margin-top: 1px;
+  height: 24px;
+  line-height: 22px;
+  padding: 0 8px;
 }
 
 .el-row {
