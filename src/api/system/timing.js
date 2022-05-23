@@ -38,4 +38,15 @@ export function execution(id) {
   })
 }
 
-export default { del, updateIsPause, execution, add, edit }
+export function getByMethodName(methodName) {
+  const params = {
+    methodName: methodName
+  }
+  return request({
+    url: 'api/jobs/byMethodName',
+    method: 'get',
+    params
+  })
+}
+
+export default { del, updateIsPause, execution, add, edit, getByMethodName }

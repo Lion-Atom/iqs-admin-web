@@ -1,94 +1,108 @@
 <template>
   <el-container class="app-container">
-    <el-aside>
-      <div class="head-container">
-        <div>
-          <date-range-picker v-model="query.deadline" class="date-item" @input="dateTimeChange()"
-                             start-placeholder="截止开始日期"
-                             end-placeholder="截止结束日期"/>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索
-          </el-button>
-          <el-button v-if="crud.optShow.reset" class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left"
-                     @click="crud.resetQuery()">重置
-          </el-button>
-          <el-button  class="filter-item" size="mini" type="danger" icon="el-icon-upload"
-                     @click="flushTrainTip">刷新
-          </el-button>
+    <el-aside style="width: 320px!important;background: #fff !important;padding: 8px 10px !important;">
+      <el-card class="box-card" shadow="hover">
+        <div class="head-container">
+          <div>
+            <date-range-picker v-model="query.deadline" class="date-item" @input="dateTimeChange()"
+                               start-placeholder="截止开始日期"
+                               end-placeholder="截止结束日期"/>
+            <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索
+            </el-button>
+            <el-button v-if="crud.optShow.reset" class="filter-item" size="mini" type="warning"
+                       icon="el-icon-refresh-left"
+                       @click="crud.resetQuery()">重置
+            </el-button>
+            <el-button class="filter-item" size="mini" type="danger" icon="el-icon-upload"
+                       @click="flushTrainTip">刷新
+            </el-button>
+          </div>
         </div>
-      </div>
-      <!--表格渲染-->
-      <el-table
-        ref="table"
-        v-loading="crud.loading"
-        :data="crud.data"
-        style="width: 100%;"
-        @selection-change="crud.selectionChangeHandler"
+        <!--表格渲染-->
+        <el-table
+          ref="table"
+          v-loading="crud.loading"
+          :data="crud.data"
+          style="width: 100%;"
+          @selection-change="crud.selectionChangeHandler"
+          @row-dblclick="goToTarget"
+          :row-class-name="btnType"
         >
-        <el-table-column label="事件名称" min-width="120">
-          <template slot-scope="scope">
-            <el-tooltip class="item" effect="light" placement="right-start">
-              <div slot="content">
-                <el-descriptions border :column="1">
-                  <template slot="title">
-                    {{scope.row.bindingName}}
-                  </template>
-                  <el-descriptions-item label="类型">{{scope.row.trainType}}</el-descriptions-item>
-                  <el-descriptions-item label="截止日期">{{scope.row.deadline}}</el-descriptions-item>
-                  <el-descriptions-item label="剩余天数">{{scope.row.remainDays}}</el-descriptions-item>
-                  <el-descriptions-item label="状态">{{scope.row.status}}</el-descriptions-item>
-                </el-descriptions>
-              </div>
-              <el-button type="text" @dblclick.native="goToTarget(scope.row)">{{scope.row.bindingName}} - {{scope.row.status}}</el-button>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!--分页组件-->
-      <pagination/>
+          <el-table-column label="事件名称" :show-overflow-tooltip="true">
+            <template slot-scope="scope">
+              <el-tooltip class="item" effect="light" placement="right-start">
+                <div slot="content">
+                  <el-descriptions border :column="1">
+                    <template slot="title">
+                      {{ scope.row.bindingName }}
+                    </template>
+                    <el-descriptions-item label="类型">{{ scope.row.trainType }}</el-descriptions-item>
+                    <el-descriptions-item label="截止日期">{{ scope.row.deadline }}</el-descriptions-item>
+                    <el-descriptions-item label="剩余天数">{{ scope.row.remainDays }}</el-descriptions-item>
+                    <el-descriptions-item label="状态">{{ scope.row.status }}</el-descriptions-item>
+                  </el-descriptions>
+                </div>
+                <span>
+                  {{ scope.row.bindingName }}
+                </span>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" />
+        </el-table>
+        <!--分页组件-->
+        <pagination/>
+      </el-card>
     </el-aside>
     <el-container>
       <el-header>
         <el-row :gutter="12">
           <el-col :span="4">
-            <el-card shadow="hover" @click.native="catalogueType = 'schedule'" @dblclick.native="routerTarget('/training/train-schedule')">
+            <el-card shadow="hover" @click.native="catalogueType = 'schedule'"
+                     @dblclick.native="routerTarget('/training/train-schedule')">
               <el-button type="text" size="medium" icon="el-icon-date">培训安排
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover" @click.native="catalogueType = 'newStaff'" @dblclick.native="routerTarget('/training/new-staff')">
+            <el-card shadow="hover" @click.native="catalogueType = 'newStaff'"
+                     @dblclick.native="routerTarget('/training/new-staff')">
               <el-button type="text" size="medium" icon="el-icon-s-custom">新员工
               </el-button>
             </el-card>
           </el-col>
 
           <el-col :span="4">
-            <el-card shadow="hover"  @click.native="catalogueType = 'certificate'" @dblclick.native="routerTarget('/training/certification')">
+            <el-card shadow="hover" @click.native="catalogueType = 'certificate'"
+                     @dblclick.native="routerTarget('/training/certification')">
               <el-button type="text" size="medium" icon="el-icon-tickets">证书
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover" @click.native="catalogueType = 'skillMatrix'" @dblclick.native="routerTarget('/training/skill-matrix')">
+            <el-card shadow="hover" @click.native="catalogueType = 'skillMatrix'"
+                     @dblclick.native="routerTarget('/training/skill-matrix')">
               <el-button type="text" size="medium" icon="el-icon-s-grid">员工能力矩阵
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover" @click.native="catalogueType = 'trainMaterial'" @dblclick.native="routerTarget('/training/train-material')">
+            <el-card shadow="hover" @click.native="catalogueType = 'trainMaterial'"
+                     @dblclick.native="routerTarget('/training/train-material')">
               <el-button type="text" size="medium" icon="el-icon-document">培训材料</el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
-            <el-card shadow="hover" @click.native="catalogueType = 'trainExam'" @dblclick.native="routerTarget('/training/train-exam')">
-              <el-button type="text" size="medium" icon="el-icon-edit" >培训考试
+            <el-card shadow="hover" @click.native="catalogueType = 'trainExam'"
+                     @dblclick.native="routerTarget('/training/train-exam')">
+              <el-button type="text" size="medium" icon="el-icon-edit">培训考试
               </el-button>
             </el-card>
           </el-col>
         </el-row>
       </el-header>
       <el-main>
-        <el-card v-if="catalogueType === 'schedule'" >
+        <el-card v-if="catalogueType === 'schedule'" shadow="hover">
           <div @dblclick="routerTarget('/training/train-schedule')">
             <blockquote class="my-blockquote">
               <el-link>
@@ -214,6 +228,8 @@ import pagination from "@crud/Pagination";
 import udOperation from "@crud/UD.operation";
 import DateRangePicker from "@/components/DateRangePicker";
 import CRUD, {header, presenter} from "@crud/crud";
+import {getByMethodName} from "@/api/system/timing";
+import {validIsNotNull} from "@/utils/validationUtil";
 
 export default {
   name: 'TrainManagement',
@@ -238,9 +254,12 @@ export default {
         'trainExam'
       ],
       catalogueType: 'schedule',
-      permission: {
-
-      }
+      permission: {},
+      methodName: 'checkIsToTrain',
+      trainTypes: [
+        '日程安排',
+        '证书'
+      ]
     }
   },
   methods: {
@@ -258,13 +277,13 @@ export default {
       this.crud.toQuery()
     },
     goToTarget(row) {
-      if(row.trainType === '日程安排'){
+      if (row.trainType === '日程安排') {
         this.$router.push(
           {
             path: '/training/train-schedule',
             query: {}
           })
-      } else if(row.trainType ==='证书') {
+      } else if (row.trainType === '证书') {
         this.$router.push(
           {
             path: '/training/certification',
@@ -272,17 +291,43 @@ export default {
           })
       }
     },
-    // todo 调用同步-重新拉取走查培训提示信息
+    // 调用同步-重新拉取走查培训提示信息
     flushTrainTip() {
-
+      getByMethodName(this.methodName).then(res => {
+        this.crud.resetQuery()
+      })
+    },
+    // 根据有效期设置提醒样式
+    btnType({row, rowIndex}) {
+      const type = row.trainType
+      const status = row.status
+      if (type === this.trainTypes[0]) {
+        // 日程安排
+        if (status === '已关闭') {
+          return 'alert-type'
+        } else {
+          return ''
+        }
+      } else if (type === this.trainTypes[1]) {
+        // 证书认证
+        if (status === '已过期') {
+          return 'alert-type'
+        } else if (status === '即将过期') {
+          return 'warn-type'
+        } else {
+          return ''
+        }
+      }
     }
   }
 }
 
 </script>
-
-<style rel="stylesheet/scss" lang="scss" scoped>
- ::v-deep .el-aside {
-  overflow: no-display !important;
+<style>
+.el-table .alert-type {
+  color: #C0C0C0;
+}
+.el-table .warn-type {
+  color: #ffa500;
 }
 </style>
