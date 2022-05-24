@@ -128,7 +128,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8" v-if="!crud.status.add">
-          <el-form-item label="现与会人数" prop="curNum">
+          <el-form-item label="现参与人数" prop="curNum">
             <el-input type="text" v-model="form.curNum" placeholder="请填写现参与人数"
                       @input="(v)=>(form.curNum = v.replace(/[^0-9.]/g,''))" disabled style="width: 100%">
               <template slot="append">人</template>

@@ -46,8 +46,8 @@
       <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true"/>
       <el-table-column prop="department" label="涉及部门" :show-overflow-tooltip="true"/>
       <el-table-column prop="totalNum" label="人数限制"/>
-      <!--todo 现与会人数，支持点击参与培训-->
-      <el-table-column label="现与会人数">
+      <!--todo 现参与人数，支持点击参与培训-->
+<!--      <el-table-column label="现参与人数">
         <template slot-scope="scope">
           <el-tooltip class="item" effect="light" placement="right-start">
             <div slot="content">
@@ -77,6 +77,11 @@
               type="success" size="small" plain @click="openPartDialog(scope.row)">{{ scope.row.curNum }}
             </el-button>
           </el-tooltip>
+        </template>
+      </el-table-column>-->
+      <el-table-column label="现参与人数">
+        <template slot-scope="scope">
+          <span >{{ scope.row.curNum }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="scheduleStatus" label="日程状态"/>
