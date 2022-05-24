@@ -76,7 +76,7 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="16">
           <el-form-item label="涉及部门" prop="department">
             <!--            <el-input v-model="form.department" placeholder="请填写培训部门" style="width:100%"/>-->
             <div>
@@ -513,8 +513,14 @@ export default {
         },
         {
           disabledDate: time => {
+            let tarTime
+            if(this.form.isDelay.toString() === 'false'){
+              tarTime = new Date(this.form.trainTime).getTime()
+            } else {
+              tarTime = new Date(this.form.newTrainTime).getTime()
+            }
             return (
-              new Date(this.form.trainTime).getTime() < time.getTime()
+              tarTime < time.getTime()
             )
           }
         }, {
@@ -585,7 +591,12 @@ export default {
       this.bindingId = form.id
       // 获取设备维修确认单信息列表
       this.getTrScheduleById(form.id)
-      this.getMaxTrRemindDays(form.trainTime)
+      if(form.isDelay.toString() === 'true') {
+        this.getMaxTrRemindDays(form.newTrainTime)
+      } else {
+        this.getMaxTrRemindDays(form.trainTime)
+      }
+
     },
     // 提交前做的操作
     [CRUD.HOOK.beforeSubmit]() {
@@ -625,9 +636,9 @@ export default {
     },
     // 获取最大提醒时间
     getMaxTrRemindDays(val) {
-      let end = new Date(val)
+      let end = new Date(val).getTime()
       // Math.floor()向下取整，Math.ceil()向上取整
-      this.maxRemindDays = Math.floor((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
+      this.maxRemindDays = Math.ceil((end - new Date().getTime()) / (24 * 3600 * 1000))
       // alert(this.maxRemindDays)
       if (validIsNotNull(this.form.remindDays)) {
         this.remindDaysMaxValue(this.form.remindDays)
