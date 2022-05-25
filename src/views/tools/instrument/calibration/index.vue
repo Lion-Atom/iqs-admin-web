@@ -14,6 +14,8 @@
       :row-class-name="tableRowClassName"
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="dbSelected"
+      :row-key="getRowKeys"
+      :expand-row-keys="expands"
       @expand-change="expendCaliSelected">
       <el-table-column type="selection" width="55"/>
       <el-table-column type="expand">
@@ -416,7 +418,11 @@ export default {
       gridFiles: [],
       gridFilesLoading: false,
       gridDiaVisible: false,
-      fileType: '仪器/仪表'
+      fileType: '仪器/仪表',
+      expands: [],
+      getRowKeys: (row) => {
+        return row.id
+      }
     }
   },
   computed: {
@@ -535,12 +541,20 @@ export default {
     // 展开行数据
     expendCaliSelected(row, expandedRows) {
       const _this = this
-      if (expandedRows.length > 1) {
+      /*if (expandedRows.length > 1) {
         _this.expands = []
         if (row) {
           _this.expands.push(row)
         }
         _this.$refs.table.toggleRowExpansion(expandedRows[0])
+      } else {
+        _this.expands = []
+      }*/
+      if (expandedRows.length) {
+        _this.expands = []
+        if (row) {
+          _this.expands.push(row.id)
+        }
       } else {
         _this.expands = []
       }

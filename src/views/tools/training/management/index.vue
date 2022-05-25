@@ -59,14 +59,14 @@
         <el-row :gutter="12">
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'schedule'"
-                     @dblclick.native="routerTarget('/training/train-schedule')">
-              <el-button type="text" size="medium" icon="el-icon-date">培训安排
+                     @dblclick.native="routerTarget('/training/manage/schedule')">
+              <el-button type="text" size="medium" icon="el-icon-date">培训计划
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'newStaff'"
-                     @dblclick.native="routerTarget('/training/new-staff')">
+                     @dblclick.native="routerTarget('/training/manage/newStaff')">
               <el-button type="text" size="medium" icon="el-icon-s-custom">新员工
               </el-button>
             </el-card>
@@ -74,27 +74,27 @@
 
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'certificate'"
-                     @dblclick.native="routerTarget('/training/certification')">
+                     @dblclick.native="routerTarget('/training/manage/certification')">
               <el-button type="text" size="medium" icon="el-icon-tickets">证书
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'skillMatrix'"
-                     @dblclick.native="routerTarget('/training/skill-matrix')">
+                     @dblclick.native="routerTarget('/training/manage/skillMatrix')">
               <el-button type="text" size="medium" icon="el-icon-s-grid">员工能力矩阵
               </el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'trainMaterial'"
-                     @dblclick.native="routerTarget('/training/train-material')">
+                     @dblclick.native="routerTarget('/training/manage/material')">
               <el-button type="text" size="medium" icon="el-icon-document">培训材料</el-button>
             </el-card>
           </el-col>
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'trainExam'"
-                     @dblclick.native="routerTarget('/training/train-exam')">
+                     @dblclick.native="routerTarget('/training/manage/exam')">
               <el-button type="text" size="medium" icon="el-icon-edit">培训考试
               </el-button>
             </el-card>
@@ -107,7 +107,7 @@
             <blockquote class="my-blockquote">
               <el-link>
                 <router-link to="/training/train-schedule">
-                  <i class="el-icon-date"></i>培训安排
+                  <i class="el-icon-date"></i>培训计划
                 </router-link>
               </el-link>
             </blockquote>
@@ -232,11 +232,11 @@ import {getByMethodName} from "@/api/system/timing";
 import {validIsNotNull} from "@/utils/validationUtil";
 
 export default {
-  name: 'TrainManagement',
+  name: 'TrainOverview',
   components: {eForm, pagination, udOperation, DateRangePicker},
   cruds() {
     return CRUD({
-      title: '培训日程安排',
+      title: '培训提示',
       url: 'api/train/tip',
       // sort: ['jobSort,asc', 'id,desc'],
       crudMethod: {...crudTip}

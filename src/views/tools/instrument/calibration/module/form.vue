@@ -108,6 +108,39 @@
         </el-col>
         <el-col :span="8">
           <el-form-item
+            label="存放位置"
+            prop="position"
+          >
+            <el-input
+              v-model="form.position"
+              style="width: 220px;"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item
+            label="保管人"
+            prop="keeper"
+          >
+            <el-select
+              v-model="form.keeper"
+              filterable
+              allow-create
+              placeholder="请选择使用人"
+              style="width: 220px;"
+            >
+              <el-option
+                v-for="item in users"
+                style="width: 220px"
+                :key="item.id"
+                :label="item.dept.name + ' - ' +item.username "
+                :value="item.username"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item
             label="使用区域"
             prop="useArea"
           >
@@ -124,6 +157,8 @@
           >
             <el-select
               v-model="form.useBy"
+              filterable
+              allow-create
               placeholder="请选择使用人"
               style="width: 220px;"
             >
@@ -264,7 +299,8 @@
             <template slot="label">
               <span><i style="color: red;">* </i>提前提醒天数</span>
             </template>
-            <el-input placeholder="请输入提醒天数" type="number" style="width: 220px !important;" :min="1" :max="maxRemindDays" v-model="form.remindDays"
+            <el-input placeholder="请输入提醒天数" type="number" style="width: 220px !important;" :min="1" :max="maxRemindDays"
+                      v-model="form.remindDays"
                       @input="remindDaysHandler">
               <template slot="append">天</template>
             </el-input>
@@ -365,7 +401,8 @@
           </div>
           <div v-else v-for="file in form.fileList" :key="file.id" class="text item">
             <span style="display: inline;">
-              <a :href="baseApi + '/file/' + file.type + '/' + file.name">{{ file.realName }} - <b style="color: red">{{ file.caliResult }}</b></a>
+              <a :href="baseApi + '/file/' + file.type + '/' + file.name">{{ file.realName }} - <b
+                style="color: red">{{ file.caliResult }}</b></a>
               <el-button type="text" @click="toUpdateFileBtn">更新报告</el-button>
             </span>
           </div>
@@ -404,12 +441,15 @@ const defaultForm = {
   lastCaliDate: null,
   nextCaliDate: null,
   innerChecked: true,
+  caliOrgId: null,
   isDoor: null,
   caliScope: null,
   precise: null,
   errorRange: null,
   useArea: null,
   useBy: null,
+  position: null,
+  keeper: null,
   isDroped: false,
   dropRemark: null,
   isRemind: false,
@@ -475,7 +515,7 @@ export default {
               return (
                 //禁用小于开始时间和大于开始时间一周后的日期
                 new Date(time).getTime() > dateRegion ||
-                new Date(time).getTime() < new Date(new Date().setHours(0,0,0,0))-1
+                new Date(time).getTime() < new Date(new Date().setHours(0, 0, 0, 0)) - 1
               )
             } else {
               return false
@@ -518,11 +558,17 @@ export default {
         errorRange: [
           {required: true, message: '请填写允许误差', trigger: 'blur'}
         ],
+        position: [
+          {required: true, message: '请填写存放位置', trigger: 'blur'}
+        ],
+        keeper: [
+          {required: true, message: '请填写保管人', trigger: 'blur'}
+        ],
         useArea: [
-          {required: true, message: '请填写存放/使用区域', trigger: 'blur'}
+          {required: true, message: '请填写使用区域', trigger: 'blur'}
         ],
         useBy: [
-          {required: true, message: '请填写保管员/使用人', trigger: 'blur'}
+          {required: true, message: '请填写使用人', trigger: 'blur'}
         ],
         isDroped: [
           {required: true, message: '请判断是否作废或无法使用', trigger: 'blur'}
@@ -727,10 +773,10 @@ export default {
       /*if (this.$refs['fileForm'] !== undefined) {
         this.$refs['fileForm'].resetFields()
       }*/
-      this.fileForm= {
+      this.fileForm = {
         isLatest: true,
-          caliResult: '合格',
-          failDesc: null
+        caliResult: '合格',
+        failDesc: null
       }
       this.form.fileList = []
       this.toUpdateFile = false
@@ -747,7 +793,7 @@ export default {
     // 编辑前操作处理
     [CRUD.HOOK.beforeToEdit](crud, form) {
       this.bindingId = form.id
-      this.toUpdateFile = form.status !== '已完成' &&  form.status !== '超时未校准';
+      this.toUpdateFile = form.status !== '已完成' && form.status !== '超时未校准';
       this.isNeedUpdate = false
       this.oldLastCaliDate = form.lastCaliDate
       this.oldCaliPeriod = form.caliPeriod

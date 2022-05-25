@@ -606,7 +606,7 @@ export default {
         this.$message.warning("请务必上传试卷信息！")
         return false
       }
-      if(this.form.trainTime.toString() === this.form.newTrainTime.toString()) {
+      if(new Date(this.form.trainTime) === new Date(this.form.newTrainTime)) {
         this.$message.warning("新培训时间与原培训时间一样，请重新设定！")
         return false
       }

@@ -1,10 +1,10 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" @click="closeMenus">
     <!--快速导航-->
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item><b>培训日程安排</b></el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训计划</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <!--工具栏-->
@@ -33,9 +33,10 @@
       style="width: 100%;"
       @selection-change="crud.selectionChangeHandler"
       :row-class-name="tableRowClassName"
+      @row-contextmenu="rightClick"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="trainTitle" label="培训标题" min-width="120" fixed/>
+      <el-table-column prop="trainTitle" label="培训标题" min-width="140" fixed/>
       <el-table-column prop="trainTime" label="培训时间" min-width="140"/>
       <el-table-column prop="trainer" label="培训员"/>
       <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
@@ -46,44 +47,40 @@
       <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true"/>
       <el-table-column prop="department" label="涉及部门" :show-overflow-tooltip="true"/>
       <el-table-column prop="totalNum" label="人数限制"/>
-      <!--todo 现参与人数，支持点击参与培训-->
-<!--      <el-table-column label="现参与人数">
-        <template slot-scope="scope">
-          <el-tooltip class="item" effect="light" placement="right-start">
-            <div slot="content">
-              <el-table
-                ref="parts"
-                border
-                :data="scope.row.partList"
-                style="width: 100%;"
-              >
-                <el-table-column prop="participantDepart" label="所属部门"/>
-                <el-table-column prop="participantName" label="参与者"/>
-                <el-table-column prop="isValid" label="是否参与" align="center">
-                  <template slot-scope="scope">
-                    <el-switch
-                      v-model="scope.row.isValid"
-                      active-color="#409EFF"
-                      inactive-color="#F56C6C"
-                      @change="changeIsValid(scope.row, scope.row.isValid)"
-                    />
-                  </template>
-                </el-table-column>
-                <el-table-column prop="createTime" label="创建日期" min-width="140"/>
-              </el-table>
-            </div>
-            <el-button
-              :disabled="scope.row.scheduleStatus === '已关闭' || new Date(scope.row.regDeadline).getTime() < new Date().getTime()"
-              type="success" size="small" plain @click="openPartDialog(scope.row)">{{ scope.row.curNum }}
-            </el-button>
-          </el-tooltip>
-        </template>
-      </el-table-column>-->
-      <el-table-column label="现参与人数">
-        <template slot-scope="scope">
-          <span >{{ scope.row.curNum }}</span>
-        </template>
-      </el-table-column>
+      <!--现参与人数，支持点击参与培训-->
+      <!--      <el-table-column label="现参与人数">
+                    <template slot-scope="scope">
+                      <el-tooltip class="item" effect="light" placement="right-start">
+                        <div slot="content">
+                          <el-table
+                            ref="parts"
+                            border
+                            :data="scope.row.partList"
+                            style="width: 100%;"
+                          >
+                            <el-table-column prop="participantDepart" label="所属部门"/>
+                            <el-table-column prop="participantName" label="参与者"/>
+                            <el-table-column prop="isValid" label="是否参与" align="center">
+                              <template slot-scope="scope">
+                                <el-switch
+                                  v-model="scope.row.isValid"
+                                  active-color="#409EFF"
+                                  inactive-color="#F56C6C"
+                                  @change="changeIsValid(scope.row, scope.row.isValid)"
+                                />
+                              </template>
+                            </el-table-column>
+                            <el-table-column prop="createTime" label="创建日期" min-width="140"/>
+                          </el-table>
+                        </div>
+                        <el-button
+                          :disabled="scope.row.scheduleStatus === '已关闭' || new Date(scope.row.regDeadline).getTime() < new Date().getTime()"
+                          type="success" size="small" plain @click="openPartDialog(scope.row)">{{ scope.row.curNum }}
+                        </el-button>
+                      </el-tooltip>
+                    </template>
+                  </el-table-column>-->
+      <el-table-column prop="curNum" label="现参与人数"/>
       <el-table-column prop="scheduleStatus" label="日程状态"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
@@ -108,7 +105,7 @@
     <eForm :common-status="dict.common_status" :permission="permission"/>
     <el-dialog
       title="添加培训参加者信息"
-      :visible.sync="partDialogVisible"
+      :visible.sync="addPartDialogVisible"
       :before-close="handleClose"
       width="50%">
       <div>
@@ -158,10 +155,85 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-    <el-button @click="cancelSubmitPart">取 消</el-button>
-    <el-button type="primary" @click="submitPart">确 定</el-button>
-  </span>
+        <el-button @click="cancelSubmitPart">取 消</el-button>
+        <el-button type="primary" @click="submitPart">确 定</el-button>
+      </span>
     </el-dialog>
+    <el-dialog
+      title="培训参加者信息"
+      :visible.sync="viewPartDialogVisible"
+      width="50%">
+      <el-table
+        ref="parts"
+        border
+        :data="partList"
+        style="width: 100%;"
+      >
+        <el-table-column prop="participantDepart" label="所属部门"/>
+        <el-table-column prop="participantName" label="参与者"/>
+        <el-table-column prop="isValid" label="是否参与" align="center">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.isValid"
+              active-color="#409EFF"
+              inactive-color="#F56C6C"
+              @change="changeIsValid(scope.row, scope.row.isValid)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建日期" min-width="140"/>
+        <!--删除操作---暂注释-->
+<!--        <el-table-column
+          label="操作"
+          width="80"
+          align="center"
+        >
+          <template slot-scope="scope">
+            <el-popover
+              :ref="`delStaffFile-popover-${scope.$index}`"
+              v-permission="permission.edit"
+              placement="top"
+              width="180"
+            >
+              <p>确定删除当前参与者吗？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button
+                  size="mini"
+                  type="text"
+                  @click="scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                >取消
+                </el-button>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  @click="deleteTrParticipator(scope.row), scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                >确定
+                </el-button>
+              </div>
+              <el-button
+                slot="reference"
+                v-permission="permission.edit"
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+              />
+            </el-popover>
+          </template>
+        </el-table-column>-->
+      </el-table>
+    </el-dialog>
+    <!-- 右键菜单 -->
+    <div id="menu" class="menuDiv">
+      <ul class="menuUl">
+        <li
+          v-for="(item, index) in menus"
+          :key="index"
+          @click.stop="infoClick(index)"
+        >
+          {{ item.name }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -174,14 +246,14 @@ import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
-import {addPart, editPart, getPartsByTrScheduleId} from "@/api/tools/train/trParticipant";
+import {addPart, delPart, editPart, getPartsByTrScheduleId} from "@/api/tools/train/trParticipant";
 
 export default {
   name: 'TrainSchedule',
   components: {eForm, crudOperation, pagination, udOperation, DateRangePicker},
   cruds() {
     return CRUD({
-      title: '培训日程安排',
+      title: '培训计划',
       url: 'api/train/schedule',
       // sort: ['jobSort,asc', 'id,desc'],
       crudMethod: {...crudSchedule}
@@ -197,7 +269,8 @@ export default {
         edit: ['admin', 'schedule:edit'],
         del: ['admin', 'schedule:del']
       },
-      partDialogVisible: false,
+      addPartDialogVisible: false,
+      viewPartDialogVisible: false,
       partForm: {
         participantDepart: null,
         participantName: null,
@@ -217,7 +290,23 @@ export default {
       availableDeparts: [],
       // partLoading: false,
       // parts: []
-      cancelJudge: ''
+      cancelJudge: '',
+      //右键菜单
+      menus: [
+        {name: '报名参加', operType: 1},
+        {name: '查看参与者', operType: 2}
+      ],
+      curData: {},
+      partList: []
+    }
+  },
+  watch: {
+    visible(value) {
+      if (value) {
+        document.body.addEventListener('click', this.closeMenu)
+      } else {
+        document.body.removeEventListener('click', this.closeMenu)
+      }
     }
   },
   created() {
@@ -264,7 +353,7 @@ export default {
     openPartDialog(data) {
       // alert(JSON.stringify(data))
       this.availableDeparts = []
-      this.partDialogVisible = true
+      this.addPartDialogVisible = true
       // this.getParticipant(data.id)
       this.partForm.trScheduleId = data.id
       this.availableDeparts = data.departTags
@@ -284,7 +373,7 @@ export default {
       if (this.$refs['partForm'] !== undefined) {
         this.$refs['partForm'].resetFields()
       }
-      this.partDialogVisible = false
+      this.addPartDialogVisible = false
       this.crud.resetQuery()
     },
     // 关闭前操作
@@ -296,14 +385,15 @@ export default {
             this.$refs['partForm'].resetFields()
           }
         })
-        .catch(_ => {});
+        .catch(_ => {
+        });
     },
     // 提交培训参与者信息
     submitPart() {
       addPart(this.partForm).then(res => {
         this.crud.notify('添加成功', 'success')
         // this.getParticipant(this.partForm.trScheduleId)
-        this.partDialogVisible = false
+        this.addPartDialogVisible = false
         if (this.$refs['partForm'] !== undefined) {
           this.$refs['partForm'].resetFields()
         }
@@ -331,6 +421,55 @@ export default {
         data.isValid = !data.isValid
       })
     },
+    // table的右键点击当前行事件
+    rightClick(row, column, event) {
+      // alert(1)
+      this.curData = {}
+      let menu = document.querySelector("#menu");
+      //阻止元素发生默认的行为
+      event.preventDefault();
+      // 根据事件对象中鼠标点击的位置，进行定位
+      menu.style.left = event.clientX + 10 + "px";
+      menu.style.top = event.clientY - 30 + "px";
+      // 改变自定义菜单的隐藏与显示
+      menu.style.display = "block";
+      menu.style.zIndex = 1000;
+      this.curData = row
+    },
+    // table的左键点击当前行事件
+    closeMenus() {
+      let menu = document.querySelector("#menu");
+      menu.style.display = "none";
+    },
+    // 自定义菜单的点击事件
+    infoClick(index) {
+      if (index === 0) {
+        // do something
+        if (this.curData.scheduleStatus === '已关闭' || new Date(this.curData.regDeadline).getTime() < new Date().getTime()) {
+          this.crud.notify('无效操作，报名时间已过！', 'warning')
+        } else {
+          this.openPartDialog(this.curData)
+        }
+      } else if (index === 1) {
+        // this.openPartDialog(this.curData)
+        this.partList = this.curData.partList
+        this.viewPartDialogVisible = true
+      }
+      let menu = document.querySelector("#menu");
+      menu.style.display = "none";
+    },
+    // 删除附件
+    deleteTrParticipator(row) {
+      // alert(row)
+      const data = []
+      data.push(row.id)
+      delPart(data).then(res => {
+        this.$message({
+          message: 'Del Participator Success! 删除参与者信息成功!',
+          type: 'success'
+        })
+      })
+    },
   }
 }
 </script>
@@ -343,4 +482,36 @@ export default {
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }
+
+.menuDiv {
+  display: none;
+  position: absolute;
+
+  .menuUl {
+    height: auto;
+    width: auto;
+    font-size: 14px;
+    text-align: left;
+    border-radius: 3px;
+    border: none;
+    background-color: #c4c4c4;
+    color: #fff;
+    list-style: none;
+    padding: 0 10px;
+
+    li {
+      width: 140px;
+      height: 35px;
+      line-height: 35px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.47);
+
+      &:hover {
+        // background-color: rgb(26, 117, 158);
+        color: rgb(54, 138, 175);
+      }
+    }
+  }
+}
+
 </style>

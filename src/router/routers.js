@@ -207,7 +207,7 @@ export const constantRouterMap = [
       }
     ]
   },
-  {
+  /*{
     path: '/training',
     component: Layout,
     hidden: true,
@@ -250,7 +250,7 @@ export const constantRouterMap = [
         meta: {title: '培训考试'}
       }
     ]
-  },
+  },*/
    {
      path: '/training/train-exam',
      component: Layout,
