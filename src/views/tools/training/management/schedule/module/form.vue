@@ -157,7 +157,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="是否延期" prop="isDelay">
+          <el-form-item label="是否改期" prop="isDelay">
             <el-radio
               v-for="item in commonStatus"
               :key="item.id"
@@ -189,7 +189,7 @@
               v-model="form.delayDesc"
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 5}"
-              placeholder="请输入延期原因"
+              placeholder="请输入改期原因"
               style="width: 100%;"
             />
           </el-form-item>
@@ -477,13 +477,13 @@ export default {
           {required: true, message: '请填写提醒天数', trigger: 'blur'}
         ],
         isDelay: [
-          {required: true, message: '请确认是否延期', trigger: 'blur'}
+          {required: true, message: '请确认是否改期', trigger: 'blur'}
         ],
         newTrainTime: [
           {required: true, message: '请重新投定培训时间', trigger: 'blur'}
         ],
         delayDesc: [
-          {required: true, message: '请填写延期原因', trigger: 'blur'}
+          {required: true, message: '请填写改期原因', trigger: 'blur'}
         ]
       },
       fileForm: {

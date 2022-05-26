@@ -95,8 +95,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="保养结果" prop="maintainStatus">
-            <el-select style="width: 220px !important;" v-model="form.maintainStatus" placeholder="请填写保养结果">
+          <el-form-item label="保养结果" prop="maintainResult">
+            <el-select style="width: 220px !important;" v-model="form.maintainResult" placeholder="请填写保养结果">
               <el-option label="好" value="好"></el-option>
               <el-option label="不好" value="不好"></el-option>
             </el-select>
@@ -256,7 +256,7 @@ const defaultForm = {
   equipmentId: null,
   maintainDate: null,
   maintainBy: null,
-  maintainStatus: null,
+  maintainResult: null,
   maintainDuration: null,
   maintainDesc: null,
   confirmBy: null,
@@ -291,7 +291,7 @@ export default {
         maintainDate: [
           {required: true, message: '请输入保养日期', trigger: 'blur'}
         ],
-        maintainStatus: [
+        maintainResult: [
           {required: true, message: '请确认本次保养结果', trigger: 'blur'}
         ],
         maintainBy: [

@@ -16,10 +16,10 @@
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="equipNum" label="设备编号" fixed />
-      <el-table-column prop="equipName" label="设备名称"/>
+      <el-table-column prop="equipName" label="设备名称" :show-overflow-tooltip="true" min-width="100" />
       <el-table-column prop="equipModel" label="设备型号" min-width="150"/>
       <el-table-column prop="assetNum" label="资产号" min-width="120"/>
-      <el-table-column prop="equipProvider" label="设备厂家"/>
+      <el-table-column prop="equipProvider" label="设备厂家" :show-overflow-tooltip="true" />
       <el-table-column prop="useDepartName" label="使用部门"/>
       <el-table-column prop="useArea" label="设备位置"/>
       <el-table-column label="设备状态" min-width="150">
@@ -27,17 +27,18 @@
           <el-popover v-if="scope.row.maintainLevel && scope.row.lastMaintainDate" trigger="hover" placement="top">
             <p>1.设备定级：设备等级、保养等级、保养周期等设定 <i class="el-icon-check"></i></p>
             <p>2.设备保养：对已定级设备进行周期性保养 <i class="el-icon-check"></i></p>
-            <el-tag  slot="reference" type="success">已保养</el-tag>
+            <el-tag v-if="scope.row.maintainStatus === maintainOverdue"  slot="reference" type="danger">{{ maintainOverdue }}</el-tag>
+            <el-tag v-else  slot="reference" type="success">已保养</el-tag>
           </el-popover>
           <el-popover v-else-if="scope.row.maintainLevel && !scope.row.lastMaintainDate" trigger="hover" placement="top">
             <p>1.设备定级：设备等级、保养等级、保养周期等设定 <i class="el-icon-check"></i></p>
             <p>2.设备保养：对已定级设备进行周期性保养 <i class="el-icon-close"></i></p>
-            <el-tag slot="reference" type="warning">已定级，未保养</el-tag>
+            <el-tag slot="reference" type="info">已定级，未保养</el-tag>
           </el-popover>
           <el-popover v-else trigger="hover" placement="top">
             <p>1.设备定级：设备等级、保养等级、保养周期等设定 <i class="el-icon-close"></i></p>
             <p>2.设备保养：对已定级设备进行周期性保养 <i class="el-icon-close"></i></p>
-            <el-tag  slot="reference" class="name-wrapper" type="danger">未定级，未保养</el-tag>
+            <el-tag  slot="reference" class="name-wrapper" type="warning">未定级，未保养</el-tag>
           </el-popover>
         </template>
       </el-table-column>
@@ -165,7 +166,8 @@ export default {
       },
       fileList: [],
       fileDialogTitle: '',
-      fileDialogVisible: false
+      fileDialogVisible: false,
+      maintainOverdue: '超期未保养'
     }
   },
   computed: {
@@ -211,8 +213,8 @@ export default {
     },
     // 根据设备保养级别等有无设置提醒样式
     maintainTableRowClassName({row, rowIndex}) {
-      if (!validIsNotNull(row.maintainLevel)) {
-        return 'warning-row'
+      if (row.maintainStatus === this.maintainOverdue) {
+        return 'alert-row'
       } else {
         return ''
       }
@@ -222,8 +224,8 @@ export default {
 </script>
 
 <style>
-.el-table .warning-row {
-  color: #ffb700 !important;
+.el-table .alert-row {
+  color: #f00 !important;
 }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>

@@ -3,7 +3,7 @@
     <!--快速导航-->
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/training/management' }">培训概览</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/training/overview' }">培训概览</el-breadcrumb-item>
         <el-breadcrumb-item><b>认证</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>

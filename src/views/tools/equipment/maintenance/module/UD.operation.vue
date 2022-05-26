@@ -6,10 +6,10 @@
       :loading="crud.status.cu === 2"
       :disabled="disabledEdit"
       size="mini"
-      :type="data.lastMaintainDate ?'success':'warning'"
+      :type="initBtnType(data)"
       @click="checkDetails(data)"
     >
-      {{ data.lastMaintainDate ? '查看' : '保养' }}
+      {{ initMaintainOperation(data) }}
     </el-button>
     <el-button v-permission="permission.edit" :loading="crud.status.cu === 2" :disabled="disabledEdit" size="mini"
                type="primary" icon="el-icon-edit" style="text-align: right; margin: 0" @click="crud.toEdit(data)"/>
@@ -17,6 +17,7 @@
 </template>
 <script>
 import CRUD, {crud} from '@crud/crud'
+import {validIsNotNull} from "@/utils/validationUtil";
 
 export default {
   mixins: [crud()],
@@ -36,10 +37,36 @@ export default {
   },
   data() {
     return {
-      pop: false
+      pop: false,
+      maintainType: ''
     }
   },
+  created() {
+    // this.initBtnType()
+  },
   methods: {
+    initBtnType(data) {
+      if (data.lastMaintainDate) {
+        if (data.maintainStatus === '超期未保养') {
+          return 'danger'
+        } else {
+          return 'success'
+        }
+      } else {
+        return 'warning'
+      }
+    },
+    initMaintainOperation(data) {
+      if (data.lastMaintainDate) {
+        if (data.maintainStatus === '超期未保养') {
+          return '保养'
+        } else {
+          return '查看'
+        }
+      } else {
+        return '保养'
+      }
+    },
     onPopoverShow() {
       setTimeout(() => {
         document.addEventListener('click', this.handleDocumentClick)

@@ -77,7 +77,7 @@
           </div>
           <div>
             <div class="head-container">
-              <eHeader :equip-id="equipId" :maintain-status="maintainStatusOptions" :permission="permission"/>
+              <eHeader :equip-id="equipId" :maintain-status="maintainResultOptions" :permission="permission"/>
               <crudOperation :permission="permission"/>
             </div>
             <!--表格渲染-->
@@ -94,7 +94,7 @@
               <el-table-column prop="maintainBy" label="保养人"/>
               <el-table-column prop="maintainDuration" label="保养时长"/>
               <el-table-column prop="confirmBy" label="确认人"/>
-              <el-table-column prop="maintainStatus" label="保养结果"/>
+              <el-table-column prop="maintainResult" label="保养结果"/>
               <el-table-column prop="maintainDesc" label="保养反馈" :show-overflow-tooltip='true' />
               <el-table-column prop="createTime" label="创建日期" min-width="140"/>
               <!--   编辑与删除   -->
@@ -170,7 +170,7 @@ export default {
         edit: ['admin', 'maintain:edit'],
         del: ['admin', 'maintain:del']
       },
-      maintainStatusOptions: []
+      maintainResultOptions: []
     }
   },
   computed: {

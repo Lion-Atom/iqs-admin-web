@@ -277,16 +277,16 @@ export default {
       this.crud.toQuery()
     },
     goToTarget(row) {
-      if (row.trainType === '日程安排') {
+      if (row.trainType === '培训计划') {
         this.$router.push(
           {
-            path: '/training/train-schedule',
+            path: '/training/manage/schedule',
             query: {}
           })
       } else if (row.trainType === '证书') {
         this.$router.push(
           {
-            path: '/training/certification',
+            path: '/training/manage/certification',
             query: {}
           })
       }

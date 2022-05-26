@@ -12,21 +12,23 @@
       :data="crud.data"
       style="width: 100%;"
       @selection-change="crud.selectionChangeHandler"
+      :row-class-name="maintainTableRowClassName"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="equipNum" label="设备编号"  fixed />
-      <el-table-column prop="equipName" label="设备名称" min-width="100" sortable />
+      <el-table-column prop="equipName" label="设备名称" :show-overflow-tooltip="true" min-width="100" sortable />
       <el-table-column prop="equipModel" label="设备型号"/>
       <el-table-column prop="assetNum" label="资产号"/>
-      <el-table-column prop="equipProvider" label="设备厂家"/>
+      <el-table-column prop="equipProvider" label="设备厂家" :show-overflow-tooltip="true" />
       <el-table-column prop="useDepartName" label="使用部门"/>
       <el-table-column prop="useArea" label="设备位置"/>
       <el-table-column prop="equipLevel" label="设备级别"/>
-      <el-table-column prop="status" label="设备状态"></el-table-column>
+      <el-table-column prop="acceptStatus" label="验收状态"></el-table-column>
       <el-table-column prop="maintainLevel" label="保养级别"/>
       <el-table-column label="上次保养日期" :formatter="lastMaintainDateFormat" width="130"/>
       <el-table-column label="保养周期" :formatter="maintainPeriodFormat"/>
       <el-table-column label="保养到期日期" :formatter="maintainDueDateFormat"  width="130" />
+      <el-table-column prop="maintainStatus" label="保养状态" />
       <el-table-column label="保养记录">
         <template slot-scope="scope">
           <el-button v-if="scope.row.lastMaintainDate" type="text" @click="checkMainRecord(scope.row)">查看记录</el-button>
@@ -176,7 +178,7 @@
               <el-input v-model="form.netValue" placeholder="请输入设备价格" style="width: 220px"/>
             </el-form-item>
           </el-col>
-          <el-col :span="8" v-if="form.status === '已验收'">
+          <el-col :span="8" v-if="form.acceptStatus === '已验收'">
             <el-form-item label="ROI" prop="roi">
               <el-input v-model="form.roi" placeholder="请输入投资回报率" style="width: 220px"/>
             </el-form-item>
@@ -261,7 +263,7 @@
         <el-table-column label="保养日期" :formatter="maintainDateFormat"/>
         <el-table-column prop="maintainBy" label="保养人"/>
         <el-table-column prop="maintainDuration" label="保养时长"/>
-        <el-table-column prop="maintainStatus" label="保养结果"/>
+        <el-table-column prop="maintainResult" label="保养结果"/>
         <el-table-column prop="confirmBy" label="确认人"/>
         <el-table-column prop="maintainDesc" label="保养反馈" :show-overflow-tooltip='true' />
         <el-table-column prop="createTime" label="创建日期" min-width="140"/>
@@ -307,7 +309,8 @@ const defaultForm = {
   equipType: null,
   // equipLevel: null,
   equipStatus: null,
-  status: null,
+  acceptStatus: null,
+  maintainStatus: null,
   equipOltage: null,
   equipAir: null,
   equipWater: null,
@@ -599,11 +602,23 @@ export default {
       } else {
         return '--'
       }
+    },
+    // todo 根据设备保养级别等有无设置提醒样式
+    maintainTableRowClassName({row, rowIndex}) {
+      if (row.maintainStatus === '超期未保养') {
+        return 'alert-row'
+      } else {
+        return ''
+      }
     }
   }
 }
 </script>
-
+<style>
+.el-table .alert-row {
+  color: #f00 !important;
+}
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
