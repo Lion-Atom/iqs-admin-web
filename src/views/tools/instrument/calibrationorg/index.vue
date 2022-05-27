@@ -12,6 +12,8 @@
       :data="crud.data"
       style="width: 100%;"
       @selection-change="crud.selectionChangeHandler"
+      :row-key="getRowKeys"
+      :expand-row-keys="expands"
       @expand-change="expendOrgSelected">
       <el-table-column type="selection" width="55"/>
       <el-table-column type="expand">
@@ -394,7 +396,11 @@ export default {
       caliOrgFileUploadVisible: false,
       caliOrgFilesLoading: false,
       caliOrgFiles: [],
-      fileList: []
+      fileList: [],
+      expands: [],
+      getRowKeys: (row) => {
+        return row.id
+      }
     }
   },
   computed: {
@@ -480,12 +486,11 @@ export default {
     },
     expendOrgSelected(row, expandedRows) {
       const _this = this
-      if (expandedRows.length > 1) {
+      if (expandedRows.length) {
         _this.expands = []
         if (row) {
-          _this.expands.push(row)
+          _this.expands.push(row.id)
         }
-        _this.$refs.table.toggleRowExpansion(expandedRows[0])
       } else {
         _this.expands = []
       }
