@@ -257,6 +257,22 @@
             </el-radio>
           </el-form-item>
         </el-col>
+        <el-col :span="8" v-if="form.innerChecked.toString()==='false'">
+          <el-form-item label="校准机构" prop="caliOrgId">
+            <el-select
+              v-model="form.caliOrgId"
+              style="width: 220px;"
+              placeholder="请选择校准机构"
+            >
+              <el-option
+                v-for="item in caliOrgs"
+                :key="item.id"
+                :label="item.caliOrgName"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
         <el-col :span="8">
           <el-form-item
             label="是否报废"
@@ -320,17 +336,6 @@
             </el-radio>
           </el-form-item>
         </el-col>
-        <!--        <el-col :span="8" v-if="!crud.status.management">
-                  <el-form-item
-                    label="校准状态"
-                    prop="status"
-                  >
-                    <el-input
-                      disabled
-                      v-model="form.status">
-                    </el-input>
-                  </el-form-item>
-                </el-col>-->
       </el-row>
       <!--添加校准报告-->
       <el-row>
@@ -425,9 +430,10 @@ import {GMTToDate, judgeIsEqual, validIsNotNull} from "@/utils/validationUtil";
 import {getToken} from "@/utils/auth";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
-import {delByCaliOrgIdAndName} from "@/api/tools/caliOrgFile";
+import {delByCaliOrgIdAndName} from "@/api/tools/instrument/caliOrgFile";
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getAllUser} from "@/api/system/user";
+import {getCaliOrgByExample} from "@/api/tools/instrument/caliOrg";
 
 const defaultForm = {
   id: null,
@@ -546,6 +552,9 @@ export default {
         innerChecked: [
           {required: true, message: '是否内部校准不可为空', trigger: 'blur'}
         ],
+        caliOrgId: [
+          {required: true, message: '请选择外部校准机构', trigger: 'blur'}
+        ],
         isDoor: [
           {required: true, message: '是否是上门校准', trigger: 'blur'}
         ],
@@ -612,7 +621,11 @@ export default {
       }, {
         label: '不合格',
         value: '不合格'
-      }]
+      }],
+      cond: {
+        enabled: true
+      },
+      caliOrgs: []
     }
   },
   computed: {
@@ -625,8 +638,16 @@ export default {
   watch: {},
   mounted: function () {
     this.getAllUseBy()
+    this.getAvailCaliOrg(this.cond)
   },
   methods: {
+    // 获取启用状态的校准机构
+    getAvailCaliOrg(cond) {
+      this.caliOrgs = []
+      getCaliOrgByExample(cond).then(res => {
+        this.caliOrgs = res
+      })
+    },
     caliStatusChanged(val) {
       // alert(val)
       if (val.toString() === 'true') {
@@ -635,12 +656,6 @@ export default {
     },
     isDropedChanged(val) {
       if (val.toString() === 'true') {
-        // this.form.isRemind = false
-        this.form.remindDays = null
-      }
-    },
-    isRemindChange(val) {
-      if (val.toString() === 'false') {
         // this.form.isRemind = false
         this.form.remindDays = null
       }

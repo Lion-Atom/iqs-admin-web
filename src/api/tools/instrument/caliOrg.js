@@ -8,6 +8,7 @@ export function get(params) {
   })
 }
 
+
 export function add(data) {
   return request({
     url: 'api/caliOrg',
@@ -43,4 +44,12 @@ export function getCaliOrgById(id) {
   })
 }
 
-export default { get, add, edit, del, getCaliOrgById }
+export function getCaliOrgByExample(data) {
+  return request({
+    url: 'api/caliOrg/queryByExample',
+    method: 'post',
+    data
+  })
+}
+
+export default { get, add, edit, del, getCaliOrgById, getCaliOrgByExample }

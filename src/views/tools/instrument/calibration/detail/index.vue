@@ -357,8 +357,8 @@ import udApprove from '@crud/UD.approve'
 import pagination from '@crud/Pagination'
 import {getToken} from '@/utils/auth';
 import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
-import {getInstruCaliById} from "@/api/tools/instruCali";
-import {delCaliFile, getCaliFileByExample} from "@/api/tools/instruCaliFile";
+import {getInstruCaliById} from "@/api/tools/instrument/instruCali";
+import {delCaliFile, getCaliFileByExample} from "@/api/tools/instrument/instruCaliFile";
 import {mapGetters} from "vuex";
 import excelview from 'vue-preview'
 

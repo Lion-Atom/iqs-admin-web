@@ -320,7 +320,7 @@
 </template>
 
 <script>
-import crudCaliOrg from '@/api/tools/caliOrg'
+import crudCaliOrg from '@/api/tools/instrument/caliOrg'
 import eHeader from './module/header'
 import CRUD, {crud, form, header, presenter} from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
@@ -330,7 +330,7 @@ import {getUid} from "@/api/tools/supplier";
 import {isvalidPhone} from "@/utils/validate";
 import {mapGetters} from "vuex";
 import {getToken} from "@/utils/auth";
-import {delByCaliOrgIdAndName, delCaliOrgFile, getCaliOrgFileByCaliOrgId} from "@/api/tools/caliOrgFile";
+import {delByCaliOrgIdAndName, delCaliOrgFile, getCaliOrgFileByCaliOrgId} from "@/api/tools/instrument/caliOrgFile";
 
 const defaultForm = {
   id: null,

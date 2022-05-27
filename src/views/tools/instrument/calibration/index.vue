@@ -193,6 +193,8 @@
       <el-table-column prop="assetNum" label="资产号" min-width="100"/>
       <el-table-column prop="innerId" label="内部ID" min-width="100"/>
       <el-table-column prop="caliScope" label="测量范围" min-width="100"/>
+      <el-table-column prop="position" label="存放位置" min-width="100" :show-overflow-tooltip="true" />
+      <el-table-column prop="keeper" label="保管人" min-width="100"/>
       <el-table-column prop="useArea" label="使用区域" min-width="100"/>
       <el-table-column prop="useBy" label="使用人" min-width="100"/>
       <el-table-column label="上次校准日期" :formatter="lastCaliDateFormat" min-width="100"/>
@@ -340,7 +342,7 @@
 <script>
 
 
-import crudInstruCali from '@/api/tools/instruCali'
+import crudInstruCali from '@/api/tools/instrument/instruCali'
 import eHeader from './module/header'
 import eForm from './module/form'
 import CRUD, {presenter} from '@crud/crud'
@@ -349,7 +351,7 @@ import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
-import {delCaliFile, getCaliFileByExample} from "@/api/tools/instruCaliFile";
+import {delCaliFile, getCaliFileByExample} from "@/api/tools/instrument/instruCaliFile";
 import {getToken} from "@/utils/auth";
 import GridFile from "@/components/GridFile";
 import {update} from "@/api/tools/email";
@@ -413,6 +415,13 @@ export default {
       }, {
         label: '不合格',
         value: '不合格'
+      }],
+      instruStatusOptions: [{
+        value: '正常使用'
+      }, {
+        value: '限制使用'
+      }, {
+        value: '报废'
       }],
       caliId: null,
       gridFiles: [],
