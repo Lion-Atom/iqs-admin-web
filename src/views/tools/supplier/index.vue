@@ -15,15 +15,15 @@
       @row-dblclick="dbSelected"
     >
       <el-table-column type="selection" width="55" />
-      <el-table-column prop="name" label="供应商名称" width="160" />
+      <el-table-column prop="name" label="供应商名称" width="160" :show-overflow-tooltip="true" />
       <el-table-column label="准入供应商" min-width="100" :formatter="isQualifiedFormat" />
-      <el-table-column prop="production" label="产品" width="120" />
+      <el-table-column prop="production" label="产品" width="120" :show-overflow-tooltip="true" />
       <el-table-column prop="type" label="供应商类别" width="150" />
       <el-table-column label="准入时间" min-width="100" :formatter="qualifiedDateFormat" />
       <el-table-column prop="qualifiedScore" label="准入分数" min-width="100" />
       <el-table-column prop="level" label="产品级别" width="120" />
       <el-table-column label="成立时间" width="120" :formatter="foundDateFormat" />
-      <el-table-column prop="address" label="公司地址" width="120" />
+      <el-table-column prop="address" label="公司地址" width="120" :show-overflow-tooltip="true" />
       <el-table-column prop="status" label="状态" />
       <el-table-column prop="createBy" label="创建者" />
       <el-table-column prop="createTime" label="创建日期" width="140" />

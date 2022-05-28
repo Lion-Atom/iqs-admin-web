@@ -50,6 +50,8 @@ const api = {
     gridFileUploadApi: baseUrl + '/api/gridFile',
     // 新员工培训附件上传
     trNewStaffFileUploadApi: baseUrl + '/api/trNewStaffFile',
+    // 仪器报废异常报告上传
+    instrumentFileUploadApi: baseUrl + '/api/instruFile',
     // 员工培训考试试卷上传
     trExamStaffTranscriptUploadApi: baseUrl + '/api/trExamStaffTranscript',
     // 培训日程安排附件上传

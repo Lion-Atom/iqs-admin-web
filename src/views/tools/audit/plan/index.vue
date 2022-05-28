@@ -430,7 +430,7 @@
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column label="审核编号" prop="auditNo" min-width="150" />
+      <el-table-column label="审核编号" prop="auditNo" min-width="180" />
       <el-table-column label="审核种类" prop="type" />
       <el-table-column label="审核内容" prop="content" />
       <el-table-column label="计划状态" prop="status">
@@ -468,7 +468,7 @@
       <el-table-column label="模板类型" prop="templateType" />
       <el-table-column label="审核范围" prop="scope" min-width="140" />
       <el-table-column label="审核周期" prop="period" />
-      <el-table-column label="审核原因" prop="reason" />
+      <el-table-column label="审核原因" prop="reason" min-width="120" />
       <el-table-column label="审核产品" prop="product" />
       <el-table-column label="产品技术" prop="technology" />
       <el-table-column label="审核地点" prop="address" />

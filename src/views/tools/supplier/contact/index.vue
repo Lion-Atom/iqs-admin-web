@@ -25,7 +25,7 @@
       <el-table-column prop="workTel" label="工作电话" />
       <el-table-column prop="phone" label="手机号" />
       <el-table-column prop="email" label="邮箱地址" />
-      <el-table-column prop="address" label="住址" min-width="160" />
+      <el-table-column prop="address" label="住址" :show-overflow-tooltip="true" />
       <el-table-column prop="createBy" label="创建者" />
       <el-table-column prop="createTime" label="创建日期" width="140" />
       <!--   编辑与删除   -->

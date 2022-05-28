@@ -23,13 +23,13 @@
       <el-table-column prop="department" label="发起部门" width="100"/>
       <el-table-column label="发起时间" min-width="100" :formatter="initDateFormat"/>
       <el-table-column prop="area" label="涉及地区" min-width="100"/>
-      <el-table-column prop="depart" label="涉及部门" min-width="100"/>
+      <el-table-column prop="depart" label="涉及部门" :show-overflow-tooltip="true" />
       <el-table-column prop="project" label="涉及项目" min-width="100"/>
-      <el-table-column prop="production" label="涉及产品" min-width="100"/>
+      <el-table-column prop="production" label="涉及产品" :show-overflow-tooltip="true" />
       <el-table-column label="是否客户要求" width="100" :formatter="isCustomerFormat"/>
       <el-table-column label="是否同意" width="100" :formatter="isAcceptFormat"/>
       <el-table-column prop="status" label="变更状态" min-width="100"/>
-      <el-table-column prop="createBy" label="创建者" />
+      <el-table-column prop="createBy" label="创建者"/>
       <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
       <el-table-column

@@ -12,8 +12,6 @@
       :data="crud.data"
       style="width: 100%;"
       @selection-change="crud.selectionChangeHandler"
-      :row-key="getRowKeys"
-      :expand-row-keys="expands"
       @expand-change="expendOrgSelected"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
@@ -27,7 +25,7 @@
             <el-form-item label="启用状态">
               <span>{{ boolToNullFormat(props.row.enabled) }}</span>
             </el-form-item>
-            <el-form-item label="仪校机构附件列表">
+            <el-form-item label="仪校机构证明">
               <el-table
                 ref="table"
                 border
@@ -347,7 +345,7 @@ const defaultForm = {
   uid: null
 }
 export default {
-  name: 'CalibrationOrg',
+  name: 'CalibrationOrgV1',
   components: {eHeader, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({
@@ -397,11 +395,7 @@ export default {
       caliOrgFileUploadVisible: false,
       caliOrgFilesLoading: false,
       caliOrgFiles: [],
-      fileList: [],
-      expands: [],
-      getRowKeys: (row) => {
-        return row.id
-      }
+      fileList: []
     }
   },
   computed: {
@@ -487,11 +481,12 @@ export default {
     },
     expendOrgSelected(row, expandedRows) {
       const _this = this
-      if (expandedRows.length) {
+      if (expandedRows.length > 1) {
         _this.expands = []
         if (row) {
-          _this.expands.push(row.id)
+          _this.expands.push(row)
         }
+        _this.$refs.table.toggleRowExpansion(expandedRows[0])
       } else {
         _this.expands = []
       }
@@ -573,6 +568,7 @@ export default {
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }
+
 ::v-deep .el-form-item--small.el-form-item {
   margin-bottom: 10px;
 }
