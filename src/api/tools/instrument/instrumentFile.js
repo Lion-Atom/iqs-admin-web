@@ -11,7 +11,7 @@ export function delInstruFile(ids) {
 
 export function getFileByInstruId(id) {
   const params = {
-    caliOrgId: id
+    instruId: id
   }
   return request({
     url: 'api/instruFile/byInstruId',

@@ -407,15 +407,14 @@ export default {
       }
       if (validIsNotNull(period)) {
         this.maxRemindDays = period * days
-        if (validIsNotNull(this.remindDays)) {
-          if (this.remindDays > this.maxRemindDays) {
-            this.remindDays = this.maxRemindDays
+        if (validIsNotNull(this.form.remindDays)) {
+          if (this.form.remindDays > this.maxRemindDays) {
+            this.form.remindDays = this.maxRemindDays
           }
         }
         // 重新计算设备保养到期时间
         this.form.maintainDueDate = new Date(new Date(this.form.lastMaintainDate).getTime() + (period * days * 24 * 1000 * 3600))
       }
-      // alert(this.form.maintainDueDate)
     },
     remindDaysMaxValue(v) {
       this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v

@@ -469,8 +469,8 @@
       <el-table-column label="审核范围" prop="scope" min-width="140" />
       <el-table-column label="审核周期" prop="period" />
       <el-table-column label="审核原因" prop="reason" min-width="120" />
-      <el-table-column label="审核产品" prop="product" />
-      <el-table-column label="产品技术" prop="technology" />
+      <el-table-column label="审核产品" prop="product" min-width="140" />
+      <el-table-column label="产品技术" prop="technology" :show-overflow-tooltip="true" />
       <el-table-column label="审核地点" prop="address" />
       <el-table-column label="审核产线" prop="line" />
       <el-table-column label="审核负责人" prop="chargeman" />

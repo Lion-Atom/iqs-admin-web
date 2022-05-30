@@ -12,126 +12,191 @@
       :model="form"
       :rules="rules"
       size="small"
-      label-width="100px"
+      label-width="110px"
     >
       <el-row>
         <el-col :span="8">
-          <el-form-item label="新员工姓名" prop="staffName">
-            <el-input v-model="form.staffName" style="width: 220px;"/>
+          <el-form-item label="仪器名称" prop="instruName">
+            <el-input v-model="form.instruName" placeholder="请填写仪器名称" style="width: 100%"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="出厂型号" prop="instruNum">
+            <el-input v-model="form.instruNum" placeholder="请填写出厂型号"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item
-            label="入职日期"
-            prop="hireDate"
+            label="出厂日期"
+            prop="purDate"
           >
             <el-date-picker
-              v-model="form.hireDate"
+              v-model="form.purDate"
               type="date"
-              style="width: 220px;"
-              placeholder="请填写入职时间"
+              placeholder="请填写出厂日期"
               :picker-options="pickerOption"
+              style="width: 100%"
             />
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="仪器状态" prop="status">
+          <el-form-item label="内部编码" prop="innerId">
+            <el-input v-model="form.innerId" placeholder="请填写内部编码"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="资产号" prop="assetNum">
+            <el-input v-model="form.assetNum" placeholder="请填写资产号"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="测量范围" prop="caliScope">
+            <el-input v-model="form.caliScope" placeholder="请填写测量范围"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="精度要求" prop="precise">
+            <el-input v-model="form.precise" placeholder="请填写精度要求"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="允许误差" prop="errorRange">
+            <el-input v-model="form.errorRange" placeholder="请填写允许误差范围"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="存放位置" prop="position">
+            <el-input v-model="form.position" placeholder="请填写存放位置"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="保管人" prop="keeper">
+            <el-input v-model="form.keeper" placeholder="请填写保管人员"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="使用区域" prop="useArea">
+            <el-input v-model="form.useArea" placeholder="请填写使用区域"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="使用人" prop="useBy">
+            <el-select
+              v-model="form.useBy"
+              placeholder="请选/填使用人"
+              filterable
+              allow-create
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in users"
+                :key="item.username"
+                :label="item.dept.name + ' - ' +item.username "
+                :value="item.username">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="使用状态" prop="status">
             <el-select
               v-model="form.status"
-              placeholder="请选择员工类型"
-              style="width: 220px;"
+              placeholder="请选择使用状态"
+              filterable
+              allow-create
+              style="width: 100%"
             >
               <el-option
                 v-for="item in statusOptions"
                 :key="item.value"
-                :label="item.label + ' - ' +item.value "
+                :label="item.value "
                 :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row v-if="form.staffType">
-        <el-col :span="8">
-          <el-form-item label="所属部门" prop="departId">
-            <TreeSelect
-              v-model="form.departId"
-              :options="departs"
-              :load-options="loadDeparts"
-              class="newTree-item"
-              placeholder="选择新员工所在部门"
-              style="width:220px !important;"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="上级主管" prop="superior">
-            <el-select
-              v-model="form.superior"
-              placeholder="请先选择所在部门"
-              filterable
-              style="width:220px"
+        <el-col :span="8" v-if="form.status !== '报废'">
+          <el-form-item
+            label="校准周期"
+            prop="caliPeriod"
+          >
+            <el-input
+              v-model="form.caliPeriod"
+              placeholder="请填写校准周期"
+              style="width: 100%"
+              class="input-with-select"
+              :min="1"
+              type="number"
+              :step="1"
+              @input="maintainPeriodChange"
             >
-              <el-option
-                v-for="item in superiors"
-                :key="item.id"
-                :label="item.jobs[0].name + '-'+ item.username "
-                :value="item.username"
-              />
-            </el-select>
+              <el-select v-model="form.periodUnit" slot="append" style="width: 60px;"
+                         placeholder="请选择" @change="maintainUnitChange">
+                <el-option label="年" value="年"></el-option>
+                <el-option label="月" value="月"></el-option>
+                <el-option label="周" value="周"></el-option>
+                <el-option label="日" value="日"></el-option>
+              </el-select>
+            </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.staffType">
-          <el-form-item label="岗位名称" prop="jobName">
-            <el-input v-model="form.jobName" style="width:220px"/>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="8">
-          <el-form-item label="所属车间" prop="workshop">
-            <el-input v-model="form.workshop" style="width:220px"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="所属班组" prop="team">
-            <el-input v-model="form.team" style="width:220px"/>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="工种" prop="jobType">
-            <el-input v-model="form.jobType" style="width:220px"/>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="24" v-if="form.staffType">
-          <el-form-item label="培训内容" prop="trainContent">
-            <el-input type="textarea" :row="3" v-model="form.trainContent" placeholder="请填写培训内容"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8" v-if="form.staffType">
-          <el-form-item label="是否完成" prop="isFinished">
+        <el-col :span="8" v-if="form.status !== '报废'">
+          <el-form-item
+            label="下次校准提醒"
+            prop="isRemind"
+          >
             <el-radio
-              v-for="item in finishStatus"
+              v-for="item in caliStatus"
               :key="item.id"
-              v-model="form.isFinished"
-              :label="item.value === 'true'"
-              @change="trainResultChanged"
-            >
+              v-model="form.isRemind"
+              :label="item.value === 'true'">
               {{ item.label }}
             </el-radio>
           </el-form-item>
         </el-col>
-        <el-col :span="24" v-if="form.staffType && form.isFinished.toString() === 'false'">
-          <el-form-item label="未完成原因" prop="reason">
-            <el-input type="textarea" :row="3" v-model="form.reason" placeholder="请填写未完成培训原因"></el-input>
+        <el-col :span="8" v-if="form.status !== '报废' && form.isRemind.toString() === 'true'">
+          <el-form-item
+            label="提前提醒天数"
+            prop="remindDays"
+          >
+            <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays"
+                      v-model="form.remindDays" @input="remindDaysMaxValue">
+              <template slot="append">天</template>
+            </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="24" v-if="form.status==='报废 '">
+        <el-col :span="24" v-if="form.status === '报废'">
+          <el-form-item
+            prop="dropRemark"
+            label="报废说明"
+          >
+            <el-input
+              type="textarea"
+              :rows="2"
+              placeholder="请输入报废/无法使用说明"
+              v-model="form.dropRemark">
+            </el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" v-if="form.status === '限制使用'">
+          <el-form-item
+            prop="limitRemark"
+            label="限制说明"
+          >
+            <el-input
+              type="textarea"
+              :rows="2"
+              placeholder="请输入限制说明"
+              v-model="form.limitRemark">
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24" v-if="form.status==='报废'">
           <el-form-item>
             <template slot="label">
-              <span><i style="color: red">* </i>确认单列表</span>
+              <span><i style="color: red">* </i>异常报告</span>
             </template>
             <el-table
               ref="table"
@@ -255,7 +320,7 @@ import CRUD, {form} from '@crud/crud'
 import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getDepts, getDeptTree} from "@/api/system/dept";
-import {getUserByDeptId} from "@/api/system/user";
+import {getAllUser, getUserByDeptId} from "@/api/system/user";
 import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
@@ -264,20 +329,31 @@ import {delInstruFile, getFileByInstruId} from "@/api/tools/instrument/instrumen
 
 const defaultForm = {
   id: null,
-  staffName: null,
-  staffType: null,
-  hireDate: null,
-  departId: null,
-  workshop: null,
-  team: null,
-  superior: null,
-  jobName: null,
-  jobNum: null,
-  jobType: null,
-  trainContent: null,
-  isFinished: true,
-  status: null,
-  reason: null,
+  instruName: null,
+  instruNum: null,
+  assetNum: null,
+  purDate: null,
+  innerId: null,
+  position: null,
+  keeper: null,
+  caliScope: null,
+  precise: null,
+  errorRange: null,
+  useArea: null,
+  useBy: null,
+  status: '正常使用',
+  caliStatus: null,
+  limitRemark: null,
+  dropRemark: null,
+  caliPeriod: null,
+  periodUnit: '月',
+  lastCaliDate: null,
+  nextCaliDate: null,
+  innerChecked: true,
+  caliOrgId: null,
+  isDoor: null,
+  isRemind: false,
+  remindDays: null,
   uid: null,
   fileList: []
 }
@@ -302,48 +378,62 @@ export default {
     return {
       headers: {'Authorization': getToken()},
       rules: {
-        staffName: [
-          {required: true, message: '请输入新员工姓名', trigger: 'blur'}
+        instruName: [
+          {required: true, message: '请输入仪器仪表名称', trigger: 'blur'}
         ],
-        hireDate: [
-          {required: true, message: '请输入入职时间', trigger: 'blur'}
+        instruNum: [
+          {required: true, message: '请输入出厂型号', trigger: 'blur'}
         ],
-        staffType: [
-          {required: true, message: '请选择新员工类型', trigger: 'blur'}
+        assetNum: [
+          {required: false, message: '请输入资产号', trigger: 'blur'}
         ],
-        departId: [
-          {required: true, message: '请选择新员工所属部门', trigger: 'blur'}
+        purDate: [
+          {required: true, message: '请输入出厂日期', trigger: 'blur'}
         ],
-        superior: [
-          {required: true, message: '请选择上级主管', trigger: 'blur'}
+        innerId: [
+          {required: true, message: '请输入内部ID', trigger: 'blur'}
         ],
-        jobNum: [
-          {required: false, message: '请填写新员工工号', trigger: 'blur'}
+        position: [
+          {required: true, message: '请填写存放位置', trigger: 'blur'}
         ],
-        jobName: [
-          {required: true, message: '请填写新员工岗位', trigger: 'blur'}
+        keeper: [
+          {required: true, message: '请填写保管人员', trigger: 'blur'}
         ],
-        jobType: [
-          {required: true, message: '请填写新员工工种', trigger: 'blur'}
+        caliScope: [
+          {required: true, message: '请填写测量范围', trigger: 'blur'}
         ],
-        workshop: [
-          {required: true, message: '请填写培训车间', trigger: 'blur'}
+        precise: [
+          {required: true, message: '请填写精度要求', trigger: 'blur'}
         ],
-        team: [
-          {required: true, message: '请填写所在班组', trigger: 'blur'}
+        errorRange: [
+          {required: true, message: '请填写允许误差', trigger: 'blur'}
         ],
-        trainContent: [
-          {required: true, message: '培训内容不可为空', trigger: 'blur'}
+        useArea: [
+          {required: true, message: '请填写使用区域', trigger: 'blur'}
         ],
-        isFinished: [
-          {required: true, message: '请选择是否完成培训', trigger: 'blur'}
+        useBy: [
+          {required: true, message: '请填写使用人员', trigger: 'blur'}
         ],
-        reason: [
-          {required: true, message: '请填写未完成培训的原因', trigger: 'blur'}
+        status: [
+          {required: true, message: '请选/填仪器状态', trigger: 'blur'}
+        ],
+        caliPeriod: [
+          {required: true, message: '请填写校准周期', trigger: 'blur'}
+        ],
+        isRemind: [
+          {required: true, message: '请选择是否提前提醒', trigger: 'blur'}
+        ],
+        remindDays: [
+          {required: true, message: '请填写提前提醒天数', trigger: 'blur'}
+        ],
+        limitRemark: [
+          {required: true, message: '请填写限制说明', trigger: 'blur'}
+        ],
+        dropRemark: [
+          {required: true, message: '请填写无法使用原因', trigger: 'blur'}
         ]
       },
-      departs: [],
-      superiors: [],
+      users: [],
       reasonRules: [
         {required: false}
       ],
@@ -370,30 +460,16 @@ export default {
     ])
   },
   created: function () {
-    this.getTopDept()
+    this.getAllAvailUser()
   },
   methods: {
-    getTopDept() {
-      // alert(JSON.stringify(this.user))
-      getDeptTree().then(res => {
-        this.departs = res.content
+    // 获取公司员工数据
+    getAllAvailUser() {
+      this.users = []
+      getAllUser().then(res => {
+        // alert(JSON.stringify(res.content))
+        this.users = res.content
       })
-    },
-    // 获取弹窗内使用部门数据
-    loadDeparts({action, parentNode, callback}) {
-      if (action === LOAD_CHILDREN_OPTIONS) {
-        getDepts({enabled: true, pid: parentNode.id}).then(res => {
-          parentNode.children = res.content.map(function (obj) {
-            if (obj.hasChildren) {
-              obj.children = null
-            }
-            return obj
-          })
-          setTimeout(() => {
-            callback()
-          }, 200)
-        })
-      }
     },
     // 新增前操作
     [CRUD.HOOK.beforeToAdd]() {
@@ -410,15 +486,17 @@ export default {
     [CRUD.HOOK.beforeToEdit](crud, form) {
       // alert(JSON.stringify(form))
       this.bindingId = form.id
-      // 获取设备维修确认单信息列表
+      // 获取仪器报告单列表
       this.getInstruFileById(form.id)
+      // 监控提前提醒最大值设计
+      this.getMaxRemindDays(form.caliPeriod, form.periodUnit)
     },
     // 提交前做的操作
     [CRUD.HOOK.beforeSubmit]() {
       // alert(JSON.stringify(this.form.fileList))
       // 判断是否确认完成，若确认完成则必须上传确认单
-      if (this.form.isFinished && this.form.fileList.length === 0) {
-        this.$message.warning("请务必上传确认单等附件！")
+      if (this.form.status === '报废' && this.form.fileList.length === 0) {
+        this.$message.warning("请务必上传仪器异常报告！")
         return false
       }
     },
@@ -430,34 +508,6 @@ export default {
         // alert(JSON.stringify(res))
         this.form.fileList = res
         this.filesLoading = false
-      })
-    },
-    // 监控数据变化
-    currDeptChange(deptId) {
-      this.superiors = []
-      // 根据部门标识（val）查找人员信息
-      getUserByDeptId({deptId: deptId}).then(res => {
-        // alert(JSON.stringify(res))
-        this.superiors = res
-        if (this.superiors.length > 0) {
-          // 若不是同部门成员则需要默认切换到首选默认值
-          let usernames = []
-          this.superiors.forEach((data, index) => {
-            usernames.push(data.username)
-          })
-          if (validIsNotNull(this.form.superior)) {
-            if (usernames.indexOf(this.form.superior) === -1) {
-              this.form.superior = this.superiors[0].username
-            }
-          } else {
-            // 若原无值则设置首选默认值
-            this.form.superior = this.superiors[0].username
-          }
-          // alert(usernames.indexOf(this.form.acceptBy))
-        } else {
-          this.form.superior = null
-        }
-        // alert(JSON.stringify(this.users))
       })
     },
     // 监控培训结果变化
@@ -511,6 +561,40 @@ export default {
         duration: 2500
       })
     },
+    // 提醒天数的设置
+    // 监控保养周期单位变化
+    maintainUnitChange(val) {
+      this.getMaxRemindDays(this.form.caliPeriod, val)
+    },
+    // 监控保养周期变化
+    maintainPeriodChange(val) {
+      this.getMaxRemindDays(val, this.form.periodUnit)
+    },
+    getMaxRemindDays(period, unit) {
+      let days = 1
+      if (unit === '年') {
+        days = 360
+      } else if (unit === '季') {
+        days = 90
+      } else if (unit === '月') {
+        days = 30
+      } else if (unit === '周') {
+        days = 7
+      }
+      if (validIsNotNull(period)) {
+        this.maxRemindDays = period * days
+        if (validIsNotNull(this.form.remindDays)) {
+          if (this.form.remindDays > this.maxRemindDays) {
+            this.form.remindDays = this.maxRemindDays
+          }
+        }
+        // 重新计算设备保养到期时间
+        // this.form.lastCaliDate = new Date(new Date(this.form.lastCaliDate).getTime() + (period * days * 24 * 1000 * 3600))
+      }
+    },
+    remindDaysMaxValue(v) {
+      this.form.remindDays = v > this.maxRemindDays ? this.maxRemindDays : v
+    }
   }
 }
 </script>

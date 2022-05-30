@@ -9,18 +9,22 @@
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
               @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="staffName" label="员工姓名" fixed/>
-      <el-table-column prop="jobNum" label="员工工号"/>
-      <el-table-column prop="jobName" label="岗位"/>
-      <el-table-column prop="departName" label="所属部门"/>
-      <el-table-column prop="superior" label="上级主管"/>
-      <el-table-column prop="staffType" label="员工分类"/>
-      <el-table-column prop="jobType" label="工种"/>
-      <el-table-column prop="workshop" label="车间"/>
-      <el-table-column prop="team" label="班组"/>
-      <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
-      <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
-      <el-table-column prop="reason" label="未完成原因" :show-overflow-tooltip="true"/>
+      <el-table-column prop="instruName" label="仪器名称" :show-overflow-tooltip="true" fixed/>
+      <el-table-column prop="instruNum" label="出厂型号"/>
+      <el-table-column prop="assetNum" label="资产号"/>
+      <el-table-column prop="innerId" label="内部编号"/>
+      <el-table-column prop="caliScope" label="测量范围"/>
+      <el-table-column prop="useArea" label="使用区域" :show-overflow-tooltip="true" />
+      <el-table-column prop="useBy" label="使用人"/>
+      <el-table-column prop="position" label="存放区域" :show-overflow-tooltip="true" />
+      <el-table-column prop="keeper" label="保管人"/>
+      <el-table-column prop="status" label="使用状态"/>
+      <el-table-column prop="caliStatus" label="校准状态"/>
+      <el-table-column label="校准周期">
+        <template slot-scope="scope">
+          {{ scope.row.caliPeriod }}{{ scope.row.periodUnit }}
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -32,6 +36,7 @@
       >
         <template slot-scope="scope">
           <udOperation
+            :show-del="false"
             :data="scope.row"
             :permission="permission"
           />
@@ -78,7 +83,7 @@ export default {
       instruStatusOptions: [
         {
           label: 'normal',
-          value: '正在使用'
+          value: '正常使用'
         },
         {
           label: 'limit',
@@ -102,13 +107,7 @@ export default {
   },
   methods: {
     // 改变状态
-    isFinishedFormat(row, col) {
-      if (row.isFinished) {
-        return '是'
-      } else {
-        return '否'
-      }
-    }
+
   }
 }
 </script>
