@@ -36,7 +36,7 @@
               placeholder="输入名称或者邮箱搜索"
               style="width: 200px;"
               class="filter-item"
-              @keyup.enter.native="crud.toQuery"
+              @input="crud.toQuery"
             />
             <!-- 职位树表筛选 -->
             <treeselect

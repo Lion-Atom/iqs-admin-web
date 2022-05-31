@@ -4,8 +4,8 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.blurry" clearable size="small" placeholder="模糊搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-        <date-range-picker v-model="query.createTime" class="date-item" />
+        <el-input v-model="query.blurry" clearable size="small" placeholder="模糊搜索" style="width: 200px;" class="filter-item" @input="crud.toQuery" />
+        <date-range-picker v-model="query.createTime" class="date-item" @input="dateChange" />
         <rrOperation />
       </div>
       <crudOperation :permission="permission" />
@@ -236,6 +236,10 @@ export default {
     // 选中图标
     selected(name) {
       this.form.icon = name
+    },
+    dateChange() {
+      this.$forceUpdate()
+      this.crud.toQuery()
     }
   }
 }
