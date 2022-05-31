@@ -651,7 +651,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .labelClass {
   width: 80px;
 }
