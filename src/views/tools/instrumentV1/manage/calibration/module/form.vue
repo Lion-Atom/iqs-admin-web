@@ -404,7 +404,7 @@ export default {
     },
     // 删除附件
     deleteCaliFile(row) {
-      // alert(row)
+      // alert(JSON.stringify(row))
       const data = []
       data.push(row.id)
       delCaliFileV2(data).then(res => {
@@ -412,7 +412,7 @@ export default {
           message: 'Del File Success! 删除附件成功!',
           type: 'success'
         })
-        this.getCaliFilesByCaliId(row.maintenanceId)
+        this.getCaliFilesByCaliId(row.caliId)
       })
     },
     // 监听上传失败
