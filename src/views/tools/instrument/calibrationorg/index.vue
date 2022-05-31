@@ -225,12 +225,12 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item label="变更说明" prop="caliScope">
+            <el-form-item label="校准范围" prop="caliScope">
               <el-input
                 v-model="form.caliScope"
                 type="textarea"
                 :autosize="{ minRows: 1, maxRows: 5}"
-                placeholder="请输入变更说明"
+                placeholder="请输入校准范围"
                 style="width: 400px;"
               />
             </el-form-item>

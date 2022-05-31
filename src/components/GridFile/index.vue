@@ -173,7 +173,7 @@
 
 import {getToken} from "@/utils/auth";
 import {mapGetters} from "vuex";
-import {delGridFile, getGridFileByExample} from "@/api/tools/gridFile";
+import {delGridFile, getGridFileByExample} from "@/api/tools/instrument/gridFile";
 
 export default {
   name: "GridFile",

@@ -6,7 +6,7 @@
     <el-input v-model="query.caliScope" clearable size="small" placeholder="输入校准范围搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
     <date-range-picker v-model="query.createTime" class="date-item" />
     <el-select v-model="query.enabled" clearable size="small" placeholder="状态" class="filter-item" style="width: 90px" @change="crud.toQuery">
-      <el-option v-for="item in dict.dict.job_status" :key="item.value" :label="item.label" :value="item.value" />
+      <el-option v-for="item in enableOptions" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
     <rrOperation />
   </div>
@@ -20,8 +20,8 @@ export default {
   components: { rrOperation, DateRangePicker },
   mixins: [header()],
   props: {
-    dict: {
-      type: Object,
+    enableOptions: {
+      type: Array,
       required: true
     },
     permission: {
