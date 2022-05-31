@@ -9,9 +9,9 @@
       placeholder="输入模糊项搜索"
       style="width: 160px;"
       class="filter-item"
-      @keyup.enter.native="crud.toQuery"
+      @input="crud.toQuery"
     />
-    <date-range-picker v-model="query.createTime" class="date-item" />
+    <date-range-picker v-model="query.createTime" class="date-item" @input="dateChange" />
     <el-select
       v-model="query.supplierId"
       size="small"
@@ -126,7 +126,11 @@ export default {
         // alert(JSON.stringify(res))
         this.suppliers = res.content
       })
-    }
+    },
+    dateChange() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
   }
 }
 </script>

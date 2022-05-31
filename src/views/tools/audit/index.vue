@@ -11,9 +11,9 @@
           placeholder="输入审核计划名称搜索"
           style="width: 200px;"
           class="filter-item"
-          @keyup.enter.native="crud.toQuery"
+          @input="crud.toQuery"
         />
-        <date-range-picker v-model="query.createTime" class="date-item" @change="crud.toQuery" />
+        <date-range-picker v-model="query.createTime" class="date-item" @input="dateChange" />
         <el-select
           v-model="query.auditType"
           clearable
@@ -301,6 +301,10 @@ export default {
     },
     checkboxT(row, rowIndex) {
       return row.id !== 0
+    },
+    dateChange() {
+      this.$forceUpdate()
+      this.crud.toQuery()
     },
     pidChange(val) {
       // alert(JSON.stringify(val))

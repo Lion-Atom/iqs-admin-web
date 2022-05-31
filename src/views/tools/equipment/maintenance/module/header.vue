@@ -2,7 +2,7 @@
   <div
     v-if="crud.props.searchToggle"
   >
-    <el-input v-model="query.blurry" clearable size="small" placeholder="输入名称、厂家、设备型号等搜索" style="width: 250px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+    <el-input v-model="query.blurry" clearable size="small" placeholder="输入名称、厂家、设备型号等搜索" style="width: 250px;" class="filter-item" @input="crud.toQuery" />
     <!-- 文件所属部门筛选，需要更改为树表筛选 -->
     <TreeSelect
       v-model="query.useDepart"

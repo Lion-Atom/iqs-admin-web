@@ -9,7 +9,7 @@
       placeholder="输入客户名称搜索"
       style="width: 160px;"
       class="filter-item"
-      @keyup.enter.native="crud.toQuery"
+      @input="crud.toQuery"
     />
     <el-input
       v-model="query.issueTitle"
@@ -18,7 +18,7 @@
       placeholder="输入问题标题搜索"
       style="width: 160px;"
       class="filter-item"
-      @keyup.enter.native="crud.toQuery"
+      @input="crud.toQuery"
     />
     <el-input
       v-model="query.partNum"
@@ -27,7 +27,7 @@
       placeholder="输入物料编码搜索"
       style="width: 160px;"
       class="filter-item"
-      @keyup.enter.native="crud.toQuery"
+      @input="crud.toQuery"
     />
     <el-input
       v-model="query.duration"
@@ -37,9 +37,9 @@
       placeholder="结案时长(天)"
       style="width: 140px;"
       class="filter-item"
-      @keyup.enter.native="crud.toQuery"
+      @input="crud.toQuery"
     />
-    <date-range-picker v-model="query.createTime" class="date-item"/>
+    <date-range-picker v-model="query.createTime" class="date-item" @input="dateChange" />
     <el-select v-model="query.status" clearable size="small" placeholder="8D状态" class="filter-item" style="width: 120px"
                @change="crud.toQuery"
     >
@@ -79,6 +79,12 @@ export default {
       type: Object,
       required: true
     }
+  },
+  methods: {
+    dateChange() {
+      this.$forceUpdate()
+      this.crud.toQuery()
+    },
   }
 }
 </script>

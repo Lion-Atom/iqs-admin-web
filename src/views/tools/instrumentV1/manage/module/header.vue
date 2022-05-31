@@ -3,7 +3,7 @@
     v-if="crud.props.searchToggle"
   >
     <el-input v-model="query.blurry" clearable size="small" placeholder="输入仪器名称、编码、使用人、区域搜索" style="width: 280px;"
-              class="filter-item" @keyup.enter.native="crud.toQuery"/>
+              class="filter-item" @input="crud.toQuery" />
     <date-range-picker v-model="query.lastCaliDate" start-placeholder="上次校准开始日期"
                        end-placeholder="上次校准结束日期" class="date-item" @input="dateTimeChange()" />
     <date-range-picker v-model="query.nextCaliDate"  start-placeholder="下次校准开始日期"

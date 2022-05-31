@@ -9,7 +9,7 @@
       placeholder="输入模糊项搜索"
       style="width: 160px;"
       class="filter-item"
-      @keyup.enter.native="crud.toQuery"
+      @input="crud.toQuery"
     />
     <date-range-picker v-model="query.createTime" class="date-item" />
     <el-select

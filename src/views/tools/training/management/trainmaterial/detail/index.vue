@@ -13,7 +13,7 @@
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
         <el-input v-model="query.blurry" clearable size="small" placeholder="输入内容模糊搜索" style="width: 200px;"
-                  class="filter-item" @keyup.enter.native="crud.toQuery"/>
+                  class="filter-item" @input="crud.toQuery" />
         <el-input v-model="query.departId" v-show="false"/>
         <date-range-picker v-model="query.createTime" class="date-item" @input="dateChange"/>
         <el-select
