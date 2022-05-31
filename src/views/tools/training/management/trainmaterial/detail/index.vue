@@ -71,7 +71,7 @@
     </div>
     <!--表单组件-->
     <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU"
-               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '培训资料上传' : '编辑培训资料'" width="75%">
+               :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '培训资料上传' : '编辑培训资料'" width="70%">
       <el-form ref="form" :rules="rules" :model="form" size="small" label-width="80px">
         <el-row :gutter="40" class="row-box">
           <el-col :span="13">

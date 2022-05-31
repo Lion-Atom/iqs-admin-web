@@ -60,7 +60,7 @@
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 5}"
               placeholder="请输入校准范围"
-              style="width: 400px;"
+              style="width: 100%;"
             />
           </el-form-item>
         </el-col>

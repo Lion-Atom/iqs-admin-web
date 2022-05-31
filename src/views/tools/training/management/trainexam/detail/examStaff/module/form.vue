@@ -5,7 +5,7 @@
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
-    width="80%"
+    width="70%"
   >
     <el-form
       ref="form"

@@ -5,14 +5,14 @@
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
-    width="80%"
+    width="70%"
   >
     <el-form
       ref="form"
       :model="form"
       :rules="rules"
       size="small"
-      label-width="120px"
+      label-width="110px"
     >
       <!--设备信息-->
       <el-row>

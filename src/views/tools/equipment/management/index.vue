@@ -61,7 +61,7 @@
       :before-close="crud.cancelCU"
       :visible="crud.status.cu > 0"
       :title="crud.status.title"
-      width="80%"
+      width="70%"
     >
       <el-form
         ref="form"
@@ -70,7 +70,7 @@
         size="small"
         label-width="80px"
       >
-        <el-row>
+        <el-row class="el-row-inline">
           <el-col :span="8">
             <el-form-item label="设备编号" prop="equipNum">
               <el-input v-model="form.equipNum" style="width: 220px;"/>

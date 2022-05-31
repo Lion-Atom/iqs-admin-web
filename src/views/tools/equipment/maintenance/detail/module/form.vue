@@ -5,18 +5,23 @@
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
-    width="80%"
+    width="70%"
   >
     <el-form
       ref="form"
       :model="form"
       :rules="rules"
       size="small"
-      label-width="120px"
+      label-width="80px"
     >
       <!--设备信息-->
       <el-row class="el-row-inline">
         <el-col :span="8">
+          <el-form-item label="设备名称" prop="equipName">
+            <el-input v-model="equipForm.equipName" disabled style="width: 220px"/>
+          </el-form-item>
+        </el-col>
+<!--        <el-col :span="8">
           <el-form-item label="设备名称" prop="equipName">
             <el-input v-model="equipForm.equipName" disabled style="width: 220px"/>
           </el-form-item>
@@ -64,7 +69,7 @@
               </template>
             </el-input>
           </el-form-item>
-        </el-col>
+        </el-col>-->
         <!--设备维修信息-->
         <el-col :span="8">
           <el-form-item label="保养日期" prop="maintainDate">

@@ -15,7 +15,7 @@
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="equipNum" label="设备编号" min-width="100"/>
-      <el-table-column prop="equipName" label="设备名称" min-width="100"/>
+      <el-table-column prop="equipName" label="设备名称" min-width="100" :show-overflow-tooltip="true" />
       <el-table-column prop="acceptParticipant" label="参与人员"/>
       <el-table-column prop="acceptDepartName" label="验收部门"/>
       <el-table-column label="验收状态">
@@ -71,9 +71,9 @@
       :before-close="crud.cancelCU"
       :visible="crud.status.cu > 0"
       :title="crud.status.title"
-      width="80%"
+      width="70%"
     >
-      <el-dialog title="设备验收明细" append-to-body :visible.sync="detailVisible" width="60%">
+      <el-dialog title="验收明细" append-to-body :visible.sync="detailVisible" width="60%">
         <el-table
           ref="detailTable"
           v-loading="detailsLoading"
@@ -170,7 +170,7 @@
         :model="form"
         :rules="rules"
         size="small"
-        label-width="120px"
+        label-width="80px"
       >
         <el-row>
           <el-col :span="24">
@@ -333,10 +333,10 @@
 
         <el-row v-if="form.acceptStatus !== '待验收'" class="el-row-inline">
           <el-col :span="24">
-            <el-divider content-position="left">设备验收明细</el-divider>
+            <el-divider content-position="left">验收明细</el-divider>
           </el-col>
           <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
-            <el-form-item label="设备验收明细">
+            <el-form-item label="验收明细">
               <el-button type="primary" style="width: 220px!important;" @click="openDetailDialog(form.id)">打开验收明细单
               </el-button>
             </el-form-item>
@@ -403,11 +403,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="8" v-if="form.acceptStatus !== '待验收'">
-            <el-form-item label="验收提交人" prop="submitBy">
+            <el-form-item label="提交人" prop="submitBy">
               <!--                <el-input v-model="form.submitBy" style="width:220px !important;" disabled/>-->
               <el-select
                 v-model="form.submitBy"
-                placeholder="请选择验收提交人"
+                placeholder="请选择提交人"
                 style="width:220px !important;"
                 @input="changeApproveBy($event)"
               >
@@ -481,10 +481,10 @@
       :before-close="handleClose"
       :visible.sync="acceptEquipmentVisible"
       title="验收设备"
-      width="80%"
+      width="70%"
     >
-      <!--todo 设备验收明细表格信息-->
-      <el-dialog title="设备验收明细" append-to-body :visible.sync="detailVisible" width="60%">
+      <!--todo 验收明细表格信息-->
+      <el-dialog title="验收明细" append-to-body :visible.sync="detailVisible" width="60%">
         <el-table
           ref="detailTable"
           v-loading="detailsLoading"
@@ -581,7 +581,7 @@
         :model="acceptForm"
         :rules="rules"
         size="small"
-        label-width="120px"
+        label-width="80px"
       >
         <el-row class="el-row-inline">
           <el-col :span="8">
@@ -673,10 +673,10 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-divider content-position="left">设备验收明细</el-divider>
+            <el-divider content-position="left">验收明细</el-divider>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="设备验收明细">
+            <el-form-item label="验收明细">
               <el-button type="primary" style="width: 220px !important;" @click="openDetailDialog(acceptForm.id)">
                 打开验收明细单
               </el-button>
@@ -717,7 +717,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="设备验收人" prop="acceptBy">
+            <el-form-item label="验收人" prop="acceptBy">
               <el-select
                 v-model="acceptForm.acceptBy"
                 placeholder="请选择验收人"
@@ -744,11 +744,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="验收提交人" prop="submitBy">
+            <el-form-item label="提交人" prop="submitBy">
               <!--                <el-input v-model="form.submitBy" style="width:220px !important;" disabled/>-->
               <el-select
                 v-model="acceptForm.submitBy"
-                placeholder="请选择验收提交人"
+                placeholder="请选择提交人"
                 style="width:220px !important;"
                 @input="changeApproveBy($event)"
               >
@@ -783,9 +783,9 @@
       :before-close="handleClose"
       :visible.sync="approveEquipmentVisible"
       title="验收设备批准"
-      width="80%"
+      width="70%"
     >
-      <el-dialog title="设备验收明细" append-to-body :visible.sync="detailVisible" width="60%">
+      <el-dialog title="验收明细" append-to-body :visible.sync="detailVisible" width="60%">
         <el-table
           ref="detailTable"
           v-loading="detailsLoading"
@@ -878,7 +878,7 @@
         :model="approveForm"
         :rules="rules"
         size="small"
-        label-width="120px"
+        label-width="80px"
       >
         <el-row>
           <el-col :span="8">
@@ -973,10 +973,10 @@
         <!--验收明细-->
         <el-row class="el-row-inline">
           <el-col :span="24">
-            <el-divider content-position="left">设备验收明细</el-divider>
+            <el-divider content-position="left">验收明细</el-divider>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="设备验收明细">
+            <el-form-item label="验收明细">
               <el-button type="primary" style="width: 220px !important;" @click="openDetailDialog(approveForm.id)">
                 查看验收明细单
               </el-button>
@@ -1017,7 +1017,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="设备验收人" prop="acceptBy">
+            <el-form-item label="验收人" prop="acceptBy">
               <el-select
                 v-model="approveForm.acceptBy"
                 placeholder="请选择验收人"
@@ -1224,7 +1224,7 @@ export default {
           {required: true, message: '验收时间不可为空', trigger: 'blur'}
         ],
         submitBy: [
-          {required: true, message: '验收提交人员不可为空', trigger: 'blur'}
+          {required: true, message: '提交人员不可为空', trigger: 'blur'}
         ],
         submitTime: [
           {required: true, message: '请填写提交时间', trigger: 'blur'}

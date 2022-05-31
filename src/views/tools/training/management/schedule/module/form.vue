@@ -15,7 +15,7 @@
       label-width="110px"
     >
       <!--培训日程安排信息-->
-      <el-row :gutter="20" type="flex" class="el-row">
+      <el-row :gutter="20" type="flex" class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="培训标题" prop="trainTitle">
             <el-input v-model="form.trainTitle" placeholder="请填写培训标题" style="width: 100%;"/>

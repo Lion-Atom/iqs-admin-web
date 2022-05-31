@@ -5,7 +5,7 @@
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
-    width="80%"
+    width="70%"
   >
     <el-form
       ref="form"
@@ -14,7 +14,7 @@
       size="small"
       label-width="110px"
     >
-      <el-row>
+      <el-row class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="仪器名称" prop="instruName">
             <el-input v-model="form.instruName" placeholder="请填写仪器名称" style="width: 100%"/>
@@ -187,6 +187,7 @@
               type="textarea"
               :rows="2"
               placeholder="请输入限制说明"
+              style="width: 100%"
               v-model="form.limitRemark">
             </el-input>
           </el-form-item>

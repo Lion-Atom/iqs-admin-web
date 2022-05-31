@@ -5,14 +5,14 @@
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
-    width="80%"
+    width="70%"
   >
     <el-form
       ref="form"
       :model="form"
       :rules="rules"
       size="small"
-      label-width="120px"
+      label-width="110px"
     >
       <!--设备信息-->
       <el-row>
@@ -145,7 +145,7 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-form-item label="维修步骤和过程" prop="repairDesc">
+        <el-form-item label="维修步骤/过程" prop="repairDesc">
           <el-input type="textarea" :rows="3" v-model="form.repairDesc" placeholder="请填写故障维修步骤和过程"/>
         </el-form-item>
       </el-row>
