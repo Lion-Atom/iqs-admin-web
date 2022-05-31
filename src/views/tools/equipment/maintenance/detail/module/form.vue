@@ -15,7 +15,7 @@
       label-width="120px"
     >
       <!--设备信息-->
-      <el-row>
+      <el-row class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="设备名称" prop="equipName">
             <el-input v-model="equipForm.equipName" disabled style="width: 220px"/>
@@ -427,5 +427,9 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
+}
+.el-row-inline {
+  display: flex;
+  flex-wrap: wrap;
 }
 </style>

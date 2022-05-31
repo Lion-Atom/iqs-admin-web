@@ -2,7 +2,7 @@
   <div
     v-if="crud.props.searchToggle"
   >
-    <el-input v-model="query.equipmentId" v-show="false" size="small" placeholder="设备ID索" style="width: 120px;"
+    <el-input v-model="query.equipmentId" v-show="false" size="small" placeholder="设备ID" style="width: 120px;"
               class="filter-item" @keyup.enter.native="crud.toQuery"/>
     <date-range-picker v-model="query.maintainDate" start-placeholder="开始保养日期"
                        end-placeholder="结束保养日期" class="date-item" @input="dateTimeChange()"/>
