@@ -9,7 +9,7 @@ export default {
   name: 'Doc',
   methods: {
     click() {
-      window.open('https://el-admin.vip/guide/', '_blank')
+      window.open('http://localhost:9527', '_blank')
     }
   }
 }
