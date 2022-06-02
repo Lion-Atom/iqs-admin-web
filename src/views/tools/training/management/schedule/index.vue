@@ -23,7 +23,7 @@
                    @click="crud.resetQuery()">重置
         </el-button>
       </div>
-      <crudOperation :permission="permission"/>
+      <crudOperation @func="getPartInfo" :permission="permission"/>
     </div>
     <!--表格渲染-->
     <el-table
@@ -81,7 +81,7 @@
                     </template>
                   </el-table-column>-->
       <el-table-column prop="curNum" label="现参与人数"/>
-      <el-table-column prop="scheduleStatus" label="日程状态"/>
+      <el-table-column prop="scheduleStatus" label="计划状态"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -103,6 +103,7 @@
     <pagination/>
     <!--表单渲染-->
     <eForm :common-status="dict.common_status" :permission="permission"/>
+    <!--拟报名参与者信息-->
     <el-dialog
       title="添加培训参加者信息"
       :visible.sync="addPartDialogVisible"
@@ -140,7 +141,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="确认参与" prop="isValid">
+              <el-form-item label="是否生效" prop="isValid">
                 <el-radio
                   v-for="item in dict.dict.common_status"
                   :key="item.id"
@@ -159,6 +160,7 @@
         <el-button type="primary" @click="submitPart">确 定</el-button>
       </span>
     </el-dialog>
+    <!--培训参与者列表-->
     <el-dialog
       title="培训参加者信息"
       :visible.sync="viewPartDialogVisible"
@@ -183,44 +185,227 @@
         </el-table-column>
         <el-table-column prop="createTime" label="创建日期" min-width="140"/>
         <!--删除操作---暂注释-->
-<!--        <el-table-column
-          label="操作"
-          width="80"
-          align="center"
-        >
-          <template slot-scope="scope">
-            <el-popover
-              :ref="`delStaffFile-popover-${scope.$index}`"
-              v-permission="permission.edit"
-              placement="top"
-              width="180"
-            >
-              <p>确定删除当前参与者吗？</p>
-              <div style="text-align: right; margin: 0">
-                <el-button
-                  size="mini"
-                  type="text"
-                  @click="scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
-                >取消
-                </el-button>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  @click="deleteTrParticipator(scope.row), scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
-                >确定
-                </el-button>
-              </div>
-              <el-button
-                slot="reference"
-                v-permission="permission.edit"
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-              />
-            </el-popover>
-          </template>
-        </el-table-column>-->
+        <!--        <el-table-column
+                  label="操作"
+                  width="80"
+                  align="center"
+                >
+                  <template slot-scope="scope">
+                    <el-popover
+                      :ref="`delStaffFile-popover-${scope.$index}`"
+                      v-permission="permission.edit"
+                      placement="top"
+                      width="180"
+                    >
+                      <p>确定删除当前参与者吗？</p>
+                      <div style="text-align: right; margin: 0">
+                        <el-button
+                          size="mini"
+                          type="text"
+                          @click="scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                        >取消
+                        </el-button>
+                        <el-button
+                          type="primary"
+                          size="mini"
+                          @click="deleteTrParticipator(scope.row), scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                        >确定
+                        </el-button>
+                      </div>
+                      <el-button
+                        slot="reference"
+                        v-permission="permission.edit"
+                        type="danger"
+                        icon="el-icon-delete"
+                        size="mini"
+                      />
+                    </el-popover>
+                  </template>
+                </el-table-column>-->
       </el-table>
+    </el-dialog>
+    <!--培训参与信息-->
+    <el-dialog
+      title="培训参与信息"
+      :before-close="beforeCloseJudge"
+      :visible.sync="partDialogVisible"
+      width="50%">
+      <el-descriptions column="1" border>
+        <!--拟报名列表-->
+        <el-descriptions-item label="拟报名名单">
+          <div>
+            <el-button type="primary" @click="toAddPart(addPartForm.newPartList)">新增</el-button>
+            <el-button style="float: right;" type="primary" @click="submitPartList(addPartForm.newPartList)">提交
+            </el-button>
+            <el-form
+              :model="addPartForm"
+              ref="addPartForm"
+              :rules="addPartForm.addPartRules"
+              :inline="true"
+              class="special-form"
+              label-width="108px"
+            >
+              <el-table
+                :data="addPartForm.newPartList"
+                border
+                style="width: 100%"
+                @row-dblclick="dbSelectedRow"
+              >
+                <el-table-column label="序号"  width="50">
+                  <template slot-scope="scope">
+                    {{scope.$index+1}}
+                  </template>
+                </el-table-column>
+                <el-table-column width="150">
+                  <template slot="header" slot-scope="scope">
+                    <span>所在部门</span>
+                    <i style="color:#F56C6C;">*</i>
+                  </template>
+                  <template slot-scope="scope">
+                    <el-form-item
+                      :prop="'newPartList.' + scope.$index + '.participantDepart'"
+                      :rules="addPartForm.addPartRules.participantDepart"
+                    >
+                      <el-select
+                        v-show="scope.row.isEditor"
+                        filterable
+                        allow-create
+                        v-model="scope.row.participantDepart">
+                        <el-option
+                          v-for="item of availableDeparts"
+                          :key="item"
+                          :label="item"
+                          :value="item"
+                        >
+                        </el-option>
+                      </el-select>
+                      <span v-show="!scope.row.isEditor">{{ scope.row.participantDepart }}</span>
+                    </el-form-item>
+                  </template>
+                </el-table-column>
+                <el-table-column width="150">
+                  <template slot="header" slot-scope="scope">
+                    <span>参与者</span>
+                    <i style="color:#F56C6C;">*</i>
+                  </template>
+                  <template slot-scope="scope">
+                    <el-form-item
+                      :prop="'newPartList.' + scope.$index + '.participantName'"
+                      :rules="addPartForm.addPartRules.participantName"
+                    >
+                      <el-input type="text" v-model="scope.row.participantName" v-show="scope.row.isEditor"/>
+                      <span v-show="!scope.row.isEditor">{{ scope.row.participantName }}</span>
+                    </el-form-item>
+                  </template>
+                </el-table-column>
+                <el-table-column width="180">
+                  <template slot="header" slot-scope="scope">
+                    <span>是否生效</span>
+                    <i style="color:#F56C6C;">*</i>
+                  </template>
+                  <template slot-scope="scope">
+                    <el-form-item
+                      :prop="'newPartList.' + scope.$index + '.isValid'"
+                      :rules="addPartForm.addPartRules.isValid"
+                    >
+                      <el-radio
+                        v-show="scope.row.isEditor"
+                        v-for="item in dict.dict.common_status"
+                        :key="item.id"
+                        v-model="partForm.isValid"
+                        :label="item.value === 'true'"
+                      >
+                        {{ item.label }}
+                      </el-radio>
+                      <span v-show="!scope.row.isEditor">{{ scope.row.isValid }}</span>
+                    </el-form-item>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作">
+                  <template slot-scope="scope">
+                    <!--                  <el-button type="warning" @click="edit(scope.row, scope)">编辑</el-button>-->
+                    <!--                  <el-button type="success" @click="savePart(scope.row)">保存</el-button>-->
+                    <el-button type="success" @click="deletePart(scope.$index,addPartForm.newPartList)">移除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-form>
+          </div>
+        </el-descriptions-item>
+        <!--已报名人员列表-->
+        <el-descriptions-item label="已报名人员">
+          <div @dblclick="beforeInfoClose">
+            <div v-if="basicInfoVisible === true">
+              <el-table
+                ref="parts"
+                border
+                :loading="participantLoading"
+                :data="participantList"
+                style="width: 100%;"
+              >
+                <el-table-column label="序号"  width="50">
+                  <template slot-scope="scope">
+                    {{scope.$index+1}}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="participantDepart" label="所在部门" width="150"/>
+                <el-table-column prop="participantName" label="参与者" width="150"/>
+                <el-table-column prop="isValid" label="是否生效" align="center" width="120">
+                  <template slot-scope="scope">
+                    <el-switch
+                      v-model="scope.row.isValid"
+                      active-color="#409EFF"
+                      inactive-color="#F56C6C"
+                      @change="changeIsValid(scope.row, scope.row.isValid)"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column prop="createTime" label="创建日期"/>
+                <!--删除操作---暂注释-->
+                <!--        <el-table-column
+                          label="操作"
+                          width="80"
+                          align="center"
+                        >
+                          <template slot-scope="scope">
+                            <el-popover
+                              :ref="`delStaffFile-popover-${scope.$index}`"
+                              v-permission="permission.edit"
+                              placement="top"
+                              width="180"
+                            >
+                              <p>确定删除当前参与者吗？</p>
+                              <div style="text-align: right; margin: 0">
+                                <el-button
+                                  size="mini"
+                                  type="text"
+                                  @click="scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                                >取消
+                                </el-button>
+                                <el-button
+                                  type="primary"
+                                  size="mini"
+                                  @click="deleteTrParticipator(scope.row), scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
+                                >确定
+                                </el-button>
+                              </div>
+                              <el-button
+                                slot="reference"
+                                v-permission="permission.edit"
+                                type="danger"
+                                icon="el-icon-delete"
+                                size="mini"
+                              />
+                            </el-popover>
+                          </template>
+                        </el-table-column>-->
+              </el-table>
+            </div>
+            <el-button v-else type="text" icon="el-icon-zoom-in" @click="basicInfoVisible = true">参与人员列表
+            </el-button>
+          </div>
+        </el-descriptions-item>
+      </el-descriptions>
     </el-dialog>
     <!-- 右键菜单 -->
     <div id="menu" class="menuDiv">
@@ -241,12 +426,12 @@
 import crudSchedule from '@/api/tools/train/schedule'
 import eForm from './module/form'
 import CRUD, {presenter, header} from '@crud/crud'
-import crudOperation from '@crud/CRUD.operation'
+import crudOperation from './module/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
-import {addPart, delPart, editPart, getPartsByTrScheduleId} from "@/api/tools/train/trParticipant";
+import {addPart, batchSavePart, delPart, editPart, getPartsByTrScheduleId} from "@/api/tools/train/trParticipant";
 
 export default {
   name: 'TrainSchedule',
@@ -297,7 +482,35 @@ export default {
         {name: '查看参与者', operType: 2}
       ],
       curData: {},
-      partList: []
+      partList: [],
+      partDialogVisible: false,
+      participantLoading: false,
+      participantList: [],
+      basicInfoVisible: true,
+      bindingId: null,
+      addPartForm: {
+        newPartList: [
+          {
+            partId: null,
+            trScheduleId: null,
+            participantDepart: null,
+            participantName: null,
+            isValid: true,
+            isEditor: true
+          }
+        ],
+        addPartRules: {
+          participantDepart: [
+            {required: true, message: "请选/输入所在部门", trigger: "blur"}
+          ],
+          participantName: [
+            {required: true, message: "请填写参与者姓名", trigger: "blur"}
+          ],
+          isValid: [
+            {required: true, message: "请确定是否生效", trigger: "blur"}
+          ]
+        }
+      },
     }
   },
   watch: {
@@ -400,6 +613,38 @@ export default {
         this.crud.resetQuery()
       })
     },
+    submitPartList(newPartList) {
+      if (newPartList.length > 0) {
+        newPartList.forEach((data,index)=>{
+          data.trScheduleId = this.bindingId
+        })
+        this.$refs["addPartForm"].validate(valid => {
+          if (valid) {
+            batchSavePart(newPartList).then(res => {
+              this.crud.notify('添加成功', 'success')
+              this.crud.toQuery()
+              this.getParticipant(this.bindingId)
+              this.basicInfoVisible = true
+              this.addPartForm.newPartList = []
+              if (this.$refs['addPartForm'] !== undefined) {
+                this.$refs['addPartForm'].resetFields()
+              }
+            })
+          } else {
+            return false;
+          }
+        });
+      }
+    },
+    // 获取参与者信息
+    getParticipant(scheduleId) {
+      this.participantList = []
+      this.participantLoading = true
+      getPartsByTrScheduleId(scheduleId).then(res => {
+        this.participantList = res
+        this.participantLoading = false
+      })
+    },
     // 改变状态
     changeIsValid(data, val) {
       let cancelJudge = this.dict.label.job_status[val] === '启用' ? '申请参与' : '撤销参与'
@@ -458,6 +703,25 @@ export default {
       let menu = document.querySelector("#menu");
       menu.style.display = "none";
     },
+    // 获取报名信息
+    getPartInfo(msg) {
+      this.partDialogVisible = msg.viewPartDialogVisible
+      this.basicInfoVisible = false
+      this.curData = msg.curData
+      // this.participantList = msg.curData.partList
+      this.availableDeparts = msg.curData.departTags
+      this.bindingId = msg.curData.id
+      this.addPartForm.newPartList = []
+      this.getParticipant(this.bindingId)
+    },
+    beforeInfoClose() {
+      this.$confirm('确认缩放参与者列表？')
+        .then(_ => {
+          this.basicInfoVisible = false
+        })
+        .catch(_ => {
+        })
+    },
     // 删除附件
     deleteTrParticipator(row) {
       // alert(row)
@@ -470,6 +734,43 @@ export default {
         })
       })
     },
+    // 新增备件信息
+    toAddPart(tableData, e) {
+      // alert(JSON.stringify(this.newPartList))
+      // 新增前判断是否通过校验
+      tableData.push({
+        partId: null,
+        trScheduleId: this.bindingId,
+        participantDepart: null,
+        participantName: null,
+        isValid: true,
+        isEditor: true
+      })
+    },
+    // 关闭之前
+    beforeCloseJudge() {
+      // alert(JSON.stringify(this.addPartForm.newPartList))
+      if(this.addPartForm.newPartList.length >0){
+        this.$confirm('存在新增项目，仍要关闭？')
+          .then(_ => {
+            this.partDialogVisible = false
+            if (this.$refs['addPartForm'] !== undefined) {
+              this.$refs['addPartForm'].resetFields()
+            }
+          })
+          .catch(_ => {
+          })
+      } else {
+        this.partDialogVisible = false
+      }
+    },
+    dbSelectedRow(row, index) {
+      row.isEditor = !row.isEditor
+    },
+    // 移除备件信息
+    deletePart(index, rows) {
+      rows.splice(index, 1)
+    }
   }
 }
 </script>
@@ -481,6 +782,10 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
+}
+
+> > > .special-form .el-form-item--small.el-form-item {
+  margin-bottom: 0 !important;
 }
 
 .menuDiv {
