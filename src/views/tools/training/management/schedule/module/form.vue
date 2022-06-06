@@ -76,7 +76,19 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="16">
+        <el-col :span="8">
+          <el-form-item label="是否考试" prop="isExam">
+            <el-radio
+              v-for="item in commonStatus"
+              :key="item.id"
+              v-model="form.isExam"
+              :label="item.value === 'true'"
+            >
+              {{ item.label }}
+            </el-radio>
+          </el-form-item>
+        </el-col>
+        <el-col :span="16" v-show="false">
           <el-form-item label="涉及部门" prop="department">
             <!--            <el-input v-model="form.department" placeholder="请填写培训部门" style="width:100%"/>-->
             <div>
@@ -103,6 +115,19 @@
               <el-button v-else size="small" class="button-new-tag" @click="showInputDepart">+涉及部门
               </el-button>
             </div>
+          </el-form-item>
+        </el-col>
+        <el-col :psna="16">
+          <el-form-item label="涉及部门" prop="bindDepts">
+            <treeselect
+              v-model="bindDeptDatas"
+              :options="allDepts"
+              :load-options="loadAvailDepts"
+              :multiple="true"
+              style="width: 100%"
+              placeholder="选择培训涉及部门"
+              @input="bindDeptsChange"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -395,6 +420,9 @@ import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
 import {getToken} from "@/utils/auth";
 import {delTrScheduleFile, getFilesByTrScheduleId} from "@/api/tools/train/trScheduleFile";
+import Treeselect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import {getDepts, getDeptTree} from "@/api/system/dept";
 
 const defaultForm = {
   id: null,
@@ -408,21 +436,24 @@ const defaultForm = {
   trainIns: null,
   department: null,
   departTags: [],
+  bindDepts: [],
   trainType: null,
   totalNum: 200,
   curNum: 0,
   isRemind: false,
   remindDays: null,
   isDelay: false,
+  isExam: false,
   newTrainTime: null,
   delayDesc: null,
   scheduleStatus: null, // 证书状态后台走查判断
   uid: null,
   fileList: []
 }
+let bindingDepts = []
 export default {
   mixins: [form(defaultForm)],
-  components: {},
+  components: {Treeselect},
   props: {
     commonStatus: {
       type: Array,
@@ -479,17 +510,25 @@ export default {
         isDelay: [
           {required: true, message: '请确认是否改期', trigger: 'blur'}
         ],
+        isExam: [
+          {required: true, message: '请确认是否需要考试', trigger: 'blur'}
+        ],
         newTrainTime: [
           {required: true, message: '请重新投定培训时间', trigger: 'blur'}
         ],
         delayDesc: [
           {required: true, message: '请填写改期原因', trigger: 'blur'}
+        ],
+        bindDepts: [
+          {required: true, message: '请添加培训涉及部门', trigger: 'blur'}
         ]
       },
       fileForm: {
         name: null,
         fileType: null
       },
+      allDepts: [],
+      bindDeptDatas: [],
       fileRules: {
         name: [
           {required: true, message: '请输入文件名称', trigger: 'blur'}
@@ -514,7 +553,7 @@ export default {
         {
           disabledDate: time => {
             let tarTime
-            if(this.form.isDelay.toString() === 'false'){
+            if (this.form.isDelay.toString() === 'false') {
               tarTime = new Date(this.form.trainTime).getTime()
             } else {
               tarTime = new Date(this.form.newTrainTime).getTime()
@@ -570,11 +609,18 @@ export default {
     ])
   },
   created: function () {
-
+    this.getTopDept()
   },
   methods: {
+    // 获取所在公司的部门树结构
+    getTopDept() {
+      getDeptTree().then(res => {
+        this.allDepts = res.content
+      })
+    },
     // 新增前操作
     [CRUD.HOOK.beforeToAdd]() {
+      this.bindDeptDatas = []
       this.bindingId = null
       this.form.uid = null
       this.form.remindDays = null
@@ -585,18 +631,57 @@ export default {
         // alert(this.bindingId)
       })
     },
+    // 获取弹窗内文件所属部门数据
+    loadAvailDepts({ action, parentNode, callback }) {
+      if (action === LOAD_CHILDREN_OPTIONS) {
+        getDepts({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content.map(function(obj) {
+            if (obj.hasChildren) {
+              obj.children = null
+            }
+            return obj
+          })
+          setTimeout(() => {
+            callback()
+          }, 200)
+        })
+      }
+    },
     // 编辑前操作
     [CRUD.HOOK.beforeToEdit](crud, form) {
       // alert(JSON.stringify(form))
-      this.bindingId = form.id
-      // 获取设备维修确认单信息列表
-      this.getTrScheduleById(form.id)
-      if(form.isDelay.toString() === 'true') {
-        this.getMaxTrRemindDays(form.newTrainTime)
+      const _this = this
+      // alert(JSON.stringify(_this.bindDeptDatas))
+      _this.bindingId = form.id
+      _this.bindDeptDatas = []
+      bindingDepts = []
+      // 获取培训计划信息列表
+      _this.getTrScheduleById(form.id)
+      if (form.isDelay.toString() === 'true') {
+        _this.getMaxTrRemindDays(form.newTrainTime)
       } else {
-        this.getMaxTrRemindDays(form.trainTime)
+        _this.getMaxTrRemindDays(form.trainTime)
       }
-
+      form.bindDepts.forEach(function(dept, index) {
+        _this.bindDeptDatas.push(dept.id)
+        const fl = { id: dept.id }
+        bindingDepts.push(fl)
+      })
+      // alert(JSON.stringify(_this.bindDeptDatas))
+    },
+    // 指定可查看部门变化监控
+    bindDeptsChange(val) {
+      // alert(JSON.stringify(val))
+      bindingDepts = []
+      val.forEach(function(data, index) {
+        const bind = { id: data }
+        bindingDepts.push(bind)
+      })
+    },
+    // 提交前做的操作
+    [CRUD.HOOK.beforeValidateCU](crud) {
+      crud.form.bindDepts = bindingDepts
+      return true
     },
     // 提交前做的操作
     [CRUD.HOOK.beforeSubmit]() {
@@ -606,7 +691,7 @@ export default {
         this.$message.warning("请务必上传试卷信息！")
         return false
       }
-      if(new Date(this.form.trainTime) === new Date(this.form.newTrainTime)) {
+      if (new Date(this.form.trainTime) === new Date(this.form.newTrainTime)) {
         this.$message.warning("新培训时间与原培训时间一样，请重新设定！")
         return false
       }

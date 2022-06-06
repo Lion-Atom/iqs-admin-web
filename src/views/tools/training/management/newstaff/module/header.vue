@@ -2,7 +2,7 @@
   <div
     v-if="crud.props.searchToggle"
   >
-    <el-input v-model="query.blurry" clearable size="small" placeholder="输入新员工名称搜索" style="width: 200px;"
+    <el-input v-model="query.blurry" clearable size="small" placeholder="输入员工名称、工号搜索" style="width: 200px;"
               class="filter-item" @input="crud.toQuery"  />
 
     <date-range-picker v-model="query.createTime" class="date-item" @input="dateTimeChange()" start-placeholder="录入开始日期"

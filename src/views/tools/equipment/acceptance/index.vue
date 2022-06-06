@@ -1799,9 +1799,3 @@ export default {
   margin-right: 10px !important;
 }
 </style>
-<style scoped>
-.el-row-inline {
-  display: flex;
-  flex-wrap: wrap;
-}
-</style>

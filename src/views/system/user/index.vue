@@ -33,7 +33,7 @@
               v-model="query.blurry"
               clearable
               size="small"
-              placeholder="输入名称或者邮箱搜索"
+              placeholder="输入名称或者邮箱、工号搜索"
               style="width: 200px;"
               class="filter-item"
               @input="crud.toQuery"
@@ -81,35 +81,50 @@
           :before-close="crud.cancelCU"
           :visible.sync="crud.status.cu > 0"
           :title="crud.status.title"
-          width="700px"
+          width="70%"
         >
           <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="90px">
-            <el-row>
-              <el-col :span="12">
+            <el-row class="el-row-inline">
+              <el-col :span="8">
                 <el-form-item label="用户名" prop="username">
                   <el-input v-model="form.username" style="width: 220px"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <el-col :span="8">
+                <el-form-item label="工号" prop="jobNum">
+                  <el-input v-model="form.jobNum" style="width: 220px"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item
+                  label="入职日期"
+                  prop="hireDate"
+                >
+                  <el-date-picker
+                    v-model="form.hireDate"
+                    type="date"
+                    style="width: 220px;"
+                    placeholder="请填写入职时间"
+                    :picker-options="pickerOption"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
                 <el-form-item label="电话" prop="phone">
                   <el-input v-model.number="form.phone" style="width: 220px"/>
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
+              <el-col :span="8">
                 <el-form-item label="昵称" prop="nickName">
                   <el-input v-model="form.nickName" style="width: 220px"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <el-col :span="8">
                 <el-form-item label="邮箱" prop="email">
                   <el-input v-model="form.email" style="width: 220px"/>
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
+              <el-col :span="8">
                 <el-form-item label="部门" prop="dept.id">
                   <treeselect
                     v-model="form.dept.id"
@@ -120,23 +135,10 @@
                   />
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
-                <el-form-item label="职位" prop="jobs.id">
-                  <treeselect
-                    v-model="form.jobs[0].id"
-                    :options="jobs"
-                    :load-options="loadJobs"
-                    style="width: 220px"
-                    placeholder="选择职位"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
+              <el-col :span="8" v-if="form.dept.id!==undefined && form.dept.id !=='' && form.dept.id!==null">
                 <el-form-item
-                  v-if="form.dept.id!==undefined && form.dept.id !=='' && form.dept.id!==null"
-                  label="部门管理者"
+                  label="部门经理"
+                  prop="isDepartMaster"
                 >
                   <el-tooltip
                     v-if="isHavDepartMaster && form.isDepartMaster === 'false'"
@@ -190,7 +192,7 @@
                   </el-tooltip>
                   <el-tooltip v-else-if="!isHavDepartMaster" placement="top-start" effect="light">
                     <div slot="content" style="width:300px;">
-                      <b style="color: red">*</b>请务必优先设置部门管理者！
+                      <b style="color: red">*</b>请务必优先设置部门经理！
                     </div>
                     <i class="el-icon-question"/>
                     <el-radio-group
@@ -207,12 +209,11 @@
                   </el-tooltip>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
-                <el-form-item
-                  v-if="form.dept.id!==undefined && form.dept.id !=='' && form.dept.id!==null && form.isDepartMaster === 'false'"
-                  label="上级"
-                  prop="superiorId"
-                >
+              <el-col :span="8" v-if="form.dept.id!==undefined && form.dept.id !=='' && form.dept.id!==null && form.isDepartMaster === 'false'">
+                <el-form-item prop="superiorId">
+                  <template slot="label">
+                    <span><i style="color:red;">* </i>上级</span>
+                  </template>
                   <el-select
                     v-model="form.superiorId"
                     style="width: 220px"
@@ -228,9 +229,52 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
+              <el-col :span="8">
+                <el-form-item prop="jobs.id">
+                  <template slot="label">
+                    <span><i style="color:red;">* </i>职位</span>
+                  </template>
+                  <treeselect
+                    v-model="form.jobs[0].id"
+                    :options="jobs"
+                    :load-options="loadJobs"
+                    style="width: 220px"
+                    placeholder="选择职位"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="员工类型" prop="staffType">
+                  <el-select
+                    v-model="form.staffType"
+                    placeholder="请选择员工类型"
+                    style="width: 220px;"
+                  >
+                    <el-option
+                      v-for="item in staffTypeOptions"
+                      :key="item.value"
+                      :label="item.value"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" v-if="form.staffType === staffTypeOptions[0].value">
+                <el-form-item label="工种" prop="jobType">
+                  <el-input v-model="form.jobType" style="width:220px"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" v-if="form.staffType === staffTypeOptions[0].value">
+                <el-form-item label="所属车间" prop="workshop">
+                  <el-input v-model="form.workshop" style="width:220px"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" v-if="form.staffType === staffTypeOptions[0].value">
+                <el-form-item label="所属班组" prop="team">
+                  <el-input v-model="form.team" style="width:220px"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
                 <el-form-item label="性别">
                   <el-radio-group v-model="form.gender" style="width: 220px">
                     <el-radio label="男">男</el-radio>
@@ -238,8 +282,8 @@
                   </el-radio-group>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
-                <el-form-item label="状态">
+              <el-col :span="8">
+                <el-form-item label="状态" prop="enabled">
                   <el-radio-group
                     v-model="form.enabled"
                     :disabled="form.id === user.id"
@@ -255,44 +299,47 @@
                   </el-radio-group>
                 </el-form-item>
               </el-col>
-            </el-row>
-            <!--            <el-form-item label="岗位" prop="jobs">
-                          <el-select
-                            v-model="jobDatas"
-                            style="width: 178px"
-                            multiple
-                            placeholder="请选择"
-                            @remove-tag="deleteTag"
-                            @change="changeJob"
-                          >
-                            <el-option
-                              v-for="item in jobs"
-                              :key="item.name"
-                              :label="item.name + "\xa0\xa0\xa0[第"+ item.jobSort +"等级]"'
-                              :value="item.id"
-                            />
-                          </el-select>
-                        </el-form-item>-->
-            <el-row>
-              <!-- 非管理员，其角色至多添加级别比自己（原始角色）低的等级角色 -->
-              <el-form-item style="margin-bottom: 0;" label="角色" prop="roles">
-                <el-select
-                  v-model="roleDatas"
-                  style="width: 520px"
-                  multiple
-                  placeholder="请选择"
-                  @remove-tag="deleteTag"
-                  @change="changeRole"
-                >
-                  <el-option
-                    v-for="item in roles"
-                    :key="item.name"
-                    :disabled="level !== 1 && item.level <= level"
-                    :label="item.name"
-                    :value="item.id"
-                  />
-                </el-select>
-              </el-form-item>
+              <!--            <el-form-item label="岗位" prop="jobs">
+                            <el-select
+                              v-model="jobDatas"
+                              style="width: 178px"
+                              multiple
+                              placeholder="请选择"
+                              @remove-tag="deleteTag"
+                              @change="changeJob"
+                            >
+                              <el-option
+                                v-for="item in jobs"
+                                :key="item.name"
+                                :label="item.name + "\xa0\xa0\xa0[第"+ item.jobSort +"等级]"'
+                                :value="item.id"
+                              />
+                            </el-select>
+                          </el-form-item>-->
+              <el-col :span="8">
+                <!-- 非管理员，其角色至多添加级别比自己（原始角色）低的等级角色 -->
+                <el-form-item style="margin-bottom: 0;"  prop="roles">
+                  <template slot="label">
+                    <span><i style="color:red;">* </i>角色</span>
+                  </template>
+                  <el-select
+                    v-model="roleDatas"
+                    multiple
+                    placeholder="请选择"
+                    style="width: 220px;"
+                    @remove-tag="deleteTag"
+                    @change="changeRole"
+                  >
+                    <el-option
+                      v-for="item in roles"
+                      :key="item.name"
+                      :disabled="level !== 1 && item.level <= level"
+                      :label="item.name"
+                      :value="item.id"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-col>
             </el-row>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -319,7 +366,8 @@
               <div>{{ scope.row.dept.name }}</div>
             </template>
           </el-table-column>
-          <el-table-column label="部门管理者" :formatter="isDepartMasterFormat"/>
+          <el-table-column label="部门经理" :formatter="isDepartMasterFormat"/>
+          <el-table-column prop="staffType" label="员工类型"/>
           <el-table-column prop="jobs" label="职位">
             <template slot-scope="scope">
               <div>{{ scope.row.jobs[0].name }}</div>
@@ -395,7 +443,13 @@ const defaultForm = {
   dept: {id: null},
   isDepartMaster: 'false',
   superiorId: null,
-  phone: null
+  phone: null,
+  jobNum: null,
+  staffType: '',
+  jobType: null,
+  hireDate: null,
+  workshop: null,
+  team: null
 }
 export default {
   name: 'User',
@@ -431,6 +485,23 @@ export default {
         {key: 'true', display_name: '激活'},
         {key: 'false', display_name: '锁定'}
       ],
+      pickerOption: {
+        disabledDate: time => {
+          return (
+            Date.now() < time.getTime()
+          )
+        }
+      },
+      staffTypeOptions: [
+        {
+          label: 'DL',
+          value: '直接员工'
+        },
+        {
+          label: 'IDL',
+          value: '间接员工'
+        }
+      ],
       rules: {
         username: [
           {required: true, message: '请输入用户名', trigger: 'blur'},
@@ -452,6 +523,27 @@ export default {
             {required: true, message: '请选择所属部门', trigger: 'blur'}
           ]
         },
+        isDepartMaster: [
+          {required: true, message: '请确认是否是部门经理', trigger: 'blur'},
+        ],
+        enabled: [
+          {required: true, message: '请确认是否启用', trigger: 'blur'},
+        ],
+        staffType: [
+          {required: true, message: '请选择员工类型', trigger: 'blur'},
+        ],
+        jobType: [
+          {required: true, message: '请填写新员工工种', trigger: 'blur'}
+        ],
+        workshop: [
+          {required: true, message: '请填写培训车间', trigger: 'blur'}
+        ],
+        team: [
+          {required: true, message: '请填写所在班组', trigger: 'blur'}
+        ],
+        hireDate: [
+          {required: true, message: '请填写入职日期', trigger: 'blur'}
+        ]
       },
       superiors: [],
       oldDeptId: null,
@@ -716,7 +808,7 @@ export default {
       // val为目标状态
       // alert(JSON.stringify(data.isDepartMaster))
       crudUser.havDepartMaster({deptId: data.dept.id}).then(res => {
-        // 如果已有管理者了，现在目标“曾是部门管理者”，则需要提示
+        // 如果已有管理者了，现在目标“曾是部门经理”，则需要提示
         // alert(JSON.stringify(res))
         if (res.hav && val && data.isDepartMaster) {
           this.$message({

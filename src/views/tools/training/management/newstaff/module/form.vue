@@ -16,7 +16,7 @@
     >
       <el-row>
         <el-col :span="8">
-          <el-form-item label="新员工姓名" prop="staffName">
+          <el-form-item label="员工姓名" prop="staffName">
             <el-input v-model="form.staffName" style="width: 220px;"/>
           </el-form-item>
         </el-col>
@@ -35,7 +35,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="新员工类型" prop="staffType">
+          <el-form-item label="员工类型" prop="staffType">
             <el-select
               v-model="form.staffType"
               placeholder="请选择员工类型"
@@ -59,7 +59,7 @@
               :options="departs"
               :load-options="loadDeparts"
               class="newTree-item"
-              placeholder="选择新员工所在部门"
+              placeholder="选择员工所在部门"
               style="width:220px !important;"
             />
           </el-form-item>
@@ -310,28 +310,28 @@ export default {
       headers: {'Authorization': getToken()},
       rules: {
         staffName: [
-          {required: true, message: '请输入新员工姓名', trigger: 'blur'}
+          {required: true, message: '请输入员工姓名', trigger: 'blur'}
         ],
         hireDate: [
           {required: true, message: '请输入入职时间', trigger: 'blur'}
         ],
         staffType: [
-          {required: true, message: '请选择新员工类型', trigger: 'blur'}
+          {required: true, message: '请选择员工类型', trigger: 'blur'}
         ],
         departId: [
-          {required: true, message: '请选择新员工所属部门', trigger: 'blur'}
+          {required: true, message: '请选择员工所属部门', trigger: 'blur'}
         ],
         superior: [
           {required: true, message: '请选择上级主管', trigger: 'blur'}
         ],
         jobNum: [
-          {required: false, message: '请填写新员工工号', trigger: 'blur'}
+          {required: false, message: '请填写员工工号', trigger: 'blur'}
         ],
         jobName: [
-          {required: true, message: '请填写新员工岗位', trigger: 'blur'}
+          {required: true, message: '请填写员工岗位', trigger: 'blur'}
         ],
         jobType: [
-          {required: true, message: '请填写新员工工种', trigger: 'blur'}
+          {required: true, message: '请填写员工工种', trigger: 'blur'}
         ],
         workshop: [
           {required: true, message: '请填写培训车间', trigger: 'blur'}

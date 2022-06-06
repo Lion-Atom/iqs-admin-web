@@ -235,7 +235,7 @@
         <el-descriptions-item label="拟报名名单">
           <div>
             <el-button type="primary" @click="toAddPart(addPartForm.newPartList)">新增</el-button>
-            <el-button style="float: right;" type="primary" @click="submitPartList(addPartForm.newPartList)">提交
+            <el-button style="float: right;" type="success" @click="submitPartList(addPartForm.newPartList)">提交
             </el-button>
             <el-form
               :model="addPartForm"
@@ -488,6 +488,7 @@ export default {
       participantList: [],
       basicInfoVisible: true,
       bindingId: null,
+      bindDeptDatas: [],
       addPartForm: {
         newPartList: [
           {
@@ -750,7 +751,7 @@ export default {
     // 关闭之前
     beforeCloseJudge() {
       // alert(JSON.stringify(this.addPartForm.newPartList))
-      if(this.addPartForm.newPartList.length >0){
+      if(this.addPartForm.newPartList.length > 0){
         this.$confirm('存在新增项目，仍要关闭？')
           .then(_ => {
             this.partDialogVisible = false

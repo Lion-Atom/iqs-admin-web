@@ -21,7 +21,7 @@
       <el-table-column prop="jobName" label="岗位"/>
       <el-table-column prop="departName" label="所属部门"/>
       <el-table-column prop="superior" label="上级主管"/>
-      <el-table-column prop="staffType" label="员工分类"/>
+      <el-table-column prop="staffType" label="员工类型"/>
       <el-table-column prop="jobType" label="工种"/>
       <el-table-column prop="workshop" label="车间"/>
       <el-table-column prop="team" label="班组"/>

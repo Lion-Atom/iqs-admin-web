@@ -360,9 +360,4 @@ export default {
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }
-
-.el-row-inline {
-  display: flex;
-  flex-wrap: wrap;
-}
 </style>
