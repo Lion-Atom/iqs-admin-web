@@ -117,7 +117,7 @@
             </div>
           </el-form-item>
         </el-col>
-        <el-col :psna="16">
+        <el-col :span="24">
           <el-form-item label="涉及部门" prop="bindDepts">
             <treeselect
               v-model="bindDeptDatas"

@@ -171,7 +171,7 @@
         :data="partList"
         style="width: 100%;"
       >
-        <el-table-column prop="participantDepart" label="所属部门"/>
+        <el-table-column prop="participantDepartName" label="所属部门"/>
         <el-table-column prop="participantName" label="参与者"/>
         <el-table-column prop="isValid" label="是否参与" align="center">
           <template slot-scope="scope">
@@ -251,9 +251,9 @@
                 style="width: 100%"
                 @row-dblclick="dbSelectedRow"
               >
-                <el-table-column label="序号"  width="50">
+                <el-table-column label="序号" width="50">
                   <template slot-scope="scope">
-                    {{scope.$index+1}}
+                    {{ scope.$index + 1 }}
                   </template>
                 </el-table-column>
                 <el-table-column width="150">
@@ -270,12 +270,14 @@
                         v-show="scope.row.isEditor"
                         filterable
                         allow-create
-                        v-model="scope.row.participantDepart">
+                        v-model="scope.row.participantDepart"
+                        @change="partDepartChanged(scope.row)"
+                      >
                         <el-option
                           v-for="item of availableDeparts"
-                          :key="item"
-                          :label="item"
-                          :value="item"
+                          :key="item.id"
+                          :label="item.name"
+                          :value="item.id"
                         >
                         </el-option>
                       </el-select>
@@ -283,7 +285,7 @@
                     </el-form-item>
                   </template>
                 </el-table-column>
-                <el-table-column width="150">
+                <el-table-column width="160">
                   <template slot="header" slot-scope="scope">
                     <span>参与者</span>
                     <i style="color:#F56C6C;">*</i>
@@ -293,7 +295,20 @@
                       :prop="'newPartList.' + scope.$index + '.participantName'"
                       :rules="addPartForm.addPartRules.participantName"
                     >
-                      <el-input type="text" v-model="scope.row.participantName" v-show="scope.row.isEditor"/>
+                      <el-select
+                        v-show="scope.row.isEditor"
+                        v-model="scope.row.participantName"
+                        placeholder="请选择参与人"
+                        style="width:100% !important;"
+                      >
+                        <el-option
+                          v-for="item in availUsers"
+                          :key="item.id"
+                          :label="item.username"
+                          :value="item.username"
+                          :disabled="existedPartDatas.indexOf(item.username) > -1"
+                        />
+                      </el-select>
                       <span v-show="!scope.row.isEditor">{{ scope.row.participantName }}</span>
                     </el-form-item>
                   </template>
@@ -343,13 +358,13 @@
                 :data="participantList"
                 style="width: 100%;"
               >
-                <el-table-column label="序号"  width="50">
+                <el-table-column label="序号" width="50">
                   <template slot-scope="scope">
-                    {{scope.$index+1}}
+                    {{ scope.$index + 1 }}
                   </template>
                 </el-table-column>
-                <el-table-column prop="participantDepart" label="所在部门" width="150"/>
-                <el-table-column prop="participantName" label="参与者" width="150"/>
+                <el-table-column prop="participantDepartName" label="所在部门" width="150"/>
+                <el-table-column prop="participantName" label="参与者" width="160"/>
                 <el-table-column prop="isValid" label="是否生效" align="center" width="120">
                   <template slot-scope="scope">
                     <el-switch
@@ -357,6 +372,7 @@
                       active-color="#409EFF"
                       inactive-color="#F56C6C"
                       @change="changeIsValid(scope.row, scope.row.isValid)"
+                      :disabled="disChangePartStatus"
                     />
                   </template>
                 </el-table-column>
@@ -431,7 +447,15 @@ import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
-import {addPart, batchSavePart, delPart, editPart, getPartsByTrScheduleId} from "@/api/tools/train/trParticipant";
+import {
+  addPart,
+  batchSavePart,
+  delPart,
+  editPart,
+  getPartsByTrScheduleId,
+  getTrParticipantByExample
+} from "@/api/tools/train/trParticipant";
+import {getUserByDeptId} from "@/api/system/user";
 
 export default {
   name: 'TrainSchedule',
@@ -478,7 +502,7 @@ export default {
       cancelJudge: '',
       //右键菜单
       menus: [
-        {name: '报名参加', operType: 1},
+        // {name: '报名参加', operType: 1},
         {name: '查看参与者', operType: 2}
       ],
       curData: {},
@@ -489,6 +513,7 @@ export default {
       basicInfoVisible: true,
       bindingId: null,
       bindDeptDatas: [],
+      availUsers: [],
       addPartForm: {
         newPartList: [
           {
@@ -512,6 +537,9 @@ export default {
           ]
         }
       },
+      existedParts: [],
+      existedPartDatas: [],
+      disChangePartStatus: false
     }
   },
   watch: {
@@ -541,6 +569,60 @@ export default {
         return row.nextExamDate
       } else {
         return '--'
+      }
+    },
+    // 根据部门获取部门下成员
+    partDepartChanged(row) {
+      // alert(JSON.stringify(row))
+      this.availUsers = []
+      // 根据部门获取培训计划已有成员数据
+      this.getExistedPartByExample(row)
+      // 根据部门获取部门成员数据
+      setTimeout(()=>{
+        getUserByDeptId({deptId: row.participantDepart}).then(res => {
+          // alert(JSON.stringify(res))
+          this.availUsers = res
+          if (this.availUsers.length > 0) {
+            // 若不是同部门成员则需要默认切换到首选默认值
+            let usernames = []
+            this.availUsers.forEach((data, index) => {
+              usernames.push(data.username)
+            })
+            if (validIsNotNull(row.participantName)) {
+              if (usernames.indexOf(row.participantName) === -1) {
+                row.participantName = null
+              }
+            } else {
+              // 若原无值则设置首选默认值
+              row.participantName = null
+            }
+            // alert(usernames.indexOf(this.form.acceptBy))
+          } else {
+            row.participantName = null
+          }
+        })
+      },300)
+    },
+    // 根据部门和培训计划查询已报名成员
+    getExistedPartByExample(row) {
+      this.existedParts = []
+      this.existedPartDatas = []
+      // 已落库的已存在数据
+      if(this.participantList.length>0) {
+        this.participantList.forEach((data,index)=>{
+          if(data.participantDepart === row.participantDepart){
+            this.existedPartDatas.push(data.participantName)
+          }
+        })
+      }
+      // alert(JSON.stringify(this.addPartForm.newPartList))
+      // 尚未保存表格中存在
+      if(this.addPartForm.newPartList.length>0) {
+        this.addPartForm.newPartList.forEach((data,index)=>{
+          if(data.participantDepart === row.participantDepart){
+            this.existedPartDatas.push(data.participantName)
+          }
+        })
       }
     },
     costFormat(row, col) {
@@ -616,7 +698,7 @@ export default {
     },
     submitPartList(newPartList) {
       if (newPartList.length > 0) {
-        newPartList.forEach((data,index)=>{
+        newPartList.forEach((data, index) => {
           data.trScheduleId = this.bindingId
         })
         this.$refs["addPartForm"].validate(valid => {
@@ -689,28 +771,31 @@ export default {
     },
     // 自定义菜单的点击事件
     infoClick(index) {
-      if (index === 0) {
-        // do something
-        if (this.curData.scheduleStatus === '已关闭' || new Date(this.curData.regDeadline).getTime() < new Date().getTime()) {
-          this.crud.notify('无效操作，报名时间已过！', 'warning')
-        } else {
-          this.openPartDialog(this.curData)
-        }
-      } else if (index === 1) {
+      // 暂注释单条添加参与者功能
+      // if (index === 0) {
+      //   // do something
+      //   if (this.curData.scheduleStatus === '已关闭' || new Date(this.curData.regDeadline).getTime() < new Date().getTime()) {
+      //     this.crud.notify('无效操作，报名时间已过！', 'warning')
+      //   } else {
+      //     this.openPartDialog(this.curData)
+      //   }
+      // } else if (index === 1) {
         // this.openPartDialog(this.curData)
         this.partList = this.curData.partList
         this.viewPartDialogVisible = true
-      }
+      // }
       let menu = document.querySelector("#menu");
       menu.style.display = "none";
     },
     // 获取报名信息
     getPartInfo(msg) {
+      // alert(JSON.stringify(msg))
       this.partDialogVisible = msg.viewPartDialogVisible
       this.basicInfoVisible = false
       this.curData = msg.curData
+      this.disChangePartStatus = new Date(msg.curData.regDeadline).getTime() < new Date().getTime()
       // this.participantList = msg.curData.partList
-      this.availableDeparts = msg.curData.departTags
+      this.availableDeparts = msg.curData.bindDepts
       this.bindingId = msg.curData.id
       this.addPartForm.newPartList = []
       this.getParticipant(this.bindingId)
@@ -735,7 +820,7 @@ export default {
         })
       })
     },
-    // 新增备件信息
+    // 新增参与者信息
     toAddPart(tableData, e) {
       // alert(JSON.stringify(this.newPartList))
       // 新增前判断是否通过校验
@@ -751,7 +836,7 @@ export default {
     // 关闭之前
     beforeCloseJudge() {
       // alert(JSON.stringify(this.addPartForm.newPartList))
-      if(this.addPartForm.newPartList.length > 0){
+      if (this.addPartForm.newPartList.length > 0) {
         this.$confirm('存在新增项目，仍要关闭？')
           .then(_ => {
             this.partDialogVisible = false

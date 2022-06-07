@@ -705,7 +705,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="设备验收部门" prop="acceptDepart">
+            <el-form-item label="验收部门" prop="acceptDepart">
               <TreeSelect
                 v-model="acceptForm.acceptDepart"
                 :options="useDeparts"
@@ -1004,7 +1004,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="设备验收部门" prop="acceptDepart">
+            <el-form-item label="验收部门" prop="acceptDepart">
               <TreeSelect
                 v-model="approveForm.acceptDepart"
                 :options="useDeparts"

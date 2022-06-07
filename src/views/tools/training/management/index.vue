@@ -67,7 +67,7 @@
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'newStaff'"
                      @dblclick.native="routerTarget('/training/manage/newStaff')">
-              <el-button type="text" size="medium" icon="el-icon-s-custom">新员工
+              <el-button type="text" size="medium" icon="el-icon-s-custom">员工
               </el-button>
             </el-card>
           </el-col>

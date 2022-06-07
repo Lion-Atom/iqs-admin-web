@@ -4,7 +4,7 @@
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/overview' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item><b>新员工</b></el-breadcrumb-item>
+        <el-breadcrumb-item><b>员工</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <!--工具栏-->
@@ -66,7 +66,7 @@ export default {
   components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({
-      title: '新员工培训',
+      title: '员工培训',
       url: 'api/train/newStaff',
       // sort: ['jobSort,asc', 'id,desc'],
       crudMethod: {...crudNewStaff}

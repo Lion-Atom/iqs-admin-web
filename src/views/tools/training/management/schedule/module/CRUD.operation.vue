@@ -272,6 +272,7 @@ export default {
     },
     // 打开报名弹窗
     openParticipantDialog(data) {
+      // alert(JSON.stringify(data))
       this.partData.viewPartDialogVisible = true
       this.partData.curData = data
       this.$emit('func', this.partData)

@@ -16,7 +16,7 @@
     >
       <el-row>
         <el-col :span="8">
-          <el-form-item label="新员工姓名" prop="staffName">
+          <el-form-item label="员工姓名" prop="staffName">
             <el-input v-model="form.staffName" style="width: 220px;"/>
           </el-form-item>
         </el-col>
@@ -323,7 +323,7 @@ export default {
       headers: {'Authorization': getToken()},
       rules: {
         staffName: [
-          {required: true, message: '请输入新员工姓名', trigger: 'blur'}
+          {required: true, message: '请输入员工姓名', trigger: 'blur'}
         ],
         departId: [
           {required: true, message: '请选择新员工所属部门', trigger: 'blur'}
