@@ -109,7 +109,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.certificationType">
+        <el-col :span="8" v-if="form.certificationType === typeOptions[0].value || form.certificationType === typeOptions[1].value">
           <el-form-item label="工种种类" prop="jobType">
             <el-select
               v-model="form.jobType"
@@ -131,6 +131,10 @@
           <el-form-item label="签发机构" prop="orgName">
             <el-input v-model="form.orgName" placeholder="请填写签发机构" style="width:220px"/>
           </el-form-item>
+        </el-col>
+        <!--todo 上岗培训证:需要关联相关的培训计划-->
+        <el-col :span="8" v-if="form.certificationType === typeOptions[2].value">
+          
         </el-col>
       </el-row>
       <el-row v-if="form.certificationType === typeOptions[2].value">

@@ -84,19 +84,6 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="上级主管" prop="superior">
-            <!--            <el-select
-                          v-model="form.superior"
-                          placeholder="请先选择所在部门"
-                          filterable
-                          style="width:220px"
-                        >
-                          <el-option
-                            v-for="item in superiors"
-                            :key="item.id"
-                            :label="item.jobs[0].name + '-'+ item.username "
-                            :value="item.username"
-                          />
-                        </el-select>-->
             <el-input v-model="form.superior" style="width:220px" placeholder="请填写上级主管" disabled/>
           </el-form-item>
         </el-col>
@@ -318,7 +305,6 @@ import {getAllUser, getUserByDeptId} from "@/api/system/user";
 import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
-import {delRepairFile, getFilesByRepairId} from "@/api/tools/repairFile";
 import {getToken} from "@/utils/auth";
 import {delTrNewStaffFile, getFilesByTrNewStaffId} from "@/api/tools/train/trNewStaffFile";
 import {getAllSchedule, getTrainScheduleById} from "@/api/tools/train/schedule";

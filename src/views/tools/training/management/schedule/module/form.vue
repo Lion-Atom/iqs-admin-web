@@ -14,7 +14,7 @@
       size="small"
       label-width="110px"
     >
-      <!--培训日程安排信息-->
+      <!--培训计划信息-->
       <el-row :gutter="20" type="flex" class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="培训标题" prop="trainTitle">
@@ -86,35 +86,6 @@
             >
               {{ item.label }}
             </el-radio>
-          </el-form-item>
-        </el-col>
-        <el-col :span="16" v-show="false">
-          <el-form-item label="涉及部门" prop="department">
-            <!--            <el-input v-model="form.department" placeholder="请填写培训部门" style="width:100%"/>-->
-            <div>
-              <el-tag
-                v-for="tag in form.departTags"
-                :key="tag"
-                closable
-                :disable-transitions="false"
-                @close="handleDepartClose(tag)"
-                class="new-el-tag"
-              >
-                {{ tag }}
-              </el-tag>
-              <el-input
-                v-if="inputDepartVisible"
-                ref="departTagInput"
-                v-model="inputDepartValue"
-                class="input-new-tag"
-                size="small"
-                placeholder="涉及到的相关部门"
-                @keyup.enter.native="handleInputDepartConfirm"
-                @blur="handleInputDepartConfirm"
-              />
-              <el-button v-else size="small" class="button-new-tag" @click="showInputDepart">+涉及部门
-              </el-button>
-            </div>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -434,8 +405,6 @@ const defaultForm = {
   cost: null,
   trainer: null,
   trainIns: null,
-  // department: null,
-  // departTags: [],
   bindDepts: [],
   bindDeptStr: null,
   trainType: null,
@@ -489,9 +458,6 @@ export default {
         ],
         trainIns: [
           {required: true, message: '请填写培训机构', trigger: 'blur'}
-        ],
-        department: [
-          {required: true, message: '请填写涉及部门', trigger: 'blur'}
         ],
         trainType: [
           {required: true, message: '请选择培训类型', trigger: 'blur'}
@@ -801,27 +767,6 @@ export default {
         this.$refs['fileForm'].resetFields()
       }
       this.transDialogVisible = false
-    },
-    // 涉及部门相关
-    showInputDepart() {
-      this.inputDepartVisible = true
-      this.$nextTick(_ => {
-        this.$refs.departTagInput.$refs.input.focus()
-      })
-    },
-    // 删除部门tag
-    handleDepartClose(tag) {
-      this.form.departTags.splice(this.form.departTags.indexOf(tag), 1)
-      this.form.department = this.form.departTags.join(',')
-    },
-    handleInputDepartConfirm() {
-      const inputValue = this.inputDepartValue
-      if (inputValue) {
-        this.form.departTags.push(inputValue)
-      }
-      this.form.department = this.form.departTags.join(',')
-      this.inputDepartVisible = false
-      this.inputDepartValue = ''
     },
     // 上传文件
     uploadScheduleFile() {

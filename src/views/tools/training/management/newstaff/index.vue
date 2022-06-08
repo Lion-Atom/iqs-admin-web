@@ -17,7 +17,7 @@
               @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="staffName" label="员工姓名" fixed/>
-      <el-table-column prop="jobNum" label="员工工号"/>
+<!--      <el-table-column prop="jobNum" label="员工工号"/>-->
       <el-table-column prop="jobName" label="岗位"/>
       <el-table-column prop="departName" label="所属部门"/>
       <el-table-column prop="superior" label="上级主管"/>

@@ -4,7 +4,7 @@
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/overview' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/training/train-material' }">培训部门-{{ departName }}</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/training/manage/material' }">培训部门-{{ departName }}</el-breadcrumb-item>
         <el-breadcrumb-item><b>培训资源</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
