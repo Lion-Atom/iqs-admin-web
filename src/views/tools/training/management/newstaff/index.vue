@@ -26,7 +26,7 @@
       <el-table-column prop="workshop" label="车间"/>
       <el-table-column prop="team" label="班组"/>
       <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
-      <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
+      <el-table-column prop="trainTitle" label="培训项目" :show-overflow-tooltip="true"/>
       <el-table-column prop="reason" label="未完成原因" :show-overflow-tooltip="true"/>
       <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
@@ -41,6 +41,7 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
+            :show-del="false"
           />
         </template>
       </el-table-column>
@@ -92,6 +93,15 @@ export default {
           value: '间接员工'
         }
       ]
+    }
+  },
+  created() {
+    this.crud.optShow = {
+      add: false,
+      edit: true,
+      del: false,
+      download: true,
+      reset: true
     }
   },
   methods: {

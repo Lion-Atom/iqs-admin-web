@@ -1,5 +1,17 @@
 import request from '@/utils/request'
 
+export function getAllSchedule() {
+  const params = {
+    page: 0,
+    size: 9999
+  }
+  return request({
+    url: 'api/train/schedule',
+    method: 'get',
+    params
+  })
+}
+
 export function get(params) {
   return request({
     url: 'api/train/schedule',
@@ -43,4 +55,4 @@ export function getTrainScheduleById(id) {
   })
 }
 
-export default {get, add, edit, del, getTrainScheduleById}
+export default {getAllSchedule,get, add, edit, del, getTrainScheduleById}

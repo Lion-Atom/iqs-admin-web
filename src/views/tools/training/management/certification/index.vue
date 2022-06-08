@@ -19,7 +19,8 @@
       :data="crud.data"
       style="width: 100%;"
       :row-class-name="tableRowClassName"
-      @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
+      @selection-change="crud.selectionChangeHandler"
+      @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="staffName" label="员工姓名" fixed/>
       <el-table-column prop="jobNum" label="员工工号"/>

@@ -9,7 +9,7 @@ export default {
   name: 'Doc',
   methods: {
     click() {
-      window.open('http://localhost:9527', '_blank')
+      window.open('http://124.70.144.76:8082/', '_blank')
     }
   }
 }

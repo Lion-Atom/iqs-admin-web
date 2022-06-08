@@ -14,13 +14,28 @@
       size="small"
       label-width="100px"
     >
-      <el-row>
+      <el-row class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="员工姓名" prop="staffName">
-            <el-input v-model="form.staffName" style="width: 220px;"/>
+            <!--            <el-input v-model="form.staffName" style="width: 220px;"/>-->
+            <el-select
+              v-model="form.staffName"
+              placeholder="请选择员工"
+              style="width: 220px;"
+              filterable
+              :disabled="crud.status.edit===1"
+            >
+              <el-option
+                v-for="item in members"
+                :key="item.id"
+                :label="item.dept.name + '-'+ item.username "
+                :value="item.id"
+                @click.native="staffChangeHandler(item)"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.staffName">
           <el-form-item
             label="入职日期"
             prop="hireDate"
@@ -31,15 +46,17 @@
               style="width: 220px;"
               placeholder="请填写入职时间"
               :picker-options="pickerOption"
+              disabled
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.staffName">
           <el-form-item label="员工类型" prop="staffType">
             <el-select
               v-model="form.staffType"
               placeholder="请选择员工类型"
               style="width: 220px;"
+              disabled
             >
               <el-option
                 v-for="item in typeOptions"
@@ -61,60 +78,95 @@
               class="newTree-item"
               placeholder="选择员工所在部门"
               style="width:220px !important;"
+              disabled=""
             />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="上级主管" prop="superior">
-            <el-select
-              v-model="form.superior"
-              placeholder="请先选择所在部门"
-              filterable
-              style="width:220px"
-            >
-              <el-option
-                v-for="item in superiors"
-                :key="item.id"
-                :label="item.jobs[0].name + '-'+ item.username "
-                :value="item.username"
-              />
-            </el-select>
+            <!--            <el-select
+                          v-model="form.superior"
+                          placeholder="请先选择所在部门"
+                          filterable
+                          style="width:220px"
+                        >
+                          <el-option
+                            v-for="item in superiors"
+                            :key="item.id"
+                            :label="item.jobs[0].name + '-'+ item.username "
+                            :value="item.username"
+                          />
+                        </el-select>-->
+            <el-input v-model="form.superior" style="width:220px" placeholder="请填写上级主管" disabled/>
           </el-form-item>
         </el-col>
         <el-col :span="8" v-if="form.staffType">
           <el-form-item label="岗位名称" prop="jobName">
-            <el-input v-model="form.jobName" style="width:220px"/>
+            <el-input v-model="form.jobName" style="width:220px" disabled/>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row v-if="form.staffType === typeOptions[1].value">
-        <el-col :span="8">
-          <el-form-item label="工号" prop="jobNum">
-            <el-input v-model="form.jobNum" style="width:220px"/>
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <!--暂时注释工号-->
+      <!--      <el-row v-if="form.staffType === typeOptions[1].value">
+              <el-col :span="8">
+                <el-form-item label="工号" prop="jobNum">
+                  <el-input v-model="form.jobNum" style="width:220px" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>-->
       <el-row v-if="form.staffType === typeOptions[0].value">
         <el-col :span="8">
           <el-form-item label="所属车间" prop="workshop">
-            <el-input v-model="form.workshop" style="width:220px"/>
+            <el-input v-model="form.workshop" style="width:220px" disabled/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="所属班组" prop="team">
-            <el-input v-model="form.team" style="width:220px"/>
+            <el-input v-model="form.team" style="width:220px" disabled/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="工种" prop="jobType">
-            <el-input v-model="form.jobType" style="width:220px"/>
+            <el-input v-model="form.jobType" style="width:220px" disabled/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="24" v-if="form.staffType">
-          <el-form-item label="培训内容" prop="trainContent">
-            <el-input type="textarea" :row="3" v-model="form.trainContent" placeholder="请填写培训内容"></el-input>
+        <!--        <el-col :span="24" v-if="form.staffType">
+                  <el-form-item label="培训内容" prop="trainContent">
+                    <el-input type="textarea" :row="3" v-model="form.trainContent" placeholder="请填写培训内容"></el-input>
+                  </el-form-item>
+                </el-col>-->
+        <el-col :span="8" v-if="form.staffName">
+          <el-form-item label="培训项目" prop="trScheduleId">
+            <el-select
+              v-model="form.trScheduleId"
+              placeholder="请选择培训项目"
+              style="width: 220px;"
+              filterable
+              disabled
+            >
+              <el-option
+                v-for="item in schedules"
+                :key="item.id"
+                :label="item.trainTitle "
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8" v-if="form.trScheduleId">
+          <el-form-item
+            label="培训时间"
+            prop="trainTime"
+          >
+            <el-date-picker
+              v-model="form.trainTime"
+              type="datetime"
+              style="width: 220px;"
+              placeholder="请填写培训时间"
+              disabled
+            />
           </el-form-item>
         </el-col>
         <el-col :span="8" v-if="form.staffType">
@@ -262,13 +314,14 @@ import CRUD, {form} from '@crud/crud'
 import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getDepts, getDeptTree} from "@/api/system/dept";
-import {getUserByDeptId} from "@/api/system/user";
+import {getAllUser, getUserByDeptId} from "@/api/system/user";
 import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
 import {delRepairFile, getFilesByRepairId} from "@/api/tools/repairFile";
 import {getToken} from "@/utils/auth";
 import {delTrNewStaffFile, getFilesByTrNewStaffId} from "@/api/tools/train/trNewStaffFile";
+import {getAllSchedule, getTrainScheduleById} from "@/api/tools/train/schedule";
 
 const defaultForm = {
   id: null,
@@ -282,9 +335,13 @@ const defaultForm = {
   jobName: null,
   jobNum: null,
   jobType: null,
-  trainContent: null,
+  // trainContent: null,
+  trainTitle: null,
+  trainTime: null,
+  trScheduleId: null,
   isFinished: true,
   reason: null,
+  scheduleStatus: null,
   uid: null,
   fileList: []
 }
@@ -339,9 +396,15 @@ export default {
         team: [
           {required: true, message: '请填写所在班组', trigger: 'blur'}
         ],
-        trainContent: [
-          {required: true, message: '培训内容不可为空', trigger: 'blur'}
+        trScheduleId: [
+          {required: true, message: '培训项目不可为空', trigger: 'blur'}
         ],
+        trainTime: [
+          {required: true, message: '培训时间不可为空', trigger: 'blur'}
+        ],
+        /*trainContent: [
+          {required: true, message: '培训内容不可为空', trigger: 'blur'}
+        ],*/
         isFinished: [
           {required: true, message: '请选择是否完成培训', trigger: 'blur'}
         ],
@@ -362,12 +425,15 @@ export default {
         }
       },
       bindingId: null,
-      filesLoading: false
+      filesLoading: false,
+      members: [],
+      trSchedule: {},
+      schedules: []
     }
   },
   watch: {
     // 监听deptId
-    'form.departId': 'currDeptChange'
+    // 'form.departId': 'currDeptChange'
   },
   computed: {
     ...mapGetters([
@@ -378,6 +444,8 @@ export default {
   },
   created: function () {
     this.getTopDept()
+    this.getAvailableUser()
+    this.getAllSchedule()
   },
   methods: {
     getTopDept() {
@@ -385,6 +453,35 @@ export default {
       getDeptTree().then(res => {
         this.departs = res.content
       })
+    },
+    // 获取所有的培训计划
+    getAllSchedule() {
+      this.schedules = []
+      getAllSchedule().then(res => {
+        // alert(JSON.stringify(res))
+        this.schedules = res.content
+      })
+    },
+    // 获取人员信息
+    getAvailableUser() {
+      getAllUser().then(res => {
+        this.members = res.content
+      })
+    },
+    // 监控员工数据变化
+    staffChangeHandler(user) {
+      // alert(JSON.stringify(user.superiorName))
+      this.form.staffName = user.username
+      this.form.hireDate = user.hireDate
+      this.form.departId = user.deptId
+      this.form.superior = user.superiorName
+      // 目前工种允许自定义
+      this.form.staffType = user.staffType
+      this.form.jobType = user.jobType
+      this.form.workshop = user.workshop
+      this.form.team = user.team
+      this.form.jobName = user.jobName
+      this.form.jobNum = user.jobNum
     },
     // 获取弹窗内使用部门数据
     loadDeparts({action, parentNode, callback}) {
@@ -472,9 +569,18 @@ export default {
       if (val.toString() === 'false') {
         this.reasonRules = this.rules.reason
       } else {
-        this.reasonRules = [
-          {required: false}
-        ]
+        if(this.form.scheduleStatus !== '关闭') {
+          this.$notify({
+            title: '培训尚未结束',
+            type: 'warning',
+            duration: 2500
+          })
+          this.form.isFinished = !val
+        } else {
+          this.reasonRules = [
+            {required: false}
+          ]
+        }
       }
     },
     // ------------上传附件管理--------------

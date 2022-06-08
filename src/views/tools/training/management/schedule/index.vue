@@ -45,7 +45,7 @@
       <el-table-column prop="trainLocation" label="培训地点" :show-overflow-tooltip="true"/>
       <el-table-column label="培训费用" :formatter="costFormat"/>
       <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true"/>
-      <el-table-column prop="department" label="涉及部门" :show-overflow-tooltip="true"/>
+      <el-table-column prop="bindDeptStr" label="涉及部门" :show-overflow-tooltip="true"/>
       <el-table-column prop="totalNum" label="人数限制"/>
       <!--现参与人数，支持点击参与培训-->
       <!--      <el-table-column label="现参与人数">

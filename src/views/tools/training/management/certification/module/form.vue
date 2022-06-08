@@ -14,13 +14,28 @@
       size="small"
       label-width="110px"
     >
-      <el-row>
+      <el-row class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="新员工姓名" prop="staffName">
-            <el-input v-model="form.staffName" style="width: 220px;"/>
+<!--            <el-input v-model="form.staffName" style="width: 220px;"/>-->
+            <el-select
+              v-model="form.staffName"
+              placeholder="请选择员工"
+              style="width: 220px;"
+              filterable
+              :disabled="crud.status.edit"
+            >
+              <el-option
+                v-for="item in members"
+                :key="item.id"
+                :label="item.dept.name + '-'+ item.username "
+                :value="item.id"
+                @click.native="staffChangeHandler(item)"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.staffName">
           <el-form-item
             label="入职日期"
             prop="hireDate"
@@ -31,10 +46,11 @@
               style="width: 220px;"
               placeholder="请填写入职时间"
               :picker-options="pickerOption[0]"
+              disabled
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.staffName">
           <el-form-item label="所属部门" prop="departId">
             <TreeSelect
               v-model="form.departId"
@@ -42,16 +58,19 @@
               :load-options="loadDeparts"
               class="newTree-item"
               placeholder="选择新员工所在部门"
+              disabled=""
               style="width:220px !important;"
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.staffName">
           <el-form-item label="上级主管" prop="superior">
+<!--            &lt;!&ndash; 根据部门选择上级主管 &ndash;&gt;
             <el-select
               v-model="form.superior"
               placeholder="请先选择所在部门"
               style="width:220px"
+              disabled
             >
               <el-option
                 v-for="item in superiors"
@@ -59,12 +78,18 @@
                 :label="item.jobs[0].name + '-'+ item.username "
                 :value="item.username"
               />
-            </el-select>
+            </el-select>-->
+            <el-input v-model="form.superior" style="width:220px" placeholder="请填写上级主管" disabled />
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.staffName">
+          <el-form-item label="岗位名称" prop="jobName">
+            <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位" disabled />
+          </el-form-item>
+        </el-col>
+        <el-col :span="8" v-if="form.staffName">
           <el-form-item label="工号" prop="jobNum">
-            <el-input v-model="form.jobNum" style="width:220px"/>
+            <el-input v-model="form.jobNum" style="width:220px" disabled />
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -84,9 +109,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row v-if="form.certificationType === typeOptions[0].value || form.certificationType === typeOptions[1].value">
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.certificationType">
           <el-form-item label="工种种类" prop="jobType">
             <el-select
               v-model="form.jobType"
@@ -111,11 +134,6 @@
         </el-col>
       </el-row>
       <el-row v-if="form.certificationType === typeOptions[2].value">
-        <el-col :span="8">
-          <el-form-item label="岗位名称" prop="jobName">
-            <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位"/>
-          </el-form-item>
-        </el-col>
         <el-col :span="8">
           <el-form-item label="培训日期" prop="trainDate">
             <el-date-picker
@@ -311,7 +329,7 @@ import CRUD, {form} from '@crud/crud'
 import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getDepts, getDeptTree} from "@/api/system/dept";
-import {getUserByDeptId} from "@/api/system/user";
+import {getAllUser, getUserByDeptId} from "@/api/system/user";
 import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
@@ -439,12 +457,13 @@ export default {
       ],
       maxRemindDays: 90,
       bindingId: null,
-      filesLoading: false
+      filesLoading: false,
+      members: []
     }
   },
   watch: {
     // 监听deptId
-    'form.departId': 'currDeptChange'
+    // 'form.departId': 'currDeptChange'
   },
   computed: {
     ...mapGetters([
@@ -455,13 +474,33 @@ export default {
   },
   created: function () {
     this.getTopDept()
+    this.getAvailableUser()
   },
   methods: {
+    // 获取所有部门
     getTopDept() {
       // alert(JSON.stringify(this.user))
       getDeptTree().then(res => {
         this.departs = res.content
       })
+    },
+    // 获取人员信息
+    getAvailableUser() {
+      getAllUser().then(res => {
+        this.members = res.content
+      })
+    },
+    // 监控员工数据变化
+    staffChangeHandler(user) {
+      // alert(JSON.stringify(user.superiorName))
+      this.form.staffName = user.username
+      this.form.hireDate = user.hireDate
+      this.form.departId = user.deptId
+      this.form.superior = user.superiorName
+      // 目前工种允许自定义
+      // this.form.jobType = user.jobType
+      this.form.jobName = user.jobName
+      this.form.jobNum = user.jobNum
     },
     // 获取弹窗内使用部门数据
     loadDeparts({action, parentNode, callback}) {
@@ -546,7 +585,7 @@ export default {
         // alert(JSON.stringify(this.users))
       })
     },
-// 监控证书种类变化
+    // 监控证书种类变化
     certificationTypeChange(val) {
       this.$forceUpdate()
       this.form.jobType = null

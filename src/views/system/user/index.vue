@@ -354,6 +354,7 @@
           :data="crud.data"
           style="width: 100%;"
           @selection-change="crud.selectionChangeHandler"
+          @row-dblclick="crud.toEdit"
         >
           <el-table-column :selectable="checkboxT" type="selection" width="55"/>
           <el-table-column :show-overflow-tooltip="true" prop="username" label="用户名"/>

@@ -17,7 +17,22 @@
       <el-row>
         <el-col :span="8">
           <el-form-item label="员工姓名" prop="staffName">
-            <el-input v-model="form.staffName" style="width: 220px;"/>
+<!--            <el-input v-model="form.staffName" style="width: 220px;"/>-->
+            <el-select
+              v-model="form.staffName"
+              placeholder="请选择员工"
+              style="width: 220px;"
+              filterable
+              :disabled="crud.status.edit"
+            >
+              <el-option
+                v-for="item in members"
+                :key="item.id"
+                :label="item.dept.name + '-'+ item.username "
+                :value="item.id"
+                @click.native="staffChangeHandler(item)"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -26,8 +41,8 @@
               v-model="form.superior"
               placeholder="请选择主管"
               filterable
-              allow-create
               style="width:220px"
+              disabled
             >
               <el-option
                 v-for="item in superiors"
@@ -40,19 +55,24 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="岗位名称" prop="jobName">
-            <el-input v-model="form.jobName" style="width:220px"/>
+            <el-input v-model="form.jobName" style="width:220px" disabled />
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="8">
           <el-form-item label="车间" prop="workshop">
-            <el-input v-model="form.workshop" style="width:220px"/>
+            <el-input v-model="form.workshop" style="width:220px" disabled />
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="所属班组" prop="team">
+            <el-input v-model="form.team" style="width:220px" disabled />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="工种" prop="jobType">
-            <el-input v-model="form.jobType" style="width:220px"/>
+            <el-input v-model="form.jobType" style="width:220px" disabled />
           </el-form-item>
         </el-col>
       </el-row>
@@ -283,7 +303,7 @@
 
 <script>
 import CRUD, {form} from '@crud/crud'
-import {getUserByDeptId} from "@/api/system/user";
+import {getAllUser, getUserByDeptId} from "@/api/system/user";
 import {GMTToDate, toDateFormat, validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
@@ -297,6 +317,7 @@ const defaultForm = {
   workshop: null,
   superior: null,
   jobName: null,
+  team: null,
   jobType: null,
   uid: null,
   transcriptList: []
@@ -385,6 +406,7 @@ export default {
           )
         }
       },
+      members: [],
       bindingId: null,
       filesLoading: false,
       transDialogVisible: false,
@@ -403,8 +425,15 @@ export default {
   created: function () {
     this.form.departId = this.$props.departId
     this.currDeptChange(this.form.departId)
+    this.getAvailableUser()
   },
   methods: {
+    // 获取人员信息
+    getAvailableUser() {
+      getAllUser().then(res => {
+        this.members = res.content
+      })
+    },
     // 新增前操作
     [CRUD.HOOK.beforeToAdd]() {
       this.bindingId = null
@@ -433,6 +462,20 @@ export default {
         return false
       }
       this.form.departId = this.$props.departId
+    },
+    // 监控员工数据变化
+    staffChangeHandler(user) {
+      // alert(JSON.stringify(user.jobName))
+      this.form.staffName = user.username
+      this.form.hireDate = user.hireDate
+      this.form.departId = user.deptId
+      this.form.superior = user.superiorName
+      // 目前工种允许自定义
+      this.form.jobType = user.jobType
+      this.form.workshop = user.workshop
+      this.form.team = user.team
+      this.form.jobName = user.jobName
+      this.form.jobNum = user.jobNum
     },
     // 获取维修相关确认单信息
     getTrExamStaffTransById(id) {
