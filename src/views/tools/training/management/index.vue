@@ -65,17 +65,29 @@
             </el-card>
           </el-col>
           <el-col :span="4">
+            <el-card shadow="hover" @click.native="catalogueType = 'trainMaterial'"
+                     @dblclick.native="routerTarget('/training/manage/material')">
+              <el-button type="text" size="medium" icon="el-icon-document">培训材料</el-button>
+            </el-card>
+          </el-col>
+          <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'newStaff'"
                      @dblclick.native="routerTarget('/training/manage/newStaff')">
-              <el-button type="text" size="medium" icon="el-icon-s-custom">员工
+              <el-button type="text" size="medium" icon="el-icon-s-custom">培训记录
               </el-button>
             </el-card>
           </el-col>
-
+          <el-col :span="4">
+            <el-card shadow="hover" @click.native="catalogueType = 'trainExam'"
+                     @dblclick.native="routerTarget('/training/manage/exam')">
+              <el-button type="text" size="medium" icon="el-icon-edit">培训考试
+              </el-button>
+            </el-card>
+          </el-col>
           <el-col :span="4">
             <el-card shadow="hover" @click.native="catalogueType = 'certificate'"
                      @dblclick.native="routerTarget('/training/manage/certification')">
-              <el-button type="text" size="medium" icon="el-icon-tickets">证书
+              <el-button type="text" size="medium" icon="el-icon-tickets">培训证书
               </el-button>
             </el-card>
           </el-col>
@@ -83,19 +95,6 @@
             <el-card shadow="hover" @click.native="catalogueType = 'skillMatrix'"
                      @dblclick.native="routerTarget('/training/manage/skillMatrix')">
               <el-button type="text" size="medium" icon="el-icon-s-grid">员工能力矩阵
-              </el-button>
-            </el-card>
-          </el-col>
-          <el-col :span="4">
-            <el-card shadow="hover" @click.native="catalogueType = 'trainMaterial'"
-                     @dblclick.native="routerTarget('/training/manage/material')">
-              <el-button type="text" size="medium" icon="el-icon-document">培训材料</el-button>
-            </el-card>
-          </el-col>
-          <el-col :span="4">
-            <el-card shadow="hover" @click.native="catalogueType = 'trainExam'"
-                     @dblclick.native="routerTarget('/training/manage/exam')">
-              <el-button type="text" size="medium" icon="el-icon-edit">培训考试
               </el-button>
             </el-card>
           </el-col>
@@ -128,7 +127,7 @@
             <blockquote class="my-blockquote">
               <el-link>
                 <router-link to="/training/new-staff">
-                  <i class="el-icon-s-custom"></i>新员工
+                  <i class="el-icon-s-custom"></i>培训记录
                 </router-link>
               </el-link>
             </blockquote>
@@ -149,7 +148,7 @@
             <blockquote class="my-blockquote">
               <el-link>
                 <router-link to="/training/certification">
-                  <i class="el-icon-tickets"></i>证书
+                  <i class="el-icon-tickets"></i>培训证书
                 </router-link>
               </el-link>
             </blockquote>

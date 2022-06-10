@@ -21,7 +21,7 @@
         size="mini"
         type="success"
         icon="el-icon-edit"
-        :disabled="crud.selections.length !== 1"
+        :disabled="crud.selections.length !== 1 || crud.selections[0].scheduleStatus==='已关闭'"
         @click="crud.toEdit(crud.selections[0])"
       >
         修改

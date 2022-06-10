@@ -52,7 +52,7 @@
       <el-table-column label="考试结果" min-width="120">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'true'" type="success">通过</el-tag>
-          <el-tag v-else-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'false'" type="danger">不通过
+          <el-tag v-else-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'false'" type="danger">未通过
           </el-tag>
           <el-tag v-else-if="scope.row.isAuthorize.toString()==='true'" type="primary">已培训，待考试</el-tag>
           <el-tag v-else type="warning">培训尚未开始</el-tag>

@@ -47,6 +47,30 @@
                   @change="changeEnabled(examDepart, examDepart.enabled)"
                 />
               </el-descriptions-item>
+              <el-descriptions-item label-class-name="exam-depart-item" label="考试信息">
+                <span>{{ examDepart.examStaffList.length }}条  </span>
+                <el-popover
+                  v-if="examDepart.examStaffList.length > 0"
+                  placement="right"
+                  width="400"
+                  trigger="click">
+                  <span>员工考试信息</span>
+                  <el-table ref="table" style="max-height: 200px !important;overflow-y: auto;" :data="examDepart.examStaffList" border @dblclick.native="routeToTarget(examDepart)">
+                    <el-table-column prop="staffName" label="员工" width="80" />
+                    <el-table-column prop="trainTitle" label="培训项目" :show-overflow-tooltip="true" />
+                    <el-table-column label="考试情况">
+                      <template slot-scope="scope">
+                        <el-tag v-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'true'" type="success">通过</el-tag>
+                        <el-tag v-else-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'false'" type="danger">未通过
+                        </el-tag>
+                        <el-tag v-else-if="scope.row.isAuthorize.toString()==='true'" type="primary">已培训，待考试</el-tag>
+                        <el-tag v-else type="warning">培训尚未开始</el-tag>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                  <el-button type="text" size="small" slot="reference">查看明细</el-button>
+                </el-popover>
+              </el-descriptions-item>
             </el-descriptions>
             <div class="bottom clearfix">
               <!--              <el-button class="button" type="text">查看</el-button>-->

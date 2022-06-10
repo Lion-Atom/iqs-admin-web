@@ -101,6 +101,7 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
+            :disabled-edit="scope.row.scheduleStatus==='已关闭'"
           />
         </template>
       </el-table-column>
