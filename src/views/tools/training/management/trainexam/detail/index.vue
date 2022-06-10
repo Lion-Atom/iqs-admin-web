@@ -27,7 +27,6 @@
 
 <script>
 
-import {GMTToDate} from '@/utils/validationUtil';
 import {getToken} from '@/utils/auth';
 import {mapGetters} from 'vuex';
 import ExamBank from './examBank/index'
@@ -46,7 +45,7 @@ export default {
       },
       departId: null,
       departName: null,
-      defaultRadio: '考试题库'
+      defaultRadio: '考试信息'
     }
   },
   computed: {

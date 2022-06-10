@@ -2,7 +2,23 @@
   <div
     v-if="crud.props.searchToggle"
   >
-    <el-input v-model="query.blurry" clearable size="small" placeholder="输入员工名称、工号搜索" style="width: 200px;"
+    <el-select
+      class="filter-item"
+      size="small"
+      v-model="query.trScheduleId"
+      placeholder="请选择培训项目"
+      style="width: 180px;"
+      filterable
+      @change="crud.toQuery"
+    >
+      <el-option
+        v-for="item in schedules"
+        :key="item.id"
+        :label="item.trainTitle "
+        :value="item.id"
+      />
+    </el-select>
+    <el-input v-model="query.blurry" clearable size="small" placeholder="输入名称、工号等搜索" style="width: 160px;"
               class="filter-item" @input="crud.toQuery"  />
 
     <date-range-picker v-model="query.createTime" class="date-item" @input="dateTimeChange()" start-placeholder="录入开始日期"
@@ -37,6 +53,7 @@ import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getEquipmentByExample} from "@/api/tools/equipment";
 import {getDepts, getDeptTree} from "@/api/system/dept";
+import {getAllSchedule} from "@/api/tools/train/schedule";
 
 export default {
   components: {rrOperation, DateRangePicker, TreeSelect},
@@ -58,16 +75,26 @@ export default {
   data() {
     return {
       departs: [],
+      schedules: []
     }
   },
   created() {
     this.getTopDept()
+    this.getAllSchedule()
   },
   methods:{
     // 获取所在公司的部门树结构
     getTopDept() {
       getDeptTree().then(res => {
         this.departs = res.content
+      })
+    },
+    // 获取所有的培训计划
+    getAllSchedule() {
+      this.schedules = []
+      getAllSchedule().then(res => {
+        // alert(JSON.stringify(res))
+        this.schedules = res.content
       })
     },
     // 监控时间输入框变化，强制刷新

@@ -4,7 +4,7 @@
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/overview' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item><b>员工</b></el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训记录</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <!--工具栏-->
@@ -22,12 +22,13 @@
       <el-table-column prop="departName" label="所属部门"/>
       <el-table-column prop="superior" label="上级主管"/>
       <el-table-column prop="staffType" label="员工类型"/>
-      <el-table-column prop="jobType" label="工种"/>
+      <el-table-column prop="jobType" label="工种" />
       <el-table-column prop="workshop" label="车间"/>
       <el-table-column prop="team" label="班组"/>
       <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
       <el-table-column prop="trainTitle" label="培训项目" :show-overflow-tooltip="true"/>
-      <el-table-column prop="reason" label="未完成原因" :show-overflow-tooltip="true"/>
+      <el-table-column prop="isExam" label="是否考试" :formatter="isExamFormat"/>
+      <el-table-column prop="reason" label="未完成原因" min-width="120" :show-overflow-tooltip="true"/>
       <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -112,7 +113,14 @@ export default {
       } else {
         return '否'
       }
-    }
+    },
+    isExamFormat(row, col) {
+      if (row.isExam) {
+        return '是'
+      } else {
+        return '否'
+      }
+    },
   }
 }
 </script>

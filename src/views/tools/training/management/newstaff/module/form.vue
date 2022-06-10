@@ -171,7 +171,8 @@
         </el-col>
         <el-col :span="24" v-if="form.staffType && form.isFinished.toString() === 'false'">
           <el-form-item label="未完成原因" prop="reason">
-            <el-input type="textarea" :row="3" v-model="form.reason" placeholder="请填写未完成培训原因"></el-input>
+            <el-input type="textarea" :row="3" v-model="form.reason" :disabled="form.isAuthorize.toString() !=='true'"
+                      placeholder="请填写未完成培训原因"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24" v-if="form.staffType && form.isFinished.toString() === 'true'">
@@ -328,6 +329,7 @@ const defaultForm = {
   isFinished: true,
   reason: null,
   scheduleStatus: null,
+  isAuthorize: false,
   uid: null,
   fileList: []
 }
@@ -552,15 +554,24 @@ export default {
     },
     // 监控培训结果变化
     trainResultChanged(val) {
+      // alert(JSON.stringify(this.form))
       if (val.toString() === 'false') {
         this.reasonRules = this.rules.reason
       } else {
-        if(this.form.scheduleStatus !== '关闭') {
-          this.$notify({
-            title: '培训尚未结束',
-            type: 'warning',
-            duration: 2500
-          })
+        if (this.form.isAuthorize.toString() !== 'true') {
+          if (this.form.isExam.toString() === 'true' && this.scheduleStatus === '已关闭') {
+            this.$notify({
+              title: '考试尚未通过',
+              type: 'warning',
+              duration: 2500
+            })
+          } else {
+            this.$notify({
+              title: '培训尚未结束',
+              type: 'warning',
+              duration: 2500
+            })
+          }
           this.form.isFinished = !val
         } else {
           this.reasonRules = [

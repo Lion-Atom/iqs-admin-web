@@ -4,7 +4,7 @@
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/overview' }">培训概览</el-breadcrumb-item>
-        <el-breadcrumb-item><b>认证</b></el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训证书</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <!--工具栏-->
@@ -66,16 +66,18 @@ import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
+import {getByMethodName} from "@/api/system/timing";
 
 export default {
   name: 'TrainCertification',
   components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({
-      title: '培训认证',
+      title: '培训证书',
       url: 'api/train/certification',
       // sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: {...crudCertification}
+      crudMethod: {...crudCertification},
+      queryOnPresenterCreated: false
     })
   },
   mixins: [presenter()],
@@ -88,6 +90,7 @@ export default {
         edit: ['admin', 'certification:edit'],
         del: ['admin', 'certification:del']
       },
+      methodName: 'checkIsToTrain',
       typeOptions: [
         {
           label: '特殊工种证明',
@@ -99,15 +102,27 @@ export default {
         },
         {
           label: '在职上岗证',
-          value: '在职上岗证'
+          value: '在职上岗证',
+          disabled: true
         }
       ]
     }
   },
+  created() {
+    this.flushTrainTip()
+  },
   methods: {
+    // 调用同步-重新拉取走查培训提示信息
+    flushTrainTip() {
+      getByMethodName(this.methodName).then(res => {
+        this.crud.toQuery()
+      })
+    },
     // 改变状态
     dueDateFormat(row, col) {
-      return GMTToDate(row.dueDate)
+      if(row.dueDate) {
+        return GMTToDate(row.dueDate)
+      }
     },
     // 根据有效期设置提醒样式
     tableRowClassName({row, rowIndex}) {

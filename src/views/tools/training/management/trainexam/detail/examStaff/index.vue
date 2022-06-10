@@ -5,8 +5,24 @@
       <div
         v-if="crud.props.searchToggle"
       >
+        <el-select
+          class="filter-item"
+          size="small"
+          v-model="query.trScheduleId"
+          placeholder="请选择培训项目"
+          style="width: 200px;"
+          filterable
+          @change="crud.toQuery"
+        >
+          <el-option
+            v-for="item in schedules"
+            :key="item.id"
+            :label="item.trainTitle "
+            :value="item.id"
+          />
+        </el-select>
         <el-input v-model="query.blurry" clearable size="small" placeholder="输入名字、车间、工种等搜索" style="width: 220px;"
-                  class="filter-item" @keyup.enter.native="crud.toQuery"/>
+                  class="filter-item" @input="crud.toQuery"/>
         <el-input v-model="query.departId" v-show="false"/>
         <date-range-picker v-model="query.createTime" class="date-item" @input="dateTimeChange()"
                            start-placeholder="录入开始日期"
@@ -26,21 +42,24 @@
       <el-table-column prop="staffName" label="员工姓名" fixed/>
       <el-table-column prop="jobName" label="岗位"/>
       <el-table-column prop="superior" label="上级主管"/>
+      <el-table-column prop="staffType" label="员工类型"/>
       <el-table-column prop="jobType" label="工种"/>
-      <el-table-column prop="workshop" label="车间" min-width="100" />
+      <el-table-column prop="workshop" label="车间" min-width="100"/>
       <el-table-column prop="trainTitle" label="培训项目" :show-overflow-tooltip="true"/>
-      <el-table-column prop="lastExamDate" label="考试日期" min-width="140" />
-      <el-table-column prop="lastExamContent" label="考试内容" :show-overflow-tooltip="true" />
-      <el-table-column prop="lastScore" label="考试分数" min-width="70" />
-      <el-table-column label="考试结果">
+      <el-table-column prop="lastExamDate" label="考试日期" min-width="140"/>
+      <el-table-column prop="lastExamContent" label="考试内容" :show-overflow-tooltip="true"/>
+      <el-table-column prop="lastScore" label="考试分数" min-width="70"/>
+      <el-table-column label="考试结果" min-width="120">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'true'" type="success">通过</el-tag>
-          <el-tag v-else-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'false'" type="danger">通过</el-tag>
-          <el-tag v-else type="warning">尚未开考</el-tag>
+          <el-tag v-else-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'false'" type="danger">不通过
+          </el-tag>
+          <el-tag v-else-if="scope.row.isAuthorize.toString()==='true'" type="primary">已培训，待考试</el-tag>
+          <el-tag v-else type="warning">培训尚未开始</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="下次考试日期" :formatter="nextExamDateFormat" min-width="140"/>
-      <el-table-column prop="lastExamDesc" label="备注" :show-overflow-tooltip="true" />
+      <el-table-column prop="lastExamDesc" label="备注" :show-overflow-tooltip="true"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -54,6 +73,7 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
+            :show-del="false"
           />
         </template>
       </el-table-column>
@@ -61,7 +81,8 @@
     <!--分页组件-->
     <pagination/>
     <!--表单渲染-->
-    <eForm :depart-id="departId" :exam-status="dict.common_status" :type-options="typeOptions" :permission="permission"/>
+    <eForm :depart-id="departId" :exam-status="dict.common_status" :type-options="typeOptions"
+           :permission="permission"/>
   </div>
 </template>
 
@@ -74,6 +95,7 @@ import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
+import {getAllSchedule} from "@/api/tools/train/schedule";
 
 export default {
   props: {
@@ -112,7 +134,8 @@ export default {
           label: 'IDL',
           value: '间接员工'
         }
-      ]
+      ],
+      schedules: []
     }
   },
   created() {
@@ -124,6 +147,7 @@ export default {
       download: true,
       reset: true
     }
+    this.getAllSchedule()
   },
   mounted() {
     this.crud.toQuery()
@@ -133,6 +157,14 @@ export default {
     dateTimeChange() {
       this.$forceUpdate()
       this.crud.toQuery()
+    },
+    // 获取所有的培训计划
+    getAllSchedule() {
+      this.schedules = []
+      getAllSchedule().then(res => {
+        // alert(JSON.stringify(res))
+        this.schedules = res.content
+      })
     },
     // 重置查询
     resetNewQuery() {

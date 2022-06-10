@@ -88,6 +88,18 @@
             </el-radio>
           </el-form-item>
         </el-col>
+        <el-col :span="8" v-if="form.isExam.toString() === 'true'">
+          <el-form-item label="是否发证" prop="isCert">
+            <el-radio
+              v-for="item in commonStatus"
+              :key="item.id"
+              v-model="form.isCert"
+              :label="item.value === 'true'"
+            >
+              {{ item.label }}
+            </el-radio>
+          </el-form-item>
+        </el-col>
         <el-col :span="24">
           <el-form-item label="涉及部门" prop="bindDepts">
             <treeselect
@@ -414,6 +426,7 @@ const defaultForm = {
   remindDays: null,
   isDelay: false,
   isExam: false,
+  isCert: false,
   newTrainTime: null,
   delayDesc: null,
   scheduleStatus: null, // 证书状态后台走查判断
@@ -479,6 +492,9 @@ export default {
         ],
         isExam: [
           {required: true, message: '请确认是否需要考试', trigger: 'blur'}
+        ],
+        isCert: [
+          {required: true, message: '请确认是否发放证书', trigger: 'blur'}
         ],
         newTrainTime: [
           {required: true, message: '请重新投定培训时间', trigger: 'blur'}

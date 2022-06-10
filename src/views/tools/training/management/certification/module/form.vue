@@ -16,14 +16,14 @@
     >
       <el-row class="el-row-inline">
         <el-col :span="8">
-          <el-form-item label="新员工姓名" prop="staffName">
-<!--            <el-input v-model="form.staffName" style="width: 220px;"/>-->
+          <el-form-item label="员工姓名" prop="staffName">
+            <!--            <el-input v-model="form.staffName" style="width: 220px;"/>-->
             <el-select
               v-model="form.staffName"
               placeholder="请选择员工"
               style="width: 220px;"
               filterable
-              :disabled="crud.status.edit"
+              :disabled="crud.status.edit === 1"
             >
               <el-option
                 v-for="item in members"
@@ -65,31 +65,17 @@
         </el-col>
         <el-col :span="8" v-if="form.staffName">
           <el-form-item label="上级主管" prop="superior">
-<!--            &lt;!&ndash; 根据部门选择上级主管 &ndash;&gt;
-            <el-select
-              v-model="form.superior"
-              placeholder="请先选择所在部门"
-              style="width:220px"
-              disabled
-            >
-              <el-option
-                v-for="item in superiors"
-                :key="item.id"
-                :label="item.jobs[0].name + '-'+ item.username "
-                :value="item.username"
-              />
-            </el-select>-->
-            <el-input v-model="form.superior" style="width:220px" placeholder="请填写上级主管" disabled />
+            <el-input v-model="form.superior" style="width:220px" placeholder="请填写上级主管" disabled/>
           </el-form-item>
         </el-col>
         <el-col :span="8" v-if="form.staffName">
           <el-form-item label="岗位名称" prop="jobName">
-            <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位" disabled />
+            <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位" disabled/>
           </el-form-item>
         </el-col>
         <el-col :span="8" v-if="form.staffName">
           <el-form-item label="工号" prop="jobNum">
-            <el-input v-model="form.jobNum" style="width:220px" disabled />
+            <el-input v-model="form.jobNum" style="width:220px" disabled/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -104,12 +90,15 @@
                 v-for="item in typeOptions"
                 :key="item.value"
                 :label="item.value "
-                :value="item.value">
+                :value="item.value"
+                :disabled="!validIsNotNull(form.trScheduleId) && item.disabled"
+              >
               </el-option>
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.certificationType === typeOptions[0].value || form.certificationType === typeOptions[1].value">
+        <el-col :span="8"
+                v-if="form.certificationType === typeOptions[0].value || form.certificationType === typeOptions[1].value">
           <el-form-item label="工种种类" prop="jobType">
             <el-select
               v-model="form.jobType"
@@ -134,29 +123,45 @@
         </el-col>
         <!--todo 上岗培训证:需要关联相关的培训计划-->
         <el-col :span="8" v-if="form.certificationType === typeOptions[2].value">
-          
+          <el-form-item label="培训项目" prop="trScheduleId">
+            <el-select
+              v-model="form.trScheduleId"
+              placeholder="请选择培训项目"
+              style="width: 220px;"
+              filterable
+              disabled
+            >
+              <el-option
+                v-for="item in schedules"
+                :key="item.id"
+                :label="item.trainTitle "
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row v-if="form.certificationType === typeOptions[2].value">
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.trScheduleId">
           <el-form-item label="培训日期" prop="trainDate">
             <el-date-picker
               v-model="form.trainDate"
               type="date"
               style="width: 220px;"
-              placeholder="请填写培训时间"
+              placeholder="请填写培训日期"
               :picker-options="pickerOption[0]"
+              disabled
             />
           </el-form-item>
         </el-col>
+      </el-row>
+      <el-row v-if="form.certificationType === typeOptions[2].value">
         <el-col :span="8">
           <el-form-item label="发证日期" prop="issueDate">
             <el-date-picker
               v-model="form.issueDate"
               type="date"
               style="width: 220px;"
-              placeholder="请填写培训时间"
-              :picker-options="pickerOption[0]"
+              placeholder="请填写发证日期"
+              :picker-options="pickerOption[1]"
             />
           </el-form-item>
         </el-col>
@@ -179,7 +184,7 @@
               type="date"
               style="width: 220px;"
               placeholder="请填写到期时间"
-              :picker-options="pickerOption[1]"
+              :picker-options="pickerOption[2]"
               @input="dueDateChange"
             />
           </el-form-item>
@@ -339,6 +344,7 @@ import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
 import {getToken} from "@/utils/auth";
 import {delTrCertificationFile, getFilesByTrCertificationId} from "@/api/tools/train/trCertificationFile";
+import {getAllSchedule} from "@/api/tools/train/schedule";
 
 const defaultForm = {
   id: null,
@@ -350,6 +356,7 @@ const defaultForm = {
   superior: null,
   jobName: null,
   jobNum: null,
+  trScheduleId: null,
   trainDate: null,
   trainContent: null,
   orgName: null,
@@ -435,6 +442,7 @@ export default {
           {required: true, message: '请填写未完成培训的原因', trigger: 'blur'}
         ]
       },
+      schedules: [],
       departs: [],
       superiors: [],
       reasonRules: [
@@ -446,13 +454,28 @@ export default {
             Date.now() <= time.getTime()
           )
         }
-      }, {
-        disabledDate: time => {
-          return (
-            time.getTime() <= Date.now()
-          )
-        }
-      }],
+      },
+        {
+          disabledDate: time => {
+            if (this.form.trainDate) {
+              return (
+                time.getTime() <= new Date(this.form.trainDate).getTime() || Date.now() <= time.getTime()
+              )
+            }
+          }
+        }, {
+          disabledDate: time => {
+            if (this.form.issueDate) {
+              return (
+                time.getTime() <= Date.now() || time.getTime() <= new Date(this.form.issueDate).getTime()
+              )
+            } else {
+              return (
+                time.getTime() <= Date.now()
+              )
+            }
+          }
+        }],
       jobTypeOptions: [
         {value: '叉车'},
         {value: '电工'},
@@ -479,6 +502,7 @@ export default {
   created: function () {
     this.getTopDept()
     this.getAvailableUser()
+    this.getAllSchedule()
   },
   methods: {
     // 获取所有部门
@@ -492,6 +516,14 @@ export default {
     getAvailableUser() {
       getAllUser().then(res => {
         this.members = res.content
+      })
+    },
+    // 获取所有的培训计划
+    getAllSchedule() {
+      this.schedules = []
+      getAllSchedule().then(res => {
+        // alert(JSON.stringify(res))
+        this.schedules = res.content
       })
     },
     // 监控员工数据变化
@@ -672,6 +704,20 @@ export default {
         duration: 2500
       })
     },
+    validIsNotNull(str) {
+      // return !(str == null || str === '' || str === undefined || str.match(/^[ ]*$/))
+      if (str == null) {
+        return false
+      } else if (str === '') {
+        return false
+      } else if (str === undefined) {
+        return false
+      } else if (str.toString().match(/^[ ]*$/)) {
+        return false
+      } else {
+        return true
+      }
+    }
   }
 }
 </script>

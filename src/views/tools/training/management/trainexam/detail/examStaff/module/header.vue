@@ -2,6 +2,22 @@
   <div
     v-if="crud.props.searchToggle"
   >
+    <el-select
+      class="filter-item"
+      size="small"
+      v-model="query.trScheduleId"
+      placeholder="请选择培训项目"
+      style="width: 200px;"
+      filterable
+      @change="crud.toQuery"
+    >
+      <el-option
+        v-for="item in schedules"
+        :key="item.id"
+        :label="item.trainTitle "
+        :value="item.id"
+      />
+    </el-select>
     <el-input v-model="query.blurry" clearable size="small" placeholder="输入新员工名称搜索" style="width: 200px;"
               class="filter-item" @input="crud.toQuery"/>
     <el-input v-model="query.departId" v-show="false"/>
@@ -18,6 +34,7 @@
 <script>
 import {header} from '@crud/crud'
 import DateRangePicker from '@/components/DateRangePicker'
+import {getAllSchedule} from "@/api/tools/train/schedule";
 
 export default {
   components: {DateRangePicker},
@@ -35,16 +52,26 @@ export default {
   data() {
     return {
       departs: [],
+      schedules: []
     }
   },
   created() {
     this.query.departId = this.$props.departId
+    this.getAllSchedule()
   },
   methods: {
     // 监控时间输入框变化，强制刷新
     dateTimeChange() {
       this.$forceUpdate()
       this.crud.toQuery()
+    },
+    // 获取所有的培训计划
+    getAllSchedule() {
+      this.schedules = []
+      getAllSchedule().then(res => {
+        // alert(JSON.stringify(res))
+        this.schedules = res.content
+      })
     },
     // 重置查询
     resetNewQuery() {

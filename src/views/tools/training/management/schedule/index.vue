@@ -33,7 +33,6 @@
       style="width: 100%;"
       @selection-change="crud.selectionChangeHandler"
       :row-class-name="tableRowClassName"
-      @row-contextmenu="rightClick"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="trainTitle" label="培训标题" min-width="140" fixed/>
@@ -41,7 +40,14 @@
       <el-table-column prop="trainer" label="培训员"/>
       <el-table-column prop="trainContent" label="培训内容" :show-overflow-tooltip="true"/>
       <el-table-column prop="trainType" label="培训类型"/>
-      <el-table-column prop="regDeadline" label="报名截止时间" min-width="140"/>
+      <el-table-column label="是否考试" :formatter="isExamFormat"/>
+      <el-table-column prop="regDeadline" label="报名截止时间" min-width="140">
+        <template slot-scope="scope">
+          <span v-if="new Date(scope.row.regDeadline).getTime() < new Date().getTime()"
+                style="color: red">{{ scope.row.regDeadline }}</span>
+          <span v-else>{{ scope.row.regDeadline }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="trainLocation" label="培训地点" :show-overflow-tooltip="true"/>
       <el-table-column label="培训费用" :formatter="costFormat"/>
       <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true"/>
@@ -117,7 +123,7 @@
           size="small"
           label-width="80px"
         >
-          <!--培训日程安排信息-->
+          <!--培训计划信息-->
           <el-row :gutter="20" type="flex" class="el-row">
             <el-col :span="8">
               <el-form-item label="所在部门" prop="participantDepart">
@@ -170,22 +176,13 @@
         border
         :data="partList"
         style="width: 100%;"
+        @row-dblclick="gotoTarget"
       >
         <el-table-column prop="participantDepartName" label="所属部门"/>
         <el-table-column prop="participantName" label="参与者"/>
-        <el-table-column prop="isValid" label="是否参与" align="center">
-          <template slot-scope="scope">
-            <el-switch
-              v-model="scope.row.isValid"
-              active-color="#409EFF"
-              inactive-color="#F56C6C"
-              @change="changeIsValid(scope.row, scope.row.isValid)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" label="创建日期" min-width="140"/>
+        <el-table-column prop="createTime" label="报名日期" min-width="140"/>
         <!--删除操作---暂注释-->
-        <!--        <el-table-column
+        <!--<el-table-column
                   label="操作"
                   width="80"
                   align="center"
@@ -456,6 +453,7 @@ import {
   getTrParticipantByExample
 } from "@/api/tools/train/trParticipant";
 import {getUserByDeptId} from "@/api/system/user";
+import {getByMethodName} from "@/api/system/timing";
 
 export default {
   name: 'TrainSchedule',
@@ -465,7 +463,8 @@ export default {
       title: '培训计划',
       url: 'api/train/schedule',
       // sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: {...crudSchedule}
+      crudMethod: {...crudSchedule},
+      queryOnPresenterCreated: false
     })
   },
   mixins: [header(), presenter()],
@@ -505,6 +504,7 @@ export default {
         // {name: '报名参加', operType: 1},
         {name: '查看参与者', operType: 2}
       ],
+      methodName: 'checkIsToTrain',
       curData: {},
       partList: [],
       partDialogVisible: false,
@@ -552,12 +552,18 @@ export default {
     }
   },
   created() {
-
+    this.flushTrainTip()
   },
   mounted() {
 
   },
   methods: {
+    // 调用同步-重新拉取走查培训提示信息
+    flushTrainTip() {
+      getByMethodName(this.methodName).then(res => {
+        this.crud.toQuery()
+      })
+    },
     // 监控时间输入框变化，强制刷新
     dateTimeChange() {
       this.$forceUpdate()
@@ -578,7 +584,7 @@ export default {
       // 根据部门获取培训计划已有成员数据
       this.getExistedPartByExample(row)
       // 根据部门获取部门成员数据
-      setTimeout(()=>{
+      setTimeout(() => {
         getUserByDeptId({deptId: row.participantDepart}).then(res => {
           // alert(JSON.stringify(res))
           this.availUsers = res
@@ -601,25 +607,25 @@ export default {
             row.participantName = null
           }
         })
-      },300)
+      }, 300)
     },
     // 根据部门和培训计划查询已报名成员
     getExistedPartByExample(row) {
       this.existedParts = []
       this.existedPartDatas = []
       // 已落库的已存在数据
-      if(this.participantList.length>0) {
-        this.participantList.forEach((data,index)=>{
-          if(data.participantDepart === row.participantDepart){
+      if (this.participantList.length > 0) {
+        this.participantList.forEach((data, index) => {
+          if (data.participantDepart === row.participantDepart) {
             this.existedPartDatas.push(data.participantName)
           }
         })
       }
       // alert(JSON.stringify(this.addPartForm.newPartList))
       // 尚未保存表格中存在
-      if(this.addPartForm.newPartList.length>0) {
-        this.addPartForm.newPartList.forEach((data,index)=>{
-          if(data.participantDepart === row.participantDepart){
+      if (this.addPartForm.newPartList.length > 0) {
+        this.addPartForm.newPartList.forEach((data, index) => {
+          if (data.participantDepart === row.participantDepart) {
             this.existedPartDatas.push(data.participantName)
           }
         })
@@ -654,16 +660,6 @@ export default {
       this.partForm.trScheduleId = data.id
       this.availableDeparts = data.departTags
     },
-    // 获取参与者信息
-    /*getParticipant(trScheduleId) {
-      this.partLoading = true
-      this.parts = []
-      // 查询参与者信息
-      getPartsByTrScheduleId(trScheduleId).then(res => {
-        this.parts = res
-        this.partLoading = false
-      })
-    },*/
     // 取消参与本次培训
     cancelSubmitPart() {
       if (this.$refs['partForm'] !== undefined) {
@@ -721,11 +717,17 @@ export default {
     },
     // 获取参与者信息
     getParticipant(scheduleId) {
+      this.partList = []
       this.participantList = []
       this.participantLoading = true
       getPartsByTrScheduleId(scheduleId).then(res => {
         this.participantList = res
         this.participantLoading = false
+        this.participantList.forEach((data, index) => {
+          if (data.isValid) {
+            this.partList.push(data)
+          }
+        })
       })
     },
     // 改变状态
@@ -780,9 +782,9 @@ export default {
       //     this.openPartDialog(this.curData)
       //   }
       // } else if (index === 1) {
-        // this.openPartDialog(this.curData)
-        this.partList = this.curData.partList
-        this.viewPartDialogVisible = true
+      // this.openPartDialog(this.curData)
+      this.partList = this.curData.partList
+      this.viewPartDialogVisible = true
       // }
       let menu = document.querySelector("#menu");
       menu.style.display = "none";
@@ -790,7 +792,8 @@ export default {
     // 获取报名信息
     getPartInfo(msg) {
       // alert(JSON.stringify(msg))
-      this.partDialogVisible = msg.viewPartDialogVisible
+      this.partDialogVisible = msg.partDialogVisible
+      this.viewPartDialogVisible = msg.viewPartDialogVisible
       this.basicInfoVisible = false
       this.curData = msg.curData
       this.disChangePartStatus = new Date(msg.curData.regDeadline).getTime() < new Date().getTime()
@@ -856,6 +859,31 @@ export default {
     // 移除备件信息
     deletePart(index, rows) {
       rows.splice(index, 1)
+    },
+    isExamFormat(row, col) {
+      if (row.isExam.toString() === 'true') {
+        return '是'
+      } else {
+        return '否'
+      }
+    },
+    gotoTarget(row) {
+      if (row.isExam.toString() === 'true') {
+        this.$router.push(
+          {
+            path: '/training/train-exam/detail',
+            query: {
+              departId: row.participantDepart,
+              departName: row.participantDepartName
+            }
+          })
+      } else {
+        this.$router.push(
+          {
+            path: '/training/manage/newStaff',
+            query: {}
+          })
+      }
     }
   }
 }

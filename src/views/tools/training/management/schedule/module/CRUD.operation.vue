@@ -39,6 +39,17 @@
         报名
       </el-button>
       <el-button
+        v-if="crud.selections.length === 1 && new Date(crud.selections[0].regDeadline).getTime() <= new Date().getTime()"
+        v-permission="permission.edit"
+        class="filter-item"
+        size="mini"
+        type="success"
+        icon="el-icon-view"
+        @click="openViewParticipantDialog(crud.selections[0])"
+      >
+        报名者
+      </el-button>
+      <el-button
         v-if="crud.optShow.del"
         slot="reference"
         v-permission="permission.del"
@@ -162,6 +173,7 @@ export default {
       ignoreNextTableColumnsChange: false,
       partData: {
         viewPartDialogVisible: false,
+        partDialogVisible: true,
         curData: {}
       }
     }
@@ -273,6 +285,14 @@ export default {
     // 打开报名弹窗
     openParticipantDialog(data) {
       // alert(JSON.stringify(data))
+      this.partData.partDialogVisible = true
+      this.partData.viewPartDialogVisible = false
+      this.partData.curData = data
+      this.$emit('func', this.partData)
+    },
+    // 查看报名者信息弹窗
+    openViewParticipantDialog(data) {
+      this.partData.partDialogVisible = false
       this.partData.viewPartDialogVisible = true
       this.partData.curData = data
       this.$emit('func', this.partData)

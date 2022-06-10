@@ -222,13 +222,14 @@
                       >确定
                       </el-button>
                     </div>
+                    <!--限制逐级删除考试信息-->
                     <el-button
                       slot="reference"
                       v-permission="permission.edit"
                       type="danger"
                       icon="el-icon-delete"
                       size="mini"
-                      :disabled="form.transcriptList.length < 2"
+                      :disabled="scope.$index < form.transcriptList.length-1"
                     />
                   </el-popover>
                 </template>
@@ -400,6 +401,7 @@ const defaultForm = {
   trainTime: null,
   trScheduleId: null,
   scheduleStatus: null,
+  isAuthorize: false,
   uid: null,
   transcriptList: []
 }
@@ -716,9 +718,9 @@ export default {
       this.loading = false
     },
     openTransDialog() {
-      if(this.form.scheduleStatus !== '关闭') {
+      if(this.form.isAuthorize.toString() !== 'true') {
         this.$notify({
-          title: '培训尚未结束',
+          title: '培训尚未开始',
           type: 'warning',
           duration: 2500
         })
