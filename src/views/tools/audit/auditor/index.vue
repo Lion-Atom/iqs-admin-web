@@ -85,6 +85,7 @@ import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from './module/UD.operation'
 import { GMTToDate, validIsNotNull } from '@/utils/validationUtil'
+import {getByMethodName} from "@/api/system/timing";
 
 export default {
   name: 'Auditor',
@@ -94,7 +95,9 @@ export default {
       title: '审核人员',
       url: 'api/auditor',
       sort: ['id,desc'],
-      crudMethod: { ...crudAuditor }
+      crudMethod: { ...crudAuditor },
+      // 关闭前置create率先执行toQuery方法
+      queryOnPresenterCreated: false
     })
   },
   mixins: [presenter()],
@@ -106,10 +109,20 @@ export default {
         add: ['admin', 'auditor:add'],
         edit: ['admin', 'auditor:edit'],
         del: ['admin', 'auditor:del']
-      }
+      },
+      methodName: 'checkAuditorStatus'
     }
   },
+  created() {
+    this.flushAuditorInfo()
+  },
   methods: {
+    // 调用同步-重新拉取走查仪器校准状态信息
+    flushAuditorInfo() {
+      getByMethodName(this.methodName).then(res => {
+        this.crud.toQuery()
+      })
+    },
     // 根据有效期设置提醒样式
     tableRowClassName({ row, rowIndex }) {
       const type = row.styleType

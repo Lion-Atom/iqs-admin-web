@@ -313,7 +313,7 @@
             </el-table>
             <!--上传试卷-->
             <el-button type="text" @click="openTransDialog">上传培训附件</el-button>
-            <el-dialog append-to-body :close-on-click-modal="false"
+<!--            <el-dialog append-to-body :close-on-click-modal="false"
                        :visible.sync="transDialogVisible" title="培训附件上传" width="60%">
               <el-form ref="fileForm" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
                 <el-row :gutter="40" class="row-box">
@@ -326,7 +326,7 @@
                       </el-col>
                       <el-col :span="24">
                         <el-form-item label="附件类型" prop="fileType">
-                          <!--                          <el-input v-model="fileForm.fileType" style="width: 100%;" placeholder="请填写附件类型"/>-->
+                          &lt;!&ndash;                          <el-input v-model="fileForm.fileType" style="width: 100%;" placeholder="请填写附件类型"/>&ndash;&gt;
                           <el-select
                             v-model="fileForm.fileType"
                             filterable
@@ -353,7 +353,7 @@
                       </el-col>
                     </el-row>
                   </el-col>
-                  <!--   上传文件   -->
+                  &lt;!&ndash;   上传文件   &ndash;&gt;
                   <el-col :span="14">
                     <el-form-item>
                       <template slot="label">
@@ -385,6 +385,10 @@
                 <el-button type="text" @click="cancelSubmit">取消</el-button>
                 <el-button type="primary" :loading="loading" @click="uploadScheduleFile">确认</el-button>
               </div>
+            </el-dialog>-->
+            <el-dialog append-to-body :close-on-click-modal="false"
+                       :visible.sync="transDialogVisible" title="培训附件上传" width="60%">
+
             </el-dialog>
           </el-form-item>
         </el-col>
