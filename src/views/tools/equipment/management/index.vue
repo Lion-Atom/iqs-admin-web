@@ -15,11 +15,11 @@
       :row-class-name="maintainTableRowClassName"
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="equipNum" label="设备编号"  fixed />
-      <el-table-column prop="equipName" label="设备名称" :show-overflow-tooltip="true" min-width="100" sortable />
+      <el-table-column prop="equipNum" label="设备编号" fixed/>
+      <el-table-column prop="equipName" label="设备名称" :show-overflow-tooltip="true" min-width="100" sortable/>
       <el-table-column prop="equipModel" label="设备型号"/>
       <el-table-column prop="assetNum" label="资产号"/>
-      <el-table-column prop="equipProvider" label="设备厂家" :show-overflow-tooltip="true" />
+      <el-table-column prop="equipProvider" label="设备厂家" :show-overflow-tooltip="true"/>
       <el-table-column prop="useDepartName" label="使用部门"/>
       <el-table-column prop="useArea" label="设备位置"/>
       <el-table-column prop="equipLevel" label="设备级别"/>
@@ -27,15 +27,15 @@
       <el-table-column prop="maintainLevel" label="保养级别"/>
       <el-table-column label="上次保养日期" :formatter="lastMaintainDateFormat" width="130"/>
       <el-table-column label="保养周期" :formatter="maintainPeriodFormat"/>
-      <el-table-column label="保养到期日期" :formatter="maintainDueDateFormat"  width="130" />
-      <el-table-column prop="maintainStatus" label="保养状态" />
+      <el-table-column label="保养到期日期" :formatter="maintainDueDateFormat" width="130"/>
+      <el-table-column prop="maintainStatus" label="保养状态"/>
       <el-table-column label="保养记录">
         <template slot-scope="scope">
           <el-button v-if="scope.row.lastMaintainDate" type="text" @click="checkMainRecord(scope.row)">查看记录</el-button>
           <el-button v-else type="text" disabled>尚未保养</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建日期"  width="150" />
+      <el-table-column prop="createTime" label="创建日期" width="150"/>
       <!--   编辑与删除   -->
       <el-table-column
         v-if="checkPer(['admin','equip:edit','equip:del'])"
@@ -265,7 +265,7 @@
         <el-table-column prop="maintainDuration" label="保养时长"/>
         <el-table-column prop="maintainResult" label="保养结果"/>
         <el-table-column prop="confirmBy" label="确认人"/>
-        <el-table-column prop="maintainDesc" label="保养反馈" :show-overflow-tooltip='true' />
+        <el-table-column prop="maintainDesc" label="保养反馈" :show-overflow-tooltip='true'/>
         <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       </el-table>
     </el-dialog>
@@ -286,6 +286,7 @@ import {getDepts, getDeptTree} from "@/api/system/dept";
 import TreeSelect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getMaintenanceByEquipId} from "@/api/tools/equipMaintenance";
+import {getByMethodName} from "@/api/system/timing";
 
 const defaultForm = {
   id: null,
@@ -334,7 +335,9 @@ export default {
       title: '设备维护',
       url: 'api/equipment',
       // sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: {...crudEquipment}
+      crudMethod: {...crudEquipment},
+      // 关闭前置create率先执行toQuery方法
+      queryOnPresenterCreated: false
     })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
@@ -500,7 +503,8 @@ export default {
       ],
       maintenanceList: [],
       maintenanceLoading: false,
-      maintenanceVisible: false
+      maintenanceVisible: false,
+      methodName: 'checkEquipMtIsOverdue'
     }
   },
   computed: {
@@ -510,16 +514,23 @@ export default {
     ])
   },
   created() {
-    this.getTopDept(),
-      this.crud.optShow = {
-        add: true,
-        edit: true,
-        del: false,
-        download: true,
-        reset: true
-      }
+    this.getTopDept()
+    this.flushEquipInfo()
+    this.crud.optShow = {
+      add: true,
+      edit: true,
+      del: false,
+      download: true,
+      reset: true
+    }
   },
   methods: {
+    // 调用同步-重新拉取走查仪器校准状态信息
+    flushEquipInfo() {
+      getByMethodName(this.methodName).then(res => {
+        this.crud.toQuery()
+      })
+    },
     // 获取所在公司的部门树结构
     getTopDept() {
       getDeptTree().then(res => {

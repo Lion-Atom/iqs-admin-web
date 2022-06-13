@@ -10,7 +10,7 @@
     >
       {{ initMaintainOperation(data) }}
     </el-button>
-    <el-button v-permission="permission.edit" :loading="crud.status.cu === 2" :disabled="disabledEdit" size="mini"
+    <el-button v-permission="permission.edit" :loading="crud.status.cu === 2"  size="mini"
                type="primary" icon="el-icon-edit" style="text-align: right; margin: 0" @click="crud.toEdit(data)"/>
   </div>
 </template>

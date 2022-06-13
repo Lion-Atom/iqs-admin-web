@@ -66,6 +66,7 @@ import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from './module/UD.operation'
 import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
+import {getByMethodName} from "@/api/system/timing";
 
 export default {
   name: 'Instrument',
@@ -75,7 +76,8 @@ export default {
       title: '仪器信息',
       url: 'api/instrument',
       sort: ['id,asc'],
-      crudMethod: {...crudInstrument}
+      crudMethod: {...crudInstrument},
+      queryOnPresenterCreated: false
     })
   },
   mixins: [presenter()],
@@ -110,10 +112,20 @@ export default {
           value: 'false',
           label: '送出校准'
         }
-      ]
+      ],
+      methodName: 'checkInstruCaliIsOverdueV2'
     }
   },
+  created() {
+    this.flushInstruInfo()
+  },
   methods: {
+    // 调用同步-重新拉取走查仪器校准状态信息
+    flushInstruInfo() {
+      getByMethodName(this.methodName).then(res => {
+        this.crud.toQuery()
+      })
+    },
     // 根据校准信息设置提醒样式
     instruRowClassName({row, rowIndex}) {
       const type = row.caliStatus

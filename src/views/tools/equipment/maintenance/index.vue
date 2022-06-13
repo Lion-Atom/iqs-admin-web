@@ -143,6 +143,7 @@ import pagination from '@crud/Pagination'
 import udOperation from './module/UD.operation'
 import {mapGetters} from "vuex";
 import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
+import {getByMethodName} from "@/api/system/timing";
 
 export default {
   name: 'Maintenance',
@@ -153,7 +154,9 @@ export default {
       url: 'api/equipment',
       query: {status: '已验收'},
       // sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: {...crudEquipment}
+      crudMethod: {...crudEquipment},
+      // 关闭前置create率先执行toQuery方法
+      queryOnPresenterCreated: false
     })
   },
   mixins: [presenter()],
@@ -167,7 +170,8 @@ export default {
       fileList: [],
       fileDialogTitle: '',
       fileDialogVisible: false,
-      maintainOverdue: '超期未保养'
+      maintainOverdue: '超期未保养',
+      methodName: 'checkEquipMtIsOverdue'
     }
   },
   computed: {
@@ -178,6 +182,7 @@ export default {
     ])
   },
   created() {
+    this.flushEquipInfo()
     this.crud.optShow = {
       add: false,
       edit: true,
@@ -187,6 +192,12 @@ export default {
     }
   },
   methods: {
+    // 调用同步-重新拉取走查仪器校准状态信息
+    flushEquipInfo() {
+      getByMethodName(this.methodName).then(res => {
+        this.crud.toQuery()
+      })
+    },
     // 上次保养日期格式化
     lastMaintainDateFormat(row, col) {
       if (validIsNotNull(row.lastMaintainDate)) {

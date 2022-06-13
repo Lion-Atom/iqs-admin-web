@@ -214,6 +214,7 @@
           </el-form-item>
         </el-col>
       </el-row>
+      <!--todo 培训附件信息-->
       <el-row>
         <el-col :span="24">
           <el-form-item>
