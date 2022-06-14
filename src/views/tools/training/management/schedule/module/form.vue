@@ -5,7 +5,7 @@
     :before-close="crud.cancelCU"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
-    width="70%"
+    width="72%"
   >
     <el-form
       ref="form"
@@ -214,184 +214,476 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <!--todo 培训附件信息-->
-      <el-row>
+      <!--培训附件信息-->
+      <el-row ref="scopeTags">
+        <!--新版分类上传培训计划附件-->
         <el-col :span="24">
-          <el-form-item>
-            <template slot="label">
-              <span><i style="color: red">* </i>附件信息</span>
-            </template>
-            <el-table
-              ref="table"
-              border
-              v-loading="filesLoading"
-              :data="form.fileList"
-              style="width: 100%;margin-bottom: 10px;"
-              highlight-current-row
-            >
-              <el-table-column prop="name" label="文件名称" min-width="120">
-                <template slot-scope="scope">
-                  <el-popover
-                    :content="'file/' + scope.row.type + '/' + scope.row.realName"
-                    placement="top-start"
-                    title="路径"
-                    width="200"
-                    trigger="hover"
-                  >
-                    <!--可下载文件-->
-                    <a
-                      slot="reference"
-                      :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
-                      class="el-link--primary"
-                      style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
-                      target="_blank"
-                    >
-                      {{ scope.row.name }}
-                    </a>
-                  </el-popover>
-                </template>
-              </el-table-column>
-              <el-table-column prop="fileType" label="文件类型" min-width="100"/>
-              <el-table-column prop="path" label="预览图">
-                <template slot-scope="{row}">
-                  <el-image
-                    :src=" baseApi + '/file/' + row.type + '/' + row.realName"
-                    :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.realName]"
-                    fit="contain"
-                    lazy
-                    class="el-avatar"
-                  >
-                    <div slot="error">
-                      <i class="el-icon-document"/>
-                    </div>
-                  </el-image>
-                </template>
-              </el-table-column>
-              <el-table-column prop="type" label="类别"/>
-              <el-table-column prop="size" label="大小"/>
-              <el-table-column prop="createBy" label="上传人"/>
-              <el-table-column prop="createTime" label="创建日期" min-width="140"/>
-              <!--   附件删除   -->
-              <el-table-column
-                label="操作"
-                width="80"
-                align="center"
-              >
-                <template slot-scope="scope">
-                  <el-popover
-                    :ref="`delScheduleFile-popover-${scope.$index}`"
-                    v-permission="permission.edit"
-                    placement="top"
-                    width="180"
-                  >
-                    <p>确定删除这个附件吗？</p>
-                    <div style="text-align: right; margin: 0">
-                      <el-button
-                        size="mini"
-                        type="text"
-                        @click="scope._self.$refs[`delScheduleFile-popover-${scope.$index}`].doClose()"
-                      >取消
-                      </el-button>
-                      <el-button
-                        type="primary"
-                        size="mini"
-                        @click="deleteTrSchedule(scope.row), scope._self.$refs[`delScheduleFile-popover-${scope.$index}`].doClose()"
-                      >确定
-                      </el-button>
-                    </div>
-                    <el-button
-                      slot="reference"
-                      v-permission="permission.edit"
-                      type="danger"
-                      icon="el-icon-delete"
-                      size="mini"
-                      :disabled="form.fileList.length < 2"
-                    />
-                  </el-popover>
-                </template>
-              </el-table-column>
-            </el-table>
-            <!--上传试卷-->
-            <el-button type="text" @click="openTransDialog">上传培训附件</el-button>
-<!--            <el-dialog append-to-body :close-on-click-modal="false"
-                       :visible.sync="transDialogVisible" title="培训附件上传" width="60%">
-              <el-form ref="fileForm" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
-                <el-row :gutter="40" class="row-box">
-                  <el-col :span="10">
-                    <el-row :gutter="40" class="row-box">
-                      <el-col :span="24">
-                        <el-form-item label="附件名称" prop="name">
-                          <el-input v-model="fileForm.name" placeholder="请填写附件名称" style="width: 100%;"/>
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="24">
-                        <el-form-item label="附件类型" prop="fileType">
-                          &lt;!&ndash;                          <el-input v-model="fileForm.fileType" style="width: 100%;" placeholder="请填写附件类型"/>&ndash;&gt;
-                          <el-select
-                            v-model="fileForm.fileType"
-                            filterable
-                            allow-create
-                            placeholder="请选/填文件类型"
-                            style="width: 100%;"
-                          >
-                            <el-option
-                              v-for="item in fileTypes"
-                              :key="item.value"
-                              :label="item.value"
-                              :value="item.value"
-                            >
-                            </el-option>
-                          </el-select>
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="24">
-                         <pre class="my-code">
-  # 培训附件类型包括签到表、问卷调查等等
-  # 为便于管理，一次限传一份文件
-  # 培训相关材料可到<i>培训材料</i>自行查看下载
-        </pre>
-                      </el-col>
-                    </el-row>
-                  </el-col>
-                  &lt;!&ndash;   上传文件   &ndash;&gt;
-                  <el-col :span="14">
-                    <el-form-item>
-                      <template slot="label">
-                        <span><i style="color: red">* </i>上传</span>
-                      </template>
-                      <el-upload
-                        ref="fileUpload"
-                        :limit="1"
-                        drag
-                        :before-upload="beforeUpload"
-                        :auto-upload="false"
-                        :headers="headers"
-                        :on-change="handleFileChange"
-                        :file-list="uploadList"
-                        :on-success="handleSuccess"
-                        :on-error="handleError"
-                        :action="trScheduleUploadApi + '?trScheduleId=' + bindingId+ '&fileType=' + fileForm.fileType+'&name=' + fileForm.name"
-                        class="upload-demo"
-                      >
-                        <i class="el-icon-upload"></i>
-                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                        <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
-                      </el-upload>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </el-form>
-              <div slot="footer" class="dialog-footer">
-                <el-button type="text" @click="cancelSubmit">取消</el-button>
-                <el-button type="primary" :loading="loading" @click="uploadScheduleFile">确认</el-button>
-              </div>
-            </el-dialog>-->
-            <el-dialog append-to-body :close-on-click-modal="false"
-                       :visible.sync="transDialogVisible" title="培训附件上传" width="60%">
-
-            </el-dialog>
+          <el-form-item prop="scopeTags">
+                        <span slot="label">
+                              <span class="span-box">
+                                <span><i style="color:#f00;">*&nbsp;</i>附件范围</span><br>
+                              </span>
+                        </span>
+            <!--全选操作-->
+            <!--            <el-checkbox :indeterminate="isIndeterminate"
+                                     v-model="checkAll" @change="handleCheckAllChange">
+                          全选
+                        </el-checkbox>
+                        <div style="margin: 15px 0;"></div>-->
+            <el-checkbox-group v-model="form.fileScopeTags" @change="handleCheckedScopeChange">
+              <el-checkbox v-for="scope in fileScopes" :label="scope" :key="scope" :disabled="scope === '培训材料'">
+              </el-checkbox>
+            </el-checkbox-group>
           </el-form-item>
         </el-col>
+        <!--培训材料-->
+        <el-row class="el-row-inline"
+                v-if="form.fileScopeTags !== undefined && form.fileScopeTags.indexOf(materialType) > -1">
+          <el-col :span="24" ref="materialFiles">
+            <el-form-item>
+               <span slot="label">
+                    <span class="span-box">
+                      <span><i style="color:#f00;">*&nbsp;</i>{{ materialType }}</span><br>
+                    </span>
+               </span>
+              <!--培训计划材料列表-->
+              <el-button
+                type="primary"
+                @click="toUploadMaterialFile(materialType)"
+              >新增
+              </el-button>
+              <el-button
+                type="success"
+                style="margin-left:-2px;"
+                @click="toSelectMaterialFile"
+              >自选
+              </el-button>
+              <el-table
+                ref="table"
+                v-loading="materialFileLoading"
+                border
+                :data="form.materialFileList"
+                style="width: 100%;"
+                highlight-current-row
+              >
+                <el-table-column
+                  type="index"
+                  width="50"
+                  label="序号"
+                />
+                <el-table-column prop="name" label="附件名称" min-width="200">
+                  <template slot-scope="scope">
+                    <el-popover
+                      :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                      placement="top-start"
+                      title="路径"
+                      width="200"
+                      trigger="hover"
+                    >
+                      <!--可下载文件-->
+                      <a
+                        slot="reference"
+                        :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                        class="el-link--primary"
+                        style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                        target="_blank"
+                        :download="scope.row.name"
+                      >
+                        {{ scope.row.name }}
+                      </a>
+                    </el-popover>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="path" label="预览图">
+                  <template slot-scope="{row}">
+                    <el-image
+                      :src=" baseApi + '/file/' + row.type + '/' + row.realName"
+                      :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.realName]"
+                      fit="contain"
+                      lazy
+                      class="el-avatar"
+                    >
+                      <div slot="error">
+                        <i class="el-icon-document"/>
+                      </div>
+                    </el-image>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="fileSource" label="文件出处"/>
+                <el-table-column prop="size" label="大小"/>
+                <el-table-column prop="type" label="类型"/>
+                <el-table-column prop="author" label="作者"/>
+                <!--   编辑与删除   -->
+                <el-table-column
+                  label="操作"
+                  min-width="130px"
+                  align="center"
+                  fixed="right"
+                >
+                  <template slot-scope="scope">
+                    <div>
+                      <!--删除-->
+                      <el-popover
+                        :ref="`delFile-popover-${scope.$index}`"
+                        v-permission="permission.edit"
+                        placement="top"
+                        width="180"
+                      >
+                        <p>确定删除这个附件吗？</p>
+                        <div style="text-align: right; margin: 0">
+                          <el-button
+                            size="mini"
+                            type="text"
+                            @click="scope._self.$refs[`delFile-popover-${scope.$index}`].doClose()"
+                          >取消
+                          </el-button>
+                          <el-button
+                            type="primary"
+                            size="mini"
+                            @click="deleteTrSchedule(scope.row), scope._self.$refs[`delFile-popover-${scope.$index}`].doClose()"
+                          >确定
+                          </el-button>
+                        </div>
+                        <el-button
+                          slot="reference"
+                          v-permission="permission.edit"
+                          type="danger"
+                          icon="el-icon-delete"
+                          size="mini"
+                          :disabled="form.materialFileList.length===1"
+                        />
+                      </el-popover>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <!--新增材料-->
+              <el-dialog append-to-body :close-on-click-modal="false"
+                         :visible.sync="materialDialogVisible" title="培训材料上传" width="70%">
+                <el-form ref="materialFile" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
+                  <el-row :gutter="40" class="row-box">
+                    <el-col :span="12">
+                      <el-row :gutter="40" class="row-box">
+                        <el-col :span="24">
+                          <el-form-item label="材料名称" prop="name">
+                            <el-input v-model="fileForm.name" placeholder="请填写材料名称" style="width: 100%;"/>
+                          </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                          <el-form-item label="材料作者" prop="author">
+                            <el-input v-model="fileForm.author" style="width: 100%;"/>
+                          </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                          <el-form-item label="来自内部" prop="isInternal">
+                            <el-radio
+                              v-for="item in commonStatus"
+                              :key="item.id"
+                              v-model="fileForm.isInternal"
+                              :label="item.value === 'true'"
+                              @change="currIsInternalChange"
+                            >
+                              {{ item.label }}
+                            </el-radio>
+                          </el-form-item>
+                        </el-col>
+                        <!--根据内部/外部选择对应的专业工具-->
+                        <el-col :span="24">
+                          <el-form-item label="专业工具" prop="toolType">
+                            <el-select
+                              v-model="fileForm.toolType"
+                              filterable
+                              allow-create
+                              clearable
+                              placeholder="可自定义标准认证工具"
+                              style="width: 100%;"
+                            >
+                              <el-option
+                                v-for="item in toolTypeOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                              </el-option>
+                            </el-select>
+                          </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                          <el-form-item label="材料描述" prop="fileDesc">
+                            <el-input
+                              v-model="fileForm.fileDesc"
+                              type="textarea"
+                              :autosize="{ minRows: 2, maxRows: 5}"
+                              placeholder="请输入材料内容描述"
+                              style="width: 100%;"
+                            />
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                    <!--   上传文件   -->
+                    <el-col :span="12">
+                      <el-form-item>
+                        <template slot="label">
+                          <span><i style="color: red">* </i>材料上传</span>
+                        </template>
+                        <el-upload
+                          ref="materialFileUpload"
+                          :limit="1"
+                          drag
+                          :before-upload="beforeUpload"
+                          :auto-upload="false"
+                          :headers="headers"
+                          :on-change="handleMaterialFileChange"
+                          :file-list="materialFileList"
+                          :on-success="handleMaterialFileSuccess"
+                          :on-error="handleError"
+                          :action="trScheduleUploadV2Api + '?name=' + fileForm.name +'&trScheduleId=' + bindingId +'&fileType=' + materialType
+                          +'&fileSource=' + fileSourceOption[1] +'&author=' + fileForm.author
+             + '&isInternal=' + fileForm.isInternal + '&toolType=' + fileForm.toolType + '&fileDesc=' + fileForm.fileDesc"
+                          class="upload-demo"
+                        >
+                          <i class="el-icon-upload"></i>
+                          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                          <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                        </el-upload>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                  <el-button type="text" @click="materialDialogVisible = false">取消</el-button>
+                  <el-button :loading="loading" type="primary" @click="materialFileUpload">确认</el-button>
+                </div>
+              </el-dialog>
+              <!--选择已有-->
+              <el-dialog append-to-body :close-on-click-modal="false" :before-close="closeMatSelectDialog"
+                         :visible.sync="matSelectDialogVisible" title="自选培训材料" width="50%">
+                <div style="text-align: left">
+                  <el-transfer
+                    v-model="materialFileSelectedList"
+                    filterable
+                    :titles="['材料库', '已选']"
+                    :format="{
+        noChecked: '${total}',
+        hasChecked: '${checked}/${total}'
+      }"
+                    @change="handleChange"
+                    :data="trMaterialFiles">
+                    <!-- 保存操作 转换到培训计划下材料列表中-->
+                    <el-button class="transfer-footer" slot="right-footer" size="small"
+                               @click="saveSelectedMaterialFile(materialFileSelectedList)">保存
+                    </el-button>
+                  </el-transfer>
+                </div>
+              </el-dialog>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <!--培训试题-->
+        <el-row class="el-row-inline"
+                v-if="form.fileScopeTags !== undefined && form.fileScopeTags.indexOf(examType) > -1">
+          <el-col :span="24" ref="examFiles">
+            <el-form-item>
+               <span slot="label">
+                 <span class="span-box">
+                   <span><i style="color:#f00;">*&nbsp;</i>{{ examType }}</span><br>
+                 </span>
+               </span>
+              <!--附件-->
+              <el-button
+                type="primary"
+                @click="toUploadExamFile(examType)"
+              >新增
+              </el-button>
+              <el-button
+                type="success"
+                style="margin-left: -2px;"
+                @click="toSelectExamFile"
+              >自选
+              </el-button>
+              <el-table
+                ref="table"
+                v-loading="examFileLoading"
+                border
+                :data="form.examFileList"
+                style="width: 100%"
+                highlight-current-row
+              >
+                <el-table-column
+                  type="index"
+                  width="50"
+                  label="序号"
+                />
+                <el-table-column prop="name" label="附件名称" min-width="200">
+                  <template slot-scope="scope">
+                    <el-popover
+                      :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                      placement="top-start"
+                      title="路径"
+                      width="200"
+                      trigger="hover"
+                    >
+                      <!--可下载文件-->
+                      <a
+                        slot="reference"
+                        :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                        class="el-link--primary"
+                        style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                        target="_blank"
+                        :download="scope.row.name"
+                      >
+                        {{ scope.row.name }}
+                      </a>
+                    </el-popover>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="path" label="预览图">
+                  <template slot-scope="{row}">
+                    <el-image
+                      :src=" baseApi + '/file/' + row.type + '/' + row.realName"
+                      :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.realName]"
+                      fit="contain"
+                      lazy
+                      class="el-avatar"
+                    >
+                      <div slot="error">
+                        <i class="el-icon-document"/>
+                      </div>
+                    </el-image>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="fileSource" label="出处"/>
+                <el-table-column prop="size" label="大小"/>
+                <el-table-column prop="type" label="类型"/>
+                <el-table-column prop="createBy" label="上传者"/>
+                <!--   编辑与删除   -->
+                <el-table-column
+                  label="操作"
+                  min-width="130px"
+                  align="center"
+                  fixed="right"
+                >
+                  <template slot-scope="scope">
+                    <div>
+                      <!--删除-->
+                      <el-popover
+                        :ref="`delExamFile-popover-${scope.$index}`"
+                        v-permission="permission.edit"
+                        placement="top"
+                        width="180"
+                      >
+                        <p>确定删除这个附件吗？</p>
+                        <div style="text-align: right; margin: 0">
+                          <el-button
+                            size="mini"
+                            type="text"
+                            @click="scope._self.$refs[`delExamFile-popover-${scope.$index}`].doClose()"
+                          >取消
+                          </el-button>
+                          <el-button
+                            type="primary"
+                            size="mini"
+                            @click="deleteTrSchedule(scope.row), scope._self.$refs[`delExamFile-popover-${scope.$index}`].doClose()"
+                          >确定
+                          </el-button>
+                        </div>
+                        <el-button
+                          slot="reference"
+                          v-permission="permission.edit"
+                          type="danger"
+                          icon="el-icon-delete"
+                          size="mini"
+                          :disabled="form.examFileList.length===1"
+                        />
+                      </el-popover>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <!--新增考试试题-->
+              <el-dialog append-to-body :close-on-click-modal="false"
+                         :visible.sync="examDialogVisible" title="培训试题上传" width="70%">
+                <el-form ref="examFile" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
+                  <el-row :gutter="40" class="row-box">
+                    <el-col :span="12">
+                      <el-row :gutter="40" class="row-box">
+                        <el-col :span="24">
+                          <el-form-item label="试卷名称" prop="name">
+                            <el-input v-model="fileForm.name" placeholder="请填写试卷名称" style="width: 100%;"/>
+                          </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                          <el-form-item label="试卷描述" prop="fileDesc">
+                            <el-input
+                              v-model="fileForm.fileDesc"
+                              type="textarea"
+                              :autosize="{ minRows: 2, maxRows: 5}"
+                              placeholder="请输入试题内容描述"
+                              style="width: 100%;"
+                            />
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                    <!-- 上传文件 -->
+                    <el-col :span="12">
+                      <el-form-item>
+                        <template slot="label">
+                          <span><i style="color: red">* </i>上传</span>
+                        </template>
+                        <el-upload
+                          ref="examFileUpload"
+                          :limit="1"
+                          drag
+                          :before-upload="beforeUpload"
+                          :auto-upload="false"
+                          :headers="headers"
+                          :on-change="handleExamFileChange"
+                          :file-list="examFileList"
+                          :on-success="handleExamFileSuccess"
+                          :on-error="handleError"
+                          :action="trScheduleUploadV2Api + '?name=' + fileForm.name +'&trScheduleId=' + bindingId +'&fileType=' + examType
+                           +'&fileSource=' + fileSourceOption[1] +'&author=' + fileForm.author
+             + '&isInternal=' + fileForm.isInternal + '&toolType=' + fileForm.toolType + '&fileDesc=' + fileForm.fileDesc"
+                          class="upload-demo"
+                        >
+                          <i class="el-icon-upload"></i>
+                          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                          <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                        </el-upload>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                  <el-button type="text" @click="examDialogVisible = false">取消</el-button>
+                  <el-button :loading="loading" type="primary" @click="examFileUpload">确认</el-button>
+                </div>
+              </el-dialog>
+              <!--选择已有试题-->
+              <el-dialog append-to-body :close-on-click-modal="false" :before-close="closeExamSelectDialog"
+                         :visible.sync="examSelectDialogVisible" title="自选培训试题" width="50%">
+                <div style="text-align: left">
+                  <el-transfer
+                    v-model="examFileSelectedList"
+                    filterable
+                    :titles="['试题库', '已选']"
+                    :format="{
+        noChecked: '${total}',
+        hasChecked: '${checked}/${total}'
+      }"
+                    @change="handleChange"
+                    :data="trExamFiles">
+                    <!-- 保存操作 转换到培训计划下材料列表中-->
+                    <el-button class="transfer-footer" slot="right-footer" size="small"
+                               @click="saveSelectedExamFile(examFileSelectedList)">保存
+                    </el-button>
+                  </el-transfer>
+                </div>
+              </el-dialog>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -407,10 +699,16 @@ import {judgeIsEqual, validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
 import {getToken} from "@/utils/auth";
-import {delTrScheduleFile, getFilesByTrScheduleId} from "@/api/tools/train/trScheduleFile";
+import {
+  delTrScheduleFile,
+  getFilesByTrScheduleId,
+  getFilesByTrScheduleIdAndType, syncScheduleFile
+} from "@/api/tools/train/trScheduleFile";
 import Treeselect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getDepts, getDeptTree} from "@/api/system/dept";
+import {getMaterialFilesByExample} from "@/api/tools/train/trainMaterialFile";
+import {getExamFilesByExample} from "@/api/tools/train/trExamDepartFile";
 
 const defaultForm = {
   id: null,
@@ -436,9 +734,13 @@ const defaultForm = {
   delayDesc: null,
   scheduleStatus: null, // 证书状态后台走查判断
   uid: null,
-  fileList: []
+  fileScope: '培训材料',
+  fileScopeTags: ['培训材料'],
+  materialFileList: [],
+  examFileList: []
 }
 let bindingDepts = []
+const fileScopeOptions = ['培训材料', '培训试题']
 export default {
   mixins: [form(defaultForm)],
   components: {Treeselect},
@@ -513,13 +815,28 @@ export default {
       },
       fileForm: {
         name: null,
-        fileType: null
+        trScheduleId: null,
+        fileType: null,
+        fileSource: null,
+        author: null,
+        isInternal: true,
+        toolType: null,
+        fileDesc: null
       },
       allDepts: [],
       bindDeptDatas: [],
       fileRules: {
         name: [
           {required: true, message: '请输入文件名称', trigger: 'blur'}
+        ],
+        author: [
+          {required: true, message: '请选择/填写作者', trigger: 'blur'}
+        ],
+        isInternal: [
+          {required: true, message: '请选择材料出处', trigger: 'blur'}
+        ],
+        toolType: [
+          {required: true, message: '请选择专业工具标准', trigger: 'blur'}
         ],
         fileType: [
           {required: true, message: '请选择/填写试卷类型', trigger: 'blur'}
@@ -563,7 +880,8 @@ export default {
       filesLoading: false,
       transDialogVisible: false,
       loading: false,
-      uploadList: [],
+      materialFileList: [],
+      examFileList: [],
       trainTypes: [
         {
           label: 'internal',
@@ -586,6 +904,38 @@ export default {
       // 涉及部门
       inputDepartVisible: false,
       inputDepartValue: '',
+      fileScopes: fileScopeOptions,
+      isIndeterminate: true,
+      checkAll: false,
+      materialType: '培训材料',
+      examType: '培训试题',
+      materialFileLoading: false,
+      materialFiles: [],
+      examFileLoading: false,
+      examFiles: [],
+      materialDialogVisible: false,
+      matSelectDialogVisible: false,
+      examSelectDialogVisible: false,
+      examDialogVisible: false,
+      toolTypeOptions: [
+        {
+          label: 'OPL',
+          value: 'OPL'
+        },
+        {
+          label: 'L&L',
+          value: 'L&L'
+        }
+      ],
+      // 培训材料库
+      trMaterialFiles: [],
+      materialFileSelectedList: [],
+      fileSourceOption: [
+        '现有',
+        '新增'
+      ],
+      examFileSelectedList: [],
+      trExamFiles: [],
     }
   },
   watch: {},
@@ -593,7 +943,8 @@ export default {
     ...mapGetters([
       'user',
       'baseApi',
-      'trScheduleUploadApi'
+      'trScheduleUploadApi',
+      'trScheduleUploadV2Api'
     ])
   },
   created: function () {
@@ -620,10 +971,10 @@ export default {
       })
     },
     // 获取弹窗内文件所属部门数据
-    loadAvailDepts({ action, parentNode, callback }) {
+    loadAvailDepts({action, parentNode, callback}) {
       if (action === LOAD_CHILDREN_OPTIONS) {
-        getDepts({ enabled: true, pid: parentNode.id }).then(res => {
-          parentNode.children = res.content.map(function(obj) {
+        getDepts({enabled: true, pid: parentNode.id}).then(res => {
+          parentNode.children = res.content.map(function (obj) {
             if (obj.hasChildren) {
               obj.children = null
             }
@@ -644,15 +995,18 @@ export default {
       _this.bindDeptDatas = []
       bindingDepts = []
       // 获取培训计划信息列表
-      _this.getTrScheduleById(form.id)
+      // 获取培训材料列表
+      _this.getMaterialFiles(form.id, this.materialType)
+      // 获取培训试题列表
+      _this.getExamFiles(form.id, this.examType)
       if (form.isDelay.toString() === 'true') {
         _this.getMaxTrRemindDays(form.newTrainTime)
       } else {
         _this.getMaxTrRemindDays(form.trainTime)
       }
-      form.bindDepts.forEach(function(dept, index) {
+      form.bindDepts.forEach(function (dept, index) {
         _this.bindDeptDatas.push(dept.id)
-        const fl = { id: dept.id }
+        const fl = {id: dept.id}
         bindingDepts.push(fl)
       })
       // alert(JSON.stringify(_this.bindDeptDatas))
@@ -661,8 +1015,8 @@ export default {
     bindDeptsChange(val) {
       // alert(JSON.stringify(val))
       bindingDepts = []
-      val.forEach(function(data, index) {
-        const bind = { id: data }
+      val.forEach(function (data, index) {
+        const bind = {id: data}
         bindingDepts.push(bind)
       })
     },
@@ -673,11 +1027,17 @@ export default {
     },
     // 提交前做的操作
     [CRUD.HOOK.beforeSubmit]() {
-      // alert(JSON.stringify(this.form.fileList))
+      // alert(JSON.stringify(this.form.materialFileList))
       // 判断是否确认完成，若确认完成则必须上传确认单
-      if (this.form.fileList.length === 0) {
-        this.$message.warning("请务必上传试卷信息！")
+      if (this.form.materialFileList.length === 0) {
+        this.$message.warning("请务必上传培训材料信息！")
         return false
+      }
+      if (this.form.fileScopeTags.indexOf(this.examType) > -1) {
+        if (this.form.examFileList.length === 0) {
+          this.$message.warning("请务必上传培训试题信息！")
+          return false
+        }
       }
       if (new Date(this.form.trainTime) === new Date(this.form.newTrainTime)) {
         this.$message.warning("新培训时间与原培训时间一样，请重新设定！")
@@ -685,14 +1045,32 @@ export default {
       }
     },
     // 获取维修相关确认单信息
-    getTrScheduleById(id) {
-      this.form.fileList = []
-      this.filesLoading = true
-      getFilesByTrScheduleId(id).then(res => {
+    getMaterialFiles(id, materialType) {
+      this.form.materialFileList = []
+      this.materialFileLoading = true
+      this.materialFileSelectedList = []
+      getFilesByTrScheduleIdAndType(id, materialType).then(res => {
         // alert(JSON.stringify(res))
         console.log(res)
-        this.form.fileList = res
-        this.filesLoading = false
+        this.form.materialFileList = res
+        this.materialFileLoading = false
+        res.forEach((data, index) => {
+          // 获取现有
+          if (data.fileSource === this.fileSourceOption[0]) {
+            this.materialFileSelectedList.push(data.bindingId)
+          }
+        })
+      })
+    },
+    // 获取维修相关确认单信息
+    getExamFiles(id, examType) {
+      this.form.examFileList = []
+      this.examFileLoading = true
+      getFilesByTrScheduleIdAndType(id, examType).then(res => {
+        // alert(JSON.stringify(res))
+        console.log(res)
+        this.form.examFileList = res
+        this.examFileLoading = false
       })
     },
     // 提前提醒最大时间设计
@@ -729,19 +1107,34 @@ export default {
       return isLt2M
     },
     // 监听上传成功
-    handleSuccess(response, file, fileList) {
-      this.getTrScheduleById(this.bindingId)
+    handleMaterialFileSuccess(response, file, materialFileList) {
+      this.getMaterialFiles(this.bindingId, this.materialType)
+      setTimeout(() => {
+        this.$message.success('上传培训材料成功!')
+      }, 300)
+      this.$refs.materialFileUpload.clearFiles()
+      this.materialDialogVisible = false
+    },
+    // 监听上传成功
+    handleExamFileSuccess(response, file, materialFileList) {
+      this.getExamFiles(this.bindingId, this.examType)
       setTimeout(() => {
         this.$message.success('上传试卷信息成功!')
       }, 300)
-      this.$refs.fileUpload.clearFiles()
-      this.transDialogVisible = false
+      this.$refs.examFileUpload.clearFiles()
+      this.examDialogVisible = false
     },
-    handleFileChange(file, fileList) {
+    handleMaterialFileChange(file, materialFileList) {
       if (!validIsNotNull(this.fileForm.name)) {
         this.fileForm.name = file.name
       }
-      this.uploadList = fileList;
+      this.materialFileList = materialFileList;
+    },
+    handleExamFileChange(file, examFileList) {
+      if (!validIsNotNull(this.fileForm.name)) {
+        this.fileForm.name = file.name
+      }
+      this.examFileList = examFileList;
     },
     // 删除附件
     deleteTrSchedule(row) {
@@ -750,14 +1143,19 @@ export default {
       data.push(row.id)
       delTrScheduleFile(data).then(res => {
         this.$message({
-          message: 'Del File Success! 删除试卷信息成功!',
+          message: 'Del File Success! 删除' + row.fileType + '信息成功!',
           type: 'success'
         })
-        this.getTrScheduleById(row.trScheduleId)
+        if (row.fileType === '培训材料') {
+          this.getMaterialFiles(row.trScheduleId, row.fileType)
+        } else {
+          this.getExamFiles(row.trScheduleId, row.fileType)
+        }
+        // this.getMaterialFiles(row.trScheduleId,row.fileType)
       })
     },
     // 监听上传失败
-    handleError(e, file, fileList) {
+    handleError(e, file, materialFileList) {
       this.fileForm.name = ''
       const msg = JSON.parse(e.message)
       this.$notify({
@@ -767,11 +1165,34 @@ export default {
       })
       this.loading = false
     },
+    // 监控是否内外部变化
+    currIsInternalChange(val) {
+      this.fileForm.toolType = null
+      if (val.toString() === 'true') {
+        this.toolTypeOptions = [
+          {
+            label: 'OPL',
+            value: 'OPL'
+          },
+          {
+            label: 'L&L',
+            value: 'L&L'
+          }
+        ]
+      } else if (val.toString() === 'false') {
+        this.toolTypeOptions = [
+          {
+            label: 'GB/ISO',
+            value: 'GB/ISO'
+          }
+        ]
+      }
+    },
     openTransDialog() {
       if (this.$refs['fileForm'] !== undefined) {
         this.$refs['fileForm'].resetFields()
       }
-      this.form.fileList = []
+      this.form.materialFileList = []
       this.transDialogVisible = true
     },
     scoreMaxValue(v) {
@@ -795,10 +1216,213 @@ export default {
         if (valid) {
           // todo  判断有无文件
           if (this.uploadList.length === 0) {
-            this.$notify.warning("请上传试卷")
+            this.$message.warning("请上传试卷")
           } else {
             // this.fileForm.examDate = toDateFormat(this.fileForm.examDate)
             this.$refs.fileUpload.submit()
+          }
+        }
+      })
+    },
+    // 监控附件范围全选与否变化
+    handleCheckAllChange: function (val) {
+      // alert(val)
+      this.form.fileScopeTags = val ? fileScopeOptions : []
+      if (this.form.fileScopeTags.length > 0) {
+        this.$refs.scopeTags.$el.style.border = '0px solid #f00'
+      }
+      this.form.fileScope = this.form.fileScopeTags.join(',')
+      this.isIndeterminate = false
+      // todo 查询对应文件列表信息
+      this.getAllChangeTypeFiles()
+    },
+    // 监控附件范围变化
+    handleCheckedScopeChange(value) {
+      // alert(JSON.stringify(this.form.fileScopeTags))
+      if (this.form.fileScopeTags.length > 0) {
+        this.$refs.scopeTags.$el.style.border = '0px solid #f00'
+      }
+      this.form.fileScope = this.form.fileScopeTags.join(',')
+      const checkedCount = value.length
+      this.checkAll = checkedCount === this.fileScopes.length
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.fileScopes.length
+    },
+    // 上传培训材料
+    toUploadMaterialFile(materialType) {
+      if (this.$refs['materialFile'] !== undefined) {
+        this.$refs['materialFile'].resetFields()
+      }
+      this.materialDialogVisible = true
+    },
+    // 选择已有材料文件
+    toSelectMaterialFile() {
+      // alert(JSON.stringify(bindingDepts))
+      if (bindingDepts.length === 0) {
+        this.$message.warning("请先选择培训涉及部门")
+        return false
+      } else {
+        let deptIds = []
+        bindingDepts.forEach((data, index) => {
+          deptIds.push(data.id)
+        })
+        this.getMaterialFilesByDeptIds(deptIds)
+      }
+      this.matSelectDialogVisible = true
+    },
+    // 选择已有材料文件
+    toSelectExamFile() {
+      if (bindingDepts.length === 0) {
+        this.$message.warning("请先选择培训涉及部门")
+        return false
+      } else {
+        let deptIds = []
+        bindingDepts.forEach((data, index) => {
+          deptIds.push(data.id)
+        })
+        this.getExamFilesByDeptIds(deptIds)
+      }
+      this.examSelectDialogVisible = true
+    },
+    // 根据部门IDS查询相关材料
+    getMaterialFilesByDeptIds(deptIds) {
+      this.trMaterialFiles = []
+      getMaterialFilesByExample({departIds: deptIds}).then(res => {
+        // alert(JSON.stringify(res))
+        // 处理已选择项目
+        res.forEach((file, index) => {
+          this.trMaterialFiles.push({
+            label: file.name + '-' + file.author,
+            //这里的key值一定要是index，否则目标列表无法显示
+            key: file.id,
+            // disabled:
+          })
+        })
+      })
+    },
+    // 根据部门IDS查询相关考试试题
+    getExamFilesByDeptIds(deptIds) {
+      this.trExamFiles = []
+      getExamFilesByExample({departIds: deptIds}).then(res => {
+        // alert(JSON.stringify(res))
+        // 处理已选择项目
+        res.forEach((file, index) => {
+          this.trExamFiles.push({
+            label: file.name,
+            //这里的key值一定要是index，否则目标列表无法显示
+            key: file.id,
+            // disabled:
+          })
+        })
+      })
+    },
+    // 保存已选择的材料
+    saveSelectedMaterialFile(selectedList) {
+      // alert(JSON.stringify(selectedList))
+      let cond = {
+        trScheduleId: this.bindingId,
+        fileType: this.materialType,
+        bindingFileIds: selectedList
+      }
+      if (selectedList.length === 0) {
+        this.$confirm('确定清空已选材料？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 确认清空',
+          cancelButtonText: 'No 考虑一下'
+        })
+          .then(() => {
+            syncScheduleFile(cond).then(res => {
+              this.getMaterialFiles(this.bindingId, this.materialType)
+              this.$nextTick(() => {
+                this.$message.success("保存已选项成功！")
+                this.matSelectDialogVisible = false
+              }, 500)
+            })
+          })
+          .catch(() => {
+
+          })
+      } else {
+        syncScheduleFile(cond).then(res => {
+          this.getMaterialFiles(this.bindingId, this.materialType)
+          this.$nextTick(() => {
+            this.$message.success("保存已选项成功！")
+            this.matSelectDialogVisible = false
+          }, 500)
+        })
+      }
+    },
+    // 关闭自选材料之前操作
+    closeMatSelectDialog() {
+      this.matSelectDialogVisible = false
+      this.materialFileSelectedList = []
+    },
+    // 关闭自选材料之前操作
+    closeExamSelectDialog() {
+      this.examSelectDialogVisible = false
+      this.examFileSelectedList = []
+    },
+    // todo 保存考试试题
+    saveSelectedExamFile(selectedList) {
+      // alert(JSON.stringify(selectedList))
+      let cond = {
+        trScheduleId: this.bindingId,
+        fileType: this.examType,
+        bindingFileIds: selectedList
+      }
+      if (selectedList.length === 0) {
+        this.$confirm('确定清空已选试题？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: 'Yes 确认清空',
+          cancelButtonText: 'No 考虑一下'
+        })
+          .then(() => {
+            syncScheduleFile(cond).then(res => {
+              this.getExamFiles(this.bindingId, this.examType)
+              this.$nextTick(() => {
+                this.$message.success("保存已选项成功！")
+                this.examSelectDialogVisible = false
+              }, 500)
+            })
+          })
+          .catch(() => {
+
+          })
+      } else {
+        syncScheduleFile(cond).then(res => {
+          this.getExamFiles(this.bindingId, this.examType)
+          this.$nextTick(() => {
+            this.$message.success("保存已选项成功！")
+            this.examSelectDialogVisible = false
+          }, 500)
+        })
+      }
+    },
+    toUploadExamFile(examType) {
+      if (this.$refs['examFile'] !== undefined) {
+        this.$refs['examFile'].resetFields()
+      }
+      this.examDialogVisible = true
+    },
+    // 上传培训材料文件
+    materialFileUpload() {
+      this.$refs['materialFile'].validate((valid) => {
+        if (valid) {
+          if (this.materialFileList.length > 0) {
+            this.$refs.materialFileUpload.submit()
+          } else {
+            this.crud.notify('请上传材料', CRUD.NOTIFICATION_TYPE.WARNING)
+          }
+        }
+      })
+    },
+    // 上传文件
+    examFileUpload() {
+      this.$refs['examFile'].validate((valid) => {
+        if (valid) {
+          if (this.examFileList.length > 0) {
+            this.$refs.examFileUpload.submit()
+          } else {
+            this.crud.notify('请上传试题', CRUD.NOTIFICATION_TYPE.WARNING)
           }
         }
       })
@@ -810,6 +1434,30 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
+}
+
+::v-deep .el-table__fixed-right {
+  height: 100% !important;
+}
+
+::v-deep .el-transfer {
+  display: inline-flex;
+  align-items: center;
+
+  .el-transfer-panel {
+    width: 300px;
+  }
+
+  .el-transfer__buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .el-button.el-button--primary {
+      margin-left: 0
+    }
+  }
 }
 
 ::v-deep .new-el-tag {

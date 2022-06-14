@@ -20,4 +20,24 @@ export function getFilesByTrScheduleId(id) {
   })
 }
 
-export default { delTrScheduleFile, getFilesByTrScheduleId }
+export function getFilesByTrScheduleIdAndType(id, type) {
+  const params = {
+    trScheduleId: id,
+    fileType: type
+  }
+  return request({
+    url: 'api/trScheduleFile/byTrScheduleIdAndType',
+    method: 'get',
+    params
+  })
+}
+
+export function syncScheduleFile(data) {
+  return request({
+    url: 'api/trScheduleFile/sync',
+    method: 'post',
+    data
+  })
+}
+
+export default {delTrScheduleFile, getFilesByTrScheduleId,getFilesByTrScheduleIdAndType, syncScheduleFile}

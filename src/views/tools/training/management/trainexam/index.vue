@@ -23,7 +23,7 @@
           <el-table-column prop="createBy" label="创建者" align="center"/>
           <el-table-column prop="createTime" label="创建日期"/>
         </el-table>-->
-    <el-row :gutter="40" class="row-box">  <!--分栏间隔-->
+    <el-row :gutter="20" class="row-box">  <!--分栏间隔-->
       <el-col id="realExamDp" :xs="12" :sm="12" :md="12" :lg="6" class="card-col"
               v-for="(examDepart, index) in examDeparts">
         <!--共24份，xs超小型设备，sm小屏设备，md中屏，lg大屏-->
@@ -67,6 +67,23 @@
                         <el-tag v-else type="warning">培训尚未开始</el-tag>
                       </template>
                     </el-table-column>
+                  </el-table>
+                  <el-button type="text" size="small" slot="reference">查看明细</el-button>
+                </el-popover>
+              </el-descriptions-item>
+              <el-descriptions-item label-class-name="exam-depart-item" label="题库信息">
+                <span>{{ examDepart.examDepartFileList.length }}条  </span>
+                <el-popover
+                  v-if="examDepart.examDepartFileList.length > 0"
+                  placement="right"
+                  width="400"
+                  trigger="click">
+                  <span>题库信息</span>
+                  <el-table ref="table" style="max-height: 200px !important;overflow-y: auto;" :data="examDepart.examDepartFileList" border @dblclick.native="routeToTarget(examDepart)">
+                    <el-table-column prop="name" label="试题名称" :show-overflow-tooltip="true" />
+                    <el-table-column prop="suffix" label="文件类型"/>
+                    <el-table-column prop="type" label="类别"/>
+                    <el-table-column prop="size" label="大小"/>
                   </el-table>
                   <el-button type="text" size="small" slot="reference">查看明细</el-button>
                 </el-popover>

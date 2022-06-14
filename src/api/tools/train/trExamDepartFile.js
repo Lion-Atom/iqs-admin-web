@@ -25,4 +25,12 @@ export function edit(data) {
   })
 }
 
-export default {del, get, edit}
+export function getExamFilesByExample(data) {
+  return request({
+    url: 'api/trExamDepartFile/byExample',
+    method: 'post',
+    data
+  })
+}
+
+export default {del, get, edit, getExamFilesByExample }

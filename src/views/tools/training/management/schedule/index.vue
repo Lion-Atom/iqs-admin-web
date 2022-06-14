@@ -53,39 +53,6 @@
       <el-table-column prop="trainIns" label="培训机构" :show-overflow-tooltip="true"/>
       <el-table-column prop="bindDeptStr" label="涉及部门" :show-overflow-tooltip="true"/>
       <el-table-column prop="totalNum" label="人数限制"/>
-      <!--现参与人数，支持点击参与培训-->
-      <!--      <el-table-column label="现参与人数">
-                    <template slot-scope="scope">
-                      <el-tooltip class="item" effect="light" placement="right-start">
-                        <div slot="content">
-                          <el-table
-                            ref="parts"
-                            border
-                            :data="scope.row.partList"
-                            style="width: 100%;"
-                          >
-                            <el-table-column prop="participantDepart" label="所属部门"/>
-                            <el-table-column prop="participantName" label="参与者"/>
-                            <el-table-column prop="isValid" label="是否参与" align="center">
-                              <template slot-scope="scope">
-                                <el-switch
-                                  v-model="scope.row.isValid"
-                                  active-color="#409EFF"
-                                  inactive-color="#F56C6C"
-                                  @change="changeIsValid(scope.row, scope.row.isValid)"
-                                />
-                              </template>
-                            </el-table-column>
-                            <el-table-column prop="createTime" label="创建日期" min-width="140"/>
-                          </el-table>
-                        </div>
-                        <el-button
-                          :disabled="scope.row.scheduleStatus === '已关闭' || new Date(scope.row.regDeadline).getTime() < new Date().getTime()"
-                          type="success" size="small" plain @click="openPartDialog(scope.row)">{{ scope.row.curNum }}
-                        </el-button>
-                      </el-tooltip>
-                    </template>
-                  </el-table-column>-->
       <el-table-column prop="curNum" label="现参与人数"/>
       <el-table-column prop="scheduleStatus" label="计划状态"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
@@ -110,63 +77,6 @@
     <pagination/>
     <!--表单渲染-->
     <eForm :common-status="dict.common_status" :permission="permission"/>
-    <!--拟报名参与者信息-->
-    <el-dialog
-      title="添加培训参加者信息"
-      :visible.sync="addPartDialogVisible"
-      :before-close="handleClose"
-      width="50%">
-      <div>
-        <el-form
-          ref="partForm"
-          :model="partForm"
-          :rules="partRules"
-          size="small"
-          label-width="80px"
-        >
-          <!--培训计划信息-->
-          <el-row :gutter="20" type="flex" class="el-row">
-            <el-col :span="8">
-              <el-form-item label="所在部门" prop="participantDepart">
-                <el-select
-                  filterable
-                  allow-create
-                  v-model="partForm.participantDepart">
-                  <el-option
-                    v-for="item of availableDeparts"
-                    :key="item"
-                    :label="item"
-                    :value="item"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="参与人员" prop="participantName">
-                <el-input v-model="partForm.participantName" placeholder="请填写培训人" style="width:100%"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="是否生效" prop="isValid">
-                <el-radio
-                  v-for="item in dict.dict.common_status"
-                  :key="item.id"
-                  v-model="partForm.isValid"
-                  :label="item.value === 'true'"
-                >
-                  {{ item.label }}
-                </el-radio>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="cancelSubmitPart">取 消</el-button>
-        <el-button type="primary" @click="submitPart">确 定</el-button>
-      </span>
-    </el-dialog>
     <!--培训参与者列表-->
     <el-dialog
       title="培训参加者信息"
@@ -478,7 +388,6 @@ export default {
         edit: ['admin', 'schedule:edit'],
         del: ['admin', 'schedule:del']
       },
-      addPartDialogVisible: false,
       viewPartDialogVisible: false,
       partForm: {
         participantDepart: null,
@@ -652,47 +561,6 @@ export default {
         return ''
       }
     },
-    // 打开参与会议人员界面
-    openPartDialog(data) {
-      // alert(JSON.stringify(data))
-      this.availableDeparts = []
-      this.addPartDialogVisible = true
-      // this.getParticipant(data.id)
-      this.partForm.trScheduleId = data.id
-      this.availableDeparts = data.departTags
-    },
-    // 取消参与本次培训
-    cancelSubmitPart() {
-      if (this.$refs['partForm'] !== undefined) {
-        this.$refs['partForm'].resetFields()
-      }
-      this.addPartDialogVisible = false
-      this.crud.resetQuery()
-    },
-    // 关闭前操作
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done();
-          if (this.$refs['partForm'] !== undefined) {
-            this.$refs['partForm'].resetFields()
-          }
-        })
-        .catch(_ => {
-        });
-    },
-    // 提交培训参与者信息
-    submitPart() {
-      addPart(this.partForm).then(res => {
-        this.crud.notify('添加成功', 'success')
-        // this.getParticipant(this.partForm.trScheduleId)
-        this.addPartDialogVisible = false
-        if (this.$refs['partForm'] !== undefined) {
-          this.$refs['partForm'].resetFields()
-        }
-        this.crud.resetQuery()
-      })
-    },
     submitPartList(newPartList) {
       if (newPartList.length > 0) {
         newPartList.forEach((data, index) => {
@@ -812,7 +680,7 @@ export default {
         .catch(_ => {
         })
     },
-    // 删除附件
+    // 删除参与者
     deleteTrParticipator(row) {
       // alert(row)
       const data = []

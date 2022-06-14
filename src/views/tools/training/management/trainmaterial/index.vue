@@ -25,27 +25,44 @@
         </el-table>-->
     <el-row :gutter="40" class="row-box">  <!--分栏间隔-->
       <el-col id="realExamDp" :xs="12" :sm="12" :md="12" :lg="6" class="card-col"
-              v-for="(examDepart, index) in examDeparts">
+              v-for="(material, index) in materialDeparts">
         <!--共24份，xs超小型设备，sm小屏设备，md中屏，lg大屏-->
-        <el-card class="el-card" @dblclick.native="routeToTarget(examDepart)">
+        <el-card class="el-card" @dblclick.native="routeToTarget(material)">
           <div style="padding: 14px;">
             <el-descriptions :column="1" border>
               <template slot="title">
-                {{ examDepart.departName }}
+                {{ material.departName }}
               </template>
               <el-descriptions-item label-class-name="exam-depart-item" label="创建者">
-                {{ examDepart.createBy }}
+                {{ material.createBy }}
               </el-descriptions-item>
               <el-descriptions-item label-class-name="exam-depart-item" label="创建时间">
-                {{ examDepart.createTime }}
+                {{ material.createTime }}
               </el-descriptions-item>
               <el-descriptions-item label-class-name="exam-depart-item" label="状态">
                 <el-switch
-                  v-model="examDepart.enabled"
+                  v-model="material.enabled"
                   active-color="#409EFF"
                   inactive-color="#F56C6C"
-                  @change="changeEnabled(examDepart, examDepart.enabled)"
+                  @change="changeEnabled(material, material.enabled)"
                 />
+              </el-descriptions-item>
+              <el-descriptions-item label-class-name="exam-depart-item" label="题库信息">
+                <span>{{ material.materialFileList.length }}条  </span>
+                <el-popover
+                  v-if="material.materialFileList.length > 0"
+                  placement="right"
+                  width="400"
+                  trigger="click">
+                  <span>材料信息</span>
+                  <el-table ref="table" style="max-height: 200px !important;overflow-y: auto;" :data="material.materialFileList" border @dblclick.native="routeToTarget(material)">
+                    <el-table-column prop="name" label="试题名称" :show-overflow-tooltip="true" />
+                    <el-table-column prop="author" label="作者"/>
+                    <el-table-column label="出处" :formatter="isInternalFormat"/>
+                    <el-table-column prop="toolType" label="专业工具"/>
+                  </el-table>
+                  <el-button type="text" size="small" slot="reference">查看明细</el-button>
+                </el-popover>
               </el-descriptions-item>
             </el-descriptions>
             <div class="bottom clearfix">
@@ -159,7 +176,7 @@ export default {
         edit: ['admin', 'material:edit'],
         del: ['admin', 'material:del']
       },
-      examDeparts: [],
+      materialDeparts: [],
       toAddExamDepartVisible: true,
       departs: [],
       rules: {
@@ -188,7 +205,7 @@ export default {
     // 查询培训考试关联部门数据
     getExamDepart() {
       crudMaterialDepart.get().then(res => {
-        this.examDeparts = res
+        this.materialDeparts = res
       })
     },
     // 添加培训考试部门
@@ -270,6 +287,14 @@ export default {
             departName: materialDept.departName
           }
         })
+    },
+    // 是否来自内部格式化
+    isInternalFormat(row, col) {
+      if (row.isInternal) {
+        return '内部'
+      } else {
+        return '外部'
+      }
     }
   }
 }

@@ -58,6 +58,8 @@ const api = {
     trExamStaffTranscriptUploadApi: baseUrl + '/api/trExamStaffTranscript',
     // 培训日程安排附件上传
     trScheduleUploadApi: baseUrl + '/api/trScheduleFile',
+    // 培训日程安排附件上传
+    trScheduleUploadV2Api: baseUrl + '/api/trScheduleFile/uploadV2',
     // 培训-认证附件上传
     trCertificationFileUploadApi: baseUrl + '/api/trCertificationFile',
     // 培训考试题库上传

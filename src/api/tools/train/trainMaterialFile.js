@@ -25,4 +25,12 @@ export function edit(data) {
   })
 }
 
-export default {del, get, edit}
+export function getMaterialFilesByExample(data) {
+  return request({
+    url: 'api/trainMaterialFile/byExample',
+    method: 'post',
+    data
+  })
+}
+
+export default {del, get, edit, getMaterialFilesByExample}
