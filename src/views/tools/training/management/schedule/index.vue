@@ -12,11 +12,27 @@
       <div
         v-if="crud.props.searchToggle"
       >
-        <el-input v-model="query.blurry" clearable size="small" placeholder="输入标题、部门、培训人、机构等搜索" style="width: 220px;"
-                  class="filter-item" @keyup.enter.native="crud.toQuery"/>
+        <el-input v-model="query.blurry" clearable size="small" placeholder="输入标题、部门、培训人、机构等搜索" style="width: 300px;"
+                  class="filter-item" @input="crud.toQuery"/>
         <date-range-picker v-model="query.createTime" class="date-item" @input="dateTimeChange()"
                            start-placeholder="录入开始日期"
                            end-placeholder="录入结束日期"/>
+        <el-select
+          class="filter-item"
+          v-model="query.scheduleStatus"
+          placeholder="计划状态"
+          clearable
+          style="width: 120px;"
+          @change="crud.toQuery"
+        >
+          <el-option
+            v-for="item in statusOptions"
+            :key="item.value"
+            :label="item.value"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索
         </el-button>
         <el-button v-if="crud.optShow.reset" class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left"
@@ -76,7 +92,7 @@
     <!--分页组件-->
     <pagination/>
     <!--表单渲染-->
-    <eForm :common-status="dict.common_status" :permission="permission"/>
+    <eForm :common-status="dict.common_status" :status-options="statusOptions" :permission="permission"/>
     <!--培训参与者列表-->
     <el-dialog
       title="培训参加者信息"
@@ -394,6 +410,18 @@ export default {
         participantName: null,
         isValid: true
       },
+      statusOptions: [
+        {
+          value: '准备中'
+        },
+        {
+          value: '开放中'
+        },
+        {
+          value: '已关闭',
+          disabled: true
+        },
+      ],
       partRules: {
         participantDepart: [
           {required: true, message: '请选/输参与者所在部门', trigger: 'blur'}

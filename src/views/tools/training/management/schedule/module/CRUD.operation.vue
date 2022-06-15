@@ -33,7 +33,7 @@
         size="mini"
         type="success"
         icon="el-icon-edit"
-        :disabled="crud.selections.length !== 1 || new Date(crud.selections[0].regDeadline).getTime() <= new Date().getTime()"
+        :disabled="crud.selections.length !== 1 || crud.selections[0].scheduleStatus!=='开放中' || new Date(crud.selections[0].regDeadline).getTime() <= new Date().getTime()"
         @click="openParticipantDialog(crud.selections[0])"
       >
         报名

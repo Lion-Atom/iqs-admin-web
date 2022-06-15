@@ -18,7 +18,7 @@
       <el-row :gutter="20" type="flex" class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="培训标题" prop="trainTitle">
-            <el-input v-model="form.trainTitle" placeholder="请填写培训标题" style="width: 100%;"/>
+            <el-input v-model="form.trainTitle" placeholder="请填写培训标题" style="width: 100%;" :disabled="disEdit" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -33,7 +33,7 @@
               placeholder="请填写培训时间"
               :picker-options="timOptions[0]"
               @input="trainTimeChange"
-              :disabled="form.isDelay.toString() === 'true'"
+              :disabled="disEdit"
             />
           </el-form-item>
         </el-col>
@@ -43,6 +43,7 @@
               v-model="form.trainType"
               placeholder="请选择培训类型"
               style="width:100%"
+              :disabled="disEdit"
             >
               <el-option
                 v-for="item in trainTypes"
@@ -55,23 +56,23 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训人" prop="trainer">
-            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%"/>
+            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%" :disabled="disEdit" />
           </el-form-item>
         </el-col>
         <el-col v-if="form.trainType === '外部'" :span="8">
           <el-form-item label="培训机构" prop="trainIns">
-            <el-input v-model="form.trainIns" placeholder="请填写培训机构" style="width:100%"/>
+            <el-input v-model="form.trainIns" placeholder="请填写培训机构" style="width:100%" :disabled="disEdit" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训地点" prop="trainLocation">
-            <el-input v-model="form.trainLocation" placeholder="请填写培训地址" style="width:100%"/>
+            <el-input v-model="form.trainLocation" placeholder="请填写培训地址" style="width:100%" :disabled="disEdit" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训费用" prop="cost">
             <el-input type="text" v-model="form.cost" placeholder="请填写培训费用"
-                      @input="(v)=>(form.cost = v.replace(/[^0-9.]/g,''))" style="width: 100%">
+                      @input="(v)=>(form.cost = v.replace(/[^0-9.]/g,''))" style="width: 100%" :disabled="disEdit" >
               <template slot="append">元</template>
             </el-input>
           </el-form-item>
@@ -83,6 +84,7 @@
               :key="item.id"
               v-model="form.isExam"
               :label="item.value === 'true'"
+              :disabled="disEdit"
             >
               {{ item.label }}
             </el-radio>
@@ -95,6 +97,7 @@
               :key="item.id"
               v-model="form.isCert"
               :label="item.value === 'true'"
+              :disabled="disEdit"
             >
               {{ item.label }}
             </el-radio>
@@ -110,6 +113,7 @@
               style="width: 100%"
               placeholder="选择培训涉及部门"
               @input="bindDeptsChange"
+              :disabled="disEdit"
             />
           </el-form-item>
         </el-col>
@@ -121,16 +125,17 @@
               value-format="yyyy-MM-dd HH:mm:ss"
               format="yyyy-MM-dd HH:mm:ss"
               style="width: 100%;"
-              default-time="10:00:00"
+              default-time="00:00:00"
               placeholder="请填写培训时间"
               :picker-options="timOptions[1]"
+              :disabled="disEdit"
             />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="人数上限" prop="totalNum">
             <el-input type="text" v-model="form.totalNum" placeholder="请填写培训人数上限"
-                      @input="(v)=>(form.totalNum = v.replace(/[^0-9.]/g,''))" style="width: 100%">
+                      @input="(v)=>(form.totalNum = v.replace(/[^0-9.]/g,''))" style="width: 100%" :disabled="disEdit">
               <template slot="append">人</template>
             </el-input>
           </el-form-item>
@@ -150,6 +155,7 @@
               :key="item.id"
               v-model="form.isRemind"
               :label="item.value === 'true'"
+              :disabled="disEdit"
             >
               {{ item.label }}
             </el-radio>
@@ -159,7 +165,8 @@
           <el-form-item label="到期提前提醒" prop="remindDays">
             <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays" v-model="form.remindDays"
                       @input="remindDaysMaxValue"
-                      style="width: 220px">
+                      style="width: 100%"
+                      :disabled="disEdit">
               <template slot="append">天</template>
             </el-input>
           </el-form-item>
@@ -171,6 +178,7 @@
               :key="item.id"
               v-model="form.isDelay"
               :label="item.value === 'true'"
+              :disabled="form.scheduleStatus==='已关闭'"
             >
               {{ item.label }}
             </el-radio>
@@ -195,8 +203,7 @@
           <el-form-item label="改期原因" prop="delayDesc">
             <el-input
               v-model="form.delayDesc"
-              type="textarea"
-              :autosize="{ minRows: 2, maxRows: 5}"
+              type="text"
               placeholder="请输入改期原因"
               style="width: 100%;"
             />
@@ -210,12 +217,13 @@
               :autosize="{ minRows: 2, maxRows: 5}"
               placeholder="请输入培训内容描述"
               style="width: 100%;"
+              :disabled="disEdit"
             />
           </el-form-item>
         </el-col>
       </el-row>
       <!--培训附件信息-->
-      <el-row ref="scopeTags">
+      <el-row class="el-row-inline" ref="scopeTags">
         <!--新版分类上传培训计划附件-->
         <el-col :span="24">
           <el-form-item prop="scopeTags">
@@ -231,7 +239,7 @@
                         </el-checkbox>
                         <div style="margin: 15px 0;"></div>-->
             <el-checkbox-group v-model="form.fileScopeTags" @change="handleCheckedScopeChange">
-              <el-checkbox v-for="scope in fileScopes" :label="scope" :key="scope" :disabled="scope === '培训材料'">
+              <el-checkbox v-for="scope in fileScopes" :label="scope" :key="scope" :disabled="scope === '培训材料' || disEdit">
               </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
@@ -247,17 +255,19 @@
                     </span>
                </span>
               <!--培训计划材料列表-->
-              <el-button
-                type="primary"
-                @click="toUploadMaterialFile(materialType)"
-              >新增
-              </el-button>
-              <el-button
-                type="success"
-                style="margin-left:-2px;"
-                @click="toSelectMaterialFile"
-              >自选
-              </el-button>
+              <div v-if="!disEdit">
+                <el-button
+                  type="primary"
+                  @click="toUploadMaterialFile(materialType)"
+                >新增
+                </el-button>
+                <el-button
+                  type="success"
+                  style="margin-left:-2px;"
+                  @click="toSelectMaterialFile"
+                >自选
+                </el-button>
+              </div>
               <el-table
                 ref="table"
                 v-loading="materialFileLoading"
@@ -315,6 +325,7 @@
                 <el-table-column prop="author" label="作者"/>
                 <!--   编辑与删除   -->
                 <el-table-column
+                  v-if="!disEdit"
                   label="操作"
                   min-width="130px"
                   align="center"
@@ -490,17 +501,19 @@
                  </span>
                </span>
               <!--附件-->
-              <el-button
-                type="primary"
-                @click="toUploadExamFile(examType)"
-              >新增
-              </el-button>
-              <el-button
-                type="success"
-                style="margin-left: -2px;"
-                @click="toSelectExamFile"
-              >自选
-              </el-button>
+              <div v-if="!disEdit">
+                <el-button
+                  type="primary"
+                  @click="toUploadExamFile(examType)"
+                >新增
+                </el-button>
+                <el-button
+                  type="success"
+                  style="margin-left: -2px;"
+                  @click="toSelectExamFile"
+                >自选
+                </el-button>
+              </div>
               <el-table
                 ref="table"
                 v-loading="examFileLoading"
@@ -558,6 +571,7 @@
                 <el-table-column prop="createBy" label="上传者"/>
                 <!--   编辑与删除   -->
                 <el-table-column
+                  v-if="!disEdit"
                   label="操作"
                   min-width="130px"
                   align="center"
@@ -685,8 +699,37 @@
           </el-col>
         </el-row>
       </el-row>
+      <el-row class="el-row-inline">
+<!--        <el-col :span="24">
+          <el-form-item label="计划状态" prop="scheduleStatus">
+            <el-steps :active="1">
+              <el-step title="草拟中" description="草稿状态下可继续编辑任意项"></el-step>
+              <el-step title="开放中" description="开放状态下除改期项外关闭对其他项的修改"></el-step>
+              <el-step title="已关闭" description="培训关闭后只可查看不可查看"></el-step>
+            </el-steps>
+          </el-form-item>
+        </el-col>-->
+        <el-col :span="8">
+          <el-form-item label="计划状态" prop="scheduleStatus">
+          <el-select
+            v-model="form.scheduleStatus"
+            placeholder="请选择计划状态"
+            :disabled="disEdit"
+          >
+            <el-option
+              v-for="item in statusOptions"
+              :key="item.value"
+              :label="item.value"
+              :value="item.value"
+              :disabled="item.disabled"
+            >
+            </el-option>
+          </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" class="dialog-footer" v-if="form.scheduleStatus !=='已关闭'">
       <el-button type="text" @click="crud.cancelCU">取消</el-button>
       <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
     </div>
@@ -746,6 +789,10 @@ export default {
   components: {Treeselect},
   props: {
     commonStatus: {
+      type: Array,
+      required: true
+    },
+    statusOptions: {
       type: Array,
       required: true
     },
@@ -811,7 +858,10 @@ export default {
         ],
         bindDepts: [
           {required: true, message: '请添加培训涉及部门', trigger: 'blur'}
-        ]
+        ],
+        scheduleStatus: [
+          {required: true, message: '请添加培训计划状态', trigger: 'blur'}
+        ],
       },
       fileForm: {
         name: null,
@@ -864,7 +914,7 @@ export default {
               tarTime = new Date(this.form.newTrainTime).getTime()
             }
             return (
-              tarTime < time.getTime()
+              tarTime < time.getTime() || time.getTime() <= Date.now()
             )
           }
         }, {
@@ -936,6 +986,7 @@ export default {
       ],
       examFileSelectedList: [],
       trExamFiles: [],
+      disEdit: false
     }
   },
   watch: {},
@@ -959,6 +1010,7 @@ export default {
     },
     // 新增前操作
     [CRUD.HOOK.beforeToAdd]() {
+      this.disEdit = false
       this.bindDeptDatas = []
       this.bindingId = null
       this.form.uid = null
@@ -988,7 +1040,8 @@ export default {
     },
     // 编辑前操作
     [CRUD.HOOK.beforeToEdit](crud, form) {
-      // alert(JSON.stringify(form))
+      // alert(JSON.stringify(this.statusOptions))
+      this.disEdit = form.scheduleStatus !== this.statusOptions[0].value;
       const _this = this
       // alert(JSON.stringify(_this.bindDeptDatas))
       _this.bindingId = form.id
