@@ -75,7 +75,7 @@
       <el-col v-permission="permission.edit" :xs="12" :sm="12" :md="12" :lg="6" class="card-col">
         <el-card class="el-card" v-if="toAddExamDepartVisible === true" @click.native="addRealExamDepartHandle">
           <div style="padding: 14px;" class="add-btn">
-            <div style="opacity:0.2;font-size: 70px;margin-top: 25px;">
+            <div style="opacity:0.2;font-size: 80px;margin-top: 55px;">
               <i class="el-icon-plus avatar-uploader-icon"></i>
             </div>
             <div>添加部门</div>
@@ -103,7 +103,7 @@
                       :appendToBody="true"
                       class="treePopup"
                       placeholder="选择新员工所在部门"
-                      style="width:90% !important;"
+                      style="width:100% !important;"
                     >
                       <label slot="option-label"
                              slot-scope="{node}"
@@ -117,7 +117,6 @@
                   <el-form-item
                     label="状态"
                     prop="enabled"
-                    style="margin-bottom: 0 !important;"
                   >
                     <el-radio
                       v-for="item in dict.dict.job_status"
@@ -198,8 +197,18 @@ export default {
     // 查询部门数据
     getTopDept() {
       // alert(JSON.stringify(this.user))
+      /* // 获取所有部门
       getDeptTree().then(res => {
         this.departs = res.content
+      })*/
+      // 获取权限范围内部门数据
+      getDepts({ enabled: true }).then(res => {
+        this.departs = res.content.map(function(obj) {
+          if (obj.hasChildren) {
+            obj.children = null
+          }
+          return obj
+        })
       })
     },
     // 查询培训考试关联部门数据
@@ -348,7 +357,7 @@ export default {
 }
 
 .button {
-  padding: 0;
+  margin-top: 15px;
   float: right;
 }
 
