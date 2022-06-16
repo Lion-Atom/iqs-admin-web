@@ -29,7 +29,7 @@
       </crudOperation>
     </div>
     <!--表单组件-->
-    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU"
+    <el-dialog append-to-body :before-close="handleClose"
                :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '题库试卷上传' : '编辑题库试卷'" width="570px">
       <el-form ref="form" :rules="rules" :model="form" size="small" label-width="80px">
         <el-form-item label="试卷名">
@@ -286,6 +286,14 @@ export default {
       }).catch(() => {
         data.enabled = !data.enabled
       })
+    },
+    // 关闭前操作
+    handleClose() {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.crud.cancelCU()
+        })
+        .catch(_ => {});
     }
   }
 }

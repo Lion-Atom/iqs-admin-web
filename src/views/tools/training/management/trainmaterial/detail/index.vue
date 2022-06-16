@@ -70,27 +70,27 @@
       </crudOperation>
     </div>
     <!--表单组件-->
-    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU"
+    <el-dialog append-to-body  :before-close="handleClose"
                :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '培训资料上传' : '编辑培训资料'" width="70%">
       <el-form ref="form" :rules="rules" :model="form" size="small" label-width="80px">
         <el-row :gutter="40" class="row-box">
           <el-col :span="13">
             <el-row :gutter="40" class="row-box">
               <el-col :span="12">
-                <el-form-item label="名称" prop="name">
+                <el-form-item label="材料名称" prop="name">
                   <el-input v-model="form.name" placeholder="请填写材料名称" style="width: 100%;"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item
-                  label="版本"
+                  label="材料版本"
                   prop="version"
                 >
                   <el-input v-model="form.version" placeholder="请填写材料版本" style="width: 100%;"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="作者" prop="author">
+                <el-form-item label="材料作者" prop="author">
                   <el-input v-model="form.author" style="width: 100%;"/>
                 </el-form-item>
               </el-col>
@@ -124,7 +124,7 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item
-                  label="状态"
+                  label="材料状态"
                   prop="enabled"
                 >
                   <el-radio
@@ -311,7 +311,7 @@ const defaultForm = {
   departId: null,
   name: '',
   author: '',
-  version: '',
+  version: 'V1',
   isInternal: true,
   revision: '0',
   toolType: null,
@@ -570,6 +570,14 @@ export default {
       } else {
         return '外部'
       }
+    },
+    // 关闭前操作
+    handleClose() {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.crud.cancelCU()
+        })
+        .catch(_ => {});
     }
   }
 }

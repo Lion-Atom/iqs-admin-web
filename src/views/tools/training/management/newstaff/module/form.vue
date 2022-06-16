@@ -1,8 +1,7 @@
 <template>
   <el-dialog
     append-to-body
-    :close-on-click-modal="false"
-    :before-close="crud.cancelCU"
+    :before-close="handleClose"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
     width="70%"
@@ -621,6 +620,14 @@ export default {
         duration: 2500
       })
     },
+    // 关闭前操作
+    handleClose() {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.crud.cancelCU()
+        })
+        .catch(_ => {});
+    }
   }
 }
 </script>

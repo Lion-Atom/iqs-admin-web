@@ -1,8 +1,7 @@
 <template>
   <el-dialog
     append-to-body
-    :close-on-click-modal="false"
-    :before-close="crud.cancelCU"
+    :before-close="handleClose"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
     width="70%"
@@ -693,9 +692,7 @@ export default {
     // 删除附件
     deleteTrExamTrans(row) {
       // alert(row)
-      const data = []
-      data.push(row.id)
-      delTrExamStaffTranscript(data).then(res => {
+      delTrExamStaffTranscript(row.id).then(res => {
         this.$message({
           message: 'Del File Success! 删除试卷信息成功!',
           type: 'success'
@@ -773,6 +770,14 @@ export default {
         }
       })
     },
+    // 关闭前操作
+    handleClose() {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.crud.cancelCU()
+        })
+        .catch(_ => {});
+    }
   }
 }
 </script>

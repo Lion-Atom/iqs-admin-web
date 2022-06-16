@@ -1,8 +1,8 @@
 <template>
   <el-dialog
     append-to-body
-    :close-on-click-modal="false"
-    :before-close="crud.cancelCU"
+    :close-on-click-modal="true"
+    :before-close="handleClose"
     :visible="crud.status.cu > 0"
     :title="crud.status.title"
     width="72%"
@@ -18,7 +18,7 @@
       <el-row :gutter="20" type="flex" class="el-row-inline">
         <el-col :span="8">
           <el-form-item label="培训标题" prop="trainTitle">
-            <el-input v-model="form.trainTitle" placeholder="请填写培训标题" style="width: 100%;" :disabled="disEdit" />
+            <el-input v-model="form.trainTitle" placeholder="请填写培训标题" style="width: 100%;" :disabled="disEdit"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -27,11 +27,10 @@
               v-model="form.trainTime"
               type="datetime"
               value-format="yyyy-MM-dd HH:mm:ss"
-              format="yyyy-MM-dd HH:mm:ss"
               style="width: 100%;"
               default-time="10:00:00"
               placeholder="请填写培训时间"
-              :picker-options="timOptions[0]"
+              :picker-options="timeOptions[0]"
               @input="trainTimeChange"
               :disabled="disEdit"
             />
@@ -56,23 +55,23 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训人" prop="trainer">
-            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%" :disabled="disEdit" />
+            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%" :disabled="disEdit"/>
           </el-form-item>
         </el-col>
         <el-col v-if="form.trainType === '外部'" :span="8">
           <el-form-item label="培训机构" prop="trainIns">
-            <el-input v-model="form.trainIns" placeholder="请填写培训机构" style="width:100%" :disabled="disEdit" />
+            <el-input v-model="form.trainIns" placeholder="请填写培训机构" style="width:100%" :disabled="disEdit"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训地点" prop="trainLocation">
-            <el-input v-model="form.trainLocation" placeholder="请填写培训地址" style="width:100%" :disabled="disEdit" />
+            <el-input v-model="form.trainLocation" placeholder="请填写培训地址" style="width:100%" :disabled="disEdit"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训费用" prop="cost">
             <el-input type="text" v-model="form.cost" placeholder="请填写培训费用"
-                      @input="(v)=>(form.cost = v.replace(/[^0-9.]/g,''))" style="width: 100%" :disabled="disEdit" >
+                      @input="(v)=>(form.cost = v.replace(/[^0-9.]/g,''))" style="width: 100%" :disabled="disEdit">
               <template slot="append">元</template>
             </el-input>
           </el-form-item>
@@ -127,8 +126,9 @@
               style="width: 100%;"
               default-time="00:00:00"
               placeholder="请填写培训时间"
-              :picker-options="timOptions[1]"
+              :picker-options="timeOptions[1]"
               :disabled="disEdit"
+              @focus="regDeadlineInput"
             />
           </el-form-item>
         </el-col>
@@ -171,7 +171,7 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" v-if="form.scheduleStatus !== '准备中'">
           <el-form-item label="是否改期" prop="isDelay">
             <el-radio
               v-for="item in commonStatus"
@@ -194,7 +194,7 @@
               style="width: 100%;"
               default-time="10:00:00"
               placeholder="请填写新的培训时间"
-              :picker-options="timOptions[2]"
+              :picker-options="timeOptions[2]"
               @input="trainTimeChange"
             />
           </el-form-item>
@@ -239,7 +239,8 @@
                         </el-checkbox>
                         <div style="margin: 15px 0;"></div>-->
             <el-checkbox-group v-model="form.fileScopeTags" @change="handleCheckedScopeChange">
-              <el-checkbox v-for="scope in fileScopes" :label="scope" :key="scope" :disabled="scope === '培训材料' || disEdit">
+              <el-checkbox v-for="scope in fileScopes" :label="scope" :key="scope"
+                           :disabled="scope === '培训材料' || disEdit">
               </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
@@ -475,10 +476,9 @@
                     filterable
                     :titles="['材料库', '已选']"
                     :format="{
-        noChecked: '${total}',
-        hasChecked: '${checked}/${total}'
-      }"
-                    @change="handleChange"
+                      noChecked: '${total}',
+                      hasChecked: '${checked}/${total}'
+                    }"
                     :data="trMaterialFiles">
                     <!-- 保存操作 转换到培训计划下材料列表中-->
                     <el-button class="transfer-footer" slot="right-footer" size="small"
@@ -686,7 +686,6 @@
         noChecked: '${total}',
         hasChecked: '${checked}/${total}'
       }"
-                    @change="handleChange"
                     :data="trExamFiles">
                     <!-- 保存操作 转换到培训计划下材料列表中-->
                     <el-button class="transfer-footer" slot="right-footer" size="small"
@@ -700,31 +699,42 @@
         </el-row>
       </el-row>
       <el-row class="el-row-inline">
-<!--        <el-col :span="24">
-          <el-form-item label="计划状态" prop="scheduleStatus">
-            <el-steps :active="1">
-              <el-step title="草拟中" description="草稿状态下可继续编辑任意项"></el-step>
-              <el-step title="开放中" description="开放状态下除改期项外关闭对其他项的修改"></el-step>
-              <el-step title="已关闭" description="培训关闭后只可查看不可查看"></el-step>
-            </el-steps>
-          </el-form-item>
-        </el-col>-->
         <el-col :span="8">
-          <el-form-item label="计划状态" prop="scheduleStatus">
-          <el-select
-            v-model="form.scheduleStatus"
-            placeholder="请选择计划状态"
-            :disabled="disEdit"
-          >
-            <el-option
-              v-for="item in statusOptions"
-              :key="item.value"
-              :label="item.value"
-              :value="item.value"
-              :disabled="item.disabled"
+          <el-form-item prop="scheduleStatus">
+            <template slot="label">
+              <el-tooltip style="width: 100%!important;" effect="light" placement="bottom-start">
+                <template slot="content">
+                  <el-steps :space="200" :active="activeStatusFlag" finish-status="finish">
+                    <el-step title="准备中" description="草稿状态下可继续编辑任意项"></el-step>
+                    <el-step title="开放中">
+                      <template slot="description">
+                        <span>开放状态下除<b style="color: red;">改期</b>项外关闭对其他项的修改</span>
+                      </template>
+                    </el-step>
+                    <el-step title="已关闭">
+                      <template slot="description">
+                        <span>培训关闭后只<b style="color: red;">可查看</b>不可修改</span>
+                      </template>
+                    </el-step>
+                  </el-steps>
+                </template>
+                <span>计划状态<i class="el-icon-question"/></span>
+              </el-tooltip>
+            </template>
+            <el-select
+              v-model="form.scheduleStatus"
+              placeholder="请选择计划状态"
+              :disabled="disEdit"
             >
-            </el-option>
-          </el-select>
+              <el-option
+                v-for="item in statusOptions"
+                :key="item.value"
+                :label="item.value"
+                :value="item.value"
+                :disabled="item.disabled"
+              >
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-col>
       </el-row>
@@ -738,13 +748,12 @@
 
 <script>
 import CRUD, {form} from '@crud/crud'
-import {judgeIsEqual, validIsNotNull} from "@/utils/validationUtil";
+import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
 import {getToken} from "@/utils/auth";
 import {
   delTrScheduleFile,
-  getFilesByTrScheduleId,
   getFilesByTrScheduleIdAndType, syncScheduleFile
 } from "@/api/tools/train/trScheduleFile";
 import Treeselect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
@@ -815,7 +824,7 @@ export default {
           {required: true, message: '请填写培训内容', trigger: 'blur'}
         ],
         regDeadline: [
-          {required: true, message: '请填写直接报名时间', trigger: 'blur'}
+          {required: true, message: '请填写截止报名时间', trigger: 'blur'}
         ],
         trainLocation: [
           {required: true, message: '请填写培训地点', trigger: 'blur'}
@@ -897,7 +906,7 @@ export default {
       reasonRules: [
         {required: false}
       ],
-      timOptions: [
+      timeOptions: [
         {
           disabledDate: time => {
             return (
@@ -916,7 +925,8 @@ export default {
             return (
               tarTime < time.getTime() || time.getTime() <= Date.now()
             )
-          }
+          },
+          selectableRange: '00:00:00 - 23:59:59'
         }, {
           disabledDate: time => {
             return (
@@ -986,10 +996,32 @@ export default {
       ],
       examFileSelectedList: [],
       trExamFiles: [],
-      disEdit: false
+      disEdit: false,
+      activeStatusFlag: 1
     }
   },
-  watch: {},
+  watch: {
+    'form.scheduleStatus': 'scheduleStatusChangeHandler',
+    'form.regDeadline'(selectTime) {
+      const date = new Date(new Date(selectTime).setHours(0, 0, 0, 0)).getTime()
+      let tarTime
+      let trainTime
+      if (validIsNotNull(this.form.trainTime)) {
+        trainTime = new Date(this.form.trainTime)
+        tarTime = new Date(new Date(this.form.trainTime).setHours(0, 0, 0, 0)).getTime()
+        let hour = trainTime.getHours()
+        let min = trainTime.getMinutes()
+        let sec = trainTime.getSeconds()
+        if (tarTime === date) {
+          // 若是截止时间和培训时间相同则不允许超出培训开始时间
+          this.timeOptions[1].selectableRange = `'00:00:00 - ${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+          // alert(this.timeOptions[1].selectableRange)
+        } else {
+          this.timeOptions[1].selectableRange = `'00:00:00 - 23:59:59'`
+        }
+      }
+    }
+  },
   computed: {
     ...mapGetters([
       'user',
@@ -1097,6 +1129,16 @@ export default {
         return false
       }
     },
+    // 监控培训计划状态变化
+    scheduleStatusChangeHandler(v) {
+      if (v === this.statusOptions[0].value) {
+        this.activeStatusFlag = 1
+      } else if (v === this.statusOptions[1].value) {
+        this.activeStatusFlag = 2
+      } else if (v === this.statusOptions[2].value) {
+        this.activeStatusFlag = 3
+      }
+    },
     // 获取维修相关确认单信息
     getMaterialFiles(id, materialType) {
       this.form.materialFileList = []
@@ -1137,6 +1179,9 @@ export default {
     trainTimeChange(val) {
       this.$forceUpdate()
       this.getMaxTrRemindDays(val)
+      if (!validIsNotNull(val)) {
+        this.form.regDeadline = null
+      }
     },
     // 获取最大提醒时间
     getMaxTrRemindDays(val) {
@@ -1344,7 +1389,7 @@ export default {
         // 处理已选择项目
         res.forEach((file, index) => {
           this.trMaterialFiles.push({
-            label: file.name + '-' + file.author,
+            label: file.departName + '-' + file.name + '-' + file.author,
             //这里的key值一定要是index，否则目标列表无法显示
             key: file.id,
             // disabled:
@@ -1360,7 +1405,7 @@ export default {
         // 处理已选择项目
         res.forEach((file, index) => {
           this.trExamFiles.push({
-            label: file.name,
+            label: file.departName + '-' + file.name,
             //这里的key值一定要是index，否则目标列表无法显示
             key: file.id,
             // disabled:
@@ -1414,7 +1459,7 @@ export default {
       this.examSelectDialogVisible = false
       this.examFileSelectedList = []
     },
-    // todo 保存考试试题
+    // 保存考试试题
     saveSelectedExamFile(selectedList) {
       // alert(JSON.stringify(selectedList))
       let cond = {
@@ -1479,6 +1524,21 @@ export default {
           }
         }
       })
+    },
+    // 关闭前操作
+    handleClose() {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          this.crud.cancelCU()
+        })
+        .catch(_ => {
+        });
+    },
+    regDeadlineInput() {
+      if (!validIsNotNull(this.form.trainTime)) {
+        this.$message.warning("请优先设定培训时间！")
+        return false
+      }
     }
   }
 }

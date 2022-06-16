@@ -28,7 +28,16 @@
       <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
       <el-table-column prop="trainTitle" label="培训项目" :show-overflow-tooltip="true"/>
       <el-table-column prop="isExam" label="是否考试" :formatter="isExamFormat"/>
-      <el-table-column prop="reason" label="未完成原因" min-width="120" :show-overflow-tooltip="true"/>
+      <el-table-column prop="reason" label="未完成原因" min-width="120" :show-overflow-tooltip="true">
+        <template slot-scope="scope">
+          <el-tag v-if="!scope.row.isAuthorize" type="danger">
+            {{ scope.row.reason}}
+          </el-tag>
+          <el-tag v-else-if="scope.row.reason" type="warning">
+            {{ scope.row.reason}}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -62,6 +71,7 @@ import CRUD, {presenter} from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
+import {getByMethodName} from "@/api/system/timing";
 
 export default {
   name: 'TrainNewStaff',
@@ -71,7 +81,8 @@ export default {
       title: '员工培训',
       url: 'api/train/newStaff',
       // sort: ['jobSort,asc', 'id,desc'],
-      crudMethod: {...crudNewStaff}
+      crudMethod: {...crudNewStaff},
+      queryOnPresenterCreated: false
     })
   },
   mixins: [presenter()],
@@ -84,6 +95,7 @@ export default {
         edit: ['admin', 'newStaff:edit'],
         del: ['admin', 'newStaff:del']
       },
+      methodName: 'checkIsToTrain',
       typeOptions: [
         {
           label: 'DL',
@@ -104,8 +116,15 @@ export default {
       download: true,
       reset: true
     }
+    this.flushTrainTip()
   },
   methods: {
+    // 调用同步-重新拉取走查培训提示信息
+    flushTrainTip() {
+      getByMethodName(this.methodName).then(res => {
+        this.crud.toQuery()
+      })
+    },
     // 改变状态
     isFinishedFormat(row, col) {
       if (row.isFinished) {

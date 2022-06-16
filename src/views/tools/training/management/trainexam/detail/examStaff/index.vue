@@ -55,7 +55,7 @@
           <el-tag v-else-if="scope.row.lastExamDate && scope.row.isPassed.toString() === 'false'" type="danger">未通过
           </el-tag>
           <el-tag v-else-if="scope.row.isAuthorize.toString()==='true'" type="primary">已培训，待考试</el-tag>
-          <el-tag v-else type="warning">培训尚未开始</el-tag>
+          <el-tag v-else type="warning">尚未培训</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="下次考试日期" :formatter="nextExamDateFormat" min-width="140"/>

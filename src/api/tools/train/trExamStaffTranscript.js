@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
 
-export function delTrExamStaffTranscript(ids) {
+export function delTrExamStaffTranscript(id) {
   return request({
     url: 'api/trExamStaffTranscript',
     method: 'delete',
-    data: ids
+    data: id
   })
 }
 
