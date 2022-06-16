@@ -58,7 +58,7 @@
               :load-options="loadDeparts"
               class="newTree-item"
               placeholder="选择新员工所在部门"
-              disabled=""
+              disabled
               style="width:220px !important;"
             />
           </el-form-item>
@@ -85,13 +85,14 @@
               placeholder="请选择认证种类"
               style="width: 220px;"
               @change="certificationTypeChange"
+              :disabled="!form.hasEditAuthorized"
             >
               <el-option
                 v-for="item in typeOptions"
                 :key="item.value"
                 :label="item.value "
                 :value="item.value"
-                :disabled="!validIsNotNull(form.trScheduleId) && item.disabled"
+                :disabled="!validIsNotNull(form.trScheduleId) && item.disabled "
               >
               </el-option>
             </el-select>
@@ -106,6 +107,7 @@
               allow-create
               placeholder="请选择工种种类"
               style="width: 220px;"
+              :disabled="!form.hasEditAuthorized"
             >
               <el-option
                 v-for="item in jobTypeOptions"
@@ -118,7 +120,7 @@
         </el-col>
         <el-col :span="8" v-if="form.certificationType === typeOptions[1].value">
           <el-form-item label="签发机构" prop="orgName">
-            <el-input v-model="form.orgName" placeholder="请填写签发机构" style="width:220px"/>
+            <el-input v-model="form.orgName" placeholder="请填写签发机构" style="width:220px" :disabled="!form.hasEditAuthorized" />
           </el-form-item>
         </el-col>
         <!--todo 上岗培训证:需要关联相关的培训计划-->
@@ -162,17 +164,18 @@
               style="width: 220px;"
               placeholder="请填写发证日期"
               :picker-options="pickerOption[1]"
+              :disabled="!form.hasEditAuthorized"
             />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="考试结果" prop="trainResult">
-            <el-input v-model="form.trainResult" style="width:220px" placeholder="请填写培训考试结果"/>
+            <el-input v-model="form.trainResult" style="width:220px" placeholder="请填写培训考试结果" :disabled="!form.hasEditAuthorized" />
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="培训内容" prop="trainContent">
-            <el-input type="textarea" :row="3" v-model="form.trainContent" placeholder="请填写培训内容"></el-input>
+            <el-input type="textarea" :row="3" v-model="form.trainContent" placeholder="请填写培训内容" :disabled="!form.hasEditAuthorized"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -186,6 +189,7 @@
               placeholder="请填写到期时间"
               :picker-options="pickerOption[2]"
               @input="dueDateChange"
+              :disabled="!form.hasEditAuthorized"
             />
           </el-form-item>
         </el-col>
@@ -196,6 +200,7 @@
               :key="item.id"
               v-model="form.isRemind"
               :label="item.value === 'true'"
+              :disabled="!form.hasEditAuthorized"
             >
               {{ item.label }}
             </el-radio>
@@ -205,7 +210,8 @@
           <el-form-item label="到期提前提醒" prop="remindDays">
             <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays" v-model="form.remindDays"
                       @input="remindDaysMaxValue"
-                      style="width: 220px">
+                      style="width: 220px"
+                      :disabled="!form.hasEditAuthorized">
               <template slot="append">天</template>
             </el-input>
           </el-form-item>
@@ -272,6 +278,7 @@
               <el-table-column prop="createBy" label="创建者" min-width="80"/>
               <!--   附件删除   -->
               <el-table-column
+                v-if="form.hasEditAuthorized"
                 label="操作"
                 width="80"
                 align="center"
@@ -311,6 +318,7 @@
               </el-table-column>
             </el-table>
             <el-upload
+              v-if="form.hasEditAuthorized"
               class="upload-demo"
               ref="upload"
               :headers="headers"
@@ -326,7 +334,7 @@
         </el-col>
       </el-row>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" class="dialog-footer" v-if="form.hasEditAuthorized">
       <el-button type="text" @click="crud.cancelCU">取消</el-button>
       <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
     </div>
@@ -367,7 +375,8 @@ const defaultForm = {
   dueDate: null,
   certificationStatus: null, // 证书状态后台走查判断
   uid: null,
-  fileList: []
+  fileList: [],
+  hasEditAuthorized: true
 }
 export default {
   mixins: [form(defaultForm)],

@@ -71,6 +71,7 @@
       <el-table-column prop="totalNum" label="人数限制"/>
       <el-table-column prop="curNum" label="现参与人数"/>
       <el-table-column prop="scheduleStatus" label="计划状态"/>
+      <el-table-column prop="createBy" label="创建者" />
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -84,7 +85,8 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
-            :disabled-edit="scope.row.scheduleStatus==='已关闭'"
+            :disabled-edit="scope.row.scheduleStatus==='已关闭' || !scope.row.hasEditAuthorized"
+            :disabled-dle="!scope.row.hasEditAuthorized"
           />
         </template>
       </el-table-column>

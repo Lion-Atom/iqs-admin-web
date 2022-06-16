@@ -2,7 +2,7 @@
   <div class="crud-opts">
     <span class="crud-opts-left">
       <!--左侧插槽-->
-      <slot name="left"/>
+      <slot name="left" />
       <el-button
         v-if="crud.optShow.add"
         v-permission="permission.add"
@@ -21,33 +21,10 @@
         size="mini"
         type="success"
         icon="el-icon-edit"
-        :disabled="crud.selections.length !== 1 || crud.selections[0].scheduleStatus==='已关闭' || !crud.selections[0].hasEditAuthorized"
+        :disabled="crud.selections.length !== 1 || !crud.selections[0].hasEditAuthorized"
         @click="crud.toEdit(crud.selections[0])"
       >
         修改
-      </el-button>
-      <el-button
-        v-if="crud.optShow.edit"
-        v-permission="permission.edit"
-        class="filter-item"
-        size="mini"
-        type="success"
-        icon="el-icon-edit"
-        :disabled="crud.selections.length !== 1 || crud.selections[0].scheduleStatus!=='开放中' || new Date(crud.selections[0].regDeadline).getTime() <= new Date().getTime()"
-        @click="openParticipantDialog(crud.selections[0])"
-      >
-        报名
-      </el-button>
-      <el-button
-        v-if="crud.selections.length === 1 && new Date(crud.selections[0].regDeadline).getTime() <= new Date().getTime() && crud.selections[0].scheduleStatus!=='准备中'"
-        v-permission="permission.edit"
-        class="filter-item"
-        size="mini"
-        type="success"
-        icon="el-icon-view"
-        @click="openViewParticipantDialog(crud.selections[0])"
-      >
-        报名者
       </el-button>
       <el-button
         v-if="crud.optShow.del"
@@ -74,7 +51,7 @@
         @click="crud.doExport"
       >导出</el-button>
       <!--右侧-->
-      <slot name="right"/>
+      <slot name="right" />
     </span>
     <el-button-group class="crud-opts-right">
       <el-button
@@ -124,7 +101,7 @@
   </div>
 </template>
 <script>
-import CRUD, {crud} from '@crud/crud'
+import CRUD, { crud } from '@crud/crud'
 
 function sortWithRef(src, ref) {
   const result = Object.assign([], ref)
@@ -146,21 +123,15 @@ export default {
   props: {
     permission: {
       type: Object,
-      default: () => {
-        return {}
-      }
+      default: () => { return {} }
     },
     hiddenColumns: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => { return [] }
     },
     ignoreColumns: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => { return [] }
     }
   },
   data() {
@@ -170,12 +141,7 @@ export default {
       allColumnsSelectedIndeterminate: false,
       tableUnwatcher: null,
       // 忽略下次表格列变动
-      ignoreNextTableColumnsChange: false,
-      partData: {
-        viewPartDialogVisible: false,
-        partDialogVisible: true,
-        curData: {}
-      }
+      ignoreNextTableColumnsChange: false
     }
   },
   watch: {
@@ -257,7 +223,7 @@ export default {
       })
       if (selectedCount === 0) {
         this.crud.notify('请至少选择一列', CRUD.NOTIFICATION_TYPE.WARNING)
-        this.$nextTick(function () {
+        this.$nextTick(function() {
           item.visible = true
         })
         return
@@ -281,39 +247,22 @@ export default {
     },
     toggleSearch() {
       this.crud.props.searchToggle = !this.crud.props.searchToggle
-    },
-    // 打开报名弹窗
-    openParticipantDialog(data) {
-      // alert(JSON.stringify(data))
-      this.partData.partDialogVisible = true
-      this.partData.viewPartDialogVisible = false
-      this.partData.curData = data
-      this.$emit('func', this.partData)
-    },
-    // 查看报名者信息弹窗
-    openViewParticipantDialog(data) {
-      this.partData.partDialogVisible = false
-      this.partData.viewPartDialogVisible = true
-      this.partData.curData = data
-      this.$emit('func', this.partData)
     }
   }
 }
 </script>
 
 <style>
-.crud-opts {
-  padding: 4px 0;
-  display: -webkit-flex;
-  display: flex;
-  align-items: center;
-}
-
-.crud-opts .crud-opts-right {
-  margin-left: auto;
-}
-
-.crud-opts .crud-opts-right span {
-  float: left;
-}
+  .crud-opts {
+    padding: 4px 0;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+  }
+  .crud-opts .crud-opts-right {
+    margin-left: auto;
+  }
+  .crud-opts .crud-opts-right span {
+    float: left;
+  }
 </style>

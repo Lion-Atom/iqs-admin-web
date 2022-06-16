@@ -240,7 +240,7 @@
                         <div style="margin: 15px 0;"></div>-->
             <el-checkbox-group v-model="form.fileScopeTags" @change="handleCheckedScopeChange">
               <el-checkbox v-for="scope in fileScopes" :label="scope" :key="scope"
-                           :disabled="scope === '培训材料' || disEdit">
+                           :disabled="scope === '培训材料' || disEdit || !form.hasEditAuthorized">
               </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
@@ -739,7 +739,7 @@
         </el-col>
       </el-row>
     </el-form>
-    <div slot="footer" class="dialog-footer" v-if="form.scheduleStatus !=='已关闭'">
+    <div slot="footer" class="dialog-footer" v-if="form.scheduleStatus !=='已关闭' && form.hasEditAuthorized ">
       <el-button type="text" @click="crud.cancelCU">取消</el-button>
       <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
     </div>
@@ -789,7 +789,8 @@ const defaultForm = {
   fileScope: '培训材料',
   fileScopeTags: ['培训材料'],
   materialFileList: [],
-  examFileList: []
+  examFileList: [],
+  hasEditAuthorized: true
 }
 let bindingDepts = []
 const fileScopeOptions = ['培训材料', '培训试题']
@@ -1073,7 +1074,7 @@ export default {
     // 编辑前操作
     [CRUD.HOOK.beforeToEdit](crud, form) {
       // alert(JSON.stringify(this.statusOptions))
-      this.disEdit = form.scheduleStatus !== this.statusOptions[0].value;
+      this.disEdit = form.scheduleStatus !== this.statusOptions[0].value || !form.hasEditAuthorized;
       const _this = this
       // alert(JSON.stringify(_this.bindDeptDatas))
       _this.bindingId = form.id

@@ -46,6 +46,8 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
+            :disabled-dle="!scope.row.hasEditAuthorized"
+            :disabled-edit="!scope.row.hasEditAuthorized"
           />
         </template>
       </el-table-column>
@@ -62,7 +64,7 @@ import crudCertification from '@/api/tools/train/certification'
 import eHeader from './module/header'
 import eForm from './module/form'
 import CRUD, {presenter} from '@crud/crud'
-import crudOperation from '@crud/CRUD.operation'
+import crudOperation from './module/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
