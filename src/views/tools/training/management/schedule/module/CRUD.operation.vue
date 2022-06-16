@@ -39,7 +39,7 @@
         报名
       </el-button>
       <el-button
-        v-if="crud.selections.length === 1 && new Date(crud.selections[0].regDeadline).getTime() <= new Date().getTime()"
+        v-if="crud.selections.length === 1 && new Date(crud.selections[0].regDeadline).getTime() <= new Date().getTime() && crud.selections[0].scheduleStatus!=='准备中'"
         v-permission="permission.edit"
         class="filter-item"
         size="mini"

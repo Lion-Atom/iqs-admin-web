@@ -246,457 +246,453 @@
           </el-form-item>
         </el-col>
         <!--培训材料-->
-        <el-row class="el-row-inline"
+        <el-col :span="24" ref="materialFiles"
                 v-if="form.fileScopeTags !== undefined && form.fileScopeTags.indexOf(materialType) > -1">
-          <el-col :span="24" ref="materialFiles">
-            <el-form-item>
+          <el-form-item>
                <span slot="label">
                     <span class="span-box">
                       <span><i style="color:#f00;">*&nbsp;</i>{{ materialType }}</span><br>
                     </span>
                </span>
-              <!--培训计划材料列表-->
-              <div v-if="!disEdit">
-                <el-button
-                  type="primary"
-                  @click="toUploadMaterialFile(materialType)"
-                >新增
-                </el-button>
-                <el-button
-                  type="success"
-                  style="margin-left:-2px;"
-                  @click="toSelectMaterialFile"
-                >自选
-                </el-button>
-              </div>
-              <el-table
-                ref="table"
-                v-loading="materialFileLoading"
-                border
-                :data="form.materialFileList"
-                style="width: 100%;"
-                highlight-current-row
-              >
-                <el-table-column
-                  type="index"
-                  width="50"
-                  label="序号"
-                />
-                <el-table-column prop="name" label="附件名称" min-width="200">
-                  <template slot-scope="scope">
-                    <el-popover
-                      :content="'file/' + scope.row.type + '/' + scope.row.realName"
-                      placement="top-start"
-                      title="路径"
-                      width="200"
-                      trigger="hover"
+            <!--培训计划材料列表-->
+            <div v-if="!disEdit">
+              <el-button
+                type="primary"
+                @click="toUploadMaterialFile(materialType)"
+              >新增
+              </el-button>
+              <el-button
+                type="success"
+                style="margin-left:-2px;"
+                @click="toSelectMaterialFile"
+              >自选
+              </el-button>
+            </div>
+            <el-table
+              ref="table"
+              v-loading="materialFileLoading"
+              border
+              :data="form.materialFileList"
+              style="width: 100%;"
+              highlight-current-row
+            >
+              <el-table-column
+                type="index"
+                width="50"
+                label="序号"
+              />
+              <el-table-column prop="name" label="材料名称" min-width="200">
+                <template slot-scope="scope">
+                  <el-popover
+                    :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                    placement="top-start"
+                    title="路径"
+                    width="200"
+                    trigger="hover"
+                  >
+                    <!--可下载文件-->
+                    <a
+                      slot="reference"
+                      :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                      class="el-link--primary"
+                      style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                      target="_blank"
+                      :download="scope.row.name"
                     >
-                      <!--可下载文件-->
-                      <a
-                        slot="reference"
-                        :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
-                        class="el-link--primary"
-                        style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
-                        target="_blank"
-                        :download="scope.row.name"
-                      >
-                        {{ scope.row.name }}
-                      </a>
-                    </el-popover>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="path" label="预览图">
-                  <template slot-scope="{row}">
-                    <el-image
-                      :src=" baseApi + '/file/' + row.type + '/' + row.realName"
-                      :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.realName]"
-                      fit="contain"
-                      lazy
-                      class="el-avatar"
-                    >
-                      <div slot="error">
-                        <i class="el-icon-document"/>
-                      </div>
-                    </el-image>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="fileSource" label="文件出处"/>
-                <el-table-column prop="size" label="大小"/>
-                <el-table-column prop="type" label="类型"/>
-                <el-table-column prop="author" label="作者"/>
-                <!--   编辑与删除   -->
-                <el-table-column
-                  v-if="!disEdit"
-                  label="操作"
-                  min-width="130px"
-                  align="center"
-                  fixed="right"
-                >
-                  <template slot-scope="scope">
-                    <div>
-                      <!--删除-->
-                      <el-popover
-                        :ref="`delFile-popover-${scope.$index}`"
-                        v-permission="permission.edit"
-                        placement="top"
-                        width="180"
-                      >
-                        <p>确定删除这个附件吗？</p>
-                        <div style="text-align: right; margin: 0">
-                          <el-button
-                            size="mini"
-                            type="text"
-                            @click="scope._self.$refs[`delFile-popover-${scope.$index}`].doClose()"
-                          >取消
-                          </el-button>
-                          <el-button
-                            type="primary"
-                            size="mini"
-                            @click="deleteTrSchedule(scope.row), scope._self.$refs[`delFile-popover-${scope.$index}`].doClose()"
-                          >确定
-                          </el-button>
-                        </div>
-                        <el-button
-                          slot="reference"
-                          v-permission="permission.edit"
-                          type="danger"
-                          icon="el-icon-delete"
-                          size="mini"
-                          :disabled="form.materialFileList.length===1"
-                        />
-                      </el-popover>
+                      {{ scope.row.name }}
+                    </a>
+                  </el-popover>
+                </template>
+              </el-table-column>
+              <el-table-column prop="path" label="预览图">
+                <template slot-scope="{row}">
+                  <el-image
+                    :src=" baseApi + '/file/' + row.type + '/' + row.realName"
+                    :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.realName]"
+                    fit="contain"
+                    lazy
+                    class="el-avatar"
+                  >
+                    <div slot="error">
+                      <i class="el-icon-document"/>
                     </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-              <!--新增材料-->
-              <el-dialog append-to-body :close-on-click-modal="false"
-                         :visible.sync="materialDialogVisible" title="培训材料上传" width="70%">
-                <el-form ref="materialFile" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
-                  <el-row :gutter="40" class="row-box">
-                    <el-col :span="12">
-                      <el-row :gutter="40" class="row-box">
-                        <el-col :span="24">
-                          <el-form-item label="材料名称" prop="name">
-                            <el-input v-model="fileForm.name" placeholder="请填写材料名称" style="width: 100%;"/>
-                          </el-form-item>
-                        </el-col>
-                        <el-col :span="12">
-                          <el-form-item label="材料作者" prop="author">
-                            <el-input v-model="fileForm.author" style="width: 100%;"/>
-                          </el-form-item>
-                        </el-col>
-                        <el-col :span="12">
-                          <el-form-item label="来自内部" prop="isInternal">
-                            <el-radio
-                              v-for="item in commonStatus"
-                              :key="item.id"
-                              v-model="fileForm.isInternal"
-                              :label="item.value === 'true'"
-                              @change="currIsInternalChange"
-                            >
-                              {{ item.label }}
-                            </el-radio>
-                          </el-form-item>
-                        </el-col>
-                        <!--根据内部/外部选择对应的专业工具-->
-                        <el-col :span="24">
-                          <el-form-item label="专业工具" prop="toolType">
-                            <el-select
-                              v-model="fileForm.toolType"
-                              filterable
-                              allow-create
-                              clearable
-                              placeholder="可自定义标准认证工具"
-                              style="width: 100%;"
-                            >
-                              <el-option
-                                v-for="item in toolTypeOptions"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                              </el-option>
-                            </el-select>
-                          </el-form-item>
-                        </el-col>
-                        <el-col :span="24">
-                          <el-form-item label="材料描述" prop="fileDesc">
-                            <el-input
-                              v-model="fileForm.fileDesc"
-                              type="textarea"
-                              :autosize="{ minRows: 2, maxRows: 5}"
-                              placeholder="请输入材料内容描述"
-                              style="width: 100%;"
-                            />
-                          </el-form-item>
-                        </el-col>
-                      </el-row>
-                    </el-col>
-                    <!--   上传文件   -->
-                    <el-col :span="12">
-                      <el-form-item>
-                        <template slot="label">
-                          <span><i style="color: red">* </i>材料上传</span>
-                        </template>
-                        <el-upload
-                          ref="materialFileUpload"
-                          :limit="1"
-                          drag
-                          :before-upload="beforeUpload"
-                          :auto-upload="false"
-                          :headers="headers"
-                          :on-change="handleMaterialFileChange"
-                          :file-list="materialFileList"
-                          :on-success="handleMaterialFileSuccess"
-                          :on-error="handleError"
-                          :action="trScheduleUploadV2Api + '?name=' + fileForm.name +'&trScheduleId=' + bindingId +'&fileType=' + materialType
+                  </el-image>
+                </template>
+              </el-table-column>
+              <el-table-column prop="fileSource" label="文件出处"/>
+              <el-table-column prop="size" label="大小"/>
+              <el-table-column prop="type" label="类型"/>
+              <el-table-column prop="author" label="作者"/>
+              <!--   编辑与删除   -->
+              <el-table-column
+                v-if="!disEdit"
+                label="操作"
+                min-width="130px"
+                align="center"
+                fixed="right"
+              >
+                <template slot-scope="scope">
+                  <div>
+                    <!--删除-->
+                    <el-popover
+                      :ref="`delFile-popover-${scope.$index}`"
+                      v-permission="permission.edit"
+                      placement="top"
+                      width="180"
+                    >
+                      <p>确定删除这个附件吗？</p>
+                      <div style="text-align: right; margin: 0">
+                        <el-button
+                          size="mini"
+                          type="text"
+                          @click="scope._self.$refs[`delFile-popover-${scope.$index}`].doClose()"
+                        >取消
+                        </el-button>
+                        <el-button
+                          type="primary"
+                          size="mini"
+                          @click="deleteTrSchedule(scope.row), scope._self.$refs[`delFile-popover-${scope.$index}`].doClose()"
+                        >确定
+                        </el-button>
+                      </div>
+                      <el-button
+                        slot="reference"
+                        v-permission="permission.edit"
+                        type="danger"
+                        icon="el-icon-delete"
+                        size="mini"
+                        :disabled="form.materialFileList.length===1"
+                      />
+                    </el-popover>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!--新增材料-->
+            <el-dialog append-to-body :close-on-click-modal="false"
+                       :visible.sync="materialDialogVisible" title="培训材料上传" width="70%">
+              <el-form ref="materialFile" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
+                <el-row :gutter="40" class="row-box">
+                  <el-col :span="12">
+                    <el-row :gutter="40" class="row-box">
+                      <el-col :span="24">
+                        <el-form-item label="材料名称" prop="name">
+                          <el-input v-model="fileForm.name" placeholder="请填写材料名称" style="width: 100%;"/>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="材料作者" prop="author">
+                          <el-input v-model="fileForm.author" style="width: 100%;"/>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="来自内部" prop="isInternal">
+                          <el-radio
+                            v-for="item in commonStatus"
+                            :key="item.id"
+                            v-model="fileForm.isInternal"
+                            :label="item.value === 'true'"
+                            @change="currIsInternalChange"
+                          >
+                            {{ item.label }}
+                          </el-radio>
+                        </el-form-item>
+                      </el-col>
+                      <!--根据内部/外部选择对应的专业工具-->
+                      <el-col :span="24">
+                        <el-form-item label="专业工具" prop="toolType">
+                          <el-select
+                            v-model="fileForm.toolType"
+                            filterable
+                            allow-create
+                            clearable
+                            placeholder="可自定义标准认证工具"
+                            style="width: 100%;"
+                          >
+                            <el-option
+                              v-for="item in toolTypeOptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value">
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="24">
+                        <el-form-item label="材料描述" prop="fileDesc">
+                          <el-input
+                            v-model="fileForm.fileDesc"
+                            type="textarea"
+                            :autosize="{ minRows: 2, maxRows: 5}"
+                            placeholder="请输入材料内容描述"
+                            style="width: 100%;"
+                          />
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </el-col>
+                  <!--   上传文件   -->
+                  <el-col :span="12">
+                    <el-form-item>
+                      <template slot="label">
+                        <span><i style="color: red">* </i>材料上传</span>
+                      </template>
+                      <el-upload
+                        ref="materialFileUpload"
+                        :limit="1"
+                        drag
+                        :before-upload="beforeUpload"
+                        :auto-upload="false"
+                        :headers="headers"
+                        :on-change="handleMaterialFileChange"
+                        :file-list="materialFileList"
+                        :on-success="handleMaterialFileSuccess"
+                        :on-error="handleError"
+                        :action="trScheduleUploadV2Api + '?name=' + fileForm.name +'&trScheduleId=' + bindingId +'&fileType=' + materialType
                           +'&fileSource=' + fileSourceOption[1] +'&author=' + fileForm.author
              + '&isInternal=' + fileForm.isInternal + '&toolType=' + fileForm.toolType + '&fileDesc=' + fileForm.fileDesc"
-                          class="upload-demo"
-                        >
-                          <i class="el-icon-upload"></i>
-                          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                          <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
-                        </el-upload>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                  <el-button type="text" @click="materialDialogVisible = false">取消</el-button>
-                  <el-button :loading="loading" type="primary" @click="materialFileUpload">确认</el-button>
-                </div>
-              </el-dialog>
-              <!--选择已有-->
-              <el-dialog append-to-body :close-on-click-modal="false" :before-close="closeMatSelectDialog"
-                         :visible.sync="matSelectDialogVisible" title="自选培训材料" width="50%">
-                <div style="text-align: left">
-                  <el-transfer
-                    v-model="materialFileSelectedList"
-                    filterable
-                    :titles="['材料库', '已选']"
-                    :format="{
+                        class="upload-demo"
+                      >
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                        <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                      </el-upload>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button type="text" @click="materialDialogVisible = false">取消</el-button>
+                <el-button :loading="loading" type="primary" @click="materialFileUpload">确认</el-button>
+              </div>
+            </el-dialog>
+            <!--选择已有-->
+            <el-dialog append-to-body :close-on-click-modal="false" :before-close="closeMatSelectDialog"
+                       :visible.sync="matSelectDialogVisible" title="自选培训材料" width="50%">
+              <div style="text-align: left">
+                <el-transfer
+                  v-model="materialFileSelectedList"
+                  filterable
+                  :titles="['材料库', '已选']"
+                  :format="{
                       noChecked: '${total}',
                       hasChecked: '${checked}/${total}'
                     }"
-                    :data="trMaterialFiles">
-                    <!-- 保存操作 转换到培训计划下材料列表中-->
-                    <el-button class="transfer-footer" slot="right-footer" size="small"
-                               @click="saveSelectedMaterialFile(materialFileSelectedList)">保存
-                    </el-button>
-                  </el-transfer>
-                </div>
-              </el-dialog>
-            </el-form-item>
-          </el-col>
-        </el-row>
+                  :data="trMaterialFiles">
+                  <!-- 保存操作 转换到培训计划下材料列表中-->
+                  <el-button class="transfer-footer" slot="right-footer" size="small"
+                             @click="saveSelectedMaterialFile(materialFileSelectedList)">保存
+                  </el-button>
+                </el-transfer>
+              </div>
+            </el-dialog>
+          </el-form-item>
+        </el-col>
         <!--培训试题-->
-        <el-row class="el-row-inline"
+        <el-col :span="24" ref="examFiles"
                 v-if="form.fileScopeTags !== undefined && form.fileScopeTags.indexOf(examType) > -1">
-          <el-col :span="24" ref="examFiles">
-            <el-form-item>
+          <el-form-item>
                <span slot="label">
                  <span class="span-box">
                    <span><i style="color:#f00;">*&nbsp;</i>{{ examType }}</span><br>
                  </span>
                </span>
-              <!--附件-->
-              <div v-if="!disEdit">
-                <el-button
-                  type="primary"
-                  @click="toUploadExamFile(examType)"
-                >新增
-                </el-button>
-                <el-button
-                  type="success"
-                  style="margin-left: -2px;"
-                  @click="toSelectExamFile"
-                >自选
-                </el-button>
-              </div>
-              <el-table
-                ref="table"
-                v-loading="examFileLoading"
-                border
-                :data="form.examFileList"
-                style="width: 100%"
-                highlight-current-row
-              >
-                <el-table-column
-                  type="index"
-                  width="50"
-                  label="序号"
-                />
-                <el-table-column prop="name" label="附件名称" min-width="200">
-                  <template slot-scope="scope">
-                    <el-popover
-                      :content="'file/' + scope.row.type + '/' + scope.row.realName"
-                      placement="top-start"
-                      title="路径"
-                      width="200"
-                      trigger="hover"
+            <!--附件-->
+            <div v-if="!disEdit">
+              <el-button
+                type="primary"
+                @click="toUploadExamFile(examType)"
+              >新增
+              </el-button>
+              <el-button
+                type="success"
+                style="margin-left: -2px;"
+                @click="toSelectExamFile"
+              >自选
+              </el-button>
+            </div>
+            <el-table
+              ref="table"
+              v-loading="examFileLoading"
+              border
+              :data="form.examFileList"
+              style="width: 100%"
+              highlight-current-row
+            >
+              <el-table-column
+                type="index"
+                width="50"
+                label="序号"
+              />
+              <el-table-column prop="name" label="试题名称" min-width="200">
+                <template slot-scope="scope">
+                  <el-popover
+                    :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                    placement="top-start"
+                    title="路径"
+                    width="200"
+                    trigger="hover"
+                  >
+                    <!--可下载文件-->
+                    <a
+                      slot="reference"
+                      :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
+                      class="el-link--primary"
+                      style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                      target="_blank"
+                      :download="scope.row.name"
                     >
-                      <!--可下载文件-->
-                      <a
-                        slot="reference"
-                        :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.realName"
-                        class="el-link--primary"
-                        style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
-                        target="_blank"
-                        :download="scope.row.name"
-                      >
-                        {{ scope.row.name }}
-                      </a>
-                    </el-popover>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="path" label="预览图">
-                  <template slot-scope="{row}">
-                    <el-image
-                      :src=" baseApi + '/file/' + row.type + '/' + row.realName"
-                      :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.realName]"
-                      fit="contain"
-                      lazy
-                      class="el-avatar"
-                    >
-                      <div slot="error">
-                        <i class="el-icon-document"/>
-                      </div>
-                    </el-image>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="fileSource" label="出处"/>
-                <el-table-column prop="size" label="大小"/>
-                <el-table-column prop="type" label="类型"/>
-                <el-table-column prop="createBy" label="上传者"/>
-                <!--   编辑与删除   -->
-                <el-table-column
-                  v-if="!disEdit"
-                  label="操作"
-                  min-width="130px"
-                  align="center"
-                  fixed="right"
-                >
-                  <template slot-scope="scope">
-                    <div>
-                      <!--删除-->
-                      <el-popover
-                        :ref="`delExamFile-popover-${scope.$index}`"
-                        v-permission="permission.edit"
-                        placement="top"
-                        width="180"
-                      >
-                        <p>确定删除这个附件吗？</p>
-                        <div style="text-align: right; margin: 0">
-                          <el-button
-                            size="mini"
-                            type="text"
-                            @click="scope._self.$refs[`delExamFile-popover-${scope.$index}`].doClose()"
-                          >取消
-                          </el-button>
-                          <el-button
-                            type="primary"
-                            size="mini"
-                            @click="deleteTrSchedule(scope.row), scope._self.$refs[`delExamFile-popover-${scope.$index}`].doClose()"
-                          >确定
-                          </el-button>
-                        </div>
-                        <el-button
-                          slot="reference"
-                          v-permission="permission.edit"
-                          type="danger"
-                          icon="el-icon-delete"
-                          size="mini"
-                          :disabled="form.examFileList.length===1"
-                        />
-                      </el-popover>
+                      {{ scope.row.name }}
+                    </a>
+                  </el-popover>
+                </template>
+              </el-table-column>
+              <el-table-column prop="path" label="预览图">
+                <template slot-scope="{row}">
+                  <el-image
+                    :src=" baseApi + '/file/' + row.type + '/' + row.realName"
+                    :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.realName]"
+                    fit="contain"
+                    lazy
+                    class="el-avatar"
+                  >
+                    <div slot="error">
+                      <i class="el-icon-document"/>
                     </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-              <!--新增考试试题-->
-              <el-dialog append-to-body :close-on-click-modal="false"
-                         :visible.sync="examDialogVisible" title="培训试题上传" width="70%">
-                <el-form ref="examFile" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
-                  <el-row :gutter="40" class="row-box">
-                    <el-col :span="12">
-                      <el-row :gutter="40" class="row-box">
-                        <el-col :span="24">
-                          <el-form-item label="试卷名称" prop="name">
-                            <el-input v-model="fileForm.name" placeholder="请填写试卷名称" style="width: 100%;"/>
-                          </el-form-item>
-                        </el-col>
-                        <el-col :span="24">
-                          <el-form-item label="试卷描述" prop="fileDesc">
-                            <el-input
-                              v-model="fileForm.fileDesc"
-                              type="textarea"
-                              :autosize="{ minRows: 2, maxRows: 5}"
-                              placeholder="请输入试题内容描述"
-                              style="width: 100%;"
-                            />
-                          </el-form-item>
-                        </el-col>
-                      </el-row>
-                    </el-col>
-                    <!-- 上传文件 -->
-                    <el-col :span="12">
-                      <el-form-item>
-                        <template slot="label">
-                          <span><i style="color: red">* </i>上传</span>
-                        </template>
-                        <el-upload
-                          ref="examFileUpload"
-                          :limit="1"
-                          drag
-                          :before-upload="beforeUpload"
-                          :auto-upload="false"
-                          :headers="headers"
-                          :on-change="handleExamFileChange"
-                          :file-list="examFileList"
-                          :on-success="handleExamFileSuccess"
-                          :on-error="handleError"
-                          :action="trScheduleUploadV2Api + '?name=' + fileForm.name +'&trScheduleId=' + bindingId +'&fileType=' + examType
+                  </el-image>
+                </template>
+              </el-table-column>
+              <el-table-column prop="fileSource" label="出处"/>
+              <el-table-column prop="size" label="大小"/>
+              <el-table-column prop="type" label="类型"/>
+              <el-table-column prop="createBy" label="上传者"/>
+              <!--   编辑与删除   -->
+              <el-table-column
+                v-if="!disEdit"
+                label="操作"
+                min-width="130px"
+                align="center"
+                fixed="right"
+              >
+                <template slot-scope="scope">
+                  <div>
+                    <!--删除-->
+                    <el-popover
+                      :ref="`delExamFile-popover-${scope.$index}`"
+                      v-permission="permission.edit"
+                      placement="top"
+                      width="180"
+                    >
+                      <p>确定删除这个附件吗？</p>
+                      <div style="text-align: right; margin: 0">
+                        <el-button
+                          size="mini"
+                          type="text"
+                          @click="scope._self.$refs[`delExamFile-popover-${scope.$index}`].doClose()"
+                        >取消
+                        </el-button>
+                        <el-button
+                          type="primary"
+                          size="mini"
+                          @click="deleteTrSchedule(scope.row), scope._self.$refs[`delExamFile-popover-${scope.$index}`].doClose()"
+                        >确定
+                        </el-button>
+                      </div>
+                      <el-button
+                        slot="reference"
+                        v-permission="permission.edit"
+                        type="danger"
+                        icon="el-icon-delete"
+                        size="mini"
+                        :disabled="form.examFileList.length===1"
+                      />
+                    </el-popover>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!--新增考试试题-->
+            <el-dialog append-to-body :close-on-click-modal="false"
+                       :visible.sync="examDialogVisible" title="培训试题上传" width="70%">
+              <el-form ref="examFile" :rules="fileRules" :model="fileForm" size="small" label-width="80px">
+                <el-row :gutter="40" class="row-box">
+                  <el-col :span="12">
+                    <el-row :gutter="40" class="row-box">
+                      <el-col :span="24">
+                        <el-form-item label="试卷名称" prop="name">
+                          <el-input v-model="fileForm.name" placeholder="请填写试卷名称" style="width: 100%;"/>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="24">
+                        <el-form-item label="试卷描述" prop="fileDesc">
+                          <el-input
+                            v-model="fileForm.fileDesc"
+                            type="textarea"
+                            :autosize="{ minRows: 2, maxRows: 5}"
+                            placeholder="请输入试题内容描述"
+                            style="width: 100%;"
+                          />
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </el-col>
+                  <!-- 上传文件 -->
+                  <el-col :span="12">
+                    <el-form-item>
+                      <template slot="label">
+                        <span><i style="color: red">* </i>上传</span>
+                      </template>
+                      <el-upload
+                        ref="examFileUpload"
+                        :limit="1"
+                        drag
+                        :before-upload="beforeUpload"
+                        :auto-upload="false"
+                        :headers="headers"
+                        :on-change="handleExamFileChange"
+                        :file-list="examFileList"
+                        :on-success="handleExamFileSuccess"
+                        :on-error="handleError"
+                        :action="trScheduleUploadV2Api + '?name=' + fileForm.name +'&trScheduleId=' + bindingId +'&fileType=' + examType
                            +'&fileSource=' + fileSourceOption[1] +'&author=' + fileForm.author
              + '&isInternal=' + fileForm.isInternal + '&toolType=' + fileForm.toolType + '&fileDesc=' + fileForm.fileDesc"
-                          class="upload-demo"
-                        >
-                          <i class="el-icon-upload"></i>
-                          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                          <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
-                        </el-upload>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                  <el-button type="text" @click="examDialogVisible = false">取消</el-button>
-                  <el-button :loading="loading" type="primary" @click="examFileUpload">确认</el-button>
-                </div>
-              </el-dialog>
-              <!--选择已有试题-->
-              <el-dialog append-to-body :close-on-click-modal="false" :before-close="closeExamSelectDialog"
-                         :visible.sync="examSelectDialogVisible" title="自选培训试题" width="50%">
-                <div style="text-align: left">
-                  <el-transfer
-                    v-model="examFileSelectedList"
-                    filterable
-                    :titles="['试题库', '已选']"
-                    :format="{
+                        class="upload-demo"
+                      >
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                        <div slot="tip" class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                      </el-upload>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button type="text" @click="examDialogVisible = false">取消</el-button>
+                <el-button :loading="loading" type="primary" @click="examFileUpload">确认</el-button>
+              </div>
+            </el-dialog>
+            <!--选择已有试题-->
+            <el-dialog append-to-body :close-on-click-modal="false" :before-close="closeExamSelectDialog"
+                       :visible.sync="examSelectDialogVisible" title="自选培训试题" width="50%">
+              <div style="text-align: left">
+                <el-transfer
+                  v-model="examFileSelectedList"
+                  filterable
+                  :titles="['试题库', '已选']"
+                  :format="{
         noChecked: '${total}',
         hasChecked: '${checked}/${total}'
       }"
-                    :data="trExamFiles">
-                    <!-- 保存操作 转换到培训计划下材料列表中-->
-                    <el-button class="transfer-footer" slot="right-footer" size="small"
-                               @click="saveSelectedExamFile(examFileSelectedList)">保存
-                    </el-button>
-                  </el-transfer>
-                </div>
-              </el-dialog>
-            </el-form-item>
-          </el-col>
-        </el-row>
+                  :data="trExamFiles">
+                  <!-- 保存操作 转换到培训计划下材料列表中-->
+                  <el-button class="transfer-footer" slot="right-footer" size="small"
+                             @click="saveSelectedExamFile(examFileSelectedList)">保存
+                  </el-button>
+                </el-transfer>
+              </div>
+            </el-dialog>
+          </el-form-item>
+        </el-col>
       </el-row>
       <el-row class="el-row-inline">
         <el-col :span="8">
@@ -705,15 +701,19 @@
               <el-tooltip style="width: 100%!important;" effect="light" placement="bottom-start">
                 <template slot="content">
                   <el-steps :space="200" :active="activeStatusFlag" finish-status="finish">
-                    <el-step title="准备中" description="草稿状态下可继续编辑任意项"></el-step>
+                    <el-step title="准备中">
+                      <template slot="description">
+                        <span>尚未发布状态下，可随意修改培训内容，但<b style="color: red;">无法报名</b></span>
+                      </template>
+                    </el-step>
                     <el-step title="开放中">
                       <template slot="description">
-                        <span>开放状态下除<b style="color: red;">改期</b>项外关闭对其他项的修改</span>
+                        <span>开放状态下方可<b style="color: red;">报名</b>和<b style="color: red;">发起改期</b></span>
                       </template>
                     </el-step>
                     <el-step title="已关闭">
                       <template slot="description">
-                        <span>培训关闭后只<b style="color: red;">可查看</b>不可修改</span>
+                        <span>培训关闭后<b style="color: red;">仅限查看</b></span>
                       </template>
                     </el-step>
                   </el-steps>

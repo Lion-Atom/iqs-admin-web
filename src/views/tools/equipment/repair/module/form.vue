@@ -160,13 +160,13 @@
               style="width: 100%"
               @row-dblclick="dbSelectedRow"
             >
-              <el-table-column prop="partNum" label="备件编号" width="180">
+              <el-table-column prop="partNum" label="备件编号" min-width="120">
                 <template slot-scope="scope">
                   <el-input type="text" v-model="scope.row.partNum" v-show="scope.row.isEditor"/>
                   <span v-show="!scope.row.isEditor">{{ scope.row.partNum }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="partName" label="备件名称" width="180">
+              <el-table-column prop="partName" label="备件名称" min-width="150">
                 <template slot-scope="scope">
                   <el-input type="text" v-model="scope.row.partName" v-show="scope.row.isEditor"/>
                   <span v-show="!scope.row.isEditor">{{ scope.row.partName }}</span>
@@ -191,7 +191,7 @@
                   <span v-show="!scope.row.isEditor">{{ scope.row.partProperty }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="partCost" label="备件单价(元)">
+              <el-table-column prop="partCost" label="备件单价(元)" min-width="120">
                 <template slot-scope="scope">
                   <el-input type="text" v-model="scope.row.partCost"
                             @input="(v)=>(scope.row.partCost = v.replace(/[^0-9.]/g,''))" v-show="scope.row.isEditor"/>
