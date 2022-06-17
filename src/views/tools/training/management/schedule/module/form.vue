@@ -55,7 +55,22 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训人" prop="trainer">
-            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%" :disabled="disEdit"/>
+<!--            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%" :disabled="disEdit"/>-->
+            <el-select
+              v-model="form.trainer"
+              placeholder="请添加培训人"
+              filterable
+              allow-create
+              :disabled="disEdit"
+              style="width: 100%;"
+            >
+              <el-option
+                v-for="item in availUsers"
+                :key="item.username"
+                :label="item.dept.name + '-'+ item.username"
+                :value="item.username"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col v-if="form.trainType === '外部'" :span="8">
@@ -761,6 +776,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getDepts, getDeptTree} from "@/api/system/dept";
 import {getMaterialFilesByExample} from "@/api/tools/train/trainMaterialFile";
 import {getExamFilesByExample} from "@/api/tools/train/trExamDepartFile";
+import {getAllUser} from "@/api/system/user";
 
 const defaultForm = {
   id: null,
@@ -998,7 +1014,8 @@ export default {
       examFileSelectedList: [],
       trExamFiles: [],
       disEdit: false,
-      activeStatusFlag: 1
+      activeStatusFlag: 1,
+      availUsers: []
     }
   },
   watch: {
@@ -1033,12 +1050,19 @@ export default {
   },
   created: function () {
     this.getTopDept()
+    this.getAvailableUser()
   },
   methods: {
     // 获取所在公司的部门树结构
     getTopDept() {
       getDeptTree().then(res => {
         this.allDepts = res.content
+      })
+    },
+    // 获取人员信息
+    getAvailableUser() {
+      getAllUser().then(res => {
+        this.availUsers = res.content
       })
     },
     // 新增前操作

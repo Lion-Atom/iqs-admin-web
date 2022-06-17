@@ -90,16 +90,31 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="材料作者" prop="author">
-                  <el-input v-model="form.author" style="width: 100%;" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
                 <el-form-item label="来自内部" prop="isInternal">
                   <el-radio-group v-model="form.isInternal" style="width: 140px" @change="currIsInternalChange">
                     <el-radio label="true">是</el-radio>
                     <el-radio label="false">否</el-radio>
                   </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="材料作者" prop="author">
+<!--                  <el-input v-model="form.author" style="width: 100%;" />-->
+                  <el-select
+                    v-model="form.trainer"
+                    placeholder="请添加材料作者"
+                    filterable
+                    allow-create
+                    :disabled="disEdit"
+                    style="width: 100%;"
+                  >
+                    <el-option
+                      v-for="item in availUsers"
+                      :key="item.username"
+                      :label="item.dept.name + '-'+ item.username"
+                      :value="item.username"
+                    />
+                  </el-select>
                 </el-form-item>
               </el-col>
               <!--根据内部/外部选择对应的专业工具-->
@@ -376,6 +391,7 @@
 </template>
 
 <script>
+
 import {mapGetters} from 'vuex'
 import {getToken} from '@/utils/auth'
 import crudFile from '@/api/tools/train/trainMaterialFile'
@@ -385,6 +401,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
+import {getAllUser} from "@/api/system/user";
 
 const defaultForm = {
   id: null,
@@ -463,7 +480,8 @@ export default {
         }
       ],
       fileList: [],
-      coverFileList: []
+      coverFileList: [],
+      availUsers: []
     }
   },
   watch: {
@@ -484,11 +502,18 @@ export default {
       this.query.departId = this.$route.query.departId
       this.departName = this.$route.query.departName
     }
+    this.getAvailableUser()
   },
   mounted() {
     this.crud.toQuery()
   },
   methods: {
+    // 获取人员信息
+    getAvailableUser() {
+      getAllUser().then(res => {
+        this.availUsers = res.content
+      })
+    },
     // 上传文件
     upload() {
       this.$refs['form'].validate((valid) => {
