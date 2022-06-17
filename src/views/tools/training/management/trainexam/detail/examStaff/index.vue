@@ -74,6 +74,7 @@
             :data="scope.row"
             :permission="permission"
             :show-del="false"
+            :disabled-edit="!scope.row.hasEditAuthorized"
           />
         </template>
       </el-table-column>
@@ -90,7 +91,7 @@
 import crudExamStaff from '@/api/tools/train/examStaff'
 import eForm from './module/form'
 import CRUD, {presenter, header} from '@crud/crud'
-import crudOperation from '@crud/CRUD.operation'
+import crudOperation from './module/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import DateRangePicker from '@/components/DateRangePicker'

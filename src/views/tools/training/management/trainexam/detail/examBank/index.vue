@@ -33,7 +33,7 @@
                :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '题库试卷上传' : '编辑题库试卷'" width="570px">
       <el-form ref="form" :rules="rules" :model="form" size="small" label-width="80px">
         <el-form-item label="试卷名">
-          <el-input v-model="form.name" style="width: 360px;"/>
+          <el-input v-model="form.name" style="width: 360px;" :disabled="!form.hasDownloadAuthority" />
         </el-form-item>
         <!--   上传文件   -->
         <el-form-item v-if="crud.status.add">
@@ -63,6 +63,7 @@
             :autosize="{ minRows: 2, maxRows: 5}"
             placeholder="请输入文件内容描述"
             style="width: 360px;"
+            :disabled="!form.hasDownloadAuthority"
           />
         </el-form-item>
         <el-form-item
@@ -74,12 +75,13 @@
             :key="item.id"
             v-model="form.enabled"
             :label="item.value === 'true'"
+            :disabled="!form.hasDownloadAuthority"
           >
             {{ item.label }}
           </el-radio>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div slot="footer" class="dialog-footer" v-if="form.hasDownloadAuthority">
         <el-button type="text" @click="crud.cancelCU">取消</el-button>
         <el-button v-if="crud.status.add" :loading="loading" type="primary" @click="upload">确认</el-button>
         <el-button v-else :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
@@ -134,6 +136,7 @@
             active-color="#409EFF"
             inactive-color="#F56C6C"
             @change="changeEnabled(scope.row, scope.row.enabled)"
+            :disabled="!scope.row.hasDownloadAuthority"
           />
         </template>
       </el-table-column>
@@ -155,6 +158,8 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
+            :disabled-edit="!scope.row.hasDownloadAuthority"
+            :show-del="false"
           />
         </template>
       </el-table-column>
@@ -175,7 +180,7 @@ import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
 
-const defaultForm = {id: null, name: '', departId: null, enabled: true, fileDesc: ''}
+const defaultForm = {id: null, name: '', departId: null, enabled: true, fileDesc: '',hasDownloadAuthority: true}
 export default {
   props: {
     departId: {
@@ -219,8 +224,15 @@ export default {
     ])
   },
   created() {
-    this.crud.optShow.add = false
+    // this.crud.optShow.add = false
     this.query.departId = this.$props.departId
+    this.crud.optShow = {
+      add: false,
+      edit: true,
+      del: false,
+      download: true,
+      reset: true
+    }
   },
   mounted() {
     this.crud.toQuery()

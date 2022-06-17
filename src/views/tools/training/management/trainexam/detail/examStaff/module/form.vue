@@ -235,7 +235,7 @@
               </el-table-column>
             </el-table>
             <!--上传试卷-->
-            <el-button type="text" v-if="needUpload.toString() ==='true'" @click="openTransDialog">上传考试信息</el-button>
+            <el-button type="text" v-if="needUpload.toString() ==='true' && form.hasEditAuthorized" @click="openTransDialog">上传考试信息</el-button>
             <el-dialog append-to-body :close-on-click-modal="false"
                        :visible.sync="transDialogVisible" title="题库试卷上传" width="80%">
               <el-form ref="examForm" :rules="examRules" :model="examForm" size="small" label-width="80px">
@@ -364,7 +364,7 @@
         </el-col>
       </el-row>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" class="dialog-footer" v-if="form.hasEditAuthorized">
       <el-button type="text" @click="crud.cancelCU">取消</el-button>
       <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
     </div>
@@ -402,7 +402,8 @@ const defaultForm = {
   scheduleStatus: null,
   isAuthorize: false,
   uid: null,
-  transcriptList: []
+  transcriptList: [],
+  hasEditAuthorized: true
 }
 export default {
   mixins: [form(defaultForm)],
