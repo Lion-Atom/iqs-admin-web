@@ -163,6 +163,7 @@
               v-model="form.isFinished"
               :label="item.value === 'true'"
               @change="trainResultChanged"
+              :disabled="!form.hasEditAuthorized"
             >
               {{ item.label }}
             </el-radio>
@@ -170,7 +171,7 @@
         </el-col>
         <el-col :span="24" v-if="form.staffType && form.isFinished.toString() === 'false'">
           <el-form-item label="未完成原因" prop="reason">
-            <el-input type="textarea" :row="3" v-model="form.reason" :disabled="form.isAuthorize.toString() !=='true'"
+            <el-input type="textarea" :row="3" v-model="form.reason" :disabled="form.isAuthorize.toString() !=='true' || !form.hasEditAuthorized"
                       placeholder="请填写未完成培训原因"></el-input>
           </el-form-item>
         </el-col>
@@ -289,7 +290,7 @@
         </el-col>
       </el-row>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" class="dialog-footer" v-if="form.hasEditAuthorized">
       <el-button type="text" @click="crud.cancelCU">取消</el-button>
       <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
     </div>
@@ -330,7 +331,8 @@ const defaultForm = {
   scheduleStatus: null,
   isAuthorize: false,
   uid: null,
-  fileList: []
+  fileList: [],
+  hasEditAuthorized: true
 }
 export default {
   mixins: [form(defaultForm)],
@@ -558,7 +560,7 @@ export default {
         this.reasonRules = this.rules.reason
       } else {
         if (this.form.isAuthorize.toString() !== 'true') {
-          if (this.form.isExam.toString() === 'true' && this.scheduleStatus === '已关闭') {
+          if (this.form.isExam.toString() === 'true' && this.form.scheduleStatus === '已关闭') {
             this.$notify({
               title: '考试尚未通过',
               type: 'warning',

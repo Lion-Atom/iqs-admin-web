@@ -73,12 +73,12 @@
     <el-dialog append-to-body  :before-close="handleClose"
                :visible.sync="crud.status.cu > 0" :title="crud.status.add ? '培训资料上传' : '编辑培训资料'" width="70%">
       <el-form ref="form" :rules="rules" :model="form" size="small" label-width="80px">
-        <el-row :gutter="40" class="row-box">
+        <el-row :gutter="40" class="row-box" v-if="form.hasEditAuthorized">
           <el-col :span="13">
             <el-row :gutter="40" class="row-box">
               <el-col :span="12">
                 <el-form-item label="材料名称" prop="name">
-                  <el-input v-model="form.name" placeholder="请填写材料名称" style="width: 100%;"/>
+                  <el-input v-model="form.name" placeholder="请填写材料名称" style="width: 100%;" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -86,12 +86,12 @@
                   label="材料版本"
                   prop="version"
                 >
-                  <el-input v-model="form.version" placeholder="请填写材料版本" style="width: 100%;"/>
+                  <el-input v-model="form.version" placeholder="请填写材料版本" style="width: 100%;" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="材料作者" prop="author">
-                  <el-input v-model="form.author" style="width: 100%;"/>
+                  <el-input v-model="form.author" style="width: 100%;" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -202,8 +202,85 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row :gutter="40" class="row-box" v-if="!form.hasEditAuthorized">
+          <el-col :span="12">
+            <el-form-item label="材料名称" prop="name">
+              <el-input v-model="form.name" placeholder="请填写材料名称" style="width: 100%;" :disabled="!form.hasEditAuthorized" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              label="材料版本"
+              prop="version"
+            >
+              <el-input v-model="form.version" placeholder="请填写材料版本" style="width: 100%;" :disabled="!form.hasEditAuthorized" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="材料作者" prop="author">
+              <el-input v-model="form.author" style="width: 100%;" :disabled="!form.hasEditAuthorized" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="来自内部" prop="isInternal">
+              <el-radio-group v-model="form.isInternal" style="width: 140px" @change="currIsInternalChange" :disabled="!form.hasEditAuthorized">
+                <el-radio label="true">是</el-radio>
+                <el-radio label="false">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <!--根据内部/外部选择对应的专业工具-->
+          <el-col :span="12">
+            <el-form-item label="专业工具" prop="toolType">
+              <el-select
+                v-model="form.toolType"
+                filterable
+                allow-create
+                clearable
+                placeholder="可自定义标准认证工具"
+                style="width: 100%;"
+                :disabled="!form.hasEditAuthorized"
+              >
+                <el-option
+                  v-for="item in toolTypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              label="材料状态"
+              prop="enabled"
+            >
+              <el-radio
+                v-for="item in dict.dict.job_status"
+                :key="item.id"
+                v-model="form.enabled"
+                :label="item.value === 'true'"
+                :disabled="!form.hasEditAuthorized"
+              >
+                {{ item.label }}
+              </el-radio>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="材料描述" prop="fileDesc">
+              <el-input
+                v-model="form.fileDesc"
+                type="textarea"
+                :autosize="{ minRows: 2, maxRows: 5}"
+                placeholder="请输入材料内容描述"
+                style="width: 100%;"
+                :disabled="!form.hasEditAuthorized"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div slot="footer" class="dialog-footer" v-if="form.hasEditAuthorized">
         <el-button type="text" @click="crud.cancelCU">取消</el-button>
         <el-button v-if="crud.status.add" :loading="loading" type="primary" @click="upload">确认</el-button>
         <el-button v-else-if="crud.status.edit && coverFileList.length > 0" :loading="loading" type="primary"
@@ -259,13 +336,13 @@
       <el-table-column prop="toolType" label="专业工具"/>
       <el-table-column label="生效状态" align="center">
         <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.enabled"
-            active-color="#409EFF"
-            inactive-color="#F56C6C"
-            @change="changeEnabled(scope.row, scope.row.enabled)"
-          />
-        </template>
+            <el-switch
+              v-model="scope.row.enabled"
+              active-color="#409EFF"
+              inactive-color="#F56C6C"
+              @change="changeEnabled(scope.row, scope.row.enabled)"
+            />
+          </template>
       </el-table-column>
       <el-table-column prop="fileDesc" label="文件描述" :show-overflow-tooltip="true"/>
       <el-table-column prop="suffix" label="文件类型"/>
@@ -285,6 +362,9 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
+            :disabled-edit="!scope.row.hasEditAuthorized"
+            :disabled-dle="!scope.row.hasEditAuthorized"
+            :show-del="true"
           />
         </template>
       </el-table-column>
@@ -299,12 +379,11 @@ import {mapGetters} from 'vuex'
 import {getToken} from '@/utils/auth'
 import crudFile from '@/api/tools/train/trainMaterialFile'
 import CRUD, {presenter, header, form, crud} from '@crud/crud'
-import crudOperation from '@crud/CRUD.operation'
+import crudOperation from './module/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 import {validIsNotNull} from "@/utils/validationUtil";
-
 
 const defaultForm = {
   id: null,
@@ -316,7 +395,8 @@ const defaultForm = {
   revision: '0',
   toolType: null,
   enabled: true,
-  fileDesc: ''
+  fileDesc: '',
+  hasEditAuthorized: true
 }
 export default {
   props: [],

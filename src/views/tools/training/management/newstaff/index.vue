@@ -22,13 +22,13 @@
       <el-table-column prop="departName" label="所属部门"/>
       <el-table-column prop="superior" label="上级主管"/>
       <el-table-column prop="staffType" label="员工类型"/>
-      <el-table-column prop="jobType" label="工种" />
-      <el-table-column prop="workshop" label="车间"/>
-      <el-table-column prop="team" label="班组"/>
+<!--      <el-table-column prop="jobType" label="工种" />-->
+<!--      <el-table-column prop="workshop" label="车间"/>-->
+<!--      <el-table-column prop="team" label="班组"/>-->
       <el-table-column prop="isFinished" label="是否完成" :formatter="isFinishedFormat"/>
       <el-table-column prop="trainTitle" label="培训项目" :show-overflow-tooltip="true"/>
       <el-table-column prop="isExam" label="是否考试" :formatter="isExamFormat"/>
-      <el-table-column prop="reason" label="未完成原因" min-width="120" :show-overflow-tooltip="true">
+      <el-table-column prop="reason" label="未完成原因" min-width="160" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <el-tag v-if="!scope.row.isAuthorize" type="danger">
             {{ scope.row.reason}}
@@ -38,6 +38,7 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="createBy" label="创建者" />
       <el-table-column prop="createTime" label="创建日期" width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -52,6 +53,7 @@
             :data="scope.row"
             :permission="permission"
             :show-del="false"
+            :disabled-edit="!scope.row.hasEditAuthorized"
           />
         </template>
       </el-table-column>
@@ -68,7 +70,7 @@ import crudNewStaff from '@/api/tools/train/newStaff'
 import eHeader from './module/header'
 import eForm from './module/form'
 import CRUD, {presenter} from '@crud/crud'
-import crudOperation from '@crud/CRUD.operation'
+import crudOperation from './module/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import {getByMethodName} from "@/api/system/timing";
