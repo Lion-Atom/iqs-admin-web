@@ -47,7 +47,7 @@
                   @change="changeEnabled(material, material.enabled)"
                 />
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="exam-depart-item" label="题库信息">
+              <el-descriptions-item label-class-name="exam-depart-item" label="材料信息">
                 <span>{{ material.materialFileList.length }}条  </span>
                 <el-popover
                   v-if="material.materialFileList.length > 0"

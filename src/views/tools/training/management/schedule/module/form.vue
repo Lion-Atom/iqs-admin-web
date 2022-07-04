@@ -299,7 +299,7 @@
               <el-table-column prop="name" label="材料名称" min-width="200">
                 <template slot-scope="scope">
                   <el-popover
-                    :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                    :content="'file/' + scope.row.type + '/' + scope.row.name"
                     placement="top-start"
                     title="路径"
                     width="200"
@@ -396,11 +396,6 @@
                         </el-form-item>
                       </el-col>
                       <el-col :span="12">
-                        <el-form-item label="材料作者" prop="author">
-                          <el-input v-model="fileForm.author" style="width: 100%;"/>
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="12">
                         <el-form-item label="来自内部" prop="isInternal">
                           <el-radio
                             v-for="item in commonStatus"
@@ -413,8 +408,27 @@
                           </el-radio>
                         </el-form-item>
                       </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="材料作者" prop="author">
+                          <!--                          <el-input v-model="fileForm.author" style="width: 100%;"/>-->
+                          <el-select
+                            v-model="fileForm.author"
+                            placeholder="请添加材料作者"
+                            filterable
+                            allow-create
+                            style="width: 100%;"
+                          >
+                            <el-option
+                              v-for="item in availUsers"
+                              :key="item.username"
+                              :label="item.dept.name + '-'+ item.username"
+                              :value="item.username"
+                            />
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
                       <!--根据内部/外部选择对应的专业工具-->
-                      <el-col :span="24">
+                      <el-col :span="12">
                         <el-form-item label="专业工具" prop="toolType">
                           <el-select
                             v-model="fileForm.toolType"
@@ -542,7 +556,7 @@
               <el-table-column prop="name" label="试题名称" min-width="200">
                 <template slot-scope="scope">
                   <el-popover
-                    :content="'file/' + scope.row.type + '/' + scope.row.realName"
+                    :content="'file/' + scope.row.type + '/' + scope.row.name"
                     placement="top-start"
                     title="路径"
                     width="200"
@@ -1375,6 +1389,7 @@ export default {
       if (this.$refs['materialFile'] !== undefined) {
         this.$refs['materialFile'].resetFields()
       }
+      this.fileForm.name = ''
       this.materialDialogVisible = true
     },
     // 选择已有材料文件
@@ -1425,14 +1440,14 @@ export default {
     // 根据部门IDS查询相关考试试题
     getExamFilesByDeptIds(deptIds) {
       this.trExamFiles = []
-      getExamFilesByExample({departIds: deptIds}).then(res => {
+      getExamFilesByExample({ departIds: deptIds }).then(res => {
         // alert(JSON.stringify(res))
         // 处理已选择项目
         res.forEach((file, index) => {
           this.trExamFiles.push({
             label: file.departName + '-' + file.name,
-            //这里的key值一定要是index，否则目标列表无法显示
-            key: file.id,
+            // 这里的key值一定要是index，否则目标列表无法显示
+            key: file.id
             // disabled:
           })
         })
@@ -1441,7 +1456,7 @@ export default {
     // 保存已选择的材料
     saveSelectedMaterialFile(selectedList) {
       // alert(JSON.stringify(selectedList))
-      let cond = {
+      const cond = {
         trScheduleId: this.bindingId,
         fileType: this.materialType,
         bindingFileIds: selectedList
@@ -1456,7 +1471,7 @@ export default {
             syncScheduleFile(cond).then(res => {
               this.getMaterialFiles(this.bindingId, this.materialType)
               this.$nextTick(() => {
-                this.$message.success("保存已选项成功！")
+                this.$message.success('保存已选项成功！')
                 this.matSelectDialogVisible = false
               }, 500)
             })
@@ -1468,7 +1483,7 @@ export default {
         syncScheduleFile(cond).then(res => {
           this.getMaterialFiles(this.bindingId, this.materialType)
           this.$nextTick(() => {
-            this.$message.success("保存已选项成功！")
+            this.$message.success('保存已选项成功！')
             this.matSelectDialogVisible = false
           }, 500)
         })
@@ -1487,7 +1502,7 @@ export default {
     // 保存考试试题
     saveSelectedExamFile(selectedList) {
       // alert(JSON.stringify(selectedList))
-      let cond = {
+      const cond = {
         trScheduleId: this.bindingId,
         fileType: this.examType,
         bindingFileIds: selectedList
@@ -1502,7 +1517,7 @@ export default {
             syncScheduleFile(cond).then(res => {
               this.getExamFiles(this.bindingId, this.examType)
               this.$nextTick(() => {
-                this.$message.success("保存已选项成功！")
+                this.$message.success('保存已选项成功！')
                 this.examSelectDialogVisible = false
               }, 500)
             })
@@ -1514,7 +1529,7 @@ export default {
         syncScheduleFile(cond).then(res => {
           this.getExamFiles(this.bindingId, this.examType)
           this.$nextTick(() => {
-            this.$message.success("保存已选项成功！")
+            this.$message.success('保存已选项成功！')
             this.examSelectDialogVisible = false
           }, 500)
         })
@@ -1524,6 +1539,7 @@ export default {
       if (this.$refs['examFile'] !== undefined) {
         this.$refs['examFile'].resetFields()
       }
+      this.fileForm.name = ''
       this.examDialogVisible = true
     },
     // 上传培训材料文件
@@ -1557,11 +1573,11 @@ export default {
           this.crud.cancelCU()
         })
         .catch(_ => {
-        });
+        })
     },
     regDeadlineInput() {
       if (!validIsNotNull(this.form.trainTime)) {
-        this.$message.warning("请优先设定培训时间！")
+        this.$message.warning('请优先设定培训时间！')
         return false
       }
     }

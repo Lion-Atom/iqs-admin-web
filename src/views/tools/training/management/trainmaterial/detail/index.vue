@@ -5,14 +5,14 @@
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/training/overview' }">培训概览</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/training/manage/material' }">培训部门-{{ departName }}</el-breadcrumb-item>
-        <el-breadcrumb-item><b>培训资源</b></el-breadcrumb-item>
+        <el-breadcrumb-item><b>培训材料</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <!--工具栏-->
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.blurry" clearable size="small" placeholder="输入内容模糊搜索" style="width: 200px;"
+        <el-input v-model="query.blurry" clearable size="small" placeholder="输入材料名称、描述、上传人、作者等搜索" style="width: 300px;"
                   class="filter-item" @input="crud.toQuery" />
         <el-input v-model="query.departId" v-show="false"/>
         <date-range-picker v-model="query.createTime" class="date-item" @input="dateChange"/>
@@ -76,7 +76,7 @@
         <el-row :gutter="40" class="row-box" v-if="form.hasEditAuthorized">
           <el-col :span="13">
             <el-row :gutter="40" class="row-box">
-              <el-col :span="12">
+              <el-col :span="24">
                 <el-form-item label="材料名称" prop="name">
                   <el-input v-model="form.name" placeholder="请填写材料名称" style="width: 100%;" />
                 </el-form-item>
@@ -101,7 +101,7 @@
                 <el-form-item label="材料作者" prop="author">
 <!--                  <el-input v-model="form.author" style="width: 100%;" />-->
                   <el-select
-                    v-model="form.trainer"
+                    v-model="form.author"
                     placeholder="请添加材料作者"
                     filterable
                     allow-create
@@ -137,7 +137,8 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <!--暂注释材料状态-->
+<!--              <el-col :span="12">
                 <el-form-item
                   label="材料状态"
                   prop="enabled"
@@ -151,7 +152,7 @@
                     {{ item.label }}
                   </el-radio>
                 </el-form-item>
-              </el-col>
+              </el-col>-->
               <el-col :span="24">
                 <el-form-item label="材料描述" prop="fileDesc">
                   <el-input
@@ -265,7 +266,8 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <!--暂不需要材料状态-->
+<!--          <el-col :span="12">
             <el-form-item
               label="材料状态"
               prop="enabled"
@@ -280,7 +282,7 @@
                 {{ item.label }}
               </el-radio>
             </el-form-item>
-          </el-col>
+          </el-col>-->
           <el-col :span="24">
             <el-form-item label="材料描述" prop="fileDesc">
               <el-input
@@ -310,7 +312,7 @@
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
               @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="name" label="文件名" min-width="180">
+      <el-table-column prop="name" label="材料名称" min-width="180">
         <template slot-scope="scope">
           <el-popover
             :content="'file/' + scope.row.type + '/' + scope.row.realName"
@@ -349,7 +351,8 @@
       <el-table-column prop="author" label="作者"/>
       <el-table-column label="出处" :formatter="isInternalFormat"/>
       <el-table-column prop="toolType" label="专业工具"/>
-      <el-table-column label="生效状态" align="center">
+      <!--暂注释材料状态-->
+<!--      <el-table-column label="材料状态" align="center">
         <template slot-scope="scope">
             <el-switch
               v-model="scope.row.enabled"
@@ -359,12 +362,12 @@
               :disabled="!scope.row.hasEditAuthorized"
             />
           </template>
-      </el-table-column>
+      </el-table-column>-->
       <el-table-column prop="fileDesc" label="文件描述" :show-overflow-tooltip="true"/>
       <el-table-column prop="suffix" label="文件类型"/>
       <el-table-column prop="type" label="类别"/>
       <el-table-column prop="size" label="大小"/>
-      <el-table-column prop="createBy" label="创建者"/>
+      <el-table-column prop="createBy" label="上传人"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column

@@ -38,7 +38,10 @@
                     </template>
                     <el-descriptions-item label="类型">{{ scope.row.trainType }}</el-descriptions-item>
                     <el-descriptions-item label="截止日期">{{ scope.row.deadline }}</el-descriptions-item>
-                    <el-descriptions-item label="剩余天数">{{ scope.row.remainDays }}</el-descriptions-item>
+                    <el-descriptions-item label="剩余天数">{{
+                        judgeRemindDays(scope.row.remainDays)
+                      }}
+                    </el-descriptions-item>
                     <el-descriptions-item label="状态">{{ scope.row.status }}</el-descriptions-item>
                   </el-descriptions>
                 </div>
@@ -163,7 +166,7 @@
           </div>
         </el-card>
         <el-card v-if="catalogueType === 'skillMatrix'">
-<!--          <div @dblclick="routerTarget('/training/skill-matrix')">-->
+          <!--          <div @dblclick="routerTarget('/training/skill-matrix')">-->
           <div>
             <blockquote class="my-blockquote">
               <el-link>
@@ -296,6 +299,14 @@ export default {
       getByMethodName(this.methodName).then(res => {
         this.crud.resetQuery()
       })
+    },
+    // 判断剩余天数
+    judgeRemindDays(days) {
+      if(days > -1) {
+        return days + '天'
+      } else {
+        return '已过期'+ Math.abs(days) + '天'
+      }
     },
     // 根据有效期设置提醒样式
     btnType({row, rowIndex}) {

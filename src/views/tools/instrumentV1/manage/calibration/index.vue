@@ -67,7 +67,7 @@
               </li>
               <li>
                 <svg-icon icon-class="icon"/>
-                保养周期
+                校准周期
                 <div class="user-right">{{ instruForm.caliPeriod }}{{ instruForm.periodUnit }}</div>
               </li>
             </ul>

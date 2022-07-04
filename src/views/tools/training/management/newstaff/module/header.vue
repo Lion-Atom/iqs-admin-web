@@ -7,8 +7,9 @@
       size="small"
       v-model="query.trScheduleId"
       placeholder="请选择培训项目"
-      style="width: 180px;"
+      style="width: 200px;"
       filterable
+      clearable
       @change="crud.toQuery"
     >
       <el-option
@@ -18,7 +19,7 @@
         :value="item.id"
       />
     </el-select>
-    <el-input v-model="query.blurry" clearable size="small" placeholder="输入名称、工号等搜索" style="width: 160px;"
+    <el-input v-model="query.blurry" clearable size="small" placeholder="输入员工姓名、工号搜索" style="width: 200px;"
               class="filter-item" @input="crud.toQuery"  />
 
     <date-range-picker v-model="query.createTime" class="date-item" @input="dateTimeChange()" start-placeholder="录入开始日期"
