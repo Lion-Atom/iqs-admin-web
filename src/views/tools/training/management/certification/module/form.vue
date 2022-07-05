@@ -16,10 +16,10 @@
     >
       <el-row class="el-row-inline">
         <el-col :span="8">
-          <el-form-item label="员工姓名" prop="staffName">
-            <!--            <el-input v-model="form.staffName" style="width: 220px;"/>-->
+          <el-form-item label="员工姓名" prop="userId">
+            <!--            <el-input v-model="form.userId" style="width: 220px;"/>-->
             <el-select
-              v-model="form.staffName"
+              v-model="form.userId"
               placeholder="请选择员工"
               style="width: 220px;"
               filterable
@@ -35,7 +35,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.staffName">
+        <el-col :span="8" v-if="form.userId">
           <el-form-item
             label="入职日期"
             prop="hireDate"
@@ -50,7 +50,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.staffName">
+        <el-col :span="8" v-if="form.userId">
           <el-form-item label="所属部门" prop="departId">
             <TreeSelect
               v-model="form.departId"
@@ -63,17 +63,17 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.staffName">
+        <el-col :span="8" v-if="form.userId">
           <el-form-item label="上级主管" prop="superior">
             <el-input v-model="form.superior" style="width:220px" placeholder="请填写上级主管" disabled/>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.staffName">
+        <el-col :span="8" v-if="form.userId">
           <el-form-item label="岗位名称" prop="jobName">
             <el-input v-model="form.jobName" style="width:220px" placeholder="请填写岗位" disabled/>
           </el-form-item>
         </el-col>
-        <el-col :span="8" v-if="form.staffName">
+        <el-col :span="8" v-if="form.userId">
           <el-form-item label="工号" prop="jobNum">
             <el-input v-model="form.jobNum" style="width:220px" disabled/>
           </el-form-item>
@@ -356,6 +356,7 @@ import {getAllSchedule} from "@/api/tools/train/schedule";
 
 const defaultForm = {
   id: null,
+  userId: null,
   staffName: null,
   certificationType: null,
   jobType: null,
@@ -399,7 +400,7 @@ export default {
     return {
       headers: {'Authorization': getToken()},
       rules: {
-        staffName: [
+        userId: [
           {required: true, message: '请输入新员工姓名', trigger: 'blur'}
         ],
         hireDate: [
@@ -538,6 +539,7 @@ export default {
     // 监控员工数据变化
     staffChangeHandler(user) {
       // alert(JSON.stringify(user.superiorName))
+      this.form.userId = user.id
       this.form.staffName = user.username
       this.form.hireDate = user.hireDate
       this.form.departId = user.deptId
@@ -661,16 +663,16 @@ export default {
     dueDateChange(val) {
       this.$forceUpdate()
       this.getMaxTrRemindDays(val)
+      // 监控现有数据的大小是否超出上限
+      if (validIsNotNull(this.form.remindDays)) {
+        this.remindDaysMaxValue(this.form.remindDays)
+      }
     },
     // 获取最大提醒时间
     getMaxTrRemindDays(val) {
       let end = new Date(val)
       // Math.floor()向下取整，Math.ceil()向上取整
       this.maxRemindDays = Math.floor((end - new Date(new Date(new Date().toLocaleDateString()).getTime())) / (24 * 3600 * 1000))
-      // 监控现有数据的大小是否超出上限
-      if (validIsNotNull(this.form.remindDays)) {
-        this.remindDaysMaxValue(this.form.remindDays)
-      }
     },
     // ------------上传附件管理--------------
     // 上传前的校验

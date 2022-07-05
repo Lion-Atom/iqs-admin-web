@@ -55,7 +55,7 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="培训人" prop="trainer">
-<!--            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%" :disabled="disEdit"/>-->
+            <!--            <el-input v-model="form.trainer" placeholder="请填写培训人" style="width:100%" :disabled="disEdit"/>-->
             <el-select
               v-model="form.trainer"
               placeholder="请添加培训人"
@@ -178,7 +178,7 @@
         </el-col>
         <el-col :span="8" v-if="form.isRemind.toString() === 'true'">
           <el-form-item label="到期提前提醒" prop="remindDays">
-            <el-input placeholder="请输入提醒天数" type="number" :min="1" :max="maxRemindDays" v-model="form.remindDays"
+            <el-input placeholder="请输入提醒天数" type="number" :max="maxRemindDays" v-model="form.remindDays"
                       @input="remindDaysMaxValue"
                       style="width: 100%"
                       :disabled="disEdit">
@@ -781,10 +781,7 @@ import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
 import {getToken} from "@/utils/auth";
-import {
-  delTrScheduleFile,
-  getFilesByTrScheduleIdAndType, syncScheduleFile
-} from "@/api/tools/train/trScheduleFile";
+import {delTrScheduleFile, getFilesByTrScheduleIdAndType, syncScheduleFile} from "@/api/tools/train/trScheduleFile";
 import Treeselect, {LOAD_CHILDREN_OPTIONS} from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getDepts, getDeptTree} from "@/api/system/dept";
@@ -1221,6 +1218,9 @@ export default {
       if (!validIsNotNull(val)) {
         this.form.regDeadline = null
       }
+      if (validIsNotNull(this.form.remindDays)) {
+        this.remindDaysMaxValue(this.form.remindDays)
+      }
     },
     // 获取最大提醒时间
     getMaxTrRemindDays(val) {
@@ -1228,9 +1228,9 @@ export default {
       // Math.floor()向下取整，Math.ceil()向上取整
       this.maxRemindDays = Math.ceil((end - new Date().getTime()) / (24 * 3600 * 1000))
       // alert(this.maxRemindDays)
-      if (validIsNotNull(this.form.remindDays)) {
+      /*if (validIsNotNull(this.form.remindDays)) {
         this.remindDaysMaxValue(this.form.remindDays)
-      }
+      }*/
     },
     // ------------上传附件管理--------------
     // 上传前的校验
@@ -1440,7 +1440,7 @@ export default {
     // 根据部门IDS查询相关考试试题
     getExamFilesByDeptIds(deptIds) {
       this.trExamFiles = []
-      getExamFilesByExample({ departIds: deptIds }).then(res => {
+      getExamFilesByExample({departIds: deptIds}).then(res => {
         // alert(JSON.stringify(res))
         // 处理已选择项目
         res.forEach((file, index) => {

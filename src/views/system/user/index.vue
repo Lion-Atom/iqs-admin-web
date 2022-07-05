@@ -34,7 +34,7 @@
               clearable
               size="small"
               placeholder="输入名称或者邮箱、工号搜索"
-              style="width: 200px;"
+              style="width: 250px;"
               class="filter-item"
               @input="crud.toQuery"
             />
@@ -358,7 +358,8 @@
         >
           <el-table-column :selectable="checkboxT" type="selection" width="55"/>
           <el-table-column :show-overflow-tooltip="true" prop="username" label="用户名"/>
-          <el-table-column :show-overflow-tooltip="true" prop="nickName" label="昵称"/>
+          <el-table-column prop="nickName" label="昵称"/>
+          <el-table-column prop="jobNum" label="工号"/>
           <el-table-column prop="gender" label="性别"/>
           <el-table-column :show-overflow-tooltip="true" prop="phone" width="100" label="电话"/>
           <el-table-column :show-overflow-tooltip="true" width="135" prop="email" label="邮箱"/>

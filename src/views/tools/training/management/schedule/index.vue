@@ -207,7 +207,19 @@
                         >
                         </el-option>
                       </el-select>
-                      <span v-show="!scope.row.isEditor">{{ scope.row.participantDepart }}</span>
+                      <span v-show="!scope.row.isEditor">
+                        <el-select
+                          v-model="scope.row.participantDepart"
+                        >
+                        <el-option
+                          v-for="item of availableDeparts"
+                          :key="item.id"
+                          :label="item.name"
+                          :value="item.id"
+                        >
+                        </el-option>
+                      </el-select>
+                      </span>
                     </el-form-item>
                   </template>
                 </el-table-column>
@@ -218,12 +230,12 @@
                   </template>
                   <template slot-scope="scope">
                     <el-form-item
-                      :prop="'newPartList.' + scope.$index + '.participantName'"
-                      :rules="addPartForm.addPartRules.participantName"
+                      :prop="'newPartList.' + scope.$index + '.userId'"
+                      :rules="addPartForm.addPartRules.userId"
                     >
                       <el-select
                         v-show="scope.row.isEditor"
-                        v-model="scope.row.participantName"
+                        v-model="scope.row.userId"
                         placeholder="请选择参与人"
                         style="width:100% !important;"
                       >
@@ -231,11 +243,24 @@
                           v-for="item in availUsers"
                           :key="item.id"
                           :label="item.username"
-                          :value="item.username"
-                          :disabled="existedPartDatas.indexOf(item.username) > -1"
+                          :value="item.id"
+                          :disabled="existedPartDatas.indexOf(item.id) > -1"
                         />
                       </el-select>
-                      <span v-show="!scope.row.isEditor">{{ scope.row.participantName }}</span>
+                      <span v-show="!scope.row.isEditor">
+                        <el-select
+                          v-model="scope.row.userId"
+                          placeholder="请选择参与人"
+                          style="width:100% !important;"
+                        >
+                        <el-option
+                          v-for="item in availUsers"
+                          :key="item.id"
+                          :label="item.username"
+                          :value="item.id"
+                        />
+                      </el-select>
+                      </span>
                     </el-form-item>
                   </template>
                 </el-table-column>
@@ -258,7 +283,7 @@
                       >
                         {{ item.label }}
                       </el-radio>
-                      <span v-show="!scope.row.isEditor">{{ scope.row.isValid }}</span>
+                      <span v-show="!scope.row.isEditor">{{ transBoolToStr(scope.row.isValid) }}</span>
                     </el-form-item>
                   </template>
                 </el-table-column>
@@ -409,7 +434,7 @@ export default {
       viewPartDialogVisible: false,
       partForm: {
         participantDepart: null,
-        participantName: null,
+        userId: null,
         isValid: true
       },
       statusOptions: [
@@ -428,7 +453,7 @@ export default {
         participantDepart: [
           {required: true, message: '请选/输参与者所在部门', trigger: 'blur'}
         ],
-        participantName: [
+        userId: [
           {required: true, message: '请输入参与者名称', trigger: 'blur'}
         ],
         isValid: [
@@ -460,7 +485,7 @@ export default {
             partId: null,
             trScheduleId: null,
             participantDepart: null,
-            participantName: null,
+            userId: null,
             isValid: true,
             isEditor: true
           }
@@ -469,8 +494,8 @@ export default {
           participantDepart: [
             {required: true, message: "请选/输入所在部门", trigger: "blur"}
           ],
-          participantName: [
-            {required: true, message: "请填写参与者姓名", trigger: "blur"}
+          userId: [
+            {required: true, message: "请选择参与者", trigger: "blur"}
           ],
           isValid: [
             {required: true, message: "请确定是否生效", trigger: "blur"}
@@ -509,6 +534,14 @@ export default {
       this.$forceUpdate()
       this.crud.toQuery()
     },
+    // 布尔值转换
+    transBoolToStr(flag) {
+      if(flag.toString() === 'true') {
+        return '是'
+      } else {
+        return '否'
+      }
+    },
     // 下次考试日期格式化
     nextExamDateFormat(row, col) {
       if (validIsNotNull(row.nextExamDate)) {
@@ -530,21 +563,21 @@ export default {
           this.availUsers = res
           if (this.availUsers.length > 0) {
             // 若不是同部门成员则需要默认切换到首选默认值
-            let usernames = []
+            let userIds = []
             this.availUsers.forEach((data, index) => {
-              usernames.push(data.username)
+              userIds.push(data.id)
             })
-            if (validIsNotNull(row.participantName)) {
-              if (usernames.indexOf(row.participantName) === -1) {
-                row.participantName = null
+            if (validIsNotNull(row.userId)) {
+              if (userIds.indexOf(row.userId) === -1) {
+                row.userId = null
               }
             } else {
               // 若原无值则设置首选默认值
-              row.participantName = null
+              row.userId = null
             }
-            // alert(usernames.indexOf(this.form.acceptBy))
+            // alert(userIds.indexOf(this.form.acceptBy))
           } else {
-            row.participantName = null
+            row.userId = null
           }
         })
       }, 300)
@@ -557,7 +590,7 @@ export default {
       if (this.participantList.length > 0) {
         this.participantList.forEach((data, index) => {
           if (data.participantDepart === row.participantDepart) {
-            this.existedPartDatas.push(data.participantName)
+            this.existedPartDatas.push(data.userId)
           }
         })
       }
@@ -566,7 +599,7 @@ export default {
       if (this.addPartForm.newPartList.length > 0) {
         this.addPartForm.newPartList.forEach((data, index) => {
           if (data.participantDepart === row.participantDepart) {
-            this.existedPartDatas.push(data.participantName)
+            this.existedPartDatas.push(data.userId)
           }
         })
       }
@@ -730,7 +763,7 @@ export default {
         partId: null,
         trScheduleId: this.bindingId,
         participantDepart: null,
-        participantName: null,
+        userId: null,
         isValid: true,
         isEditor: true
       })

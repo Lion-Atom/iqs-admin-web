@@ -33,7 +33,7 @@
       style="width:160px !important;"
       @input="crud.toQuery"
     />
-    <el-select v-model="query.staffType" clearable size="small" placeholder="员工种类" class="filter-item"
+    <el-select v-model="query.staffType" clearable size="small" placeholder="员工类型" class="filter-item"
                style="width: 120px" @change="crud.toQuery">
       <el-option v-for="item in typeOptions" :key="item.value" :label="item.label + ' - ' +item.value "
                  :value="item.value"/>

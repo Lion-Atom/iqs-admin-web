@@ -648,7 +648,7 @@ export default {
           { required: true, message: '请填写计划执行时间', trigger: 'blur' }
         ],
         actualTime: [
-          { required: true, message: '请如实填写实际执行时间', trigger: 'blur' }
+          { required: false, message: '请如实填写实际执行时间', trigger: 'blur' }
         ]
       },
       otherActLoading: false,

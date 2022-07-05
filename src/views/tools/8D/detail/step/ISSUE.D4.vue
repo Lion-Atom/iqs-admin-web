@@ -262,7 +262,7 @@
           <el-table-column
             v-if="isNeed"
             label="操作"
-            width="250px"
+            min-width="250px"
             align="center"
             fixed="right"
           >
@@ -904,6 +904,10 @@ export default {
       this.form.pid = data.id
       this.form.issueId = this.$props.issueId
       this.causeOperationTitle = '新增原因'
+      if(this.$refs['causeForm'] !== undefined){
+        this.$refs['causeForm'].resetFields()
+        this.$refs['causeForm'].clearFiles()
+      }
       this.addCauseVisible = true
     },
     toEditCause(row) {

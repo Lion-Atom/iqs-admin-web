@@ -299,7 +299,7 @@
           <el-table-column prop="deptName" label="部门名称"/>
           <el-table-column prop="userName" label="组员"/>
           <el-table-column prop="phone" label="联系电话"/>
-          <el-table-column prop="email" label="电子邮箱"/>
+          <el-table-column prop="email" label="电子邮箱" min-width="150" />
           <el-table-column prop="teamRole" label="成员角色"/>
           <!--   编辑与删除   -->
           <el-table-column

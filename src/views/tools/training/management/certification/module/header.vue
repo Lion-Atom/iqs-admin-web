@@ -19,7 +19,7 @@
         :value="item.id"
       />
     </el-select>
-    <el-input v-model="query.blurry" clearable size="small" placeholder="输入员工姓名、车间、工种搜索" style="width: 240px;"
+    <el-input v-model="query.blurry" clearable size="small" placeholder="输入员工姓名、工号搜索" style="width: 240px;"
               class="filter-item" @input="crud.toQuery"/>
 
     <date-range-picker v-model="query.dueDate" class="date-item" @input="dateTimeChange()" start-placeholder="到期开始日期"
@@ -40,7 +40,7 @@
     </el-select>
     <el-select v-if="query.certificationType===typeOptions[0].value || query.certificationType===typeOptions[1].value"
                v-model="query.jobType" filterable allow-create clearable
-               size="small" placeholder="工种类型"
+               size="small" placeholder="工种种类"
                class="filter-item"
                style="width: 130px" @change="crud.toQuery">
       <el-option v-for="item in jobTypeOptions" :key="item.value" :label="item.value" :value="item.value"/>

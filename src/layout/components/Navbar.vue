@@ -8,6 +8,10 @@
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
 
+        <el-tooltip content="客户反馈" effect="dark" placement="bottom">
+          <FeedBack class="right-menu-item hover-effect" />
+        </el-tooltip>
+
         <el-tooltip content="项目文档" effect="dark" placement="bottom">
           <Doc class="right-menu-item hover-effect" />
         </el-tooltip>
@@ -56,6 +60,7 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import Doc from '@/components/Doc'
+import FeedBack from '@/components/Feedback'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
@@ -69,7 +74,8 @@ export default {
     Screenfull,
     SizeSelect,
     Search,
-    Doc
+    Doc,
+    FeedBack
   },
   data() {
     return {
