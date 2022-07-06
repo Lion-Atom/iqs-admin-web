@@ -71,7 +71,7 @@
       <el-table-column prop="totalNum" label="人数限制"/>
       <el-table-column prop="curNum" label="现参与人数"/>
       <el-table-column prop="scheduleStatus" label="计划状态"/>
-      <el-table-column prop="createBy" label="创建者" />
+      <el-table-column prop="createBy" label="创建者"/>
       <el-table-column prop="createTime" label="创建日期" min-width="140"/>
       <!--   编辑与删除   -->
       <el-table-column
@@ -150,14 +150,14 @@
                 </el-table-column>-->
       </el-table>
     </el-dialog>
-    <!--培训参与信息-->
-    <el-dialog
+    <!--培训参与信息V1-->
+<!--    <el-dialog
       title="培训参与信息"
       :before-close="beforeCloseJudge"
       :visible.sync="partDialogVisible"
       width="50%">
       <el-descriptions column="1" border>
-        <!--拟报名列表-->
+        &lt;!&ndash;拟报名列表&ndash;&gt;
         <el-descriptions-item label="拟报名名单">
           <div>
             <el-button type="primary" @click="toAddPart(addPartForm.newPartList)">新增</el-button>
@@ -208,18 +208,18 @@
                         </el-option>
                       </el-select>
                       <span v-show="!scope.row.isEditor">
-                        <el-select
-                          v-model="scope.row.participantDepart"
-                        >
-                        <el-option
-                          v-for="item of availableDeparts"
-                          :key="item.id"
-                          :label="item.name"
-                          :value="item.id"
-                        >
-                        </el-option>
-                      </el-select>
-                      </span>
+                                  <el-select
+                                    v-model="scope.row.participantDepart"
+                                  >
+                                  <el-option
+                                    v-for="item of availableDeparts"
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id"
+                                  >
+                                  </el-option>
+                                </el-select>
+                                </span>
                     </el-form-item>
                   </template>
                 </el-table-column>
@@ -248,19 +248,19 @@
                         />
                       </el-select>
                       <span v-show="!scope.row.isEditor">
-                        <el-select
-                          v-model="scope.row.userId"
-                          placeholder="请选择参与人"
-                          style="width:100% !important;"
-                        >
-                        <el-option
-                          v-for="item in availUsers"
-                          :key="item.id"
-                          :label="item.username"
-                          :value="item.id"
-                        />
-                      </el-select>
-                      </span>
+                                  <el-select
+                                    v-model="scope.row.userId"
+                                    placeholder="请选择参与人"
+                                    style="width:100% !important;"
+                                  >
+                                  <el-option
+                                    v-for="item in availUsers"
+                                    :key="item.id"
+                                    :label="item.username"
+                                    :value="item.id"
+                                  />
+                                </el-select>
+                                </span>
                     </el-form-item>
                   </template>
                 </el-table-column>
@@ -289,8 +289,8 @@
                 </el-table-column>
                 <el-table-column label="操作">
                   <template slot-scope="scope">
-                    <!--                  <el-button type="warning" @click="edit(scope.row, scope)">编辑</el-button>-->
-                    <!--                  <el-button type="success" @click="savePart(scope.row)">保存</el-button>-->
+                    &lt;!&ndash;                  <el-button type="warning" @click="edit(scope.row, scope)">编辑</el-button>&ndash;&gt;
+                    &lt;!&ndash;                  <el-button type="success" @click="savePart(scope.row)">保存</el-button>&ndash;&gt;
                     <el-button type="success" @click="deletePart(scope.$index,addPartForm.newPartList)">移除</el-button>
                   </template>
                 </el-table-column>
@@ -298,7 +298,7 @@
             </el-form>
           </div>
         </el-descriptions-item>
-        <!--已报名人员列表-->
+        &lt;!&ndash;已报名人员列表&ndash;&gt;
         <el-descriptions-item label="已报名人员">
           <div @dblclick="beforeInfoClose">
             <div v-if="basicInfoVisible === true">
@@ -328,49 +328,42 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="createTime" label="创建日期"/>
-                <!--删除操作---暂注释-->
-                <!--        <el-table-column
-                          label="操作"
-                          width="80"
-                          align="center"
-                        >
-                          <template slot-scope="scope">
-                            <el-popover
-                              :ref="`delStaffFile-popover-${scope.$index}`"
-                              v-permission="permission.edit"
-                              placement="top"
-                              width="180"
-                            >
-                              <p>确定删除当前参与者吗？</p>
-                              <div style="text-align: right; margin: 0">
-                                <el-button
-                                  size="mini"
-                                  type="text"
-                                  @click="scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
-                                >取消
-                                </el-button>
-                                <el-button
-                                  type="primary"
-                                  size="mini"
-                                  @click="deleteTrParticipator(scope.row), scope._self.$refs[`delStaffFile-popover-${scope.$index}`].doClose()"
-                                >确定
-                                </el-button>
-                              </div>
-                              <el-button
-                                slot="reference"
-                                v-permission="permission.edit"
-                                type="danger"
-                                icon="el-icon-delete"
-                                size="mini"
-                              />
-                            </el-popover>
-                          </template>
-                        </el-table-column>-->
               </el-table>
             </div>
             <el-button v-else type="text" icon="el-icon-zoom-in" @click="basicInfoVisible = true">参与人员列表
             </el-button>
           </div>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>-->
+    <!--培训报名信息V2-->
+    <el-dialog
+      title="培训参与信息"
+      :before-close="beforeCloseJudgeV2"
+      :visible.sync="partDialogVisible"
+      width="50%">
+      <el-descriptions column="1" border>
+        <!--穿梭框-->
+        <el-descriptions-item>
+          <template slot="label">
+            <span>员工报名信息</span><br>
+            <span>人数限制：{{totalNum}}</span>
+          </template>
+          <el-transfer
+            v-model="addParticipantList"
+            style="text-align: left; display: inline-block"
+            filterable
+            :titles="['员工库', '已选']"
+            :format="{
+                      noChecked: '${total}',
+                      hasChecked: '${checked}/${total}'
+                    }"
+            :data="availPartUsers">
+            <!-- 保存操作 转换到培训计划下材料列表中-->
+            <el-button class="transfer-footer" slot="right-footer" size="small" type="primary"
+                       @click="saveSelectedUser(addParticipantList)">保存
+            </el-button>
+          </el-transfer>
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
@@ -397,16 +390,16 @@ import crudOperation from './module/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
 import DateRangePicker from '@/components/DateRangePicker'
-import {validIsNotNull} from "@/utils/validationUtil";
+import {judgeArrIsEqual, validIsNotNull} from "@/utils/validationUtil";
 import {
   addPart,
-  batchSavePart,
+  batchSavePart, batchSavePartV2,
   delPart,
   editPart,
   getPartsByTrScheduleId,
   getTrParticipantByExample
 } from "@/api/tools/train/trParticipant";
-import {getUserByDeptId} from "@/api/system/user";
+import {getUserByDeptId, getUserByDeptIds} from "@/api/system/user";
 import {getByMethodName} from "@/api/system/timing";
 
 export default {
@@ -479,6 +472,9 @@ export default {
       bindingId: null,
       bindDeptDatas: [],
       availUsers: [],
+      availPartUsers: [],
+      addParticipantList: [],
+      existedParticipantList: [],
       addPartForm: {
         newPartList: [
           {
@@ -504,7 +500,8 @@ export default {
       },
       existedParts: [],
       existedPartDatas: [],
-      disChangePartStatus: false
+      disChangePartStatus: false,
+      totalNum: 0
     }
   },
   watch: {
@@ -536,7 +533,7 @@ export default {
     },
     // 布尔值转换
     transBoolToStr(flag) {
-      if(flag.toString() === 'true') {
+      if (flag.toString() === 'true') {
         return '是'
       } else {
         return '否'
@@ -648,6 +645,20 @@ export default {
       }
     },
     // 获取参与者信息
+    getParticipantV2(scheduleId) {
+      this.addParticipantList = []
+      this.existedParticipantList = []
+      getPartsByTrScheduleId(scheduleId).then(res => {
+        // alert(JSON.stringify(res))
+        res.forEach((data, index) => {
+          // 获取现有
+          this.existedParticipantList.push(data.userId)
+          this.addParticipantList.push(data.userId)
+        })
+        // alert(JSON.stringify(this.addParticipantList))
+      })
+    },
+    // 获取参与者信息
     getParticipant(scheduleId) {
       this.partList = []
       this.participantList = []
@@ -732,7 +743,15 @@ export default {
       // this.participantList = msg.curData.partList
       this.availableDeparts = msg.curData.bindDepts
       this.bindingId = msg.curData.id
+      this.totalNum = msg.curData.totalNum
       this.addPartForm.newPartList = []
+      // alert(JSON.stringify(this.availableDeparts))
+      // 获取所有员工信息
+      this.getAvailUserByDeptIds(this.availableDeparts)
+      // 获取穿梭框内已有数据
+      this.addParticipantList = []
+      this.getParticipantV2(this.bindingId)
+      // 获取已报名列表
       this.getParticipant(this.bindingId)
     },
     beforeInfoClose() {
@@ -768,7 +787,7 @@ export default {
         isEditor: true
       })
     },
-    // 关闭之前
+    // 关闭参与信息V1之前
     beforeCloseJudge() {
       // alert(JSON.stringify(this.addPartForm.newPartList))
       if (this.addPartForm.newPartList.length > 0) {
@@ -778,6 +797,20 @@ export default {
             if (this.$refs['addPartForm'] !== undefined) {
               this.$refs['addPartForm'].resetFields()
             }
+          })
+          .catch(_ => {
+          })
+      } else {
+        this.partDialogVisible = false
+      }
+    },
+    beforeCloseJudgeV2() {
+      // alert(JSON.stringify(this.addPartForm.newPartList))
+      // 判断是否发生了变化
+      if (!judgeArrIsEqual(this.existedParticipantList, this.addParticipantList)) {
+        this.$confirm('报名人员发生变化，仍要关闭？')
+          .then(_ => {
+            this.partDialogVisible = false
           })
           .catch(_ => {
           })
@@ -816,6 +849,43 @@ export default {
             query: {}
           })
       }
+    },
+    // 获取可选参加培训的员工列表
+    getAvailUserByDeptIds(availableDeparts) {
+      // alert(JSON.stringify(availableDeparts))
+      let deptIds = []
+      availableDeparts.forEach((data, index) => {
+        deptIds.push(data.id)
+      })
+      // alert(JSON.stringify(deptIds))
+      this.availPartUsers = []
+      getUserByDeptIds(deptIds).then(res => {
+        // alert(JSON.stringify(res))
+        res.forEach((user, index) => {
+          this.availPartUsers.push({
+            label: user.dept.name + '-' + user.username,
+            //这里的key值一定要是index，否则目标列表无法显示
+            key: user.id
+          })
+        })
+      })
+    },
+    // 保存参与员工报名信息
+    saveSelectedUser(parts) {
+      // alert(JSON.stringify(this.bindingId))
+      // alert(JSON.stringify(parts))
+      let toAddPartList = []
+      parts.forEach((data, index) => {
+        toAddPartList.push({trScheduleId: this.bindingId, userId: data,})
+      })
+      // alert(JSON.stringify(toAddPartList))
+      batchSavePartV2(toAddPartList).then(res => {
+        this.crud.notify('报名成功', 'success')
+        this.existedParticipantList = parts
+        setTimeout(() => {
+          this.partDialogVisible = false
+        })
+      })
     }
   }
 }
@@ -833,6 +903,14 @@ export default {
 > > > .special-form .el-form-item--small.el-form-item {
   margin-bottom: 0 !important;
 }
+
+.transfer-footer {
+  margin-left: 15px;
+}
+
+//::v-deep .el-transfer-panel__body .is-filterable{
+//  height: 246px !important;
+//}
 
 .menuDiv {
   display: none;

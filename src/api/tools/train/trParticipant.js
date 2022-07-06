@@ -43,6 +43,14 @@ export function batchSavePart(data) {
   })
 }
 
+export function batchSavePartV2(data) {
+  return request({
+    url: 'api/trParticipant/batchSaveV2',
+    method: 'post',
+    data
+  })
+}
+
 export function getTrParticipantByExample(data) {
   return request({
     url: 'api/trParticipant/byExample',
@@ -51,4 +59,4 @@ export function getTrParticipantByExample(data) {
   })
 }
 
-export default { addPart, editPart, delPart, getPartsByTrScheduleId, batchSavePart, getTrParticipantByExample }
+export default { addPart, editPart, delPart, getPartsByTrScheduleId, batchSavePart, batchSavePartV2, getTrParticipantByExample }

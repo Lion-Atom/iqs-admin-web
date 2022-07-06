@@ -63,6 +63,14 @@ export function getUserByDeptId(params) {
   })
 }
 
+export function getUserByDeptIds(data) {
+  return request({
+    url: 'api/users/byDeptIds',
+    method: 'post',
+    data
+  })
+}
+
 export function getApprovers(params) {
   return request({
     url: 'api/users/approvers',
@@ -111,5 +119,5 @@ export function updateEmail(form) {
   })
 }
 
-export default { add, edit, del, getUserSuperior, havDepartMaster, getUserByDeptId, getAllUser }
+export default { add, edit, del, getUserSuperior, havDepartMaster, getUserByDeptId,getUserByDeptIds, getAllUser }
 
