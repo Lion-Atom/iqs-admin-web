@@ -164,7 +164,7 @@
                 width="50"
                 label="序号"
               />
-              <el-table-column prop="name" label="试卷名称" min-width="120">
+              <el-table-column prop="name" label="试卷名称" min-width="100">
                 <template slot-scope="scope">
                   <el-popover
                     :content="'file/' + scope.row.type + '/' + scope.row.realName"
@@ -187,11 +187,11 @@
                 </template>
               </el-table-column>
               <el-table-column prop="examContent" label="考试内容" :show-overflow-tooltip="true"/>
-              <el-table-column label="考试日期" :formatter="examDateFormat" min-width="110"/>
+              <el-table-column label="考试时间" :formatter="examDateFormat" min-width="120"/>
               <el-table-column label="考试类型" :formatter="examTypeFormat"/>
-              <el-table-column prop="examScore" label="考试分数" min-width="60"/>
+              <el-table-column prop="examScore" label="分数" min-width="50"/>
               <el-table-column label="是否通过" :formatter="examPassedFormat"/>
-              <el-table-column label="下次补考日期" :formatter="nextDateFormat" min-width="110"/>
+              <el-table-column label="下次补考日期" :formatter="nextDateFormat" min-width="120"/>
               <el-table-column prop="examDesc" label="备注" :show-overflow-tooltip="true"/>
               <!--   附件删除   -->
               <el-table-column
@@ -235,7 +235,9 @@
               </el-table-column>
             </el-table>
             <!--上传试卷-->
-            <el-button type="text" v-if="needUpload.toString() ==='true' && form.hasEditAuthorized" @click="openTransDialog">上传考试信息</el-button>
+            <el-button type="text" v-if="needUpload.toString() ==='true' && form.hasEditAuthorized"
+                       @click="openTransDialog">上传考试信息
+            </el-button>
             <el-dialog append-to-body :close-on-click-modal="false"
                        :visible.sync="transDialogVisible" title="题库试卷上传" width="80%">
               <el-form ref="examForm" :rules="examRules" :model="examForm" size="small" label-width="80px">
@@ -265,7 +267,7 @@
                             format="yyyy-MM-dd HH:mm:ss"
                             placeholder="请填写考试时间"
                             default-time="10:00:00"
-                            :picker-options="pickerOption"
+                            :picker-options="pickerOption[0]"
                             :disabled="form.transcriptList.length>0"
                           />
                         </el-form-item>
@@ -308,6 +310,7 @@
                             format="yyyy-MM-dd HH:mm:ss"
                             style="width: 100%;"
                             default-time="10:00:00"
+                            :picker-options="pickerOption[1]"
                             placeholder="请填写下次考试日期"
                           />
                         </el-form-item>
@@ -373,7 +376,7 @@
 
 <script>
 import CRUD, {form} from '@crud/crud'
-import {getAllUser, getUserByDeptId} from "@/api/system/user";
+import {getAllUser} from "@/api/system/user";
 import {validIsNotNull} from "@/utils/validationUtil";
 import {mapGetters} from "vuex";
 import {getUid} from "@/api/tools/supplier";
@@ -505,13 +508,24 @@ export default {
         {required: false}
       ],
       fileList: [],
-      pickerOption: {
-        disabledDate: time => {
-          return (
-            Date.now() <= time.getTime()
-          )
+      pickerOption: [
+        {
+          disabledDate: time => {
+            return (
+              Date.now() <= time.getTime()
+            )
+          }
+        },
+        {
+          disabledDate: time => {
+            let tarTime = new Date(new Date(this.examForm.examDate).setHours(0, 0, 0, 0)).getTime()
+            return (
+              time.getTime() <= tarTime
+            )
+          },
+          selectableRange: '00:00:00 - 23:59:59'
         }
-      },
+      ],
       members: [],
       bindingId: null,
       filesLoading: false,
@@ -520,7 +534,26 @@ export default {
       needUpload: true
     }
   },
-  watch: {},
+  watch: {
+    'examForm.nextDate'(selectTime) {
+      const date = new Date(new Date(selectTime).setHours(0, 0, 0, 0)).getTime()
+      let tarTime
+      let trainTime
+      if (validIsNotNull(this.examForm.examDate)) {
+        trainTime = new Date(this.examForm.examDate)
+        tarTime = new Date(new Date(this.examForm.examDate).setHours(0, 0, 0, 0)).getTime()
+        let hour = trainTime.getHours() + 1
+        let min = trainTime.getMinutes()
+        let sec = trainTime.getSeconds()
+        if (tarTime === date) {
+          // 若是截止时间和培训时间相同则不允许超出培训开始时间
+          this.pickerOption[1].selectableRange = `'${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')} - 23:59:59'`
+        } else {
+          this.pickerOption[1].selectableRange = `'00:00:00 - 23:59:59'`
+        }
+      }
+    }
+  },
   computed: {
     ...mapGetters([
       'user',
@@ -716,7 +749,7 @@ export default {
       this.loading = false
     },
     openTransDialog() {
-      if(this.form.isAuthorize.toString() !== 'true') {
+      if (this.form.isAuthorize.toString() !== 'true') {
         this.$notify({
           title: '培训尚未开始',
           type: 'warning',
@@ -738,6 +771,10 @@ export default {
         // alert(JSON.stringify(this.form.transcriptList[sort - 1]))
         this.examForm.examDate = this.form.transcriptList[sort - 1].nextDate
         this.examForm.examContent = this.form.transcriptList[0].examContent
+        if (new Date(this.examForm.examDate).getTime() > new Date().getTime()) {
+          this.$message.warning("请稍后，尚未到补考时间！")
+          return false
+        }
       }
       this.fileList = []
       this.transDialogVisible = true
@@ -777,7 +814,8 @@ export default {
         .then(_ => {
           this.crud.cancelCU()
         })
-        .catch(_ => {});
+        .catch(_ => {
+        });
     }
   }
 }

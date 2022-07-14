@@ -302,10 +302,10 @@ export default {
     },
     // 判断剩余天数
     judgeRemindDays(days) {
-      if(days > -1) {
+      if (days > -1) {
         return days + '天'
       } else {
-        return '已过期'+ Math.abs(days) + '天'
+        return '已过期' + Math.abs(days) + '天'
       }
     },
     // 根据有效期设置提醒样式
