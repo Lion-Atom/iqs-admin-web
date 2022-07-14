@@ -78,6 +78,7 @@
         <!--数据列表-->
         <el-table
           ref="table"
+          border
           v-loading="numLoading"
           :data="issueNums"
           style="width: 100%;"
@@ -109,7 +110,6 @@
             label="操作"
             width="130px"
             align="center"
-            fixed="right"
           >
             <template slot-scope="scope">
               <div>
@@ -191,45 +191,66 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span class="header-title">5W2H描述</span>
-        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveQuestions(questions)">保存
+        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveQuestions(quesForm)">保存
         </el-button>
       </div>
       <div>
-        <el-table
-          ref="table"
-          v-loading="questionLoading"
-          :data="questions"
-          style="width: 100%;"
-        >
-          <el-table-column label="序号" width="60" align="center">
-            <template slot-scope="scope">
-              {{ scope.$index + 1 }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="name" label="标题" width="200"/>
-          <el-table-column label="内容">
-            <template scope="scope">
-              <el-input
-                v-if="isNeed"
-                v-model="scope.row.description"
-                type="textarea"
-                autosize
-                style="min-width: 800px;"
-                :disabled="!isNeed"
-                @input="descriptionChange(scope.$index,scope.row.description)"
-              />
-              <span v-if="!isNeed">{{ transNullFormat(scope.row.description) }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
+        <el-form :model="quesForm" :rules="quesForm.rules" ref="quesRef">
+          <el-table
+            border
+            ref="table"
+            v-loading="questionLoading"
+            :data="quesForm.questions"
+            style="width: 100%;"
+          >
+            <el-table-column label="序号" width="60" align="center">
+              <template slot-scope="scope">
+                {{ scope.$index + 1 }}
+              </template>
+            </el-table-column>
+            <el-table-column width="200">
+              <template slot="header">
+                <span><i style="color: red;">*</i> 标题</span>
+              </template>
+              <template slot-scope="scope">
+                <el-form-item :prop="'questions.'+scope.$index+'.name'" :rules="quesForm.rules.name">
+                  {{ scope.row.name }}
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column>
+              <template slot="header">
+                <span><i style="color: red;">*</i> 内容</span>
+              </template>
+              <template slot-scope="scope">
+                <el-form-item :prop="'questions.'+scope.$index+'.description'" :rules="quesForm.rules.description">
+                  <el-input
+                    v-if="isNeed"
+                    v-model="scope.row.description"
+                    type="textarea"
+                    autosize
+                    style="min-width: 800px;"
+                    :disabled="!isNeed"
+                    @input="descriptionChange(scope.$index,scope.row.description)"
+                  />
+                  <span v-if="!isNeed">{{ transNullFormat(scope.row.description) }}</span>
+                </el-form-item>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-form>
       </div>
     </el-card>
 
+    <!--添加判断是否选择填入IS/IS NOT-->
     <!--是/否描述-->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span class="header-title">IS/IS Not描述</span>
+        <span class="header-title">
+         <el-checkbox v-model="isChecked">IS/IS Not描述</el-checkbox>
+        </span>
         <el-popover
+          v-if="isChecked"
           placement="right"
           width="800"
           trigger="click"
@@ -237,6 +258,8 @@
           <el-table
             :data="isNotData"
             :span-method="objectSpanMethod"
+            border
+            style="width: 100%"
           >
             <el-table-column width="120" property="name" label="问题描述"/>
             <el-table-column width="80" property="description" label="Item 细目"/>
@@ -245,48 +268,79 @@
           </el-table>
           <el-button v-if="isNeed" slot="reference" type="text" size="small">参考</el-button>
         </el-popover>
-        <el-button v-if="isNeed" style="float: right; padding: 3px 0" type="text" @click="saveIsNots(isNots)">保存
+        <el-button v-if="isNeed && isChecked" style="float: right; padding: 3px 0" type="text"
+                   @click="saveIsNots(isForm)">保存
         </el-button>
       </div>
-      <div>
-        <el-table
-          ref="table"
-          v-loading="isNotLoading"
-          :data="isNots"
-          :span-method="objectSpanMethod"
-          style="width: 100%;"
-        >
-          <el-table-column prop="name" label="问题描述" width="120"/>
-          <el-table-column width="120" property="description" label="Item 细目"/>
-          <el-table-column label="IS 是">
-            <template scope="scope">
-              <el-input
-                v-if="isNeed"
-                v-model="scope.row.isContent"
-                type="textarea"
-                autosize
-                style="min-width: 300px;"
-                :disabled="!isNeed"
-                @input="isContentChange(scope.$index,scope.row.isContent)"
-              />
-              <span v-if="!isNeed">{{ transNullFormat(scope.row.isContent) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="IS-NOT 否">
-            <template scope="scope">
-              <el-input
-                v-if="isNeed"
-                v-model="scope.row.notContent"
-                type="textarea"
-                autosize
-                style="min-width: 300px;"
-                :disabled="!isNeed"
-                @input="notContentChange(scope.$index,scope.row.notContent)"
-              />
-              <span v-if="!isNeed">{{ transNullFormat(scope.row.notContent) }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
+      <div v-if="isChecked">
+        <el-form :model="isForm" :rules="isForm.rules" ref="isFormRef">
+          <el-table
+            ref="table"
+            v-loading="isNotLoading"
+            :data="isForm.isNots"
+            :span-method="objectSpanMethod"
+            style="width: 100%;"
+          >
+            <el-table-column width="120">
+              <template slot="header">
+                <span><i style="color: red;">*</i> 问题描述</span>
+              </template>
+              <template slot-scope="scope">
+                <el-form-item :prop="'isNots.'+scope.$index+'.name'" :rules="isForm.rules.name">
+                  {{ scope.row.name }}
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column width="120">
+              <template slot="header">
+                <span><i style="color: red;">*</i> Item 细目</span>
+              </template>
+              <template slot-scope="scope">
+                <el-form-item :prop="'isNots.'+scope.$index+'.description'" :rules="isForm.rules.description">
+                  {{ scope.row.description }}
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column>
+              <template slot="header">
+                <span><i style="color: red;">*</i> IS 是</span>
+              </template>
+              <template scope="scope">
+                <el-form-item :prop="'isNots.'+scope.$index+'.isContent'" :rules="isForm.rules.isContent">
+                  <el-input
+                    v-if="isNeed"
+                    v-model="scope.row.isContent"
+                    type="textarea"
+                    autosize
+                    style="min-width: 300px;"
+                    :disabled="!isNeed"
+                    @input="isContentChange(scope.$index,scope.row.isContent)"
+                  />
+                  <span v-if="!isNeed">{{ transNullFormat(scope.row.isContent) }}</span>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column>
+              <template slot="header">
+                <span><i style="color: red;">*</i> IS-NOT 否</span>
+              </template>
+              <template scope="scope">
+                <el-form-item :prop="'isNots.'+scope.$index+'.notContent'" :rules="isForm.rules.notContent">
+                  <el-input
+                    v-if="isNeed"
+                    v-model="scope.row.notContent"
+                    type="textarea"
+                    autosize
+                    style="min-width: 300px;"
+                    :disabled="!isNeed"
+                    @input="notContentChange(scope.$index,scope.row.notContent)"
+                  />
+                  <span v-if="!isNeed">{{ transNullFormat(scope.row.notContent) }}</span>
+                </el-form-item>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-form>
       </div>
     </el-card>
 
@@ -337,18 +391,18 @@
 
 <script>
 
-import { editQuestion, getQuestionByIssueId } from '@/api/tools/issueQuestion'
-import { editTimeManage, getByIssueId } from '@/api/tools/timeManagement'
-import { edit, getIssueById } from '@/api/tools/issue'
-import { addIssueNum, delIssueNum, editIssueNum, getIssueNumByIssueId } from '@/api/tools/issueNum'
-import { mapGetters } from 'vuex'
-import { getToken } from '@/utils/auth'
+import {editQuestion, getQuestionByIssueId} from '@/api/tools/issueQuestion'
+import {editTimeManage, getByIssueId} from '@/api/tools/timeManagement'
+import {edit, getIssueById} from '@/api/tools/issue'
+import {addIssueNum, delIssueNum, editIssueNum, getIssueNumByIssueId} from '@/api/tools/issueNum'
+import {mapGetters} from 'vuex'
+import {getToken} from '@/utils/auth'
 import UploadFile from '@/components/UploadFile'
-import { judgeIsEqual } from '@/utils/validationUtil'
+import {judgeIsEqual, validIsNotNull} from '@/utils/validationUtil'
 
 export default {
   name: 'SecondForm',
-  components: { UploadFile },
+  components: {UploadFile},
   props: ['issueId', 'needConfirm'],
   data() {
     return {
@@ -375,19 +429,19 @@ export default {
       },
       numRules: {
         caPartNum: [
-          { required: true, message: '请输入产品料号', trigger: 'blur' }
+          {required: true, message: '请输入产品料号', trigger: 'blur'}
         ],
         componentDateCode: [
-          { required: true, message: '请输入产品生产日期', trigger: 'blur' }
+          {required: true, message: '请输入产品生产日期', trigger: 'blur'}
         ],
         componentLotNum: [
-          { required: true, message: '请输入产品批号', trigger: 'blur' }
+          {required: true, message: '请输入产品批号', trigger: 'blur'}
         ],
         defectQuantity: [
-          { required: true, message: '请输入产品不良数量', trigger: 'blur' }
+          {required: true, message: '请输入产品不良数量', trigger: 'blur'}
         ],
         customerImpact: [
-          { required: true, message: '请描述对客户造成的影响', trigger: 'blur' }
+          {required: true, message: '请描述对客户造成的影响', trigger: 'blur'}
         ]
       },
       isNeed: true,
@@ -399,9 +453,9 @@ export default {
       oldDesc: null,
       isFinished: false,
       questionLoading: false,
-      questions: [],
+      // questions: [],
       isNotLoading: false,
-      isNots: [],
+      // isNots: [],
       types: ['5W2H', 'IS/NOT'],
       isNotData: [
         {
@@ -495,7 +549,24 @@ export default {
       not5Changed: false,
       not6Changed: false,
       not7Changed: false,
-      notChanged: false
+      notChanged: false,
+      quesForm: {
+        rules: {
+          name: {required: true, message: '请输入标题', trigger: 'blur'},
+          description: {required: true, message: '请输入细目', trigger: 'blur'}
+        },
+        questions: []
+      },
+      isForm: {
+        rules: {
+          name: {required: true, message: '请输入问题描述', trigger: 'blur'},
+          description: {required: true, message: '请输入内容', trigger: 'blur'},
+          isContent: {required: true, message: '请输入*是*内容', trigger: 'blur'},
+          notContent: {required: true, message: '请输入*否*内容', trigger: 'blur'},
+        },
+        isNots: []
+      },
+      isChecked: false
     }
   },
   computed: {
@@ -507,7 +578,7 @@ export default {
   created() {
 
   },
-  mounted: function() {
+  mounted: function () {
     this.isNeed = this.$props.needConfirm === undefined ? true : this.$props.needConfirm
     this.getIssueInfoById(this.$props.issueId)
     this.getNumByIssueId(this.$props.issueId)
@@ -549,9 +620,9 @@ export default {
     },
     getWhByIssueId(id, type) {
       this.questionLoading = true
-      this.questions = []
+      this.quesForm.questions = []
       getQuestionByIssueId(id, type).then(res => {
-        this.questions = res
+        this.quesForm.questions = res
         // 赋值监控
         if (res.length > 0) {
           this.oldWh1 = res[0].description
@@ -567,11 +638,15 @@ export default {
     },
     getIsByIssueId(id, type) {
       this.isNotLoading = true
-      this.isNots = []
+      this.isForm.isNots = []
+      this.isChecked = false
       getQuestionByIssueId(id, type).then(res => {
-        this.isNots = res
+        this.isForm.isNots = res
         if (res.length > 0) {
-
+          if (validIsNotNull(res[0].isContent)) {
+            // 因为要求全局不可为空，所以任一不为空即可判定已选则IS/IS Not
+            this.isChecked = true
+          }
           this.oldIs1 = res[0].isContent
           this.oldIs2 = res[1].isContent
           this.oldIs3 = res[2].isContent
@@ -594,42 +669,46 @@ export default {
     },
     // 批量保存5W2H数据
     saveQuestions(data) {
-      if (data.length > 0) {
-        let val = true
-        if (judgeIsEqual(data[0].description, this.oldWh1) &&
-          judgeIsEqual(data[1].description, this.oldWh2) &&
-          judgeIsEqual(data[2].description, this.oldWh3) &&
-          judgeIsEqual(data[3].description, this.oldWh4) &&
-          judgeIsEqual(data[4].description, this.oldWh5) &&
-          judgeIsEqual(data[5].description, this.oldWh6) &&
-          judgeIsEqual(data[6].description, this.oldWh7)
-        ) {
-          this.$message({
-            message: 'No changes found, no need to save!未发生改动，无需提交',
-            type: 'warning'
-          })
-          val = false
-        }
-        if (val) {
-          editQuestion(data).then(res => {
-            this.$message({
-              message: 'Save 5W2H Success! 保存5W2H内容成功!',
-              type: 'success'
-            })
-            this.whRest()
-            this.judgeChange()
-
-            this.isFinished = false
-            this.$emit('func', this.isFinished)
-            this.getWhByIssueId(this.$props.issueId, this.types[0])
-          }).catch(() => {
-            this.$message({
-              message: 'Save 5W2H Failed! 保存5W2H内容失败!',
-              type: 'error'
-            })
-            this.getWhByIssueId(this.$props.issueId, this.types[0])
-          })
-        }
+      let ques = data.questions
+      let val = true
+      if (data.questions.length > 0) {
+        this.$refs['quesRef'].validate((valid => {
+          if (valid) {
+            if (judgeIsEqual(ques[0].description, this.oldWh1) &&
+              judgeIsEqual(ques[1].description, this.oldWh2) &&
+              judgeIsEqual(ques[2].description, this.oldWh3) &&
+              judgeIsEqual(ques[3].description, this.oldWh4) &&
+              judgeIsEqual(ques[4].description, this.oldWh5) &&
+              judgeIsEqual(ques[5].description, this.oldWh6) &&
+              judgeIsEqual(ques[6].description, this.oldWh7)
+            ) {
+              this.$message({
+                message: 'No changes found, no need to save!未发生改动，无需提交',
+                type: 'warning'
+              })
+            } else {
+              editQuestion(ques).then(res => {
+                this.$message({
+                  message: 'Save 5W2H Success! 保存5W2H内容成功!',
+                  type: 'success'
+                })
+                this.whRest()
+                this.judgeChange()
+                this.isFinished = false
+                this.$emit('func', this.isFinished)
+                this.getWhByIssueId(this.$props.issueId, this.types[0])
+              }).catch(() => {
+                this.$message({
+                  message: 'Save 5W2H Failed! 保存5W2H内容失败!',
+                  type: 'error'
+                })
+                this.getWhByIssueId(this.$props.issueId, this.types[0])
+              })
+            }
+          } else {
+            return false
+          }
+        }))
       } else {
         this.$message({
           message: '查无数据!',
@@ -638,50 +717,53 @@ export default {
       }
     },
     // 批量保存IS/IS Not数据
-    saveIsNots(data) {
-      let val = true
-      if (judgeIsEqual(data[0].isContent, this.oldIs1) &&
-        judgeIsEqual(data[1].isContent, this.oldIs2) &&
-        judgeIsEqual(data[2].isContent, this.oldIs3) &&
-        judgeIsEqual(data[3].isContent, this.oldIs4) &&
-        judgeIsEqual(data[4].isContent, this.oldIs5) &&
-        judgeIsEqual(data[5].isContent, this.oldIs6) &&
-        judgeIsEqual(data[6].isContent, this.oldIs7) &&
+    saveIsNots(isForm) {
+      let data = isForm.isNots
+      this.$refs['isFormRef'].validate((valid => {
+        if (valid) {
+          if (judgeIsEqual(data[0].isContent, this.oldIs1) &&
+            judgeIsEqual(data[1].isContent, this.oldIs2) &&
+            judgeIsEqual(data[2].isContent, this.oldIs3) &&
+            judgeIsEqual(data[3].isContent, this.oldIs4) &&
+            judgeIsEqual(data[4].isContent, this.oldIs5) &&
+            judgeIsEqual(data[5].isContent, this.oldIs6) &&
+            judgeIsEqual(data[6].isContent, this.oldIs7) &&
 
-        judgeIsEqual(data[0].notContent, this.oldNot1) &&
-        judgeIsEqual(data[1].notContent, this.oldNot2) &&
-        judgeIsEqual(data[2].notContent, this.oldNot3) &&
-        judgeIsEqual(data[3].notContent, this.oldNot4) &&
-        judgeIsEqual(data[4].notContent, this.oldNot5) &&
-        judgeIsEqual(data[5].notContent, this.oldNot6) &&
-        judgeIsEqual(data[6].notContent, this.oldNot7)
-      ) {
-        this.$message({
-          message: 'No changes found, no need to save!未发生改动，无需重复提交',
-          type: 'warning'
-        })
-        val = false
-      }
-      if(val){
-        editQuestion(data).then(res => {
-          this.$message({
-            message: 'Save 5W2H Success! 保存IS/IS Not内容成功!',
-            type: 'success'
-          })
-          this.isNotReset()
-          this.judgeChange()
-
-          this.isFinished = false
-          this.$emit('func', this.isFinished)
-          this.getIsByIssueId(this.$props.issueId, this.types[1])
-        }).catch(() => {
-          this.$message({
-            message: 'Save 5W2H Failed! 保存IS/IS Not内容失败!',
-            type: 'error'
-          })
-          this.getIsByIssueId(this.$props.issueId, this.types[1])
-        })
-      }
+            judgeIsEqual(data[0].notContent, this.oldNot1) &&
+            judgeIsEqual(data[1].notContent, this.oldNot2) &&
+            judgeIsEqual(data[2].notContent, this.oldNot3) &&
+            judgeIsEqual(data[3].notContent, this.oldNot4) &&
+            judgeIsEqual(data[4].notContent, this.oldNot5) &&
+            judgeIsEqual(data[5].notContent, this.oldNot6) &&
+            judgeIsEqual(data[6].notContent, this.oldNot7)
+          ) {
+            this.$message({
+              message: 'No changes found, no need to save!未发生改动，无需重复提交',
+              type: 'warning'
+            })
+          } else {
+            editQuestion(data).then(res => {
+              this.$message({
+                message: 'Save 5W2H Success! 保存IS/IS Not内容成功!',
+                type: 'success'
+              })
+              this.isNotReset()
+              this.judgeChange()
+              this.isFinished = false
+              this.$emit('func', this.isFinished)
+              this.getIsByIssueId(this.$props.issueId, this.types[1])
+            }).catch(() => {
+              this.$message({
+                message: 'Save 5W2H Failed! 保存IS/IS Not内容失败!',
+                type: 'error'
+              })
+              this.getIsByIssueId(this.$props.issueId, this.types[1])
+            })
+          }
+        } else {
+          return false
+        }
+      }))
     },
     // 编辑记录
     editNum(row) {
@@ -775,7 +857,7 @@ export default {
       })
     },
     // IS NOT表合并
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+    objectSpanMethod({row, column, rowIndex, columnIndex}) {
       if (columnIndex === 0) {
         if (rowIndex % 2 === 0) {
           return {
@@ -960,10 +1042,10 @@ export default {
               })
             }
             if (this.whChanged) {
-              this.saveQuestions(this.questions)
+              this.saveQuestions(this.quesForm.questions)
             }
             if (this.isChanged || this.notChanged) {
-              this.saveIsNots(this.isNots)
+              this.saveIsNots(this.isForm.isNots)
             }
             setTimeout(() => {
               this.finishStep()

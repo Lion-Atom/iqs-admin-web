@@ -15,7 +15,7 @@
       @row-dblclick="crud.toEdit">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="equipNum" label="设备编号" min-width="100"/>
-      <el-table-column prop="equipName" label="设备名称" min-width="100" :show-overflow-tooltip="true" />
+      <el-table-column prop="equipName" label="设备名称" min-width="100" :show-overflow-tooltip="true"/>
       <el-table-column prop="acceptParticipant" label="参与人员"/>
       <el-table-column prop="acceptDepartName" label="验收部门"/>
       <el-table-column label="验收状态">
@@ -74,6 +74,114 @@
       width="70%"
     >
       <el-dialog title="验收明细" append-to-body :visible.sync="detailVisible" width="60%">
+        <el-dialog :title="equipFileTitle" :visible.sync="equipFileVisible" append-to-body width="60%">
+          <el-table
+            ref="equipTable"
+            border
+            v-loading="equipFileLoading"
+            :data="equipFiles"
+            style="width: 100%;margin-bottom: 10px;"
+            highlight-current-row
+          >
+            <el-table-column
+              type="index"
+              width="50"
+              label="序号"
+            />
+            <el-table-column prop="name" label="附件名称" min-width="200">
+              <template slot-scope="scope">
+                <el-popover
+                  :content="'file/' + scope.row.type + '/' + scope.row.name"
+                  placement="top-start"
+                  title="路径"
+                  width="200"
+                  trigger="hover"
+                >
+                  <!--可下载文件-->
+                  <a
+                    slot="reference"
+                    :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.name"
+                    class="el-link--primary"
+                    style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                    target="_blank"
+                    :download="scope.row.realName"
+                  >
+                    {{ scope.row.realName }}
+                  </a>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column prop="path" label="预览图">
+              <template slot-scope="{row}">
+                <el-image
+                  :src=" baseApi + '/file/' + row.type + '/' + row.name"
+                  :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.name]"
+                  fit="contain"
+                  lazy
+                  class="el-avatar"
+                >
+                  <div slot="error">
+                    <i class="el-icon-document"/>
+                  </div>
+                </el-image>
+              </template>
+            </el-table-column>
+            <el-table-column prop="size" label="大小" min-width="80"/>
+            <el-table-column prop="type" label="类型" min-width="80"/>
+            <el-table-column prop="createBy" label="创建者" min-width="80"/>
+            <!--   附件删除   -->
+            <el-table-column
+              label="操作"
+              width="80"
+              align="center"
+            >
+              <template slot-scope="scope">
+                <el-popover
+                  :ref="`delEquipFile-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
+                >
+                  <p>确定删除这个附件吗？</p>
+                  <div style="text-align: right; margin: 0">
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delEquipFile-popover-${scope.$index}`].doClose()"
+                    >取消
+                    </el-button>
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="deleteEquipFile(scope.row), scope._self.$refs[`delEquipFile-popover-${scope.$index}`].doClose()"
+                    >确定
+                    </el-button>
+                  </div>
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.edit"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
+                    :disabled="equipFiles.length < 2"
+                  />
+                </el-popover>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-upload
+            class="upload-demo"
+            ref="upload"
+            :headers="headers"
+            :multiple="true"
+            :before-upload="beforeUpload"
+            :on-success="handleSuccess"
+            :action="equipFileUploadApi + '?equipId=' + this.equipForm.id + '&fileType=' + this.fileType"
+            :on-error="handleError">
+            <el-button slot="trigger" size="small" type="primary">上传文件</el-button>
+            <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件，且单文件不超过100M</div>
+          </el-upload>
+        </el-dialog>
         <el-table
           ref="detailTable"
           v-loading="detailsLoading"
@@ -170,7 +278,7 @@
         :model="form"
         :rules="rules"
         size="small"
-        label-width="80px"
+        label-width="100px"
       >
         <el-row>
           <el-col :span="24">
@@ -299,7 +407,7 @@
               />
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="24" @dblclick.native="handleInputParticipantConfirm">
             <el-divider content-position="left">设备验收参与信息</el-divider>
             <el-form-item label="参与人员" prop="acceptParticipant">
               <div>
@@ -313,16 +421,34 @@
                 >
                   {{ tag }}
                 </el-tag>
-                <el-input
+                <!--                <el-input
+                                  v-if="inputParticipantVisible"
+                                  ref="participantTagInput"
+                                  v-model="inputParticipantValue"
+                                  style="width: 30%"
+                                  size="small"
+                                  placeholder="涉及到的相关人员"
+                                  @keyup.enter.native="handleInputParticipantConfirm"
+                                  @blur="handleInputParticipantConfirm"
+                                />-->
+                <el-select
                   v-if="inputParticipantVisible"
                   ref="participantTagInput"
                   v-model="inputParticipantValue"
-                  style="width: 30%"
-                  size="small"
-                  placeholder="涉及到的相关部门"
-                  @keyup.enter.native="handleInputParticipantConfirm"
-                  @blur="handleInputParticipantConfirm"
-                />
+                  placeholder="涉及到的相关人员"
+                  filterable
+                  allow-create
+                  style="width: 220px;"
+                  @input="handleInputParticipantConfirm"
+                >
+                  <el-option
+                    v-for="item in users"
+                    :key="item.id"
+                    :label="item.jobs[0].name + '-'+ item.username"
+                    :disabled="form.participantTags.indexOf(item.username) > 0 "
+                    :value="item.username"
+                  />
+                </el-select>
                 <el-button v-else size="small" style="height: 29px;" @click="showInputDepart">+参与人员
                 </el-button>
               </div>
@@ -330,7 +456,6 @@
           </el-col>
         </el-row>
         <!--验收信息-->
-
         <el-row v-if="form.acceptStatus !== '待验收'" class="el-row-inline">
           <el-col :span="24">
             <el-divider content-position="left">验收明细</el-divider>
@@ -483,13 +608,121 @@
       title="验收设备"
       width="70%"
     >
-      <!--todo 验收明细表格信息-->
-      <el-dialog title="验收明细" append-to-body :visible.sync="detailVisible" width="60%">
+      <!--验收明细表格信息-->
+      <el-dialog title="验收明细" append-to-body  :visible.sync="detailVisible" width="60%">
+        <el-dialog :title="equipFileTitle" :visible.sync="equipFileVisible" append-to-body width="60%">
+          <el-table
+            ref="equipTable"
+            border
+            v-loading="equipFileLoading"
+            :data="equipFiles"
+            style="width: 100%;margin-bottom: 10px;"
+            highlight-current-row
+          >
+            <el-table-column
+              type="index"
+              width="50"
+              label="序号"
+            />
+            <el-table-column prop="name" label="附件名称" min-width="200">
+              <template slot-scope="scope">
+                <el-popover
+                  :content="'file/' + scope.row.type + '/' + scope.row.name"
+                  placement="top-start"
+                  title="路径"
+                  width="200"
+                  trigger="hover"
+                >
+                  <!--可下载文件-->
+                  <a
+                    slot="reference"
+                    :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.name"
+                    class="el-link--primary"
+                    style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                    target="_blank"
+                    :download="scope.row.realName"
+                  >
+                    {{ scope.row.realName }}
+                  </a>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column prop="path" label="预览图">
+              <template slot-scope="{row}">
+                <el-image
+                  :src=" baseApi + '/file/' + row.type + '/' + row.name"
+                  :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.name]"
+                  fit="contain"
+                  lazy
+                  class="el-avatar"
+                >
+                  <div slot="error">
+                    <i class="el-icon-document"/>
+                  </div>
+                </el-image>
+              </template>
+            </el-table-column>
+            <el-table-column prop="size" label="大小" min-width="80"/>
+            <el-table-column prop="type" label="类型" min-width="80"/>
+            <el-table-column prop="createBy" label="创建者" min-width="80"/>
+            <!--   附件删除   -->
+            <el-table-column
+              label="操作"
+              width="80"
+              align="center"
+            >
+              <template slot-scope="scope">
+                <el-popover
+                  :ref="`delEquipFile-popover-${scope.$index}`"
+                  v-permission="permission.edit"
+                  placement="top"
+                  width="180"
+                >
+                  <p>确定删除这个附件吗？</p>
+                  <div style="text-align: right; margin: 0">
+                    <el-button
+                      size="mini"
+                      type="text"
+                      @click="scope._self.$refs[`delEquipFile-popover-${scope.$index}`].doClose()"
+                    >取消
+                    </el-button>
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="deleteEquipFile(scope.row), scope._self.$refs[`delEquipFile-popover-${scope.$index}`].doClose()"
+                    >确定
+                    </el-button>
+                  </div>
+                  <el-button
+                    slot="reference"
+                    v-permission="permission.edit"
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
+                    :disabled="equipFiles.length < 2"
+                  />
+                </el-popover>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-upload
+            class="upload-demo"
+            ref="upload"
+            :headers="headers"
+            :multiple="true"
+            :before-upload="beforeUpload"
+            :on-success="handleSuccess"
+            :action="equipFileUploadApi + '?equipId=' + this.equipForm.id + '&fileType=' + this.fileType"
+            :on-error="handleError">
+            <el-button slot="trigger" size="small" type="primary">上传文件</el-button>
+            <div slot="tip" class="el-upload__tip">Within 100M 可上传任意格式文件，且单文件不超过100M</div>
+          </el-upload>
+        </el-dialog>
         <el-table
           ref="detailTable"
           v-loading="detailsLoading"
           :data="wgAndRjs"
-          height="350"
+          height="300"
           :span-method="wgAndRjSpanMethod"
           :header-cell-style="rowClass"
           style="width: 100%;margin-top: -20px;">
@@ -581,7 +814,7 @@
         :model="acceptForm"
         :rules="rules"
         size="small"
-        label-width="80px"
+        label-width="100px"
       >
         <el-row class="el-row-inline">
           <el-col :span="8">
@@ -878,21 +1111,21 @@
         :model="approveForm"
         :rules="rules"
         size="small"
-        label-width="80px"
+        label-width="110px"
       >
         <el-row>
           <el-col :span="8">
-            <el-form-item label="待验收设备名称">
+            <el-form-item label="设备名称">
               <el-input v-model="equipForm.equipName" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="待验收设备编号">
+            <el-form-item label="设备编号">
               <el-input v-model="equipForm.equipNum" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="待验收设备厂家">
+            <el-form-item label="设备厂家">
               <el-input v-model="equipForm.equipProvider" disabled style="width: 220px"/>
             </el-form-item>
           </el-col>
@@ -1125,6 +1358,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getEquipmentByExample, getEquipmentById} from "@/api/tools/equipment";
 import {getAllUser, getUserByDeptId} from "@/api/system/user";
 import {editEquipAcceptanceDetails, getDetailsByAcceptanceId} from "@/api/tools/equipAcceptanceDetail";
+import {delEquipFile, getFilesByExample} from "@/api/tools/equipFile";
 
 const defaultForm = {
   id: null,
@@ -1296,7 +1530,12 @@ export default {
       spanOtArr: [],
       spanWRArr: [],
       wrPos: 0,
-      needFileItems: ['CMK', 'MSA', 'UPH']
+      needFileItems: ['CMK', 'MSA', 'UPH'],
+      fileType: 'CMK',
+      equipFileTitle: 'CMK附件管理',
+      equipFileVisible: false,
+      equipFiles: [],
+      equipFileLoading: false
     }
   },
   watch: {
@@ -1309,7 +1548,8 @@ export default {
   computed: {
     ...mapGetters([
       'user',
-      'baseApi'
+      'baseApi',
+      'equipFileUploadApi'
     ])
   },
   created: function () {
@@ -1376,54 +1616,58 @@ export default {
     currAcceptDeptChange(deptId) {
       this.acceptBys = []
       // 根据部门标识（val）查找人员信息
-      getUserByDeptId({deptId: deptId}).then(res => {
-        this.acceptBys = res
-        if (this.acceptBys.length > 0) {
-          // 若不是同部门成员则需要默认切换到首选默认值
-          let usernames = []
-          this.acceptBys.forEach((data, index) => {
-            usernames.push(data.username)
-          })
-          if (validIsNotNull(this.form.acceptBy)) {
-            if (usernames.indexOf(this.form.acceptBy) === -1) {
+      if (validIsNotNull(deptId)) {
+        getUserByDeptId({deptId: deptId}).then(res => {
+          this.acceptBys = res
+          if (this.acceptBys.length > 0) {
+            // 若不是同部门成员则需要默认切换到首选默认值
+            let usernames = []
+            this.acceptBys.forEach((data, index) => {
+              usernames.push(data.username)
+            })
+            if (validIsNotNull(this.form.acceptBy)) {
+              if (usernames.indexOf(this.form.acceptBy) === -1) {
+                this.form.acceptBy = this.acceptBys[0].username
+              }
+            } else {
+              // 若原无值则设置首选默认值
               this.form.acceptBy = this.acceptBys[0].username
             }
+            // alert(usernames.indexOf(this.form.acceptBy))
           } else {
-            // 若原无值则设置首选默认值
-            this.form.acceptBy = this.acceptBys[0].username
+            this.form.acceptBy = null
           }
-          // alert(usernames.indexOf(this.form.acceptBy))
-        } else {
-          this.form.acceptBy = null
-        }
-      })
+        })
+      }
     },
     newAcceptDeptChange(deptId) {
       this.acceptBys = []
       // 根据部门标识（val）查找人员信息
-      getUserByDeptId({deptId: deptId}).then(res => {
-        this.acceptBys = res
-        if (this.acceptBys.length > 0) {
-          // 若不是同部门成员则需要默认切换到首选默认值
-          let usernames = []
-          this.acceptBys.forEach((data, index) => {
-            usernames.push(data.username)
-          })
-          if (validIsNotNull(this.acceptForm.acceptBy)) {
-            if (usernames.indexOf(this.acceptForm.acceptBy) === -1) {
+      if (validIsNotNull(deptId)) {
+        getUserByDeptId({deptId: deptId}).then(res => {
+          this.acceptBys = res
+          if (this.acceptBys.length > 0) {
+            // 若不是同部门成员则需要默认切换到首选默认值
+            let usernames = []
+            this.acceptBys.forEach((data, index) => {
+              usernames.push(data.username)
+            })
+            if (validIsNotNull(this.acceptForm.acceptBy)) {
+              if (usernames.indexOf(this.acceptForm.acceptBy) === -1) {
+                this.acceptForm.acceptBy = this.acceptBys[0].username
+              }
+            } else {
+              // 若原无值则设置首选默认值
               this.acceptForm.acceptBy = this.acceptBys[0].username
             }
+            // alert(usernames.indexOf(this.form.acceptBy))
           } else {
-            // 若原无值则设置首选默认值
-            this.acceptForm.acceptBy = this.acceptBys[0].username
+            this.acceptForm.acceptBy = null
           }
-          // alert(usernames.indexOf(this.form.acceptBy))
-        } else {
-          this.acceptForm.acceptBy = null
-        }
-        // alert(JSON.stringify(this.users))
-        // alert(this.form.acceptBy)
-      })
+          // alert(JSON.stringify(this.users))
+          // alert(this.form.acceptBy)
+        })
+      }
     },
     acceptByChanged(val) {
       this.$forceUpdate()
@@ -1544,11 +1788,68 @@ export default {
     detailContentChange(row) {
       // alert(JSON.stringify(row))
     },
-    // todo 添加设备验收明细CMK/MSA/UPH文件
+    // 添加设备验收明细CMK/MSA/UPH文件
     toAddAcceptanceDetailFile(row) {
       // row.detailTitle 作为文件类型
       // row.id 作为文件绑定ID
-      // alert(JSON.stringify(row))
+      // alert(this.equipForm.id)
+      this.fileType = row.detailTitle
+      this.equipFileTitle = row.detailTitle + '相关附件'
+      this.equipFileVisible = true
+      // 获取当前类型的设备附件
+      this.getEquipFilesByExample(this.equipForm.id, this.fileType)
+    },
+    getEquipFilesByExample(equipId, fileType) {
+      this.equipFileLoading = true
+      this.equipFiles = []
+      getFilesByExample({equipId: equipId, fileType: fileType}).then(res => {
+        this.equipFiles = res
+        this.equipFileLoading = false
+      })
+    },
+    // 上传附件之前判断
+    beforeUpload: function (file) {
+      let isLt2M = true
+      isLt2M = file.size / 1024 / 1024 < 100
+      if (!isLt2M) {
+        this.loading = false
+        this.$message.error('上传文件大小不能超过 100MB!')
+      }
+      return isLt2M
+    },
+    submitUpload() {
+      this.$refs.upload.submit()
+    },
+    // 监听上传成功
+    handleSuccess(response, file, fileList) {
+      this.getEquipFilesByExample(this.equipForm.id, this.fileType)
+      setTimeout(() => {
+        this.$message.success('上传文件成功!')
+      }, 600)
+      this.$refs.upload.clearFiles()
+    },
+    // 删除附件
+    deleteEquipFile(row) {
+      // alert(row)
+      const data = []
+      data.push(row.id)
+      delEquipFile(data).then(res => {
+        this.$message({
+          message: 'Del File Success! 删除附件成功!',
+          type: 'success'
+        })
+        this.getEquipFilesByExample(this.equipForm.id, this.fileType)
+      })
+    },
+    // 监听上传失败
+    handleError(e, file, fileList) {
+      const msg = JSON.parse(e.message)
+      this.$notify({
+        title: msg.message,
+        type: 'error',
+        duration: 2500
+      })
+      this.loading = false
     },
     // 合并单元格
     otSpanMethod({row, column, rowIndex, columnIndex}) {
@@ -1632,56 +1933,60 @@ export default {
     currApproveDeptChange(deptId) {
       this.approveBys = []
       // 根据部门标识（val）查找人员信息
-      getUserByDeptId({deptId: deptId}).then(res => {
-        // alert(JSON.stringify(res))
-        this.approveBys = res
-        if (this.approveBys.length > 0) {
-          // 若不是同部门成员则需要默认切换到首选默认值
-          let usernames = []
-          this.approveBys.forEach((data, index) => {
-            usernames.push(data.username)
-          })
-          if (validIsNotNull(this.form.approveBy)) {
-            if (usernames.indexOf(this.form.approveBy) === -1) {
+      if (validIsNotNull(deptId)) {
+        getUserByDeptId({deptId: deptId}).then(res => {
+          // alert(JSON.stringify(res))
+          this.approveBys = res
+          if (this.approveBys.length > 0) {
+            // 若不是同部门成员则需要默认切换到首选默认值
+            let usernames = []
+            this.approveBys.forEach((data, index) => {
+              usernames.push(data.username)
+            })
+            if (validIsNotNull(this.form.approveBy)) {
+              if (usernames.indexOf(this.form.approveBy) === -1) {
+                this.form.approveBy = this.approveBys[0].username
+              }
+            } else {
+              // 若原无值则设置首选默认值
               this.form.approveBy = this.approveBys[0].username
             }
+            // alert(usernames.indexOf(this.form.acceptBy))
           } else {
-            // 若原无值则设置首选默认值
-            this.form.approveBy = this.approveBys[0].username
+            this.form.approveBy = null
           }
-          // alert(usernames.indexOf(this.form.acceptBy))
-        } else {
-          this.form.approveBy = null
-        }
-        // alert(JSON.stringify(this.users))
-      })
+          // alert(JSON.stringify(this.users))
+        })
+      }
     },
     // 监控
     newApproveDeptChange(deptId) {
       this.approveBys = []
       // 根据部门标识（val）查找人员信息
-      getUserByDeptId({deptId: deptId}).then(res => {
-        // alert(JSON.stringify(res))
-        this.approveBys = res
-        if (this.approveBys.length > 0) {
-          // 若不是同部门成员则需要默认切换到首选默认值
-          let usernames = []
-          this.approveBys.forEach((data, index) => {
-            usernames.push(data.username)
-          })
-          if (validIsNotNull(this.approveForm.approveBy)) {
-            if (usernames.indexOf(this.approveForm.approveBy) === -1) {
+      if (validIsNotNull(deptId)) {
+        getUserByDeptId({deptId: deptId}).then(res => {
+          // alert(JSON.stringify(res))
+          this.approveBys = res
+          if (this.approveBys.length > 0) {
+            // 若不是同部门成员则需要默认切换到首选默认值
+            let usernames = []
+            this.approveBys.forEach((data, index) => {
+              usernames.push(data.username)
+            })
+            if (validIsNotNull(this.approveForm.approveBy)) {
+              if (usernames.indexOf(this.approveForm.approveBy) === -1) {
+                this.approveForm.approveBy = this.approveBys[0].username
+              }
+            } else {
+              // 若原无值则设置首选默认值
               this.approveForm.approveBy = this.approveBys[0].username
             }
+            // alert(usernames.indexOf(this.form.acceptBy))
           } else {
-            // 若原无值则设置首选默认值
-            this.approveForm.approveBy = this.approveBys[0].username
+            this.approveForm.approveBy = null
           }
-          // alert(usernames.indexOf(this.form.acceptBy))
-        } else {
-          this.approveForm.approveBy = null
-        }
-      })
+        })
+      }
     },
     // 新增前操作
     [CRUD.HOOK.beforeToAdd]() {
@@ -1752,7 +2057,7 @@ export default {
     handleInputParticipantConfirm() {
       const inputValue = this.inputParticipantValue
       if (inputValue) {
-        this.form.participantTags.push(inputValue)
+        this.form.participantTags.push(inputValue.trim())
       }
       this.form.acceptParticipant = this.form.participantTags.join(',')
       this.inputParticipantVisible = false

@@ -32,6 +32,17 @@ export function edit(data) {
   })
 }
 
+export function reactiveById(id) {
+  const params = {
+    issueId: id
+  }
+  return request({
+    url: 'api/issue/reactiveById',
+    method: 'get',
+    params
+  })
+}
+
 export function getIssueById(id) {
   const params = {
     issueId: id
@@ -43,4 +54,4 @@ export function getIssueById(id) {
   })
 }
 
-export default { get, add, edit, del, getIssueById }
+export default {get, add, edit, del, reactiveById, getIssueById}

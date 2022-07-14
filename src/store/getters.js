@@ -30,6 +30,7 @@ const getters = {
   instruCaliFileUploadApiV2: state => state.api.instruCaliFileUploadApiV2,
   repairFileUploadApi: state => state.api.repairFileUploadApi,
   maintainFileUploadApi: state => state.api.maintainFileUploadApi,
+  equipFileUploadApi: state => state.api.equipFileUploadApi,
   gridFileUploadApi: state => state.api.gridFileUploadApi,
   trNewStaffFileUploadApi: state => state.api.trNewStaffFileUploadApi,
   instrumentFileUploadApi: state => state.api.instrumentFileUploadApi,

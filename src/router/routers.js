@@ -46,6 +46,20 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/more',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'feedback',
+        component: (resolve) => require(['@/views/more/feedback'], resolve),
+        name: 'Feedback',
+        meta: {title: '客户反馈'}
+      }
+    ]
+  },
+  {
     path: '/user',
     component: Layout,
     hidden: true,

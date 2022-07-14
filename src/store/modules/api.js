@@ -48,6 +48,8 @@ const api = {
     repairFileUploadApi: baseUrl + '/api/repairFile',
     // 设备维修确认单上传
     maintainFileUploadApi: baseUrl + '/api/maintainFile',
+    // 设备附件上传
+    equipFileUploadApi: baseUrl + '/api/equipFile',
     // 台账附件上传
     gridFileUploadApi: baseUrl + '/api/gridFile',
     // 新员工培训附件上传

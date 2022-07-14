@@ -122,7 +122,7 @@
                     size="small"
                     placeholder="查询范围"
                     class="filter-item"
-                    style="width: 130px"
+                    style="width: 100px"
                     @change="crud.toQuery"
                     @input="changeScope($event)"
                   >
@@ -158,7 +158,7 @@
                     size="small"
                     placeholder="审批状态"
                     class="filter-item"
-                    style="width: 130px"
+                    style="width: 100px"
                     @change="crud.toQuery"
                     @input="changeStatus($event)"
                   >
@@ -404,7 +404,7 @@
                         <el-form-item label="驳回理由" required>
                           <el-input
                             v-model="taskForm.comment"
-                            placeholder="可填写驳回理由或者修改意见等"
+                            placeholder="请填写驳回理由或者修改意见等"
                             :disabled="taskForm.isDone"
                           />
                         </el-form-item>
@@ -421,91 +421,173 @@
                       :model="issueForm"
                       :rules="issueRules"
                       size="small"
-                      label-width="160px"
+                      label-width="120px"
                     >
                       <el-collapse v-model="activeNames" accordion>
                         <el-collapse-item title="问题明细" name="1" class="collapse-item">
-                          <el-form-item
-                            label="问题标题"
-                            prop="issueTitle"
-                          >
-                            <el-input
-                              v-model="issueForm.issueTitle"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="客户名"
-                            prop="customerName"
-                          >
-                            <el-input
-                              v-model="issueForm.customerName"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="客户追踪码"
-                            prop="caNum"
-                          >
-                            <el-input
-                              v-model="issueForm.caNum"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="产品料号"
-                            prop="partNum"
-                          >
-                            <el-input
-                              v-model="issueForm.partNum"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="问题来源"
-                            prop="source"
-                          >
-                            <el-radio
-                              v-for="item in dict.d_source"
-                              :key="item.value"
-                              v-model="issueForm.source"
-                              :label="item.value"
-                            >
-                              {{ item.value }}
-                            </el-radio>
-                          </el-form-item>
-                          <el-form-item
-                            label="紧急计划"
-                            prop="urgencyPlan"
-                          >
-                            <el-input
-                              v-model="issueForm.urgencyPlan"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="创建时间"
-                            prop="initTime"
-                          >
-                            <el-date-picker
-                              v-model="issueForm.initTime"
-                              style="width: 370px;"
-                              type="datetime"
-                              placeholder="选择日期时间"
-                              default-time="12:00:00"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="具体描述"
-                            prop="description"
-                          >
-                            <el-input
-                              v-model="issueForm.description"
-                              type="textarea"
-                              :rows="3"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
+                          <el-row class="el-row-inline">
+                            <el-col :span="12">
+                              <el-form-item
+                                label="问题标题"
+                                prop="issueTitle"
+                              >
+                                <el-input
+                                  v-model="issueForm.issueTitle"
+                                  style="width:100%;"
+                                />
+                              </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-form-item
+                                label="客户名称"
+                                prop="customerName"
+                              >
+                                <el-input
+                                  v-model="issueForm.customerName"
+                                  style="width:100%;"
+                                />
+                              </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-form-item
+                                label="客户追踪码"
+                                prop="caNum"
+                              >
+                                <el-input
+                                  v-model="issueForm.caNum"
+                                  style="width:100%;"
+                                />
+                              </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-form-item
+                                label="产品料号"
+                                prop="partNum"
+                              >
+                                <el-input
+                                  v-model="issueForm.partNum"
+                                  style="width:100%;"
+                                />
+                              </el-form-item>
+                            </el-col>
+                            <el-col :span="16">
+                              <el-form-item
+                                label="问题来源"
+                                prop="source"
+                              >
+                                <el-radio
+                                  v-for="item in dict.d_source"
+                                  :key="item.value"
+                                  v-model="issueForm.source"
+                                  :label="item.value"
+                                >
+                                  {{ item.value }}
+                                </el-radio>
+                              </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-form-item
+                                label="紧急计划"
+                                prop="urgencyPlan"
+                              >
+                                <el-input
+                                  v-model="issueForm.urgencyPlan"
+                                  style="width:100%;"
+                                />
+                              </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-form-item
+                                label="创建时间"
+                                prop="initTime"
+                              >
+                                <el-date-picker
+                                  v-model="issueForm.initTime"
+                                  style="width:100%;"
+                                  type="datetime"
+                                  placeholder="选择日期时间"
+                                  default-time="12:00:00"
+                                />
+                              </el-form-item>
+                            </el-col>
+                            <el-col :span="24">
+                              <el-form-item
+                                label="具体描述"
+                                prop="description"
+                              >
+                                <el-input
+                                  v-model="issueForm.description"
+                                  type="textarea"
+                                  :rows="3"
+                                  style="width:100%;"
+                                />
+                              </el-form-item>
+                            </el-col>
+                          </el-row>
+                          <!-- 附件管理-->
+                          <el-row>
+                            <el-col :span="24">
+                              <el-form-item>
+                                <template slot="label">
+                                  <span><i style="color: red">* </i>附件列表</span>
+                                </template>
+                                <el-table
+                                  ref="table"
+                                  border
+                                  :data="issueForm.fileList"
+                                  style="width: 100%;margin-bottom: 10px;"
+                                  highlight-current-row
+                                >
+                                  <el-table-column
+                                    type="index"
+                                    width="50"
+                                    label="序号"
+                                  />
+                                  <el-table-column prop="name" label="附件名称" min-width="200">
+                                    <template slot-scope="scope">
+                                      <el-popover
+                                        :content="'file/' + scope.row.type + '/' + scope.row.name"
+                                        placement="top-start"
+                                        title="路径"
+                                        width="200"
+                                        trigger="hover"
+                                      >
+                                        <!--可下载文件-->
+                                        <a
+                                          slot="reference"
+                                          :href="baseApi + '/file/' + scope.row.type + '/' + scope.row.name"
+                                          class="el-link--primary"
+                                          style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
+                                          target="_blank"
+                                          :download="scope.row.realName"
+                                        >
+                                          {{ scope.row.realName }}
+                                        </a>
+                                      </el-popover>
+                                    </template>
+                                  </el-table-column>
+                                  <el-table-column prop="path" label="预览图">
+                                    <template slot-scope="{row}">
+                                      <el-image
+                                        :src=" baseApi + '/file/' + row.type + '/' + row.name"
+                                        :preview-src-list="[baseApi + '/file/' + row.type + '/' + row.name]"
+                                        fit="contain"
+                                        lazy
+                                        class="el-avatar"
+                                      >
+                                        <div slot="error">
+                                          <i class="el-icon-document"/>
+                                        </div>
+                                      </el-image>
+                                    </template>
+                                  </el-table-column>
+                                  <el-table-column prop="size" label="大小" min-width="80"/>
+                                  <el-table-column prop="type" label="类型" min-width="80"/>
+                                  <el-table-column prop="createBy" label="创建者" min-width="80"/>
+                                </el-table>
+                              </el-form-item>
+                            </el-col>
+                          </el-row>
                           <!--todo 审核执行选择-->
                           <el-row>
                             <el-col :span="12">
@@ -551,150 +633,174 @@
                           name="2"
                           class="collapse-item"
                         >
-                          <el-form-item
-                            label="客户/供应商联系电话"
-                            prop="phone"
-                          >
-                            <el-input
-                              v-model="issueForm.phone"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="客户/供应商邮箱"
-                            prop="email"
-                          >
-                            <el-input
-                              v-model="issueForm.email"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="问题类型"
-                            prop="type"
-                          >
-                            <el-input
-                              v-model="issueForm.type"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="是否为重复发生问题"
-                            prop="isRepeat"
-                          >
-                            <el-radio-group v-model="issueForm.isRepeat">
-                              <el-radio
-                                v-for="item in dict.common_status"
-                                :key="item.id"
-                                :label="item.value"
-                              >{{ item.label }}
-                              </el-radio>
-                            </el-radio-group>
-                          </el-form-item>
-                          <el-form-item
-                            label="是否有类似问题"
-                            prop="hasSimilar"
-                          >
-                            <el-radio-group v-model="issueForm.hasSimilar">
-                              <el-radio
-                                v-for="item in dict.common_status"
-                                :key="item.id"
-                                :label="item.value"
-                              >{{ item.label }}
-                              </el-radio>
-                            </el-radio-group>
-                          </el-form-item>
-                          <el-form-item
-                            label="初步风险评估"
-                            prop="initRisk"
-                          >
-                            <el-input
-                              v-model="issueForm.initRisk"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="关联部门"
-                            prop="department"
-                          >
-                            <el-input
-                              v-model="issueForm.department"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="客户要求时间"
-                            prop="customerTime"
-                          >
-                            <el-date-picker
-                              v-model="issueForm.customerTime"
-                              type="datetime"
-                              style="width: 370px;"
-                              placeholder="选择日期时间"
-                              default-time="12:00:00"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="其他"
-                            prop="other"
-                          >
-                            <el-input
-                              v-model="issueForm.other"
-                              type="textarea"
-                              :rows="3"
-                              style="width: 370px;"
-                            />
-                          </el-form-item>
-                          <el-form-item
-                            label="执行选择"
-                            prop="hasReport"
-                          >
-                            <el-radio-group v-model="issueForm.hasReport">
-                              <el-radio
-                                v-for="item in dict.d_execute"
-                                :key="item.id"
-                                :label="item.value"
-                              >{{ item.value }}
-                              </el-radio>
-                            </el-radio-group>
-                          </el-form-item>
-                          <!--todo 任命组长-->
-                          <el-form-item
-                            v-if="issueForm.hasReport==='系统8D'"
-                            label="指派组长"
-                            prop="leaderId"
-                          >
-                            <el-select
-                              v-model="issueForm.leaderId"
-                              placeholder="请指派组长"
-                              style="width: 370px;"
-                              filterable
+                          <el-col :span="12">
+                            <el-form-item
+                              label="客户/供应商电话"
+                              prop="phone"
                             >
-                              <el-option
-                                v-for="item in members"
-                                :key="item.id"
-                                :label="item.dept.name + '-'+item.jobs[0].name + '-'+ item.username "
-                                :value="item.id"
+                              <el-input
+                                v-model="issueForm.phone"
+                                style="width: 100%;"
                               />
-                            </el-select>
-                          </el-form-item>
-                          <el-form-item
-                            v-if="issueForm.hasReport==='系统8D'"
-                            label="是否评分"
-                            prop="hasScore"
-                          >
-                            <el-radio-group v-model="issueForm.hasScore">
-                              <el-radio
-                                v-for="item in dict.common_status"
-                                :key="item.id"
-                                :label="item.value"
-                              >{{ item.label }}
-                              </el-radio>
-                            </el-radio-group>
-                          </el-form-item>
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              label="客户/供应商邮箱"
+                              prop="email"
+                            >
+                              <el-input
+                                v-model="issueForm.email"
+                                style="width: 100%;"
+                              />
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              label="问题类型"
+                              prop="type"
+                            >
+                              <el-input
+                                v-model="issueForm.type"
+                                style="width: 100%;"
+                              />
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              label="是否为重复发生"
+                              prop="isRepeat"
+                            >
+                              <el-radio-group v-model="issueForm.isRepeat">
+                                <el-radio
+                                  v-for="item in dict.common_status"
+                                  :key="item.id"
+                                  :label="item.value"
+                                >{{ item.label }}
+                                </el-radio>
+                              </el-radio-group>
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              label="是否有类似问题"
+                              prop="hasSimilar"
+                            >
+                              <el-radio-group v-model="issueForm.hasSimilar">
+                                <el-radio
+                                  v-for="item in dict.common_status"
+                                  :key="item.id"
+                                  :label="item.value"
+                                >{{ item.label }}
+                                </el-radio>
+                              </el-radio-group>
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              label="初步风险评估"
+                              prop="initRisk"
+                            >
+                              <el-input
+                                v-model="issueForm.initRisk"
+                                style="width: 370px;"
+                              />
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              label="关联部门"
+                              prop="department"
+                            >
+                              <el-input
+                                v-model="issueForm.department"
+                                style="width: 100%;"
+                              />
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              label="客户要求时间"
+                              prop="customerTime"
+                            >
+                              <el-date-picker
+                                v-model="issueForm.customerTime"
+                                type="datetime"
+                                style="width: 100%;"
+                                placeholder="选择日期时间"
+                                default-time="12:00:00"
+                              />
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="24">
+                            <el-form-item
+                              label="补充其他"
+                              prop="other"
+                            >
+                              <el-input
+                                v-model="issueForm.other"
+                                type="textarea"
+                                :rows="3"
+                                style="width: 100%;"
+                              />
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="24">
+                            <el-form-item
+                              label="执行选择"
+                              prop="hasReport"
+                            >
+                              <el-radio-group v-model="issueForm.hasReport">
+                                <el-radio
+                                  v-for="item in dict.d_execute"
+                                  :key="item.id"
+                                  :label="item.value"
+                                >{{ item.value }}
+                                </el-radio>
+                              </el-radio-group>
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <!--任命组长-->
+                            <el-form-item
+                              v-if="issueForm.hasReport==='系统8D'"
+                              label="指派组长"
+                              prop="leaderId"
+                            >
+                              <el-select
+                                v-model="issueForm.leaderId"
+                                placeholder="请指派组长"
+                                style="width: 100%;"
+                                filterable
+                              >
+                                <el-option
+                                  v-for="item in members"
+                                  :key="item.id"
+                                  :label="item.dept.name + '-'+item.jobs[0].name + '-'+ item.username "
+                                  :value="item.id"
+                                />
+                              </el-select>
+                            </el-form-item>
+                          </el-col>
+                          <el-col :span="12">
+                            <el-form-item
+                              v-if="issueForm.hasReport==='系统8D'"
+                              label="是否评分"
+                              prop="hasScore"
+                            >
+                              <el-radio-group v-model="issueForm.hasScore">
+                                <el-radio
+                                  v-for="item in dict.common_status"
+                                  :key="item.id"
+                                  :label="item.value"
+                                >{{ item.label }}
+                                </el-radio>
+                              </el-radio-group>
+                            </el-form-item>
+                          </el-col>
                         </el-collapse-item>
                         <!--添加附件及其列表-->
-                        <el-collapse-item
+<!--                        <el-collapse-item
                           v-if="taskForm.approveResult === true"
                           title="附件管理"
                           name="3"
@@ -707,7 +813,7 @@
                             :step-name="curStep"
                             :shadow="never"
                           />
-                        </el-collapse-item>
+                        </el-collapse-item>-->
                       </el-collapse>
                     </el-form>
                     <div
@@ -1104,6 +1210,7 @@ export default {
       // alert(JSON.stringify(this.dict.common_status))
       this.issueForm = {}
       getIssueById(id).then(res => {
+        // alert(JSON.stringify(res))
         this.issueForm = res
         if (validIsNotNull(this.issueForm.isRepeat)) {
           this.issueForm.isRepeat = this.issueForm.isRepeat.toString()

@@ -2,8 +2,8 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <eHeader :dict="dict" :permission="permission" />
-      <crudOperation :permission="permission" />
+      <eHeader :dict="dict" :permission="permission"/>
+      <crudOperation :permission="permission"/>
     </div>
     <!--表格渲染-->
     <el-table
@@ -14,14 +14,14 @@
       @selection-change="crud.selectionChangeHandler"
       @row-dblclick="dbSelected"
     >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="encodeNum" label="唯一编码" width="120" />
-      <el-table-column prop="issueTitle" label="问题标题" width="160" />
-      <el-table-column prop="partNum" label="物料编码" width="150" />
-      <el-table-column prop="customerName" label="客户名称" width="120" />
-      <el-table-column prop="hasReport" label="执行选择" width="120" />
-      <el-table-column prop="specialEvent" label="特殊事件" width="120" />
-      <el-table-column prop="status" label="状态">
+      <el-table-column type="selection" width="55"/>
+      <el-table-column prop="encodeNum" label="唯一编码" width="120"/>
+      <el-table-column prop="issueTitle" label="问题标题" width="160"/>
+      <el-table-column prop="partNum" label="物料编码" width="150"/>
+      <el-table-column prop="customerName" label="客户名称" width="120"/>
+      <el-table-column prop="hasReport" label="执行选择" width="120"/>
+      <el-table-column prop="specialEvent" label="特殊事件" width="120"/>
+      <el-table-column prop="status" label="状态" min-width="120">
         <template slot-scope="scope">
           <div v-if="scope.row.status === '驳回'">
             <el-popover
@@ -31,12 +31,7 @@
               trigger="hover"
             >
               <div>{{ scope.row.reason }}</div>
-              <a
-                slot="reference"
-                style="word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color: #1890ff;font-size: 13px;"
-              >
-                {{ scope.row.status }}
-              </a>
+              <el-tag type="warning" slot="reference">{{ scope.row.status }}</el-tag>
             </el-popover>
           </div>
           <div v-else>
@@ -50,6 +45,7 @@
           <el-steps class="steps">
             <el-step
               v-for="item in scope.row.commonDTOList"
+              :class="item.otherValue?'special-process':null"
               :key="item.name"
               :status="item.value"
               :title="item.name"
@@ -57,15 +53,15 @@
           </el-steps>
         </template>
       </el-table-column>
-      <el-table-column prop="createBy" label="创建者" />
-      <el-table-column prop="createTime" label="创建日期" width="140" />
-      <el-table-column prop="closeTime" label="关闭日期" width="140" />
-      <el-table-column prop="duration" label="结案时长" />
+      <el-table-column prop="createBy" label="创建者"/>
+      <el-table-column prop="createTime" label="创建日期" width="140"/>
+      <el-table-column prop="closeTime" label="关闭日期" width="140"/>
+      <el-table-column prop="duration" label="结案时长"/>
       <!--   编辑与删除   -->
       <el-table-column
         v-if="checkPer(['admin','d:edit','d:del'])"
         label="操作"
-        width="130px"
+        width="140px"
         align="center"
         fixed="right"
       >
@@ -73,13 +69,13 @@
           <udOperation
             :data="scope.row"
             :permission="permission"
-            :disabled-edit="scope.row.hasReport === undefined"
+            :disabled-edit="scope.row.hasReport === undefined|| scope.row.hasReport === '直接结案'"
           />
         </template>
       </el-table-column>
     </el-table>
     <!--分页组件-->
-    <pagination />
+    <pagination/>
     <!--表单渲染-->
     <eForm
       :d-status="dict.d_status"
@@ -91,22 +87,23 @@
 </template>
 
 <script>
-import crudIssue from '@/api/tools/issue'
+import crudIssue, {reactiveById} from '@/api/tools/issue'
 import eHeader from './module/issueHeader'
 import eForm from './module/issueForm'
-import CRUD, { presenter } from '@crud/crud'
+import CRUD, {presenter} from '@crud/crud'
 import crudOperation from './module/CRUD.dOperation'
 import pagination from '@crud/Pagination'
 import udOperation from './module/UD.dOperation'
+import {validIsNotNull} from "@/utils/validationUtil";
 
 export default {
   name: 'Issue',
-  components: { eHeader, eForm, crudOperation, pagination, udOperation },
+  components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({
       title: '问题',
       url: 'api/issue',
-      crudMethod: { ...crudIssue }
+      crudMethod: {...crudIssue}
     })
   },
   mixins: [presenter()],
@@ -132,7 +129,9 @@ export default {
           name: 'D3',
           value: 'wait'
         }
-      ]
+      ],
+      activeEdit: false,
+      activeRow: {}
     }
   },
   created() {
@@ -184,6 +183,23 @@ export default {
           type: 'warning'
         })
       }
+    },
+    // 重新提交
+    resubmitTask(issueId) {
+      this.$confirm('是否再递交？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: 'Yes 再递交',
+        cancelButtonText: 'Wait 暂不'
+      })
+        .then(() => {
+          reactiveById(issueId).then(res => {
+            this.$message({
+              message: '重新提交审核成功!',
+              type: 'success'
+            })
+            this.crud.toQuery()
+          })
+        })
     }
   }
 }
@@ -198,5 +214,16 @@ export default {
 
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
+}
+
+::v-deep .special-process {
+  .el-step__head.is-success {
+    color: orange !important;
+    border-color: orange !important;
+  }
+
+  .el-step__main .el-step__title.is-success {
+    color: orange !important;
+  }
 }
 </style>

@@ -151,191 +151,191 @@
       </el-table>
     </el-dialog>
     <!--培训参与信息V1-->
-<!--    <el-dialog
-      title="培训参与信息"
-      :before-close="beforeCloseJudge"
-      :visible.sync="partDialogVisible"
-      width="50%">
-      <el-descriptions column="1" border>
-        &lt;!&ndash;拟报名列表&ndash;&gt;
-        <el-descriptions-item label="拟报名名单">
-          <div>
-            <el-button type="primary" @click="toAddPart(addPartForm.newPartList)">新增</el-button>
-            <el-button style="float: right;" type="success" @click="submitPartList(addPartForm.newPartList)">提交
-            </el-button>
-            <el-form
-              :model="addPartForm"
-              ref="addPartForm"
-              :rules="addPartForm.addPartRules"
-              :inline="true"
-              class="special-form"
-              label-width="108px"
-            >
-              <el-table
-                :data="addPartForm.newPartList"
-                border
-                style="width: 100%"
-                @row-dblclick="dbSelectedRow"
-              >
-                <el-table-column label="序号" width="50">
-                  <template slot-scope="scope">
-                    {{ scope.$index + 1 }}
-                  </template>
-                </el-table-column>
-                <el-table-column width="150">
-                  <template slot="header" slot-scope="scope">
-                    <span>所在部门</span>
-                    <i style="color:#F56C6C;">*</i>
-                  </template>
-                  <template slot-scope="scope">
-                    <el-form-item
-                      :prop="'newPartList.' + scope.$index + '.participantDepart'"
-                      :rules="addPartForm.addPartRules.participantDepart"
-                    >
-                      <el-select
-                        v-show="scope.row.isEditor"
-                        filterable
-                        allow-create
-                        v-model="scope.row.participantDepart"
-                        @change="partDepartChanged(scope.row)"
-                      >
-                        <el-option
-                          v-for="item of availableDeparts"
-                          :key="item.id"
-                          :label="item.name"
-                          :value="item.id"
+    <!--    <el-dialog
+          title="培训参与信息"
+          :before-close="beforeCloseJudge"
+          :visible.sync="partDialogVisible"
+          width="50%">
+          <el-descriptions column="1" border>
+            &lt;!&ndash;拟报名列表&ndash;&gt;
+            <el-descriptions-item label="拟报名名单">
+              <div>
+                <el-button type="primary" @click="toAddPart(addPartForm.newPartList)">新增</el-button>
+                <el-button style="float: right;" type="success" @click="submitPartList(addPartForm.newPartList)">提交
+                </el-button>
+                <el-form
+                  :model="addPartForm"
+                  ref="addPartForm"
+                  :rules="addPartForm.addPartRules"
+                  :inline="true"
+                  class="special-form"
+                  label-width="108px"
+                >
+                  <el-table
+                    :data="addPartForm.newPartList"
+                    border
+                    style="width: 100%"
+                    @row-dblclick="dbSelectedRow"
+                  >
+                    <el-table-column label="序号" width="50">
+                      <template slot-scope="scope">
+                        {{ scope.$index + 1 }}
+                      </template>
+                    </el-table-column>
+                    <el-table-column width="150">
+                      <template slot="header" slot-scope="scope">
+                        <span>所在部门</span>
+                        <i style="color:#F56C6C;">*</i>
+                      </template>
+                      <template slot-scope="scope">
+                        <el-form-item
+                          :prop="'newPartList.' + scope.$index + '.participantDepart'"
+                          :rules="addPartForm.addPartRules.participantDepart"
                         >
-                        </el-option>
-                      </el-select>
-                      <span v-show="!scope.row.isEditor">
-                                  <el-select
-                                    v-model="scope.row.participantDepart"
-                                  >
-                                  <el-option
-                                    v-for="item of availableDeparts"
-                                    :key="item.id"
-                                    :label="item.name"
-                                    :value="item.id"
-                                  >
-                                  </el-option>
-                                </el-select>
-                                </span>
-                    </el-form-item>
-                  </template>
-                </el-table-column>
-                <el-table-column width="160">
-                  <template slot="header" slot-scope="scope">
-                    <span>参与者</span>
-                    <i style="color:#F56C6C;">*</i>
-                  </template>
-                  <template slot-scope="scope">
-                    <el-form-item
-                      :prop="'newPartList.' + scope.$index + '.userId'"
-                      :rules="addPartForm.addPartRules.userId"
-                    >
-                      <el-select
-                        v-show="scope.row.isEditor"
-                        v-model="scope.row.userId"
-                        placeholder="请选择参与人"
-                        style="width:100% !important;"
-                      >
-                        <el-option
-                          v-for="item in availUsers"
-                          :key="item.id"
-                          :label="item.username"
-                          :value="item.id"
-                          :disabled="existedPartDatas.indexOf(item.id) > -1"
+                          <el-select
+                            v-show="scope.row.isEditor"
+                            filterable
+                            allow-create
+                            v-model="scope.row.participantDepart"
+                            @change="partDepartChanged(scope.row)"
+                          >
+                            <el-option
+                              v-for="item of availableDeparts"
+                              :key="item.id"
+                              :label="item.name"
+                              :value="item.id"
+                            >
+                            </el-option>
+                          </el-select>
+                          <span v-show="!scope.row.isEditor">
+                                      <el-select
+                                        v-model="scope.row.participantDepart"
+                                      >
+                                      <el-option
+                                        v-for="item of availableDeparts"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id"
+                                      >
+                                      </el-option>
+                                    </el-select>
+                                    </span>
+                        </el-form-item>
+                      </template>
+                    </el-table-column>
+                    <el-table-column width="160">
+                      <template slot="header" slot-scope="scope">
+                        <span>参与者</span>
+                        <i style="color:#F56C6C;">*</i>
+                      </template>
+                      <template slot-scope="scope">
+                        <el-form-item
+                          :prop="'newPartList.' + scope.$index + '.userId'"
+                          :rules="addPartForm.addPartRules.userId"
+                        >
+                          <el-select
+                            v-show="scope.row.isEditor"
+                            v-model="scope.row.userId"
+                            placeholder="请选择参与人"
+                            style="width:100% !important;"
+                          >
+                            <el-option
+                              v-for="item in availUsers"
+                              :key="item.id"
+                              :label="item.username"
+                              :value="item.id"
+                              :disabled="existedPartDatas.indexOf(item.id) > -1"
+                            />
+                          </el-select>
+                          <span v-show="!scope.row.isEditor">
+                                      <el-select
+                                        v-model="scope.row.userId"
+                                        placeholder="请选择参与人"
+                                        style="width:100% !important;"
+                                      >
+                                      <el-option
+                                        v-for="item in availUsers"
+                                        :key="item.id"
+                                        :label="item.username"
+                                        :value="item.id"
+                                      />
+                                    </el-select>
+                                    </span>
+                        </el-form-item>
+                      </template>
+                    </el-table-column>
+                    <el-table-column width="180">
+                      <template slot="header" slot-scope="scope">
+                        <span>是否生效</span>
+                        <i style="color:#F56C6C;">*</i>
+                      </template>
+                      <template slot-scope="scope">
+                        <el-form-item
+                          :prop="'newPartList.' + scope.$index + '.isValid'"
+                          :rules="addPartForm.addPartRules.isValid"
+                        >
+                          <el-radio
+                            v-show="scope.row.isEditor"
+                            v-for="item in dict.dict.common_status"
+                            :key="item.id"
+                            v-model="partForm.isValid"
+                            :label="item.value === 'true'"
+                          >
+                            {{ item.label }}
+                          </el-radio>
+                          <span v-show="!scope.row.isEditor">{{ transBoolToStr(scope.row.isValid) }}</span>
+                        </el-form-item>
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                      <template slot-scope="scope">
+                        &lt;!&ndash;                  <el-button type="warning" @click="edit(scope.row, scope)">编辑</el-button>&ndash;&gt;
+                        &lt;!&ndash;                  <el-button type="success" @click="savePart(scope.row)">保存</el-button>&ndash;&gt;
+                        <el-button type="success" @click="deletePart(scope.$index,addPartForm.newPartList)">移除</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </el-form>
+              </div>
+            </el-descriptions-item>
+            &lt;!&ndash;已报名人员列表&ndash;&gt;
+            <el-descriptions-item label="已报名人员">
+              <div @dblclick="beforeInfoClose">
+                <div v-if="basicInfoVisible === true">
+                  <el-table
+                    ref="parts"
+                    border
+                    :loading="participantLoading"
+                    :data="participantList"
+                    style="width: 100%;"
+                  >
+                    <el-table-column label="序号" width="50">
+                      <template slot-scope="scope">
+                        {{ scope.$index + 1 }}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="participantDepartName" label="所在部门" width="150"/>
+                    <el-table-column prop="participantName" label="参与者" width="160"/>
+                    <el-table-column prop="isValid" label="是否生效" align="center" width="120">
+                      <template slot-scope="scope">
+                        <el-switch
+                          v-model="scope.row.isValid"
+                          active-color="#409EFF"
+                          inactive-color="#F56C6C"
+                          @change="changeIsValid(scope.row, scope.row.isValid)"
+                          :disabled="disChangePartStatus"
                         />
-                      </el-select>
-                      <span v-show="!scope.row.isEditor">
-                                  <el-select
-                                    v-model="scope.row.userId"
-                                    placeholder="请选择参与人"
-                                    style="width:100% !important;"
-                                  >
-                                  <el-option
-                                    v-for="item in availUsers"
-                                    :key="item.id"
-                                    :label="item.username"
-                                    :value="item.id"
-                                  />
-                                </el-select>
-                                </span>
-                    </el-form-item>
-                  </template>
-                </el-table-column>
-                <el-table-column width="180">
-                  <template slot="header" slot-scope="scope">
-                    <span>是否生效</span>
-                    <i style="color:#F56C6C;">*</i>
-                  </template>
-                  <template slot-scope="scope">
-                    <el-form-item
-                      :prop="'newPartList.' + scope.$index + '.isValid'"
-                      :rules="addPartForm.addPartRules.isValid"
-                    >
-                      <el-radio
-                        v-show="scope.row.isEditor"
-                        v-for="item in dict.dict.common_status"
-                        :key="item.id"
-                        v-model="partForm.isValid"
-                        :label="item.value === 'true'"
-                      >
-                        {{ item.label }}
-                      </el-radio>
-                      <span v-show="!scope.row.isEditor">{{ transBoolToStr(scope.row.isValid) }}</span>
-                    </el-form-item>
-                  </template>
-                </el-table-column>
-                <el-table-column label="操作">
-                  <template slot-scope="scope">
-                    &lt;!&ndash;                  <el-button type="warning" @click="edit(scope.row, scope)">编辑</el-button>&ndash;&gt;
-                    &lt;!&ndash;                  <el-button type="success" @click="savePart(scope.row)">保存</el-button>&ndash;&gt;
-                    <el-button type="success" @click="deletePart(scope.$index,addPartForm.newPartList)">移除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-form>
-          </div>
-        </el-descriptions-item>
-        &lt;!&ndash;已报名人员列表&ndash;&gt;
-        <el-descriptions-item label="已报名人员">
-          <div @dblclick="beforeInfoClose">
-            <div v-if="basicInfoVisible === true">
-              <el-table
-                ref="parts"
-                border
-                :loading="participantLoading"
-                :data="participantList"
-                style="width: 100%;"
-              >
-                <el-table-column label="序号" width="50">
-                  <template slot-scope="scope">
-                    {{ scope.$index + 1 }}
-                  </template>
-                </el-table-column>
-                <el-table-column prop="participantDepartName" label="所在部门" width="150"/>
-                <el-table-column prop="participantName" label="参与者" width="160"/>
-                <el-table-column prop="isValid" label="是否生效" align="center" width="120">
-                  <template slot-scope="scope">
-                    <el-switch
-                      v-model="scope.row.isValid"
-                      active-color="#409EFF"
-                      inactive-color="#F56C6C"
-                      @change="changeIsValid(scope.row, scope.row.isValid)"
-                      :disabled="disChangePartStatus"
-                    />
-                  </template>
-                </el-table-column>
-                <el-table-column prop="createTime" label="创建日期"/>
-              </el-table>
-            </div>
-            <el-button v-else type="text" icon="el-icon-zoom-in" @click="basicInfoVisible = true">参与人员列表
-            </el-button>
-          </div>
-        </el-descriptions-item>
-      </el-descriptions>
-    </el-dialog>-->
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="createTime" label="创建日期"/>
+                  </el-table>
+                </div>
+                <el-button v-else type="text" icon="el-icon-zoom-in" @click="basicInfoVisible = true">参与人员列表
+                </el-button>
+              </div>
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-dialog>-->
     <!--培训报名信息V2-->
     <el-dialog
       title="培训参与信息"
@@ -347,7 +347,7 @@
         <el-descriptions-item>
           <template slot="label">
             <span>员工报名信息</span><br>
-            <span>人数限制：{{totalNum}}</span>
+            <span>人数限制：{{ totalNum }}</span>
           </template>
           <el-transfer
             v-model="addParticipantList"
@@ -360,12 +360,16 @@
                     }"
             :data="availPartUsers">
             <!-- 保存操作 转换到培训计划下材料列表中-->
-            <el-button class="transfer-footer" slot="right-footer" size="small" type="primary"
+<!--            <el-button class="transfer-footer" slot="right-footer" size="small" type="primary"
                        @click="saveSelectedUser(addParticipantList)">保存
-            </el-button>
+            </el-button>-->
           </el-transfer>
         </el-descriptions-item>
       </el-descriptions>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="partDialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="saveSelectedUser(addParticipantList)">提 交</el-button>
+  </span>
     </el-dialog>
     <!-- 右键菜单 -->
     <div id="menu" class="menuDiv">
@@ -884,6 +888,7 @@ export default {
         this.existedParticipantList = parts
         setTimeout(() => {
           this.partDialogVisible = false
+          this.crud.toQuery()
         })
       })
     }
@@ -899,7 +904,6 @@ export default {
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
 }
-
 > > > .special-form .el-form-item--small.el-form-item {
   margin-bottom: 0 !important;
 }
@@ -907,10 +911,6 @@ export default {
 .transfer-footer {
   margin-left: 15px;
 }
-
-//::v-deep .el-transfer-panel__body .is-filterable{
-//  height: 246px !important;
-//}
 
 .menuDiv {
   display: none;

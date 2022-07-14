@@ -1,14 +1,25 @@
 <template>
   <div>
     <el-button
+      v-if="!disabledEdit"
       v-permission="permission.edit"
       :loading="crud.status.cu === 2"
-      :disabled="data.hasReport === undefined || data.hasReport === '直接结案'"
+      :disabled="disabledEdit"
       size="mini"
       type="primary"
-      icon="el-icon-edit"
+      icon="el-icon-bottom-right"
       @click="gotoEdit(data)"
     />
+    <el-button
+      v-if="data.status === '驳回'"
+      v-permission="permission.edit"
+      :loading="crud.status.cu === 2"
+      size="mini"
+      type="primary"
+      @click="resubmitTask(data)"
+    >
+      再递交
+    </el-button>
     <el-popover v-model="pop" v-permission="permission.del" placement="top" width="180" trigger="manual"
                 @show="onPopoverShow" @hide="onPopoverHide"
     >
@@ -27,7 +38,8 @@
   </div>
 </template>
 <script>
-import CRUD, { crud } from '@crud/crud'
+import CRUD, {crud} from '@crud/crud'
+import {reactiveById} from "@/api/tools/issue";
 
 export default {
   mixins: [crud()],
@@ -101,6 +113,23 @@ export default {
             }
           })
       }
+    },
+    // 重新提交
+    resubmitTask(data) {
+      this.$confirm('是否再递交？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: 'Yes 再递交',
+        cancelButtonText: 'Wait 暂不'
+      })
+        .then(() => {
+          reactiveById(data.id).then(res => {
+            this.$message({
+              message: '重新提交审核成功!',
+              type: 'success'
+            })
+            this.crud.toQuery()
+          })
+        })
     }
   }
 }

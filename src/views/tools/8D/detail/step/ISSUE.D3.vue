@@ -692,6 +692,7 @@ export default {
       statusTypeOptions: [
         { key: '开始', display_name: '开始' },
         { key: '进行中', display_name: '进行中' },
+        { key: '完成', display_name: '完成' },
         { key: '关闭', display_name: '关闭' }
       ],
       timeManagement: {},

@@ -28,6 +28,11 @@
   }
 }
 
+// 处理最后一行出现横线
+.el-table::after,.el-table::before {
+  display: none;
+}
+
 .fixed-width {
   .el-button--mini {
     padding: 7px 10px;
