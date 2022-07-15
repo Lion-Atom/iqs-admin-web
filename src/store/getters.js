@@ -41,11 +41,13 @@ const getters = {
   trExamDepartFileUploadApi: state => state.api.trExamDepartFileUploadApi,
   trainMaterialFileUploadApi: state => state.api.trainMaterialFileUploadApi,
   trainMaterialFileCoverApi: state => state.api.trainMaterialFileCoverApi,
+  csFeedbackFileUploadApi: state => state.api.csFeedbackFileUploadApi,
   updateAvatarApi: state => state.api.updateAvatarApi,
   updateContactAvatarApi: state => state.api.updateContactAvatarApi,
   qiNiuUploadApi: state => state.api.qiNiuUploadApi,
   sqlApi: state => state.api.sqlApi,
   swaggerApi: state => state.api.swaggerApi,
-  sidebarRouters: state => state.permission.sidebarRouters
+  sidebarRouters: state => state.permission.sidebarRouters,
+  appTitle: state => state.app.appTitle
 }
 export default getters

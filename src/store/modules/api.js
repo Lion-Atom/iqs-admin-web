@@ -70,6 +70,8 @@ const api = {
     trainMaterialFileUploadApi: baseUrl + '/api/trainMaterialFile',
     // 培训材料覆盖上传
     trainMaterialFileCoverApi: baseUrl + '/api/trainMaterialFile/updateFile',
+    // 反馈-反馈附件上传
+    csFeedbackFileUploadApi: baseUrl + '/api/csFeedbackFile',
     // 文件覆盖上传
     // fileCoverUploadApi: baseUrl + '/api/localStorage/cover',
     // 文件覆盖上传

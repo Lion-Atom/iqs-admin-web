@@ -6,7 +6,8 @@ const state = {
     withoutAnimation: false
   },
   device: 'desktop',
-  size: Cookies.get('size') || 'small'
+  size: Cookies.get('size') || 'small',
+  appTitle: '路联智能科技（苏州）有限公司'
 }
 
 const mutations = {

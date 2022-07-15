@@ -1164,6 +1164,14 @@ export default {
         this.$message.warning("新培训时间与原培训时间一样，请重新设定！")
         return false
       }
+      if (new Date(this.form.regDeadline).getTime() <= new Date().getTime()) {
+        this.$message.warning("设置不合理：截止时间小于当前时间，请重新设定！")
+        return false
+      }
+      if (this.form.isDelay.toString() === 'true' && new Date(this.form.newTrainTime).getTime() <= new Date().getTime()) {
+        this.$message.warning("设置不合理：新培训时间小于当前时间，请重新设定！")
+        return false
+      }
     },
     // 监控培训计划状态变化
     scheduleStatusChangeHandler(v) {
