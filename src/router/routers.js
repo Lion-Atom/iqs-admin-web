@@ -146,21 +146,13 @@ export const constantRouterMap = [
     redirect: 'noredirect',
     children: [
       {
-        path: 'supplier-update',
+        path: 'update',
         component: (resolve) => require(['@/views/tools/supplier/update/index'], resolve),
         name: '供应商更新',
         meta: {title: '更新供应商信息'}
-      }
-    ]
-  },
-  {
-    path: '/supplier',
-    component: Layout,
-    hidden: true,
-    redirect: 'noredirect',
-    children: [
+      },
       {
-        path: 'supplier-contact-update',
+        path: 'contact-update',
         component: (resolve) => require(['@/views/tools/supplier/contact/update/index'], resolve),
         name: '供应商联系人更新',
         meta: {title: '更新供应商联系人信息'}
@@ -174,36 +166,22 @@ export const constantRouterMap = [
     redirect: 'noredirect',
     children: [
       {
-        path: 'change-add',
+        path: 'add',
         component: (resolve) => require(['@/views/tools/change/add/index'], resolve),
         name: '变更信息新增',
         meta: {title: '新增变更信息'}
       },
       {
-        path: 'change-update',
+        path: 'update',
         component: (resolve) => require(['@/views/tools/change/update/index'], resolve),
         name: '变更信息更新',
         meta: {title: '更新变更信息'}
       },
       {
-        path: 'change-overview',
+        path: 'overview',
         component: (resolve) => require(['@/views/tools/change/overview/index'], resolve),
         name: '变更报告预览',
         meta: {title: '变更报告预览'}
-      }
-    ]
-  },
-  {
-    path: '/instrument',
-    component: Layout,
-    hidden: true,
-    redirect: 'noredirect',
-    children: [
-      {
-        path: 'calibration-detail',
-        component: (resolve) => require(['@/views/tools/instrument/calibration/detail/index'], resolve),
-        name: '仪校明细',
-        meta: {title: '仪校明细'}
       }
     ]
   },
@@ -228,10 +206,10 @@ export const constantRouterMap = [
     redirect: 'noredirect',
     children: [
       {
-        path: 'calibrationV2',
-        component: (resolve) => require(['@/views/tools/instrumentV1/manage/calibration/index'], resolve),
-        name: '仪器校准V2',
-        meta: {title: '仪器校准V2'}
+        path: 'calibration',
+        component: (resolve) => require(['@/views/tools/instrument/manage/calibration/index'], resolve),
+        name: '仪器校准',
+        meta: {title: '仪器校准'}
       }
     ]
   },

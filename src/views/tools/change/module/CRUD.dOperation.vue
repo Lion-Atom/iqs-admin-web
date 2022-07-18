@@ -282,7 +282,7 @@ export default {
       // 跳转到变更编辑明细中
       this.$router.push(
         {
-          path: '/change/change-update',
+          path: '/change/update',
           query: {
             changeId: data.id
           }
@@ -292,7 +292,7 @@ export default {
       // 跳转到变更新增明细中
       this.$router.push(
         {
-          path: '/change/change-add',
+          path: '/change/add',
           query: {
           }
         })
@@ -302,7 +302,7 @@ export default {
       this.viewLoading = true
       this.$router.push(
         {
-          path: '/change/change-overview',
+          path: '/change/overview',
           query: {
             changeId:data.id
           }

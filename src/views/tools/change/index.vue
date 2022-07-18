@@ -130,7 +130,7 @@ export default {
       // 跳转到供应商编辑界面中
       this.$router.push(
         {
-          path: '/change/change-update',
+          path: '/change/update',
           query: {
             changeId: row.id
           }

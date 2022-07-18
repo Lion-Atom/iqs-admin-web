@@ -87,7 +87,7 @@ export default {
       // 跳转到供应商联系人编辑界面中
       this.$router.push(
         {
-          path: '/supplier/supplier-contact-update',
+          path: '/supplier/contact-update',
           query: {
             contactId: row.id
           }

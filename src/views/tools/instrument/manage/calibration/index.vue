@@ -3,7 +3,7 @@
     <!--快速导航-->
     <div class="head-container">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/instrumentv1/instrumentV1' }">仪器录入</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/instrument/manage' }">仪器录入</el-breadcrumb-item>
         <el-breadcrumb-item><b>校准明细</b></el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -151,7 +151,7 @@ import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
 import {getInstrumentById} from "@/api/tools/instrument/instrument";
 
 export default {
-  name: 'InstruCalibrationV2',
+  name: 'InstruCalibration',
   components: {
     eHeader,
     crudOperation,

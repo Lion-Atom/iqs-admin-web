@@ -522,7 +522,7 @@
                         <router-link
                           style="text-decoration:underline;color: #00a0e9;"
                           :to="{
-                          path: '/supplier/supplier-contact-update',
+                          path: '/supplier/contact-update',
                           query: {
                             contactId: scope.row.id
                           }
@@ -4713,7 +4713,7 @@ export default {
               }
               this.$router.push(
                 {
-                  path: '/supplier/supplier-update',
+                  path: '/supplier/update',
                   query: {
                     supplierId: this.$props.supplierForm.id
                   }
@@ -4739,7 +4739,7 @@ export default {
       // 跳转到供应商编辑明细中
       this.$router.push(
         {
-          path: '/supplier/supplier-contact-management',
+          path: '/supplier/contact-management',
           query: {
             supplierId: this.$props.supplierForm.id
           }
@@ -4782,7 +4782,7 @@ export default {
     backToList() {
       this.$router.push(
         {
-          path: '/supplier/supplier-list',
+          path: '/supplier/list',
           query: {}
         })
     },

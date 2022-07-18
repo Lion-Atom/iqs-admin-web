@@ -69,7 +69,7 @@ import {GMTToDate, validIsNotNull} from "@/utils/validationUtil";
 import {getByMethodName} from "@/api/system/timing";
 
 export default {
-  name: 'Instrument',
+  name: 'Manage',
   components: {eHeader, eForm, crudOperation, pagination, udOperation},
   cruds() {
     return CRUD({

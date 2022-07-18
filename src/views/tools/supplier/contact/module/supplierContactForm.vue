@@ -943,7 +943,7 @@ export default {
     backToList() {
       this.$router.push(
         {
-          path: '/supplier/supplier-contact-list',
+          path: '/supplier/contact-list',
           query: {}
         })
     },

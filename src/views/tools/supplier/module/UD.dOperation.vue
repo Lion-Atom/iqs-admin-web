@@ -99,7 +99,7 @@ export default {
       // 跳转到供应商编辑界面中
       this.$router.push(
         {
-          path: '/supplier/supplier-update',
+          path: '/supplier/update',
           query: {
             supplierId: data.id
           }

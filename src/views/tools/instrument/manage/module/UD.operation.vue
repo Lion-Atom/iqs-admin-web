@@ -77,7 +77,7 @@ export default {
     checkDetails(row) {
       this.$router.push(
         {
-          path: '/instrument/calibrationV2',
+          path: '/instrument/calibration',
           query: {
             instruId: row.id
           }
