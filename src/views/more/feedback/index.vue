@@ -1,31 +1,35 @@
 <template>
-  <div class="app-container">
-    <!--工具栏-->
-    <div class="head-container">
-      <eHeader :feedback-status="feedbackStatus" :type-options="typeOptions"/>
-      <crudOperation/>
+  <div>
+    <!--本部处理反馈页面-->
+    <div class="app-container">
+      <!--工具栏-->
+      <div class="head-container">
+        <eHeader :is-authorized="isAuthorized" :feedback-status="feedbackStatus" :type-options="typeOptions"/>
+        <crudOperation/>
+      </div>
+      <!--表格渲染-->
+      <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
+                @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
+        <el-table-column type="selection" width="55"/>
+        <el-table-column prop="companyName" label="客户名称"/>
+        <el-table-column prop="type" label="问题分类">
+          <template slot-scope="scope">
+            <el-tag :type="typeTag(scope.row.type)">{{ scope.row.type }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="desc" label="问题描述" :show-overflow-tooltip="true"/>
+        <el-table-column prop="qq" label="QQ号码"/>
+        <el-table-column prop="phone" label="手机号码"/>
+        <el-table-column prop="email" label="电子邮箱"/>
+        <el-table-column v-if="isAuthorized" prop="status" label="反馈状态"/>
+        <el-table-column prop="createBy" label="创建人员"/>
+        <el-table-column prop="createTime" label="创建日期"/>
+      </el-table>
+      <!--分页组件-->
+      <pagination/>
+      <!--表单渲染-->
+      <eForm :feedback-status="feedbackStatus" :type-options="typeOptions"/>
     </div>
-    <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;"
-              @selection-change="crud.selectionChangeHandler" @row-dblclick="crud.toEdit">
-      <el-table-column type="selection" width="55"/>
-      <el-table-column prop="companyName" label="客户名称"/>
-      <el-table-column prop="type" label="问题分类">
-        <template slot-scope="scope">
-          <el-tag :type="typeTag(scope.row.type)">{{ scope.row.type }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="desc" label="问题描述" :show-overflow-tooltip="true"/>
-      <el-table-column prop="qq" label="QQ号码"/>
-      <el-table-column prop="phone" label="手机号码"/>
-      <el-table-column prop="email" label="电子邮箱"/>
-      <el-table-column prop="status" label="反馈状态"/>
-      <el-table-column prop="createTime" label="创建日期"/>
-    </el-table>
-    <!--分页组件-->
-    <pagination/>
-    <!--表单渲染-->
-    <eForm :feedback-status="feedbackStatus" :type-options="typeOptions"/>
   </div>
 </template>
 
@@ -37,6 +41,7 @@ import CRUD, {presenter} from '@crud/crud'
 import crudOperation from './module/CRUD.operation'
 import pagination from '@crud/Pagination'
 import udOperation from '@crud/UD.operation'
+import {mapGetters} from "vuex";
 
 export default {
   name: 'Feedback',
@@ -46,10 +51,16 @@ export default {
       title: '用户反馈',
       url: 'api/csFeedback',
       sort: ['companyName,asc', 'id,desc'],
-      crudMethod: {...crudFeedback}
+      crudMethod: {...crudFeedback},
+      queryOnPresenterCreated: false
     })
   },
   mixins: [presenter()],
+  computed: {
+    ...mapGetters([
+      'appTitle'
+    ])
+  },
   // 数据字典
   dicts: [],
   data() {
@@ -105,8 +116,22 @@ export default {
           value: '其他类',
           label: '其他'
         }
-      ]
+      ],
+      isAuthorized: false
     }
+  },
+  created() {
+    this.isAuthorized = this.appTitle === '路联智能科技（苏州）有限公司'
+    this.crud.optShow = {
+      add: true,
+      edit: this.isAuthorized,
+      del: this.isAuthorized,
+      download: true,
+      reset: true
+    }
+  },
+  mounted() {
+    this.crud.toQuery()
   },
   methods: {
     typeTag(type) {

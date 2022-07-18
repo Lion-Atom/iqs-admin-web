@@ -180,7 +180,7 @@ export default {
   name: 'Audit',
   components: { Treeselect, crudOperation, rrOperation, udOperation, DateRangePicker },
   cruds() {
-    return CRUD({ title: '文件等级', url: 'api/auditPlan', crudMethod: { ...crudAuditPlan }})
+    return CRUD({ title: '审核计划', url: 'api/auditPlan', crudMethod: { ...crudAuditPlan }})
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   // 设置数据字典

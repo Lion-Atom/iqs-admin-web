@@ -49,7 +49,8 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="问题描述" prop="desc">
-            <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 10}" v-model="form.desc" placeholder="请描述问题"   maxlength="500"
+            <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 10}" v-model="form.desc" placeholder="请描述问题"
+                      maxlength="500"
                       show-word-limit></el-input>
           </el-form-item>
         </el-col>
@@ -162,7 +163,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item>
-          <span style="color:#C0C4CC;">联系方式选填，便于我们与你联系，保密不公开</span>
+            <span style="color:#C0C4CC;">联系方式选填，便于我们与你联系，保密不公开</span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -271,7 +272,6 @@ export default {
     ])
   },
   created() {
-
   },
   methods: {
     // 新增前操作

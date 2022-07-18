@@ -7,7 +7,9 @@ const state = {
   },
   device: 'desktop',
   size: Cookies.get('size') || 'small',
+  // appTitle: '百安科技有限公司'
   appTitle: '路联智能科技（苏州）有限公司'
+  // appTitle: '江苏明岱信息科技有限公司'
 }
 
 const mutations = {
